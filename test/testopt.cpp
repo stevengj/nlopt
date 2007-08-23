@@ -39,6 +39,7 @@ static int test_function(int ifunc)
   testfunc func;
   int i;
   double *x, fmin, f0;
+  nlopt_result ret;
   
   if (ifunc < 0 || ifunc >= NTESTFUNCS) {
     fprintf(stderr, "testopt: invalid function %d\n", ifunc);
@@ -78,12 +79,14 @@ static int test_function(int ifunc)
   }
 
   testfuncs_counter = 0;
-  if (nlopt_minimize(algorithm,
-		     func.n, func.f, func.f_data,
-		     func.lb, func.ub,
-		     x, &fmin,
-		     HUGE_VAL, ftol_rel, ftol_abs, xtol_rel, NULL,
-		     maxeval, maxtime) < 0) {
+  ret = nlopt_minimize(algorithm,
+		       func.n, func.f, func.f_data,
+		       func.lb, func.ub,
+		       x, &fmin,
+		       HUGE_VAL, ftol_rel, ftol_abs, xtol_rel, NULL,
+		       maxeval, maxtime);
+  printf("return code %d from nlopt_minimize\n", ret);
+  if (ret < 0) {
     fprintf(stderr, "testopt: error in nlopt_minimize\n");
     return 0;
   }

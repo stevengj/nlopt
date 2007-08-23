@@ -158,6 +158,119 @@ static const double goldsteinprice_ub[2] = {2, 2};
 static const double goldsteinprice_xmin[2] = {0, -1};
 
 /****************************************************************************/
+static double shekel_f(int n, const double *x, double *grad, void *data)
+{
+     static const double A[10][4] = { {4,4,4,4},
+				      {1,1,1,1},
+				      {8,8,8,8},
+				      {6,6,6,6},
+				      {3,7,3,7},
+				      {2,9,2,9},
+				      {5,5,3,3},
+				      {8,1,8,1},
+				      {6,2,6,2},
+				      {7,3.6,7,3.6} };
+     static const double c[10] = {.1,.2,.2,.4,.4,.6,.3,.7,.5,.5};
+     int i;
+     double f = 0;
+     if (grad) for (i = 0; i < n; ++i) grad[i] = 0;
+     int m = *((int *) data);
+     for (i = 0; i < m; ++i) {
+	  double fi = 1.0 / (c[i] 
+			     + sqr(x[0]-A[i][0])
+			     + sqr(x[1]-A[i][1])
+			     + sqr(x[2]-A[i][2])
+			     + sqr(x[3]-A[i][3]));
+	  f -= fi;
+	  if (grad) {
+	       grad[0] += (2*fi*fi) * (x[0]-A[i][0]);
+	       grad[1] += (2*fi*fi) * (x[1]-A[i][1]);
+	       grad[2] += (2*fi*fi) * (x[2]-A[i][2]);
+	       grad[3] += (2*fi*fi) * (x[3]-A[i][3]);
+	  }
+     }
+     RETURN(f);
+}
+
+static int shekel_m[3] = {5,7,10};
+static const double shekel_lb[4] = {0,0,0,0};
+static const double shekel_ub[4] = {10,10,10,10};
+static const double shekel0_xmin[4] = {4.00004,4.00013,4.00004,4.00013};
+static const double shekel1_xmin[4] = {4.00057,4.00069,3.99949,3.99961};
+static const double shekel2_xmin[4] = {4.00075,4.00059,3.99966,3.99951};
+
+/****************************************************************************/
+#define PI3 9.424777960769379 /* 3*pi */
+#define PI2 6.283185307179586 /* 2*pi */
+static double levy_f(int n, const double *x, double *grad, void *data)
+{
+     UNUSED(data);
+     int i;
+     double a = x[n-1] - 1, b = 1 + sqr(sin(PI2*x[n-1]));
+     double f = sqr(sin(PI3*x[0])) + a * b;
+     if (grad) {
+	  for (i = 0; i < n; ++i) grad[i] = 0;
+	  grad[0] = 2 * PI3 * sin(PI3*x[0]) * cos(PI3*x[0]);
+	  grad[n-1] += b + a * 2 * PI2 * sin(PI2*x[n-1]) * cos(PI2*x[n-1]);
+     }
+     for (i = 0; i < n-1; ++i) {
+	  a = x[i] - 1;
+	  b = 1 + sqr(sin(PI3*x[i+1]));
+	  f += sqr(a) * b;
+	  if (grad) {
+	       grad[i] += 2 * a * b;
+	       grad[i+1] += 2*PI3 * sqr(a) * sin(PI3*x[i+1])*cos(PI3*x[i+1]);
+	  }
+     }
+     RETURN(f);
+}
+
+static const double levy_lb[7] = {-5,-5,-5,-5,-5,-5,-5};
+static const double levy_ub[7] = {5,5,5,5,5,5,5};
+static const double levy_xmin[7] = {1,1,1,1,1,1,-4.754402};
+static const double levy4_lb[4] = {-10,-10,-10,-10};
+static const double levy4_ub[4] = {10,10,10,10};
+static const double levy4_xmin[4] = {1,1,1,-9.752356};
+
+/****************************************************************************/
+static double griewank_f(int n, const double *x, double *grad, void *data)
+{
+     int i;
+     double f = 1, p = 1;
+     UNUSED(data);
+     for (i = 0; i < n; ++i) {
+	  f += sqr(x[i]) * 0.00025;
+	  p *= cos(x[i] / sqrt(i + 1.));
+	  if (grad) grad[i] = x[i] * 0.0005;
+     }
+     f -= p;
+     if (grad)
+	  for (i = 0; i < n; ++i)
+	       grad[i] += p * tan(x[i] / sqrt(i + 1.)) / sqrt(i + 1.);
+     RETURN(f);
+}
+
+static const double griewank_lb[10] = {-500,-500,-500,-500,-500,-500,-500,-500,-500,-500};
+static const double griewank_ub[10] = {600,600,600,600,600,600,600,600,600,600};
+static const double griewank_xmin[10] = {0,0,0,0,0,0,0,0,0,0};
+
+/****************************************************************************/
+static double sixhumpcamel_f(int n, const double *x, double *grad, void *data)
+{
+     UNUSED(data);
+     if (grad) {
+	  grad[0] = 8*x[0] - 2.1*4*pow(x[0],3.) + 2*pow(x[0],5.) + x[1];
+	  grad[1] = x[0] - 8*x[1] + 16*pow(x[1],3.);
+     }
+     RETURN(4*sqr(x[0]) - 2.1 * pow(x[0],4.) + pow(x[0],6.)/3. 
+	    + x[0]*x[1] - 4*sqr(x[1]) + 4*pow(x[1],4.));
+}
+
+static const double sixhumpcamel_lb[2] = {-5,-5};
+static const double sixhumpcamel_ub[2] = {5,5};
+static const double sixhumpcamel_xmin[2] = {0.08984, -0.71266};
+
+/****************************************************************************/
 /****************************************************************************/
 
 const testfunc testfuncs[NTESTFUNCS] = {
@@ -178,5 +291,32 @@ const testfunc testfuncs[NTESTFUNCS] = {
        0.0, "Generalized Rosenbrock function" },
      { goldsteinprice_f, NULL, 1, 2,
        goldsteinprice_lb, goldsteinprice_ub, goldsteinprice_xmin,
-       3.0, "Goldstein and Price function" }
+       3.0, "Goldstein and Price function" },
+     { shekel_f, shekel_m + 0, 1, 4,
+       shekel_lb, shekel_ub, shekel0_xmin,
+       -10.1532, "Shekel m=5 function" },
+     { shekel_f, shekel_m + 1, 1, 4,
+       shekel_lb, shekel_ub, shekel1_xmin,
+       -10.4029, "Shekel m=7 function" },
+     { shekel_f, shekel_m + 2, 1, 4,
+       shekel_lb, shekel_ub, shekel2_xmin,
+       -10.5364, "Shekel m=10 function" },
+     { levy_f, NULL, 1, 4,
+       levy4_lb, levy4_ub, levy4_xmin,
+       -21.502356, "Levy n=4 function" },
+     { levy_f, NULL, 1, 5,
+       levy_lb, levy_ub, levy_xmin+2,
+       -11.504403, "Levy n=5 function" },
+     { levy_f, NULL, 1, 6,
+       levy_lb, levy_ub, levy_xmin+1,
+       -11.504403, "Levy n=6 function" },
+     { levy_f, NULL, 1, 7,
+       levy_lb, levy_ub, levy_xmin,
+       -11.504403, "Levy n=7 function" },
+     { griewank_f, NULL, 1, 10,
+       griewank_lb, griewank_ub, griewank_xmin,
+       0.0, "Griewank function" },
+     { sixhumpcamel_f, NULL, 1, 2,
+       sixhumpcamel_lb, sixhumpcamel_ub, sixhumpcamel_xmin,
+       -1.03163, "Six-hump camel back function" }
 };
