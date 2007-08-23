@@ -11,14 +11,18 @@ typedef double (*nlopt_func)(int n, const double *x,
 			     void *func_data);
 
 typedef enum {
-     /* non-gradient methods */
-     NLOPT_GLOBAL_DIRECT,
+     /* non-gradient algorithms */
+     NLOPT_GLOBAL_DIRECT = 0,
      NLOPT_LOCAL_SUBPLEX,
 
-     /* gradient-based methods */
+     /* gradient-based algorithms */
      NLOPT_GLOBAL_STOGO,
-     NLOPT_LOCAL_LBFGS
-} nlopt_method;
+     NLOPT_LOCAL_LBFGS,
+
+     NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
+} nlopt_algorithm;
+
+extern const char *nlopt_algorithm_name(nlopt_algorithm a);
 
 typedef enum {
      NLOPT_FAILURE = -1, /* generic failure code */
@@ -34,7 +38,7 @@ typedef enum {
 } nlopt_result;
 
 extern nlopt_result nlopt_minimize(
-     nlopt_method method,
+     nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */

@@ -6,6 +6,8 @@
 #include "tools.h"
 using namespace std;
 
+extern "C" int stogo_verbose;
+
 typedef void dom(RTBox) ;
 typedef dom* Pdom ;
 
@@ -22,7 +24,8 @@ typedef objgrad* Pobjgrad ;
 
 class GlobalParams {
 public:
-  long int maxtime, maxeval;
+  double maxtime;
+  long int maxeval;
   double eps_cl, mu, rshift;
   int det_pnts, rnd_pnts;
 };
@@ -62,7 +65,7 @@ public:
   void ClearSolSet();
   void AddPoint(RCRVector, double);
 
-  long int GetTime();
+  double GetTime();
   bool InTime();
 
 private:

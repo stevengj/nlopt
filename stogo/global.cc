@@ -26,6 +26,8 @@ time_t   StartTime;
 double MacEpsilon ;
 int FC=0, GC=0 ;
 
+int stogo_verbose = 0; /* set to nonzero for verbose output */
+
 Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P): Domain(D) {
 
   dim=Domain.GetDim();
@@ -121,8 +123,10 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
       box.AddTrial(tmpTrial) ;
 
       if (tmpTrial.objval<=fbound+mu && tmpTrial.objval<=box.fmin+mu) {
-	cout << "Found a candidate, x=" << tmpTrial.xvals;
-	cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
+	if (stogo_verbose) {
+	  cout << "Found a candidate, x=" << tmpTrial.xvals;
+	  cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
+	}
 	SolSet.push_back(tmpTrial);
       }
 #ifdef GS_DEBUG
@@ -187,7 +191,8 @@ void Global::Search(int axis, RCRVector x_av){
   MacEpsilon=eps(); // Get machine precision
   if (det_pnts>2*dim+1) {
     det_pnts=2*dim+1;
-    cout << "Warning: Reducing det_pnts to " << det_pnts << endl;
+    if (stogo_verbose)
+      cout << "Warning: Reducing det_pnts to " << det_pnts << endl;
   }
 
   // Initialize timer
@@ -221,19 +226,23 @@ void Global::Search(int axis, RCRVector x_av){
 
       if (!InTime()) {
         done=TRUE;
-        cout << "The program has run out of time or function evaluations\n";
+	if (stogo_verbose)
+	  cout << "The program has run out of time or function evaluations\n";
         break;
       }
 
     } // inner while-loop
-    cout << endl << "*** Inner loop completed ***" << endl ;
+    if (stogo_verbose)
+      cout << endl << "*** Inner loop completed ***" << endl ;
     
     // Reduce SolSet if necessary
     SolSet.erase(remove_if(SolSet.begin(), SolSet.end(),
 			   TrialGT(fbound+mu)),SolSet.end());
     if (InTime()) {
-      cout << "Current set of minimizers (" << SolSet.size() << ")" << endl ;
-      DispMinimizers() ;
+      if (stogo_verbose) {
+	cout << "Current set of minimizers (" << SolSet.size() << ")" << endl ;
+	DispMinimizers() ;
+      }
 
       while (!Garbage.empty()) {
         box=Garbage.top() ;
@@ -247,12 +256,14 @@ void Global::Search(int axis, RCRVector x_av){
     }
   } // Outer while-loop
 
-  cout << "Number of outer iterations : " << outer_iter << endl;
-  cout << "Number of unexplored boxes : " << CandSet.size() << endl;
-  cout << "Number of boxes in garbage : " << Garbage.size() << endl;
-  cout << "Number of elements in SolSet : " << SolSet.size() << endl;
-  cout << "Number of function evaluations : " << FC << endl;
-  cout << "Number of gradient evaluations : " << GC << endl;
+  if (stogo_verbose) {
+    cout << "Number of outer iterations : " << outer_iter << endl;
+    cout << "Number of unexplored boxes : " << CandSet.size() << endl;
+    cout << "Number of boxes in garbage : " << Garbage.size() << endl;
+    cout << "Number of elements in SolSet : " << SolSet.size() << endl;
+    cout << "Number of function evaluations : " << FC << endl;
+    cout << "Number of gradient evaluations : " << GC << endl;
+  }
 
   if (axis != -1) {
     // Return minimizer when doing the AV method
@@ -262,15 +273,15 @@ void Global::Search(int axis, RCRVector x_av){
 }
 
 /************* Various utility functions ****************/
-long int Global::GetTime()
+double Global::GetTime()
 {
  time_t ctime; time(&ctime);
- return (long int)difftime(ctime,StartTime);
+ return difftime(ctime,StartTime);
 }
 
 bool Global::InTime()
 {
- return (!maxtime || GetTime()<maxtime) && (!maxeval || numeval<maxeval);
+ return (maxtime <= 0.0 || GetTime()<maxtime) && (!maxeval || numeval<maxeval);
 }
 
 double Global::GetMinValue() {

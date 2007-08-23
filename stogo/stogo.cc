@@ -30,7 +30,7 @@ int stogo_minimize(int n,
 		   objective_func fgrad, void *data,
 		   double *x, double *fmin,
 		   const double *l, const double *u,
-		   long int maxeval, long int maxtime)
+		   long int maxeval, double maxtime)
 {
   GlobalParams params;
 

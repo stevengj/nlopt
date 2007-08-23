@@ -22,6 +22,7 @@ AC_PROG_LIBTOOL
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDC
 AC_HEADER_TIME
+AC_CHECK_HEADERS([unistd.h getopt.h])
 AC_C_CONST
 AC_C_INLINE
 
@@ -82,6 +83,7 @@ AC_CONFIG_FILES([
    stogo/Makefile
    lbfgs/Makefile
    subplex/Makefile
+   test/Makefile
 ])
 
 AC_OUTPUT

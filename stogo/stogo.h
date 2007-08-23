@@ -51,7 +51,9 @@ int stogo_minimize(int n,
                    objective_func fgrad, void *data,
                    double *x, double *fmin,
                    const double *l, const double *u,
-                   long int maxeval, long int maxtime);
+                   long int maxeval, double maxtime);
+
+extern int stogo_verbose; /* set to nonzero for verbose output */
 
 #ifdef __cplusplus
 }

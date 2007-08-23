@@ -4,6 +4,19 @@
 #include "nlopt.h"
 #include "config.h"
 
+static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
+     "DIRECT (global)",
+     "Subplex (local)",
+     "StoGO (global)",
+     "Low-storage BFGS (LBFGS) (local)"
+};
+
+const char *nlopt_algorithm_name(nlopt_algorithm a)
+{
+     if (a < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
+     return nlopt_algorithm_names[a];
+}
+
 static int my_isinf(double x) {
      return x == HUGE_VAL
 #ifdef HAVE_ISINF
@@ -46,7 +59,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 nlopt_result nlopt_minimize(
-     nlopt_method method,
+     nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
@@ -59,7 +72,7 @@ nlopt_result nlopt_minimize(
      d.f = f;
      d.f_data = f_data;
 
-     switch (method) {
+     switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
 	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
 				      maxeval, 500, ftol_rel, ftol_abs,
