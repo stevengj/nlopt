@@ -1,0 +1,6 @@
+AM_CPPFLAGS = -I$(top_srcdir)/direct -I$(top_srcdir)/stogo -I$(top_srcdir)/lbfgs -I$(top_srcdir)/subplex
+
+include_HEADERS = nlopt.h
+noinst_LTLIBRARIES = libapi.la
+
+libapi_la_SOURCES = nlopt.c nlopt.h

@@ -13,11 +13,11 @@ typedef double (*nlopt_func)(int n, const double *x,
 typedef enum {
      /* non-gradient methods */
      NLOPT_GLOBAL_DIRECT,
-     NLOPT_LOCAL_SUBPLEX
+     NLOPT_LOCAL_SUBPLEX,
 
      /* gradient-based methods */
      NLOPT_GLOBAL_STOGO,
-     NLOPT_LOCAL_LBFGS,
+     NLOPT_LOCAL_LBFGS
 } nlopt_method;
 
 typedef enum {
@@ -39,7 +39,7 @@ extern nlopt_result nlopt_minimize(
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *fmin, /* out: minimum */
-     double fmin_max, ftol_rel, double ftol_abs,
+     double fmin_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 

@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: NLopt
+Description: nonlinear optimization libary
+Version: @VERSION@
+Libs: -L${libdir} -lnlopt -lm
+Cflags: -I${includedir}

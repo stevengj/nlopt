@@ -2,6 +2,20 @@
 #include <math.h>
 
 #include "nlopt.h"
+#include "config.h"
+
+static int my_isinf(double x) {
+     return x == HUGE_VAL
+#ifdef HAVE_ISINF
+	  || isinf(x)
+#endif
+	  ;
+}
+
+#ifndef HAVE_ISNAN
+static int my_isnan(double x) { return x != x; }
+#  define isnan my_isnan
+#endif
 
 typedef struct {
      nlopt_func f;
@@ -10,23 +24,26 @@ typedef struct {
 
 #include "subplex.h"
 
-double f_subplex(int n, const double *x, void *data_)
+static double f_subplex(int n, const double *x, void *data_)
 {
      nlopt_data *data = (nlopt_data *) data_;
-     return data->f(n, x, NULL, f_data);
+     return data->f(n, x, NULL, data->f_data);
 }
 
 #include "direct.h"
 
-double f_direct(int n, const double *x, int *undefined_flag, void *data_)
+static double f_direct(int n, const double *x, int *undefined, void *data_)
 {
      nlopt_data *data = (nlopt_data *) data_;
-     double f = data->f(n, x, NULL, f_data);
-     *undefined_flag = isnan(f);
+     double f = data->f(n, x, NULL, data->f_data);
+     *undefined = isnan(f) || my_isinf(f);
      return f;
 }
 
-#incude "stogo.h"
+#include "stogo.h"
+#include "l-bfgs-b.h"
+
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 nlopt_result nlopt_minimize(
      nlopt_method method,
@@ -34,7 +51,7 @@ nlopt_result nlopt_minimize(
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *fmin, /* out: minimum */
-     double fmin_max, ftol_rel, double ftol_abs,
+     double fmin_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
@@ -49,24 +66,24 @@ nlopt_result nlopt_minimize(
 				      xtol_rel, xtol_rel,
 				      DIRECT_UNKNOWN_FGLOBAL, -1.0,
 				      NULL, DIRECT_GABLONSKY)) {
-	      DIRECT_INVALID_BOUNDS:
-	      DIRECT_MAXFEVAL_TOOBIG:
-	      DIRECT_INVALID_ARGS:
-		   return NLOPT_INVALID_ARGS;
-	      DIRECT_INIT_FAILED:
-	      DIRECT_SAMPLEPOINTS_FAILED:
-	      DIRECT_SAMPLE_FAILED:
-		   return NLOPT_FAILURE;
-	      DIRECT_MAXFEVAL_EXCEEDED:
-	      DIRECT_MAXITER_EXCEEDED:
-		   return NLOPT_MAXEVAL_REACHED;
-	      DIRECT_GLOBAL_FOUND:
-		   return NLOPT_SUCCESS;
-	      DIRECT_VOLTOL:
-	      DIRECT_SIGMATOL:
-		   return NLOPT_XTOL_REACHED;
-	      DIRECT_OUT_OF_MEMORY:
-		   return NLOPT_OUT_OF_MEMORY;
+		  case DIRECT_INVALID_BOUNDS:
+		  case DIRECT_MAXFEVAL_TOOBIG:
+		  case DIRECT_INVALID_ARGS:
+		       return NLOPT_INVALID_ARGS;
+		  case DIRECT_INIT_FAILED:
+		  case DIRECT_SAMPLEPOINTS_FAILED:
+		  case DIRECT_SAMPLE_FAILED:
+		       return NLOPT_FAILURE;
+		  case DIRECT_MAXFEVAL_EXCEEDED:
+		  case DIRECT_MAXITER_EXCEEDED:
+		       return NLOPT_MAXEVAL_REACHED;
+		  case DIRECT_GLOBAL_FOUND:
+		       return NLOPT_SUCCESS;
+		  case DIRECT_VOLTOL:
+		  case DIRECT_SIGMATOL:
+		       return NLOPT_XTOL_REACHED;
+		  case DIRECT_OUT_OF_MEMORY:
+		       return NLOPT_OUT_OF_MEMORY;
 	      }
 	      break;
 
@@ -83,14 +100,14 @@ nlopt_result nlopt_minimize(
 	      for (i = 0; i < n; ++i)
 		   scale[i] = fabs(ub[i] - lb[i]);
 	      iret = subplex(f_subplex, fmin, x, n, &d, xtol_rel, maxeval,
-			     fmin_max, !isinf(fmin_max), scale);
+			     fmin_max, !my_isinf(fmin_max), scale);
 	      free(scale);
 	      switch (iret) {
-		   -2: return NLOPT_INVALID_ARGS;
-		   -1: return NLOPT_MAXEVAL_REACHED;
-		   0: return NLOPT_XTOL_REACHED;
-		   1: return NLOPT_SUCCESS;
-		   2: return NLOPT_FMIN_MAX_REACHED;
+		  case -2: return NLOPT_INVALID_ARGS;
+		  case -1: return NLOPT_MAXEVAL_REACHED;
+		  case 0: return NLOPT_XTOL_REACHED;
+		  case 1: return NLOPT_SUCCESS;
+		  case 2: return NLOPT_FMIN_MAX_REACHED;
 	      }
 	      break;
 	 }
@@ -99,8 +116,8 @@ nlopt_result nlopt_minimize(
 	      int iret, i, *nbd = (int *) malloc(sizeof(int) * n);
 	      if (!nbd) return NLOPT_OUT_OF_MEMORY;
 	      for (i = 0; i < n; ++i) {
-		   int linf = isinf(lb[i]) && lb[i] < 0;
-		   int uinf = isinf(ub[i]) && ub[i] > 0;
+		   int linf = my_isinf(lb[i]) && lb[i] < 0;
+		   int uinf = my_isinf(ub[i]) && ub[i] > 0;
 		   nbd[i] = linf && uinf ? 0 : (uinf ? 1 : (linf ? 3 : 2));
 	      }
 	      iret = lbfgsb_minimize(n, f, f_data, x, nbd, lb, ub,
@@ -110,16 +127,16 @@ nlopt_result nlopt_minimize(
 	      free(nbd);
 	      if (iret <= 0) {
 		   switch (iret) {
-			-1: return NLOPT_INVALID_ARGS;
-			-2: default: return NLOPT_FAILURE;
+		       case -1: return NLOPT_INVALID_ARGS;
+		       case -2: default: return NLOPT_FAILURE;
 		   }
 	      }
 	      else {
 		   *fmin = f(n, x, NULL, f_data);
 		   switch (iret) {
-			5: return NLOPT_MAXEVAL_REACHED;
-			2: return NLOPT_XTOL_REACHED;
-			1: return NLOPT_FTOL_REACHED;
+		       case 5: return NLOPT_MAXEVAL_REACHED;
+		       case 2: return NLOPT_XTOL_REACHED;
+		       case 1: return NLOPT_FTOL_REACHED;
 		       default: return NLOPT_SUCCESS;
 		   }
 	      }

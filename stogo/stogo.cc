@@ -22,6 +22,7 @@ public:
     case OBJECTIVE_ONLY:
       return my_func(xy.GetLength(), xy.raw_data_const(), NULL, my_data);
     }
+    return 0.0;
   }
 };
 

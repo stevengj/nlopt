@@ -252,7 +252,7 @@ L40:
 	-lf2c -lm   (in that order)
 */
 
-static int dcopy_(integer *n, doublereal *dx, integer *incx, 
+static int dcopy_(integer *n, const doublereal *dx, integer *incx, 
 	doublereal *dy, integer *incy)
 {
     /* System generated locals */
@@ -421,9 +421,6 @@ static doublereal dist_(integer *n, doublereal *x, doublereal *y)
     /* System generated locals */
     integer i__1;
     doublereal ret_val, d__1;
-
-    /* Builtin functions */
-    double sqrt(doublereal);
 
     /* Local variables */
     integer i__;
@@ -1070,9 +1067,6 @@ static int fstats_(doublereal *fx, integer *ifxwt, logical *reset)
 {
     /* System generated locals */
     doublereal d__1, d__2, d__3;
-
-    /* Builtin functions */
-    double sqrt(doublereal);
 
     /* Local variables */
     static doublereal fscale;
@@ -1797,7 +1791,7 @@ static int setstp_(integer *nsubs, integer *n, doublereal *deltax,
 */
 
 static int subplx_(D_fp f, void *fdata, integer *n, doublereal *tol, integer *
-	maxnfe, integer *mode, doublereal *scale, doublereal *x, doublereal *
+	maxnfe, integer *mode, const doublereal *scale, doublereal *x, doublereal *
 	fx, integer *nfe, doublereal *work, integer *iwork, integer *iflag)
 {
     /* Initialized data */

@@ -112,7 +112,7 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
     doublereal helplower;
     integer i___, j___;
     doublereal helpgreater;
-    integer novaluedeep;
+    integer novaluedeep = 0;
     doublereal help2;
     integer novalue;
 
@@ -1364,102 +1364,6 @@ L50:
 } /* dirinitlist_ */
 
 /* +-----------------------------------------------------------------------+ */
-/* |    SUBROUTINE DIRSort3                                                | */
-/* +-----------------------------------------------------------------------+ */
-/* Subroutine */ static void dirsort3_(integer *pos1, integer *pos2, integer *pos3, 
-	doublereal *f, integer *maxfunc)
-{
-    /* System generated locals */
-    integer f_dim1, f_offset;
-
-    /* Local variables */
-    integer help;
-
-    /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
-
-    /* Function Body */
-    if (f[*pos1 + f_dim1] < f[*pos2 + f_dim1]) {
-	if (f[*pos1 + f_dim1] < f[*pos3 + f_dim1]) {
-	    if (f[*pos3 + f_dim1] < f[*pos2 + f_dim1]) {
-		help = *pos2;
-		*pos2 = *pos3;
-		*pos3 = help;
-	    }
-	} else {
-	    help = *pos1;
-	    *pos1 = *pos3;
-	    *pos3 = *pos2;
-	    *pos2 = help;
-	}
-    } else {
-	if (f[*pos2 + f_dim1] < f[*pos3 + f_dim1]) {
-	    if (f[*pos3 + f_dim1] < f[*pos1 + f_dim1]) {
-		help = *pos1;
-		*pos1 = *pos2;
-		*pos2 = *pos3;
-		*pos3 = help;
-	    } else {
-		help = *pos1;
-		*pos1 = *pos2;
-		*pos2 = help;
-	    }
-	} else {
-	    help = *pos1;
-	    *pos1 = *pos3;
-	    *pos3 = help;
-	}
-    }
-} /* dirsort3_ */
-
-/* +-----------------------------------------------------------------------+ */
-/* |    SUBROUTINE DIRInsert3                                              | */
-/* +-----------------------------------------------------------------------+ */
-/* Subroutine */ void direct_dirinsert3_(integer *pos1, integer *pos2, integer *pos3, 
-	integer *deep, integer *anchor, integer *point, integer *free, 
-	doublereal *f, doublereal *fmin, integer *minpos, integer *maxfunc, 
-	integer *maxdeep)
-{
-    /* System generated locals */
-    integer f_dim1, f_offset;
-
-    /* Local variables */
-    integer pos;
-
-    /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
-    --point;
-    ++anchor;
-
-    /* Function Body */
-    dirsort3_(pos1, pos2, pos3, &f[f_offset], maxfunc);
-    if (anchor[*deep] == 0) {
-	anchor[*deep] = *pos1;
-	point[*pos1] = *pos2;
-	point[*pos2] = *pos3;
-	point[*pos3] = 0;
-    } else {
-	pos = anchor[*deep];
-	if (f[*pos1 + f_dim1] < f[pos + f_dim1]) {
-	    anchor[*deep] = *pos1;
-	    point[*pos1] = pos;
-	} else {
-	    dirinsert_(&pos, pos1, &point[1], &f[f_offset], maxfunc);
-	}
-	dirinsert_(&pos, pos2, &point[1], &f[f_offset], maxfunc);
-	dirinsert_(&pos, pos3, &point[1], &f[f_offset], maxfunc);
-    }
-    if (f[*pos1 + f_dim1] < *fmin && f[*pos1 + (f_dim1 << 1)] == 0.) {
-	*fmin = f[*pos1 + f_dim1];
-	*minpos = *pos1;
-    }
-} /* dirinsert3_ */
-
-/* +-----------------------------------------------------------------------+ */
 /* |                                                                       | */
 /* |                       SUBROUTINE DIRPREPRC                            | */
 /* |                                                                       | */
@@ -1689,27 +1593,3 @@ L50:
 	      
     }
 } /* dirsummary_ */
-
-/* Subroutine */ void direct_dirmaxf_to_high1__(integer *maxf, integer *maxfunc, 
-					FILE *logfile)
-{
-     if (logfile) {
-	  fprintf(logfile, 
-"The maximum number of function evaluations (%d)\n"
-"is higher than the constant maxfunc (%d).  Increase maxfunc\n"
-"in the SUBROUTINE DIRECT or decrease the maximum number\n"
-		  "of function evaluations.\n", *maxf, *maxfunc);
-     }
-} /* dirmaxf_to_high1__ */
-
-/* Subroutine */ void direct_dirmaxt_to_high1__(integer *maxt, integer *maxdeep, 
-					FILE *logfile)
-{
-     if (logfile) {
-	  fprintf(logfile,
-"The maximum number of iterations (%d) is higher than the constant\n"
-"maxdeep (%d).  Increase maxdeep or decrease the number of iterations.\n",
-		  *maxt, *maxdeep);
-     }
-} /* dirmaxt_to_high1__ */
-

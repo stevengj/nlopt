@@ -21,16 +21,6 @@ typedef direct_objective_func fp;
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
-/* DIRect.c */
-extern void direct_dirsamplef_(
-     doublereal *c__, integer *arrayi, doublereal
-     *delta, integer *sample, integer *new__, integer *length,
-     FILE *logfile, doublereal *f, integer *free, integer *maxi,
-     integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
-     fmin, integer *minpos, doublereal *u, integer *n, integer *maxfunc,
-     integer *maxdeep, integer *oops, doublereal *fmax, integer *
-     ifeasiblef, integer *iinfesiblef, void *fcndata);
-
 /* DIRsubrout.c */
 
 extern void direct_dirheader_(
@@ -115,7 +105,6 @@ extern void direct_dirsamplef_(
      ifeasiblef, integer *iinfesiblef, void *fcn_data);
 
 /* DIRect.c */
-
 extern void direct_direct_(
      fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs,
      integer *maxf, integer *maxt, doublereal *fmin, doublereal *l, 

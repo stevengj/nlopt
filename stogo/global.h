@@ -44,8 +44,8 @@ public:
 		return Objective(xy);
 	   case GRADIENT_ONLY:
 		Gradient(xy, grad);
-		return 0.0;
        }
+       return 0.0;
   }
 				   
   Global(RTBox, Pobj, Pgrad, GlobalParams);
