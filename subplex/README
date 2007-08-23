@@ -1,0 +1,16 @@
+"Subplex" gradient-free minimization code, based on a variant of 
+Nelder-Mead simplex by Tom Rowan.
+
+     http://www.netlib.org/opt/subplex.tgz
+
+     T. Rowan, "Functional Stability Analysis of Numerical Algorithms", 
+     Ph.D. thesis, Department of Computer Sciences, University of Texas
+     at Austin, 1990.  
+
+This code was downloaded from Netlib.org, converted via f2c, and then cleaned
+up a bit by Steven G. Johnson (stevenj@alum.mit.edu) for use with libctl.
+
+Unfortunately, neither Netlib nor the Subplex source code contain any
+indication of the copyright/license status of the code.  Arguably, anything
+posted to Netlib absent such information was intended to be free of
+restrictions.  However, it would be nice to have an explicit license!
