@@ -13,6 +13,13 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "Low-storage BFGS (LBFGS) (local)"
 };
 
+void nlopt_version(int *major, int *minor, int *bugfix)
+{
+     *major = MAJOR_VERSION;
+     *minor = MINOR_VERSION;
+     *bugfix = BUGFIX_VERSION;
+}
+
 const char *nlopt_algorithm_name(nlopt_algorithm a)
 {
      if (a < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";

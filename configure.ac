@@ -81,6 +81,13 @@ if test $ac_cv_prog_gcc = yes; then
 fi
 fi
 
+vers=`echo ${VERSION}.0.0 | cut -d. -f1`
+AC_DEFINE_UNQUOTED(MAJOR_VERSION, $vers, [Major version number.])
+vers=`echo ${VERSION}.0.0 | cut -d. -f2`
+AC_DEFINE_UNQUOTED(MINOR_VERSION, $vers, [Minor version number.])
+vers=`echo ${VERSION}.0.0 | cut -d. -f3`
+AC_DEFINE_UNQUOTED(BUGFIX_VERSION, $vers, [Bugfix version number.])
+
 dnl -----------------------------------------------------------------------
 
 AC_CONFIG_FILES([

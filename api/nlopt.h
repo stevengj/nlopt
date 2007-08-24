@@ -51,6 +51,8 @@ extern nlopt_result nlopt_minimize(
 extern void nlopt_srand(unsigned long seed);
 extern void nlopt_srand_time(void);
 
+extern void nlopt_version(int *major, int *minor, int *bugfix);
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

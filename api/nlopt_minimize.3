@@ -174,14 +174,14 @@ can take on any of the following values:
 .B NLOPT_GLOBAL_DIRECT
 Perform a global derivative-free optimization using the DIRECT search
 algorithm by Jones et al.  Supports arbitrary nonlinear constraints as
-described above.
+described above, but does not support unconstrained optimization.
 .TP 
 .B NLOPT_GLOBAL_DIRECT_L
 Perform a global derivative-free optimization using the DIRECT-L
 search algorithm by Gablonsky et al., a modified version of the DIRECT
-algorithm that is more suited to functions with few local minima.  See
-direct/README.  Supports arbitrary nonlinear constraints as described
-above.
+algorithm that is more suited to functions with modest numbers of
+local minima.  Supports arbitrary nonlinear constraints as described
+above, but does not support unconstrained optimization.
 .TP 
 .B NLOPT_LOCAL_SUBPLEX
 Perform a local derivative-free optimization, starting at
@@ -201,11 +201,27 @@ as well as nonlinear constraints as described above).
 Global optimization using the StoGO algorithm by Madsen et al.  StoGO
 exploits gradient information (which must be supplied by the
 objective) for its local searches, and performs the global search by a
-stochastic branch-and-bound technique.  This stochastic
+stochastic branch-and-bound technique.  Only bound-constrained optimization
+is supported.
+.TP
+.B NLOPT_LOCAL_LBFGS
+Local gradient-based optimization using the low-storage BFGS (L-BFGS)
+algorithm.  (The objective function must supply the gradient.)
+Unconstrained optimization is supported in addition to simple bound
+constraints (see above).
 .SH RETURN VALUE
 The value returned is one of the following enumerated constants.
 (Positive return values indicate successful termination, while negative
 return values indicate an error condition.)
+.SH PSEUDORANDOM NUMBERS
+For stochastic optimization algorithms, we use pseudorandom numbers generated
+by the Mersenne Twister algorithm, based on code from Makoto Matsumoto.
+By default, the seed for the random numbers is generated from the system
+time, so that they will be different each time you run the program.  If
+you want to use deterministic random numbers, you can set the seed by
+calling:
+.sp
+.BI "            void nlopt_srand(unsigned long " "seed" );
 .SH BUGS
 Currently the NLopt library is in pre-alpha stage.  Most algorithms
 currently do not support all termination conditions: the only
