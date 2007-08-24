@@ -10,7 +10,6 @@
 */
 
 #include <iostream>
-#include <time.h>
 
 #include <iterator>
 #include <algorithm>
