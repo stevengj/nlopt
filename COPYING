@@ -1,6 +1,7 @@
-NLopt combines several free/open-source nonlinear optimization libraries
-by various authors.  See the COPYING files in the subdirectories for the
-original copyright and licensing information of these packages.
+NLopt combines several free/open-source nonlinear optimization
+libraries by various authors.  See the COPYING, COPYRIGHT, and README
+files in the subdirectories for the original copyright and licensing
+information of these packages.
 
 Other portions of NLopt, including any modifications to the abovementioned
 packages, are licensed under the standard "MIT License:"
