@@ -10,8 +10,8 @@
 
 /* Table of constant values */
 
-static integer c__90000 = 90000;
-static integer c__600 = 600;
+static integer MAXFUNC = 90000;
+static integer MAXDEEP = 600;
 static integer c__64 = 64;
 static integer c__3000 = 3000;
 
@@ -336,7 +336,7 @@ static integer c__3000 = 3000;
 /* | Write the header of the logfile.                                      | */
 /* +-----------------------------------------------------------------------+ */
     direct_dirheader_(logfile, &version, &x[1], n, eps, maxf, maxt, &l[1], &u[1], 
-	    algmethod, &c__90000, &c__600, fglobal, fglper, ierror, &epsfix, &
+	    algmethod, &MAXFUNC, &MAXDEEP, fglobal, fglper, ierror, &epsfix, &
 		      iepschange, volper, sigmaper);
 /* +-----------------------------------------------------------------------+ */
 /* | If an error has occured while writing the header (we do some checking | */
@@ -364,7 +364,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 /* | Initialiase the lists.                                                | */
 /* +-----------------------------------------------------------------------+ */
-    direct_dirinitlist_(anchor, &ifree, point, f, &c__90000, &c__600);
+    direct_dirinitlist_(anchor, &ifree, point, f, &MAXFUNC, &MAXDEEP);
 /* +-----------------------------------------------------------------------+ */
 /* | Call the routine to initialise the mapping of x from the n-dimensional| */
 /* | unit cube to the hypercube given by u and l. If an error occured,     | */
@@ -388,7 +388,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
 	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
-	    fmin, &minpos, thirds, levels, &c__90000, &c__600, n, &c__64, &
+	    fmin, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, &c__64, &
 	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
@@ -435,8 +435,8 @@ static integer c__3000 = 3000;
 /* | in the list S.                                                        | */
 /* +-----------------------------------------------------------------------+ */
 	actdeep = actmaxdeep;
-	direct_dirchoose_(anchor, s, &c__600, f, fmin, *eps, epsabs, levels, &maxpos, length, 
-		&c__90000, &c__600, &c__3000, n, logfile, &cheat, &
+	direct_dirchoose_(anchor, s, &MAXDEEP, f, fmin, *eps, epsabs, levels, &maxpos, length, 
+		&MAXFUNC, &MAXDEEP, &c__3000, n, logfile, &cheat, &
 		kmax, &ifeasiblef, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Add other hyperrectangles to S, which have the same level and the same| */
@@ -445,7 +445,7 @@ static integer c__3000 = 3000;
 /* | JG 07/16/01 Added Errorflag.                                          | */
 /* +-----------------------------------------------------------------------+ */
 	if (*algmethod == 0) {
-	     direct_dirdoubleinsert_(anchor, s, &maxpos, point, f, &c__600, &c__90000,
+	     direct_dirdoubleinsert_(anchor, s, &maxpos, point, f, &MAXDEEP, &MAXFUNC,
 		     &c__3000, ierror);
 	    if (*ierror == -6) {
 		if (logfile)
@@ -472,7 +472,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 09/24/00 Calculate the value delta used for sampling points.       | */
 /* +-----------------------------------------------------------------------+ */
-		actdeep_div__ = direct_dirgetmaxdeep_(&s[j - 1], length, &c__90000, 
+		actdeep_div__ = direct_dirgetmaxdeep_(&s[j - 1], length, &MAXFUNC, 
 			n);
 		delta = thirds[actdeep_div__ + 1];
 		actdeep = s[j + 2999];
@@ -503,7 +503,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 /* | Get the Directions in which to decrease the intervall-length.         | */
 /* +-----------------------------------------------------------------------+ */
-		direct_dirget_i__(length, &help, arrayi, &maxi, n, &c__90000);
+		direct_dirget_i__(length, &help, arrayi, &maxi, n, &MAXFUNC);
 /* +-----------------------------------------------------------------------+ */
 /* | Sample the function. To do this, we first calculate the points where  | */
 /* | we need to sample the function. After checking for errors, we then do | */
@@ -512,8 +512,8 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 		direct_dirsamplepoints_(c__, arrayi, &delta, &help, &start, length, 
 			logfile, f, &ifree, &maxi, point, &x[
-			1], &l[1], fmin, &minpos, &u[1], n, &c__90000, &
-			c__600, &oops);
+			1], &l[1], fmin, &minpos, &u[1], n, &MAXFUNC, &
+			MAXDEEP, &oops);
 		if (oops > 0) {
 		    if (logfile)
 			 fprintf(logfile, "WARNING: Error occured in routine DIRsamplepoints.\n");
@@ -526,8 +526,8 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 		direct_dirsamplef_(c__, arrayi, &delta, &help, &start, length,
 			    logfile, f, &ifree, &maxi, point, fcn, &x[
-			1], &l[1], fmin, &minpos, &u[1], n, &c__90000, &
-			c__600, &oops, &fmax, &ifeasiblef, &iinfesiblef, 
+			1], &l[1], fmin, &minpos, &u[1], n, &MAXFUNC, &
+			MAXDEEP, &oops, &fmax, &ifeasiblef, &iinfesiblef, 
 			fcn_data);
 		if (oops > 0) {
 		    if (logfile)
@@ -539,12 +539,12 @@ static integer c__3000 = 3000;
 /* | Divide the intervalls.                                                | */
 /* +-----------------------------------------------------------------------+ */
 		direct_dirdivide_(&start, &actdeep_div__, length, point, arrayi, &
-			help, list2, w, &maxi, f, &c__90000, &c__600, n);
+			help, list2, w, &maxi, f, &MAXFUNC, &MAXDEEP, n);
 /* +-----------------------------------------------------------------------+ */
 /* | Insert the new intervalls into the list (sorted).                     | */
 /* +-----------------------------------------------------------------------+ */
 		direct_dirinsertlist_(&start, anchor, point, f, &maxi, length, &
-			c__90000, &c__600, n, &help, jones);
+			MAXFUNC, &MAXDEEP, n, &help, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Increase the number of function evaluations.                          | */
 /* +-----------------------------------------------------------------------+ */
@@ -589,7 +589,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 	*ierror = jones;
 	jones = 0;
-	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &c__90000, n, jones);
+	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
 	jones = *ierror;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 07/16/01 Use precalculated values to calculate volume.             | */
@@ -608,7 +608,7 @@ static integer c__3000 = 3000;
 /* |             fmin is assumed. If this measure is smaller then sigmaper,| */
 /* |             we stop DIRECT.                                           | */
 /* +-----------------------------------------------------------------------+ */
-	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &c__90000, n, jones);
+	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
 	delta = levels[actdeep_div__];
 	if (delta <= *sigmaper) {
 	    *ierror = 5;
@@ -636,7 +636,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 	if (iinfesiblef > 0) {
 	     direct_dirreplaceinf_(&ifree, &ifreeold, f, c__, thirds, length, anchor, 
-		    point, &u[1], &l[1], &c__90000, &c__600, &c__64, n, 
+		    point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, &c__64, n, 
 		    logfile, &fmax, jones);
 	}
 	ifreeold = ifree;
