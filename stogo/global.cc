@@ -19,9 +19,10 @@
 #include "stogo_config.h"
 #include "global.h"
 #include "local.h"
+#include "nlopt-util.h"
 
 // Timer stuff
-time_t   StartTime;
+double   StartTime;
 
 double MacEpsilon ;
 int FC=0, GC=0 ;
@@ -93,8 +94,7 @@ void Global::FillRandom(RTBox SampleBox, RTBox box) {
   tmpTrial.objval=DBL_MAX;
   for (int i=1 ; i<=rnd_pnts ; i++) {
     for (int dir=0 ; dir<dim ; dir++)
-      tmpTrial.xvals(dir) =
-	box.lb(dir)+(box.ub(dir)-box.lb(dir))*(double(rand())/RAND_MAX) ;
+      tmpTrial.xvals(dir) = nlopt_urand(box.lb(dir), box.ub(dir));
     SampleBox.AddTrial(tmpTrial) ;
   }
 }
@@ -196,7 +196,7 @@ void Global::Search(int axis, RCRVector x_av){
   }
 
   // Initialize timer
-  time(&StartTime);
+  StartTime = nlopt_seconds();
 
   // Clear priority_queues
   while (!Garbage.empty())
@@ -275,8 +275,7 @@ void Global::Search(int axis, RCRVector x_av){
 /************* Various utility functions ****************/
 double Global::GetTime()
 {
- time_t ctime; time(&ctime);
- return difftime(ctime,StartTime);
+  return nlopt_seconds() - StartTime;
 }
 
 bool Global::InTime()

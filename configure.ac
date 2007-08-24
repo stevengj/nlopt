@@ -22,13 +22,21 @@ AC_PROG_LIBTOOL
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_CHECK_HEADERS([unistd.h getopt.h])
+AC_CHECK_HEADERS([unistd.h getopt.h stdint.h])
 AC_C_CONST
 AC_C_INLINE
 
+dnl find 32-bit unsigned integer type for random-number generator
+AC_CHECK_SIZEOF(unsigned int)
+AC_CHECK_SIZEOF(unsigned long)
+AC_CHECK_TYPES(uint32_t, [], [], [$ac_includes_default
+#ifdef HAVE_STDINT_H
+#  include <stdint.h>
+#endif])
+
 dnl Checks for libraries and functions
 AC_CHECK_LIB(m, sin)
-AC_CHECK_FUNCS([BSDgettimeofday gettimeofday])
+AC_CHECK_FUNCS([BSDgettimeofday gettimeofday time])
 
 AC_MSG_CHECKING([for isnan])
 AC_TRY_LINK([#include <math.h>
@@ -79,6 +87,7 @@ AC_CONFIG_FILES([
    Makefile
    nlopt.pc
    api/Makefile
+   util/Makefile
    direct/Makefile
    stogo/Makefile
    lbfgs/Makefile

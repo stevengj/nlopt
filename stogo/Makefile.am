@@ -1,3 +1,5 @@
+AM_CPPFLAGS = -I$(top_srcdir)/util
+
 noinst_LTLIBRARIES = libstogo.la
 libstogo_la_SOURCES = global.cc linalg.cc local.cc stogo.cc tools.cc	\
 global.h linalg.h local.h stogo_config.h stogo.h tools.h

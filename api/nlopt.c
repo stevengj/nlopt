@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "nlopt.h"
+#include "nlopt-util.h"
 #include "config.h"
 
 static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
@@ -16,6 +17,16 @@ const char *nlopt_algorithm_name(nlopt_algorithm a)
 {
      if (a < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
      return nlopt_algorithm_names[a];
+}
+
+static int nlopt_srand_called = 0;
+void nlopt_srand(unsigned long seed) {
+     nlopt_srand_called = 1;
+     nlopt_init_genrand(seed);
+}
+
+void nlopt_srand_time() {
+     nlopt_srand(nlopt_time_seed());
 }
 
 static int my_isinf(double x) {
@@ -88,6 +99,10 @@ nlopt_result nlopt_minimize(
      d.f_data = f_data;
      d.lb = lb;
      d.ub = ub;
+
+     /* make sure rand generator is inited */
+     if (!nlopt_srand_called)
+	  nlopt_srand_time(); /* default is non-deterministic */
 
      /* check bound constraints */
      for (i = 0; i < n; ++i)

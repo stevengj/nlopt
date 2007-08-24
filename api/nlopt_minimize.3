@@ -167,12 +167,14 @@ NaN is specified by the macro NAN in math.h (for ANSI C99).
 .SH ALGORITHMS
 The 
 .I algorithm
-parameter can take on any of the following values:
+parameter specifies the optimization algorithm (for more detail on
+these, see the README files in the source-code subdirectories), and
+can take on any of the following values:
 .TP 
 .B NLOPT_GLOBAL_DIRECT
 Perform a global derivative-free optimization using the DIRECT search
-algorithm by Jones et al.  See direct/README.  Supports arbitrary
-nonlinear constraints as described above.
+algorithm by Jones et al.  Supports arbitrary nonlinear constraints as
+described above.
 .TP 
 .B NLOPT_GLOBAL_DIRECT_L
 Perform a global derivative-free optimization using the DIRECT-L
@@ -194,6 +196,12 @@ works (both for simple bound constraints via
 and
 .I ub
 as well as nonlinear constraints as described above).
+.TP 
+.B NLOPT_GLOBAL_STOGO
+Global optimization using the StoGO algorithm by Madsen et al.  StoGO
+exploits gradient information (which must be supplied by the
+objective) for its local searches, and performs the global search by a
+stochastic branch-and-bound technique.  This stochastic
 .SH RETURN VALUE
 The value returned is one of the following enumerated constants.
 (Positive return values indicate successful termination, while negative

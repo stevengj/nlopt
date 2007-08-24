@@ -48,6 +48,9 @@ extern nlopt_result nlopt_minimize(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 
+extern void nlopt_srand(unsigned long seed);
+extern void nlopt_srand_time(void);
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

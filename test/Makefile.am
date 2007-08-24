@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/api
+AM_CPPFLAGS = -I$(top_srcdir)/api -I$(top_srcdir)/util
 
 noinst_PROGRAMS = testopt
 

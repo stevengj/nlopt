@@ -10,29 +10,31 @@
 #ifdef HAVE_GETOPT_H
 #  include <getopt.h>
 #endif
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
 
 #include "nlopt.h"
+#include "nlopt-util.h"
 #include "testfuncs.h"
-
-static double urand(double a, double b)
-{
-  return a + (rand() * (b - a) / RAND_MAX);
-}
 
 static nlopt_algorithm algorithm = NLOPT_GLOBAL_DIRECT;
 static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0;
 static int maxeval = 1000;
 static double maxtime = 0.0;
+
+static void listalgs(FILE *f)
+{
+  int i;
+  fprintf(f, "Available algorithms:\n");
+  for (i = 0; i < NLOPT_NUM_ALGORITHMS; ++i)
+    fprintf(f, "  %2d: %s\n", i, nlopt_algorithm_name((nlopt_algorithm) i));
+}
+
+static void listfuncs(FILE *f)
+{
+  int i;
+  fprintf(f, "Available objective functions:\n");
+  for (i = 0; i < NTESTFUNCS; ++i)
+    fprintf(f, "  %2d: %s (%d dims)\n", i, testfuncs[i].name, testfuncs[i].n);
+}
 
 static int test_function(int ifunc)
 {
@@ -40,9 +42,11 @@ static int test_function(int ifunc)
   int i;
   double *x, fmin, f0;
   nlopt_result ret;
+  double start = nlopt_seconds();
   
   if (ifunc < 0 || ifunc >= NTESTFUNCS) {
     fprintf(stderr, "testopt: invalid function %d\n", ifunc);
+    listfuncs(stderr);
     return 0;
   }
   func = testfuncs[ifunc];
@@ -61,7 +65,7 @@ static int test_function(int ifunc)
 	 func.name, func.n, nlopt_algorithm_name(algorithm));
   printf("Starting guess x = [");
   for (i = 0; i < func.n; ++i)
-    printf(" %g", x[i] = urand(func.lb[i], func.ub[i]));
+    printf(" %g", x[i] = nlopt_urand(func.lb[i], func.ub[i]));
   printf("]\n");
   f0 = func.f(func.n, x, x + func.n, func.f_data);
   printf("Starting function value = %g\n", f0);
@@ -85,6 +89,7 @@ static int test_function(int ifunc)
 		       x, &fmin,
 		       HUGE_VAL, ftol_rel, ftol_abs, xtol_rel, NULL,
 		       maxeval, maxtime);
+  printf("finished after %g seconds.\n", nlopt_seconds() - start);
   printf("return code %d from nlopt_minimize\n", ret);
   if (ret < 0) {
     fprintf(stderr, "testopt: error in nlopt_minimize\n");
@@ -110,6 +115,7 @@ static void usage(FILE *f)
   fprintf(f, "Usage: testopt [OPTIONS]\n"
 	  "Options:\n"
 	  "     -h : print this help\n"
+	  "     -L : list available algorithms and objective functions\n"
 	  "     -v : verbose mode\n"
 	  " -r <s> : use random seed <s> for starting guesses\n"
 	  " -a <n> : use optimization algorithm <n>\n"
@@ -122,16 +128,20 @@ int main(int argc, char **argv)
 {
   int c;
   
-  srand((unsigned) time(NULL));
+  nlopt_srand_time();
   testfuncs_verbose = 0;
   
   if (argc <= 1)
     usage(stdout);
   
-  while ((c = getopt(argc, argv, "hvra:o:e:")) != -1)
+  while ((c = getopt(argc, argv, "hLvra:o:e:")) != -1)
     switch (c) {
     case 'h':
       usage(stdout);
+      return EXIT_SUCCESS;
+    case 'L':
+      listalgs(stdout);
+      listfuncs(stdout);
       return EXIT_SUCCESS;
     case 'v':
       testfuncs_verbose = 1;
@@ -143,6 +153,7 @@ int main(int argc, char **argv)
       c = atoi(optarg);
       if (c < 0 || c >= NLOPT_NUM_ALGORITHMS) {
 	fprintf(stderr, "testopt: invalid algorithm %d\n", c);
+	listalgs(stderr);
 	return EXIT_FAILURE;
       }
       algorithm = (nlopt_algorithm) c;
