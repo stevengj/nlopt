@@ -209,10 +209,124 @@ Local gradient-based optimization using the low-storage BFGS (L-BFGS)
 algorithm.  (The objective function must supply the gradient.)
 Unconstrained optimization is supported in addition to simple bound
 constraints (see above).
+.SH STOPPING CRITERIA
+Multiple stopping criteria for the optimization are supported, as
+specified by the following arguments to
+.BR nlopt_minimize ().
+The optimization halts whenever any one of these criteria is
+satisfied.  In some cases, the precise interpretation of the stopping
+criterion depends on the optimization algorithm above (although we
+have tried to make them as consistent as reasonably possible), and
+some algorithms do not support all of the stopping criteria.
+.TP
+.B fmin_max
+Stop when a function value less than or equal to
+.I fmin_max
+is found.  Set to Inf (see constraints section above) to disable.
+.TP
+.B ftol_rel
+Relative tolerance on function value: stop when an optimization step
+(or an estimate of the minimum) changes the function value by less
+than
+.I ftol_rel
+multiplied by the absolute value of the function value.  (If there is any chance that your minimum function value is close to zero, you might want to set an absolute tolerance with
+.I ftol_abs
+as well.)  Disabled if non-positive.
+.TP
+.B ftol_abs
+Absolute tolerance on function value: stop when an optimization step
+(or an estimate of the minimum) changes the function value by less
+than
+.IR ftol_abs .
+Disabled if non-positive.
+.TP
+.B xtol_rel
+Relative tolerance on design variables: stop when an optimization step
+(or an estimate of the minimum) changes every design variable by less
+than
+.I xtol_rel
+multiplied by the absolute value of the design variable.  (If there is
+any chance that an optimal design variable is close to zero, you
+might want to set an absolute tolerance with
+.I xtol_abs
+as well.)  Disabled if non-positive.
+.TP
+.B xtol_abs
+Pointer to an array of length
+.I
+n giving absolute tolerances on design variables: stop when an
+optimization step (or an estimate of the minimum) changes every design
+variable
+.IR x [i]
+by less than
+.IR xtol_abs [i].
+Disabled if non-positive, or if
+.I xtol_abs
+is NULL.
+.TP
+.B maxeval
+Stop when the number of function evaluations exceeds
+.IR maxeval .
+(This is not a strict maximum: the number of function evaluations may
+exceed
+.I maxeval 
+slightly, depending upon the algorithm.)  Disabled
+if non-positive.
+.TP
+.B maxtime
+Stop when the optimization time (in seconds) exceeds
+.IR maxtime .
+(This is not a strict maximum: the time may
+exceed
+.I maxtime
+slightly, depending upon the algorithm and on how slow your function
+evaluation is.)  Disabled if non-positive.
 .SH RETURN VALUE
 The value returned is one of the following enumerated constants.
-(Positive return values indicate successful termination, while negative
-return values indicate an error condition.)
+.SS Successful termination (positive return values):
+.TP
+.B NLOPT_SUCCESS
+Generic success return value.
+.TP
+.B NLOPT_FMIN_MAX_REACHED
+Optimization stopped because
+.I fmin_max
+(above) was reached.
+.TP
+.B NLOPT_FTOL_REACHED
+Optimization stopped because
+.I ftol_rel
+or
+.I ftol_abs
+(above) was reached.
+.TP
+.B NLOPT_XTOL_REACHED
+Optimization stopped because
+.I xtol_rel
+or
+.I xtol_abs
+(above) was reached.
+.TP
+.B NLOPT_MAXEVAL_REACHED
+Optimization stopped because
+.I maxeval
+(above) was reached.
+.TP
+.B NLOPT_MAXTIME_REACHED
+Optimization stopped because
+.I maxtime
+(above) was reached.
+.SS Error codes (negative return values):
+.TP
+.B NLOPT_FAILURE
+Generic failure code.
+.TP
+.B NLOPT_INVALID_ARGS
+Invalid arguments (e.g. lower bounds are bigger than upper bounds, an
+unknown algorithm was specified, etcetera).
+.TP
+.B NLOPT_OUT_OF_MEMORY
+Ran out of memory.
 .SH PSEUDORANDOM NUMBERS
 For stochastic optimization algorithms, we use pseudorandom numbers generated
 by the Mersenne Twister algorithm, based on code from Makoto Matsumoto.
