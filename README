@@ -15,4 +15,7 @@ link it with -lnlopt -lm.  You may need to use the C++ compiler to link
 in order to include the C++ libraries (which are used internally by NLopt,
 even though it has a C API).
 
+The minimization function, nlopt_minimize, is described in the man
+page (api/nlopt_minimize.3, which is installed by 'make install'.
+
 Interfaces for other languages may be added in the future.

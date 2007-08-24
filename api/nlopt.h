@@ -13,6 +13,7 @@ typedef double (*nlopt_func)(int n, const double *x,
 typedef enum {
      /* non-gradient algorithms */
      NLOPT_GLOBAL_DIRECT = 0,
+     NLOPT_GLOBAL_DIRECT_L,
      NLOPT_LOCAL_SUBPLEX,
 
      /* gradient-based algorithms */

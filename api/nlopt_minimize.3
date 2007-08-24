@@ -28,6 +28,9 @@ nlopt_minimize \- Minimize a multivariate nonlinear function
 .BI "                            const double* " "xtol_abs" ,
 .BI "                            int " "maxeval" ,
 .BI "                            double " "maxtime" );
+.sp
+You should link the resulting program with the linker flags
+-lnlopt -lm on Unix.
 .fi
 .SH DESCRIPTION
 .BR nlopt_minimize ()

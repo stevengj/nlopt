@@ -6,6 +6,7 @@
 
 static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "DIRECT (global)",
+     "DIRECT-L (global)",
      "Subplex (local)",
      "StoGO (global)",
      "Low-storage BFGS (LBFGS) (local)"
@@ -74,11 +75,15 @@ nlopt_result nlopt_minimize(
 
      switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
+	 case NLOPT_GLOBAL_DIRECT_L:
 	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
 				      maxeval, 500, ftol_rel, ftol_abs,
 				      xtol_rel, xtol_rel,
 				      DIRECT_UNKNOWN_FGLOBAL, -1.0,
-				      NULL, DIRECT_GABLONSKY)) {
+				      NULL, 
+				      algorithm == NLOPT_GLOBAL_DIRECT
+				      ? DIRECT_ORIGINAL
+				      : DIRECT_GABLONSKY)) {
 		  case DIRECT_INVALID_BOUNDS:
 		  case DIRECT_MAXFEVAL_TOOBIG:
 		  case DIRECT_INVALID_ARGS:
