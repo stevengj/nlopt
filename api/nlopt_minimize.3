@@ -1,0 +1,151 @@
+.\" 
+.\" Copyright (c) 2007 Massachusetts Institute of Technology
+.\" 
+.\" Copying and distribution of this file, with or without modification,
+.\" are permitted in any medium without royalty provided the copyright
+.\" notice and this notice are preserved.
+.\"
+.TH NLOPT_MINIMIZE 3  2007-08-23 "MIT" "NLopt programming manual"
+.SH NAME
+nlopt_minimize \- Minimize a multivariate nonlinear function
+.SH SYNOPSIS
+.nf
+.B #include <nlopt.h>
+.sp
+.BI "nlopt_result nlopt_minimize(nlopt_algorithm " "algorithm" ,
+.br
+.BI "                            int " "n" ,
+.BI "                            nlopt_func " "f" ,
+.BI "                            void* " "f_data" ,
+.BI "                            const double* " "lb" ,
+.BI "                            const double* " "ub" ,
+.BI "                            double* " "x" ,
+.BI "                            double* " "fmin" ,
+.BI "                            double " "fmin_max" ,
+.BI "                            double " "ftol_rel" ,
+.BI "                            double " "ftol_abs" ,
+.BI "                            double " "xtol_rel" ,
+.BI "                            const double* " "xtol_abs" ,
+.BI "                            int " "maxeval" ,
+.BI "                            double " "maxtime" );
+.fi
+.SH DESCRIPTION
+.BR nlopt_minimize ()
+attempts to minimize a nonlinear function
+.I f
+of
+.I n
+variables using the specified
+.IR algorithm .
+The minimum function value found is returned in
+.IR fmin ,
+corresponding to the variables in the array
+.I x
+of length
+.IR n .
+The inputs
+.I lb
+and
+.I ub
+are arrays of length
+.I n
+containing lower and upper bounds, respectively, on the variables
+.IR x .
+The other parameters specify stopping criteria (tolerances, the maximum
+number of function evaluations, etcetera) and other information as described
+in more detail below.  The return value is a integer code indicating success
+(positive) or failure (negative), as described below.
+.PP
+By changing the parameter
+.I algorithm
+among several predefined constants described below, one can switch easily
+between a variety of minimization algorithms.  Some of these algorithms
+require the gradient (derivatives) of the function to be supplied via
+.IR f ,
+and other algorithms do not require derivatives.  Some of the
+algorithms attempt to find a global minimum within the given bounds,
+and others find only a local minimum.
+.PP
+The
+.B nlopt_minimize
+function is a wrapper around several free/open-source minimization packages.
+You could, of course, compile and call these packages separately, and in
+some cases this will provide greater flexibility than is available via the
+.B nlopt_minimize
+interface.  However, depending upon the specific function being minimized,
+the different algorithms will vary in effectiveness.  The intent of
+.B nlopt_minimize
+is to allow you to quickly switch between algorithms in order to experiment
+with them for your problem, by providing a simple unified interface to
+these subroutines.
+.SH OBJECTIVE FUNCTION
+.BR nlopt_minimize ()
+minimizes an objective function
+.I f
+of the form:
+.sp
+.BI "      double f(int " "n" , 
+.br
+.BI "               const double* " "x" , 
+.br
+.BI "               double* " "grad" , 
+.br
+.BI "               void* " "f_data" );
+.sp
+The return value should be the value of the function at the point
+.IR x ,
+where
+.I x
+points to an array of length
+.I n
+of the function variables.  The dimension
+.I n
+is identical to the one passed to
+.BR nlopt_minimize ().
+.sp
+In addition, if the argument
+.I grad
+is not NULL, then
+.I grad
+points to an array of length
+.I n
+which should (upon return) be set to the gradient of the function with
+respect to the function variables at
+.IR x .
+Not all of the optimization algorithms (below) use the gradient information:
+for algorithms listed as "derivative-free," the 
+.I grad
+argument will always be NULL and need never be computed.  (For
+algorithms that use gradient information, however,
+.I grad
+may still be NULL for some calls.)
+.sp
+The 
+.I f_data
+argument is the same as the one passed to 
+.BR nlopt_minimize (),
+and may be used to pass any additional data through to the function.  (That
+is, it may be a pointer to some data structure/type containing information
+your function needs, which you convert from void* by a typecast.)
+.SH ALGORITHMS
+The 
+.I algorithm
+parameter can take on any of the following values:
+.TP 
+.B NLOPT_GLOBAL_DIRECT
+Perform a global derivative-free optimization using the DIRECT search
+algorithm by Jones et al., based on the free implementation by Gablonsky
+et al.
+.SH RETURN VALUE
+The value returned is one of the following enumerated constants.
+(Positive return values indicate successful termination, while negative
+return values indicate an error condition.)
+.SH BUGS
+Currently the NLopt library is in pre-alpha stage.  Most not all
+algorithms support all termination conditions: the only termination
+condition that is consistently supported right now is
+.BR maxeval .
+.SH AUTHORS
+Written by Steven G. Johnson.
+.PP
+Copyright (c) 2007 Massachusetts Institute of Technology.

@@ -2,5 +2,6 @@ AM_CPPFLAGS = -I$(top_srcdir)/direct -I$(top_srcdir)/stogo -I$(top_srcdir)/lbfgs
 
 include_HEADERS = nlopt.h
 noinst_LTLIBRARIES = libapi.la
+dist_man_MANS = nlopt_minimize.3
 
 libapi_la_SOURCES = nlopt.c nlopt.h
