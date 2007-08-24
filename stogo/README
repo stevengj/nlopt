@@ -14,8 +14,10 @@ S. Gudmundsson, "Parallel Global Optimization," M.Sc. Thesis, IMM,
 
 K. Madsen, S. Zertchaninov, and A. Zilinskas, "Global Optimization
 	using Branch-and-Bound," Submitted to the Journal of Global
-	Optimization, 1998.  [ does not seem to have been published? ]
+	Optimization, 1998.
+	[ never published, but preprint is included as paper.pdf ]
 
 S. Zertchaninov and K. Madsen, "A C++ Programme for Global Optimization,"
 	IMM-REP-1998-04, Department of Mathematical Modelling,
 	Technical University of Denmark, DK-2800 Lyngby, Denmark, 1998.
+	[ included as techreport.pdf ]
