@@ -139,6 +139,31 @@ and may be used to pass any additional data through to the function.
 (That is, it may be a pointer to some caller-defined data
 structure/type containing information your function needs, which you
 convert from void* by a typecast.)
+.sp
+.SH CONSTRAINTS
+Most of the algorithms in NLopt are designed for minimization of functions
+with simple bound constraints on the inputs.  That is, the input vectors
+x[i] are constrainted to lie in a hyperrectangle lb[i] <= x[i] <= ub[i] for
+0 <= i < n, where
+.I lb
+and
+.I ub
+are the two arrays passed to
+.BR nlopt_minimize ().
+.sp
+However, a few of the algorithms support partially or totally
+unconstrained optimization, as noted below, where a (totally or
+partially) unconstrained design variable is indicated by a lower bound
+equal to -Inf and/or an upper bound equal to +Inf.  Here, Inf is the
+IEEE-754 floating-point infinity, which (in ANSI C99) is represented by
+the macro INFINITY in math.h.  Alternatively, for older C versions
+you may also use the macro HUGE_VAL (also in math.h).
+.sp
+With some of the algorithms, you may also employ arbitrary nonlinear
+constraints on the input variables.  This is indicated by returning NaN
+(not a number) or Inf (infinity) from your objective function whenever
+a forbidden point is requested.  See above for how to specify infinity;
+NaN is specified by the macro NAN in math.h (for ANSI C99).
 .SH ALGORITHMS
 The 
 .I algorithm
@@ -146,8 +171,29 @@ parameter can take on any of the following values:
 .TP 
 .B NLOPT_GLOBAL_DIRECT
 Perform a global derivative-free optimization using the DIRECT search
-algorithm by Jones et al., based on the free implementation by Gablonsky
-et al.
+algorithm by Jones et al.  See direct/README.  Supports arbitrary
+nonlinear constraints as described above.
+.TP 
+.B NLOPT_GLOBAL_DIRECT_L
+Perform a global derivative-free optimization using the DIRECT-L
+search algorithm by Gablonsky et al., a modified version of the DIRECT
+algorithm that is more suited to functions with few local minima.  See
+direct/README.  Supports arbitrary nonlinear constraints as described
+above.
+.TP 
+.B NLOPT_LOCAL_SUBPLEX
+Perform a local derivative-free optimization, starting at
+.IR x ,
+using the Subplex algorithm of Rowan et al., which is an improved
+variant of Nelder-Mead simplex algorithm.  (Like Nelder-Mead, Subplex
+often works well in practice, even for discontinuous objectives, but
+there is no rigorous guarantee that it will converge.)  Subplex is
+best for unconstrained optimization, but constrained optimization also
+works (both for simple bound constraints via
+.I lb
+and
+.I ub
+as well as nonlinear constraints as described above).
 .SH RETURN VALUE
 The value returned is one of the following enumerated constants.
 (Positive return values indicate successful termination, while negative

@@ -34,13 +34,26 @@ static int my_isnan(double x) { return x != x; }
 typedef struct {
      nlopt_func f;
      void *f_data;
+     const double *lb, *ub;
 } nlopt_data;
 
 #include "subplex.h"
 
 static double f_subplex(int n, const double *x, void *data_)
 {
+     int i;
      nlopt_data *data = (nlopt_data *) data_;
+
+     /* subplex does not support bound constraints, but it supports
+	discontinuous objectives so we can just return Inf for invalid x */
+     for (i = 0; i < n; ++i)
+	  if (x[i] < data->lb[i] || x[i] > data->ub[i])
+#ifdef INFINITY
+	       return INFINITY;
+#else
+	       return HUGE_VAL;
+#endif
+
      return data->f(n, x, NULL, data->f_data);
 }
 
@@ -69,9 +82,17 @@ nlopt_result nlopt_minimize(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
+     int i;
      nlopt_data d;
      d.f = f;
      d.f_data = f_data;
+     d.lb = lb;
+     d.ub = ub;
+
+     /* check bound constraints */
+     for (i = 0; i < n; ++i)
+	  if (lb[i] > ub[i] || x[i] < lb[i] || x[i] > ub[i])
+	       return NLOPT_INVALID_ARGS;
 
      switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
@@ -112,11 +133,19 @@ nlopt_result nlopt_minimize(
 	      break;
 
 	 case NLOPT_LOCAL_SUBPLEX: {
-	      int iret, i;
+	      int iret;
 	      double *scale = (double *) malloc(sizeof(double) * n);
 	      if (!scale) return NLOPT_OUT_OF_MEMORY;
-	      for (i = 0; i < n; ++i)
-		   scale[i] = fabs(ub[i] - lb[i]);
+	      for (i = 0; i < n; ++i) {
+		   if (!my_isinf(ub[i]) && !my_isinf(lb[i]))
+			scale[i] = (ub[i] - lb[i]) * 0.01;
+		   else if (!my_isinf(lb[i]) && x[i] > lb[i])
+			scale[i] = (x[i] - lb[i]) * 0.01;
+		   else if (!my_isinf(ub[i]) && x[i] < ub[i])
+			scale[i] = (ub[i] - x[i]) * 0.01;
+		   else
+			scale[i] = 0.01 * x[i] + 0.0001;
+	      }
 	      iret = subplex(f_subplex, fmin, x, n, &d, xtol_rel, maxeval,
 			     fmin_max, !my_isinf(fmin_max), scale);
 	      free(scale);
@@ -131,7 +160,7 @@ nlopt_result nlopt_minimize(
 	 }
 
 	 case NLOPT_LOCAL_LBFGS: {
-	      int iret, i, *nbd = (int *) malloc(sizeof(int) * n);
+	      int iret, *nbd = (int *) malloc(sizeof(int) * n);
 	      if (!nbd) return NLOPT_OUT_OF_MEMORY;
 	      for (i = 0; i < n; ++i) {
 		   int linf = my_isinf(lb[i]) && lb[i] < 0;
