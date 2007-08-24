@@ -135,7 +135,7 @@ nlopt_result nlopt_minimize(
 	      }
 	      iret = lbfgsb_minimize(n, f, f_data, x, nbd, lb, ub,
 				     MIN(n, 5), 0.0, ftol_rel, 
-				     xtol_abs ? xtol_rel : *xtol_abs,
+				     xtol_abs ? *xtol_abs : xtol_rel,
 				     maxeval);
 	      free(nbd);
 	      if (iret <= 0) {

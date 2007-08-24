@@ -125,6 +125,9 @@ int main(int argc, char **argv)
   srand((unsigned) time(NULL));
   testfuncs_verbose = 0;
   
+  if (argc <= 1)
+    usage(stdout);
+  
   while ((c = getopt(argc, argv, "hvra:o:e:")) != -1)
     switch (c) {
     case 'h':
