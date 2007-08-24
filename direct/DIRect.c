@@ -56,7 +56,6 @@
     /* constants (FIXME: change to variable?) */
     const integer MAXFUNC = 90000;
     const integer MAXDEEP = 600;
-    const integer MAXOR = 64;
     const integer MAXDIV = 3000;
 
     /* Local variables */
@@ -87,17 +86,17 @@
     /* FIXME: change sizes dynamically? */
 #define MY_ALLOC(p, t, n) p = (t *) malloc(sizeof(t) * (n)); \
                           if (!(p)) { *ierror = -100; goto cleanup; }
-    MY_ALLOC(c__, doublereal, MAXFUNC * MAXOR);
+    MY_ALLOC(c__, doublereal, MAXFUNC * (*n));
     MY_ALLOC(f, doublereal, MAXFUNC * 2);
     MY_ALLOC(s, integer, MAXDIV * 2);
-    MY_ALLOC(w, doublereal, MAXOR);
-    MY_ALLOC(oldl, doublereal, MAXOR);
-    MY_ALLOC(oldu, doublereal, MAXOR);
-    MY_ALLOC(list2, integer, MAXOR * 2);
+    MY_ALLOC(w, doublereal, (*n));
+    MY_ALLOC(oldl, doublereal, (*n));
+    MY_ALLOC(oldu, doublereal, (*n));
+    MY_ALLOC(list2, integer, (*n) * 2);
     MY_ALLOC(point, integer, MAXFUNC);
     MY_ALLOC(anchor, integer, MAXDEEP + 2);
-    MY_ALLOC(length, integer, MAXFUNC * MAXOR);
-    MY_ALLOC(arrayi, integer, MAXOR);
+    MY_ALLOC(length, integer, MAXFUNC * (*n));
+    MY_ALLOC(arrayi, integer, (*n));
     MY_ALLOC(levels, doublereal, MAXDEEP + 1);
     MY_ALLOC(thirds, doublereal, MAXDEEP + 1);    
 
@@ -389,7 +388,7 @@
 /* +-----------------------------------------------------------------------+ */
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
 	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
-	    fmin, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, &MAXOR, &
+	    fmin, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
 	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
@@ -637,7 +636,7 @@
 /* +-----------------------------------------------------------------------+ */
 	if (iinfesiblef > 0) {
 	     direct_dirreplaceinf_(&ifree, &ifreeold, f, c__, thirds, length, anchor, 
-		    point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, &MAXOR, n, 
+		    point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, n, n, 
 		    logfile, &fmax, jones);
 	}
 	ifreeold = ifree;
