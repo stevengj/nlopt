@@ -58,6 +58,7 @@ COMMENTS
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "subplex.h"
 
@@ -1265,7 +1266,7 @@ static int evalf_(D_fp f,void*fdata, integer *ns, integer *ips, doublereal *xs,
 */
 
 static int simplx_(D_fp f, void *fdata, integer *n, doublereal *step, integer *
-	ns, integer *ips, integer *maxnfe, logical *cmode, doublereal *x, 
+	ns, integer *ips, nlopt_stopping *stop, logical *cmode, doublereal *x, 
 	doublereal *fx, integer *nfe, doublereal *s, doublereal *fs, integer *
 	iflag)
 {
@@ -1384,6 +1385,7 @@ static int simplx_(D_fp f, void *fdata, integer *n, doublereal *step, integer *
     if (usubc_1.irepl > 0) {
 	isubc_1.new__ = FALSE_;
 	evalf_((D_fp)f,fdata, ns, &ips[1], &s[s_dim1 + 1], n, &x[1], &fs[1], nfe);
+	stop->nevals++;
     } else {
 	fs[1] = *fx;
     }
@@ -1392,6 +1394,7 @@ static int simplx_(D_fp f, void *fdata, integer *n, doublereal *step, integer *
     for (j = 2; j <= i__1; ++j) {
 	evalf_((D_fp)f, fdata,ns, &ips[1], &s[j * s_dim1 + 1], n, &x[1], &fs[j], 
 		nfe);
+	stop->nevals++;
 /* L10: */
     }
     il = 1;
@@ -1413,6 +1416,7 @@ L20:
 	goto L40;
     }
     evalf_((D_fp)f,fdata, ns, &ips[1], &s[itemp * s_dim1 + 1], n, &x[1], &fr, nfe);
+    stop->nevals++;
     if (fr < fs[il]) {
 
 /*         expand */
@@ -1424,6 +1428,7 @@ L20:
 	    goto L40;
 	}
 	evalf_((D_fp)f,fdata, ns, &ips[1], &s[ih * s_dim1 + 1], n, &x[1], &fe, nfe);
+	stop->nevals++;
 	if (fe < fr) {
 	    fs[ih] = fe;
 	} else {
@@ -1455,6 +1460,7 @@ L20:
 	}
 	evalf_((D_fp)f,fdata, ns, &ips[1], &s[itemp * s_dim1 + 1], n, &x[1], &fc, 
 		nfe);
+	stop->nevals++;
 /* Computing MIN */
 	d__1 = fr, d__2 = fs[ih];
 	if (fc < min(d__1,d__2)) {
@@ -1476,6 +1482,7 @@ L20:
 		    }
 		    evalf_((D_fp)f,fdata, ns, &ips[1], &s[j * s_dim1 + 1], n, &x[1],
 			     &fs[j], nfe);
+		    stop->nevals++;
 		}
 /* L30: */
 	    }
@@ -1493,17 +1500,17 @@ L40:
 	*fx = isubc_1.sfbest;
     }
 L50:
-    if (usubc_1.nfstop > 0 && *fx <= isubc_1.sfstop && usubc_1.nfxe >= 
-	    usubc_1.nfstop) {
-	*iflag = 2;
-    } else if (*nfe >= *maxnfe) {
-	*iflag = -1;
-    } else if (dist_(ns, &s[ih * s_dim1 + 1], &s[il * s_dim1 + 1]) <= tol || 
-	    small) {
-	*iflag = 0;
-    } else {
-	goto L20;
-    }
+    if (*fx < stop->fmin_max)
+	 *iflag = 2;
+    else if (nlopt_stop_evals(stop))
+	 *iflag = -1;
+    else if (nlopt_stop_time(stop))
+	 *iflag = -10;
+    else if (dist_(ns, &s[ih * s_dim1 + 1], &s[il * s_dim1 + 1]) <= tol
+	     || small)
+	 *iflag = 0;
+    else
+	 goto L20;
 
 /*     end main loop, return best point */
 
@@ -1790,9 +1797,11 @@ static int setstp_(integer *nsubs, integer *n, doublereal *deltax,
 	-lf2c -lm   (in that order)
 */
 
-static int subplx_(D_fp f, void *fdata, integer *n, doublereal *tol, integer *
-	maxnfe, integer *mode, const doublereal *scale, doublereal *x, doublereal *
-	fx, integer *nfe, doublereal *work, integer *iwork, integer *iflag)
+static int subplx_(D_fp f, void *fdata, integer *n, 
+		   nlopt_stopping *stop, integer *mode,
+		   const doublereal *scale, doublereal *x, doublereal *fx, 
+		   integer *nfe, doublereal *work, integer *iwork,
+		   integer *iflag)
 {
     /* Initialized data */
 
@@ -1814,7 +1823,7 @@ static int subplx_(D_fp f, void *fdata, integer *n, doublereal *tol, integer *
     static integer istptr;
     static doublereal scl, dum;
     static integer ins;
-    static doublereal sfx;
+    static doublereal sfx, sfx_old, *x_old;
 
 
 
@@ -1913,6 +1922,8 @@ static int subplx_(D_fp f, void *fdata, integer *n, doublereal *tol, integer *
     --scale;
     --work;
     --iwork;
+    x_old = work;
+    work += *n;
 
     /* Function Body */
 /* ----------------------------------------------------------- */
@@ -1922,12 +1933,6 @@ static int subplx_(D_fp f, void *fdata, integer *n, doublereal *tol, integer *
 /*       first call, check input */
 
 	if (*n < 1) {
-	    goto L120;
-	}
-	if (*tol < 0.) {
-	    goto L120;
-	}
-	if (*maxnfe < 1) {
 	    goto L120;
 	}
 	if (scale[1] >= 0.) {
@@ -2031,6 +2036,7 @@ static int subplx_(D_fp f, void *fdata, integer *n, doublereal *tol, integer *
 	isubc_1.new__ = TRUE_;
 	usubc_1.initx = TRUE_;
 	evalf_((D_fp)f, fdata, &c__0, &iwork[1], &dum, n, &x[1], &sfx, nfe);
+	stop->nevals++;
 	usubc_1.initx = FALSE_;
     } else {
 
@@ -2071,12 +2077,12 @@ L40:
     ipptr = 1;
 
 /*       simplex loop */
-
+    sfx_old = sfx;
+    memcpy(&x_old[1], &x[1], sizeof(doublereal) * *n);
 L60:
     ns = iwork[ins];
 L70:
-    simplx_((D_fp)f, fdata, n, &work[istptr], &ns, &iwork[ipptr], maxnfe, &cmode, &x[
-	    1], &sfx, nfe, &work[isptr], &work[ifsptr], iflag);
+    simplx_((D_fp)f, fdata, n, &work[istptr], &ns, &iwork[ipptr], stop, &cmode, &x[1], &sfx, nfe, &work[isptr], &work[ifsptr], iflag);
     cmode = FALSE_;
     if (*iflag != 0) {
 	goto L110;
@@ -2097,6 +2103,15 @@ L70:
 
 /*       check termination */
 
+    if (nlopt_stop_ftol(stop, sfx, sfx_old)) {
+	 *iflag = 20;
+	 goto L110;
+    }
+    if (nlopt_stop_x(stop, &x[1], &x_old[1])) {
+	 *iflag = 0;
+	 goto L110;
+    }
+
 L90:
     istep = istptr;
     i__1 = *n;
@@ -2106,7 +2121,7 @@ L90:
 		d__1)) * usubc_1.psi;
 /* Computing MAX */
 	d__6 = (d__3 = x[i__], abs(d__3));
-	if (max(d__4,d__5) / max(d__6,1.) > *tol) {
+	if (max(d__4,d__5) / max(d__6,1.) > stop->xtol_rel) {
 	    setstp_(&nsubs, n, &work[1], &work[istptr]);
 	    goto L40;
 	}
@@ -2147,47 +2162,49 @@ L120:
    fmin: (output) value of f at minimum
    x[n]: (input) starting guess position, (output) computed minimum
    fdata: data pointer passed to f
+   
+   old args:
    tol: relative error tolerance for x
    maxnfe: maximum number of function evaluations
    fmin_max, use_fmin_max: if use_fmin_max, stop when f <= fmin_max
+   
+   new args: nlopt_stopping *stop (stopping criteria)
+
    scale[n]: (input) scale & initial stepsizes for components of x
              (if *scale < 0, |*scale| is used for all components)
 
    Return value:
             = -2 : invalid input
-            = -1 : maxnfe exceeded
+            = -10 : maxtime exceeded
+            = -1 : maxevals exceeded
             =  0 : tol satisfied
             =  1 : limit of machine precision
             =  2 : fstop reached (fstop usage is determined by values of
                    options minf, nfstop, and irepl. default: f(x) not
                    tested against fstop)
+            = 20 : ftol reached
+            = -200 : out of memory
 */
 int subplex(subplex_func f, double *fmin, double *x, int n, void *fdata,
-	       double tol, int maxnfe,
-	       double fmin_max, int use_fmin_max,
-	       const double *scale)
+	    nlopt_stopping *stop,
+	    const double *scale)
 {
      int mode = 0, *iwork, nsmax, nsmin, errflag, nfe;
      double *work;
 
      nsmax = min(5,n);
      nsmin = min(2,n);
-     work = (double*) malloc(sizeof(double) * (2*n + nsmax*(nsmax+4) + 1));
+     work = (double*) malloc(sizeof(double) * (3*n + nsmax*(nsmax+4) + 1));
+     if (!work)
+	  return -200;
      iwork = (int*) malloc(sizeof(int) * (n + n/nsmin + 1));
-     if (!work || !iwork) {
-	  fprintf(stderr, "subplex: error, out of memory!\n");
-	  exit(EXIT_FAILURE);
-     }
-
-     if (use_fmin_max) { /* stop when fmin_max is reached */
-	  subopt_(&n);
-	  usubc_1.nfstop = 1;
-	  usubc_1.fstop = fmin_max;
-	  mode = 2;
+     if (!iwork) {
+	  free(work);
+	  return -200;
      }
 
      subplx_(f,fdata, &n,
-	     &tol, &maxnfe, &mode,
+	     stop, &mode,
 	     scale, x, 
 	     fmin, &nfe,
 	     work, iwork, &errflag);

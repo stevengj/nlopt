@@ -16,7 +16,7 @@
 #include "testfuncs.h"
 
 static nlopt_algorithm algorithm = NLOPT_GLOBAL_DIRECT;
-static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0;
+static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max = -HUGE_VAL;
 static int maxeval = 1000;
 static double maxtime = 0.0;
 
@@ -40,7 +40,7 @@ static int test_function(int ifunc)
 {
   testfunc func;
   int i;
-  double *x, fmin, f0;
+  double *x, fmin, f0, *xtabs;
   nlopt_result ret;
   double start = nlopt_seconds();
   
@@ -56,8 +56,11 @@ static int test_function(int ifunc)
 	    nlopt_algorithm_name(algorithm));
     return 0;
   }
-  x = (double *) malloc(sizeof(double) * func.n * 2);
+  x = (double *) malloc(sizeof(double) * func.n * 3);
   if (!x) { fprintf(stderr, "testopt: Out of memory!\n"); return 0; }
+
+  xtabs = x + func.n * 2;
+  for (i = 0; i < func.n; ++i) xtabs[i] = xtol_abs;
 
   
   printf("-----------------------------------------------------------\n");
@@ -87,7 +90,7 @@ static int test_function(int ifunc)
 		       func.n, func.f, func.f_data,
 		       func.lb, func.ub,
 		       x, &fmin,
-		       HUGE_VAL, ftol_rel, ftol_abs, xtol_rel, NULL,
+		       fmin_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
 		       maxeval, maxtime);
   printf("finished after %g seconds.\n", nlopt_seconds() - start);
   printf("return code %d from nlopt_minimize\n", ret);
@@ -120,8 +123,14 @@ static void usage(FILE *f)
 	  " -r <s> : use random seed <s> for starting guesses\n"
 	  " -a <n> : use optimization algorithm <n>\n"
 	  " -o <n> : use objective function <n>\n"
-	  " -e <n> : use at most <n> evals (default: %d)\n",
-	  maxeval);
+	  " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
+	  " -t <t> : use at most <t> seconds (default: disabled)\n"
+	  " -x <t> : relative tolerance <t> on x (default: disabled)\n"
+	  " -X <t> : absolute tolerance <t> on x (default: disabled)\n"
+	  " -f <t> : relative tolerance <t> on f (default: disabled)\n"
+	  " -F <t> : absolute tolerance <t> on f (default: disabled)\n"
+	  " -m <m> : minimize f until <m> is reached (default: disabled)\n"
+	  , maxeval);
 }
 
 int main(int argc, char **argv)
@@ -134,7 +143,7 @@ int main(int argc, char **argv)
   if (argc <= 1)
     usage(stdout);
   
-  while ((c = getopt(argc, argv, "hLvra:o:e:")) != -1)
+  while ((c = getopt(argc, argv, "hLvr:a:o:e:t:x:X:f:F:m:")) != -1)
     switch (c) {
     case 'h':
       usage(stdout);
@@ -147,7 +156,7 @@ int main(int argc, char **argv)
       testfuncs_verbose = 1;
       break;
     case 'r':
-      srand((unsigned) atoi(optarg));
+      nlopt_srand((unsigned long) atoi(optarg));
       break;
     case 'a':
       c = atoi(optarg);
@@ -164,6 +173,24 @@ int main(int argc, char **argv)
       break;
     case 'e':
       maxeval = atoi(optarg);
+      break;
+    case 't':
+      maxtime = atof(optarg);
+      break;
+    case 'x':
+      xtol_rel = atof(optarg);
+      break;
+    case 'X':
+      xtol_abs = atof(optarg);
+      break;
+    case 'f':
+      ftol_rel = atof(optarg);
+      break;
+    case 'F':
+      ftol_abs = atof(optarg);
+      break;
+    case 'm':
+      fmin_max = atof(optarg);
       break;
     default:
       fprintf(stderr, "harminv: invalid argument -%c\n", c);

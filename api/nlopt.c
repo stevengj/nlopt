@@ -106,7 +106,8 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 
 /*************************************************************************/
 
-nlopt_result nlopt_minimize(
+/* same as nlopt_minimize, but xtol_abs is required to be non-NULL */
+static nlopt_result nlopt_minimize_(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
@@ -118,6 +119,8 @@ nlopt_result nlopt_minimize(
 {
      int i;
      nlopt_data d;
+     nlopt_stopping stop;
+
      d.f = f;
      d.f_data = f_data;
      d.lb = lb;
@@ -131,6 +134,18 @@ nlopt_result nlopt_minimize(
      for (i = 0; i < n; ++i)
 	  if (lb[i] > ub[i] || x[i] < lb[i] || x[i] > ub[i])
 	       return NLOPT_INVALID_ARGS;
+
+     stop.n = n;
+     stop.fmin_max = (isnan(fmin_max) || (my_isinf(fmin_max) && fmin_max < 0))
+	  ? -MY_INF : fmin_max;
+     stop.ftol_rel = ftol_rel;
+     stop.ftol_abs = ftol_abs;
+     stop.xtol_rel = xtol_rel;
+     stop.xtol_abs = xtol_abs;
+     stop.nevals = 0;
+     stop.maxeval = maxeval;
+     stop.maxtime = maxtime;
+     stop.start = nlopt_seconds();
 
      switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
@@ -184,15 +199,18 @@ nlopt_result nlopt_minimize(
 		   else
 			scale[i] = 0.01 * x[i] + 0.0001;
 	      }
-	      iret = subplex(f_subplex, fmin, x, n, &d, xtol_rel, maxeval,
-			     fmin_max, !my_isinf(fmin_max), scale);
+	      iret = subplex(f_subplex, fmin, x, n, &d, &stop, scale);
 	      free(scale);
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;
+		  case -10: return NLOPT_MAXTIME_REACHED;
 		  case -1: return NLOPT_MAXEVAL_REACHED;
 		  case 0: return NLOPT_XTOL_REACHED;
 		  case 1: return NLOPT_SUCCESS;
 		  case 2: return NLOPT_FMIN_MAX_REACHED;
+		  case 20: return NLOPT_FTOL_REACHED;
+		  case -200: return NLOPT_OUT_OF_MEMORY;
+		  default: return NLOPT_FAILURE; /* unknown return code */
 	      }
 	      break;
 	 }
@@ -233,4 +251,32 @@ nlopt_result nlopt_minimize(
      }
 
      return NLOPT_SUCCESS;
+}
+
+nlopt_result nlopt_minimize(
+     nlopt_algorithm algorithm,
+     int n, nlopt_func f, void *f_data,
+     const double *lb, const double *ub, /* bounds */
+     double *x, /* in: initial guess, out: minimizer */
+     double *fmin, /* out: minimum */
+     double fmin_max, double ftol_rel, double ftol_abs,
+     double xtol_rel, const double *xtol_abs,
+     int maxeval, double maxtime)
+{
+     nlopt_result ret;
+     if (xtol_abs)
+	  ret = nlopt_minimize_(algorithm, n, f, f_data, lb, ub,
+				x, fmin, fmin_max, ftol_rel, ftol_abs,
+				xtol_rel, xtol_abs, maxeval, maxtime);
+     else {
+	  int i;
+	  double *xtol = (double *) malloc(sizeof(double) * n);
+	  if (!xtol) return NLOPT_OUT_OF_MEMORY;
+	  for (i = 0; i < n; ++i) xtol[i] = -1;
+	  ret = nlopt_minimize_(algorithm, n, f, f_data, lb, ub,
+				x, fmin, fmin_max, ftol_rel, ftol_abs,
+				xtol_rel, xtol, maxeval, maxtime);
+	  free(xtol);
+     }
+     return ret;
 }

@@ -1,6 +1,8 @@
 #ifndef SUBPLEX_H
 #define SUBPLEX_H
 
+#include "nlopt-util.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -9,8 +11,7 @@ extern "C"
 typedef double (*subplex_func)(int n, const double *x, void *func_data);
 
 extern int subplex(subplex_func f, double *fmin, double *x, int n, void *fdata,
-		   double tol, int maxnfe,
-		   double fmin_max, int use_fmin_max,
+		   nlopt_stopping *stop,
 		   const double *scale);
 
 #ifdef __cplusplus
