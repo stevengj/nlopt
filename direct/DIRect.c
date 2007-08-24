@@ -10,11 +10,6 @@
 
 /* Table of constant values */
 
-static integer MAXFUNC = 90000;
-static integer MAXDEEP = 600;
-static integer c__64 = 64;
-static integer c__3000 = 3000;
-
 /* +-----------------------------------------------------------------------+ */
 /* | Program       : Direct.f                                              | */
 /* | Last modified : 07-16-2001                                            | */
@@ -58,6 +53,12 @@ static integer c__3000 = 3000;
     integer i__1, i__2;
     doublereal d__1;
 
+    /* constants (FIXME: change to variable?) */
+    const integer MAXFUNC = 90000;
+    const integer MAXDEEP = 600;
+    const integer MAXOR = 64;
+    const integer MAXDIV = 3000;
+
     /* Local variables */
     integer increase;
     doublereal *c__ = 0	/* was [90000][64] */, *f = 0	/* 
@@ -86,19 +87,19 @@ static integer c__3000 = 3000;
     /* FIXME: change sizes dynamically? */
 #define MY_ALLOC(p, t, n) p = (t *) malloc(sizeof(t) * (n)); \
                           if (!(p)) { *ierror = -100; goto cleanup; }
-    MY_ALLOC(c__, doublereal, 5760000);
-    MY_ALLOC(f, doublereal, 180000);
-    MY_ALLOC(s, integer, 6000);
-    MY_ALLOC(w, doublereal, 64);
-    MY_ALLOC(oldl, doublereal, 64);
-    MY_ALLOC(oldu, doublereal, 64);
-    MY_ALLOC(list2, integer, 128);
-    MY_ALLOC(point, integer, 90000);
-    MY_ALLOC(anchor, integer, 602);
-    MY_ALLOC(length, integer, 5760000);
-    MY_ALLOC(arrayi, integer, 64);
-    MY_ALLOC(levels, doublereal, 601);
-    MY_ALLOC(thirds, doublereal, 601);    
+    MY_ALLOC(c__, doublereal, MAXFUNC * MAXOR);
+    MY_ALLOC(f, doublereal, MAXFUNC * 2);
+    MY_ALLOC(s, integer, MAXDIV * 2);
+    MY_ALLOC(w, doublereal, MAXOR);
+    MY_ALLOC(oldl, doublereal, MAXOR);
+    MY_ALLOC(oldu, doublereal, MAXOR);
+    MY_ALLOC(list2, integer, MAXOR * 2);
+    MY_ALLOC(point, integer, MAXFUNC);
+    MY_ALLOC(anchor, integer, MAXDEEP + 2);
+    MY_ALLOC(length, integer, MAXFUNC * MAXOR);
+    MY_ALLOC(arrayi, integer, MAXOR);
+    MY_ALLOC(levels, doublereal, MAXDEEP + 1);
+    MY_ALLOC(thirds, doublereal, MAXDEEP + 1);    
 
 /* +-----------------------------------------------------------------------+ */
 /* |    SUBROUTINE Direct                                                  | */
@@ -331,7 +332,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
     cheat = 0;
     kmax = 1e10;
-    mdeep = 600;
+    mdeep = MAXDEEP;
 /* +-----------------------------------------------------------------------+ */
 /* | Write the header of the logfile.                                      | */
 /* +-----------------------------------------------------------------------+ */
@@ -388,7 +389,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
 	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
-	    fmin, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, &c__64, &
+	    fmin, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, &MAXOR, &
 	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
@@ -436,7 +437,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 	actdeep = actmaxdeep;
 	direct_dirchoose_(anchor, s, &MAXDEEP, f, fmin, *eps, epsabs, levels, &maxpos, length, 
-		&MAXFUNC, &MAXDEEP, &c__3000, n, logfile, &cheat, &
+		&MAXFUNC, &MAXDEEP, &MAXDIV, n, logfile, &cheat, &
 		kmax, &ifeasiblef, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Add other hyperrectangles to S, which have the same level and the same| */
@@ -446,7 +447,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 	if (*algmethod == 0) {
 	     direct_dirdoubleinsert_(anchor, s, &maxpos, point, f, &MAXDEEP, &MAXFUNC,
-		     &c__3000, ierror);
+		     &MAXDIV, ierror);
 	    if (*ierror == -6) {
 		if (logfile)
 		     fprintf(logfile,
@@ -636,7 +637,7 @@ static integer c__3000 = 3000;
 /* +-----------------------------------------------------------------------+ */
 	if (iinfesiblef > 0) {
 	     direct_dirreplaceinf_(&ifree, &ifreeold, f, c__, thirds, length, anchor, 
-		    point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, &c__64, n, 
+		    point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, &MAXOR, n, 
 		    logfile, &fmax, jones);
 	}
 	ifreeold = ifree;
