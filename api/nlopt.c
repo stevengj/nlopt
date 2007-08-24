@@ -5,13 +5,30 @@
 #include "nlopt-util.h"
 #include "config.h"
 
-static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
-     "DIRECT (global)",
-     "DIRECT-L (global)",
-     "Subplex (local)",
-     "StoGO (global)",
-     "Low-storage BFGS (LBFGS) (local)"
-};
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+
+/*************************************************************************/
+
+#ifdef INFINITY
+#  define MY_INF INFINITY
+#else
+#  define MY_INF HUGE_VAL
+#endif
+
+static int my_isinf(double x) {
+     return fabs(x) >= HUGE_VAL * 0.99
+#ifdef HAVE_ISINF
+	  || isinf(x)
+#endif
+	  ;
+}
+
+#ifndef HAVE_ISNAN
+static int my_isnan(double x) { return x != x; }
+#  define isnan my_isnan
+#endif
+
+/*************************************************************************/
 
 void nlopt_version(int *major, int *minor, int *bugfix)
 {
@@ -20,11 +37,23 @@ void nlopt_version(int *major, int *minor, int *bugfix)
      *bugfix = BUGFIX_VERSION;
 }
 
+/*************************************************************************/
+
+static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
+     "DIRECT (global)",
+     "DIRECT-L (global)",
+     "Subplex (local)",
+     "StoGO (global)",
+     "Low-storage BFGS (LBFGS) (local)"
+};
+
 const char *nlopt_algorithm_name(nlopt_algorithm a)
 {
      if (a < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
      return nlopt_algorithm_names[a];
 }
+
+/*************************************************************************/
 
 static int nlopt_srand_called = 0;
 void nlopt_srand(unsigned long seed) {
@@ -36,18 +65,7 @@ void nlopt_srand_time() {
      nlopt_srand(nlopt_time_seed());
 }
 
-static int my_isinf(double x) {
-     return x == HUGE_VAL
-#ifdef HAVE_ISINF
-	  || isinf(x)
-#endif
-	  ;
-}
-
-#ifndef HAVE_ISNAN
-static int my_isnan(double x) { return x != x; }
-#  define isnan my_isnan
-#endif
+/*************************************************************************/
 
 typedef struct {
      nlopt_func f;
@@ -61,18 +79,16 @@ static double f_subplex(int n, const double *x, void *data_)
 {
      int i;
      nlopt_data *data = (nlopt_data *) data_;
+     double f;
 
      /* subplex does not support bound constraints, but it supports
 	discontinuous objectives so we can just return Inf for invalid x */
      for (i = 0; i < n; ++i)
 	  if (x[i] < data->lb[i] || x[i] > data->ub[i])
-#ifdef INFINITY
-	       return INFINITY;
-#else
-	       return HUGE_VAL;
-#endif
+	       return MY_INF;
 
-     return data->f(n, x, NULL, data->f_data);
+     f = data->f(n, x, NULL, data->f_data);
+     return (isnan(f) ? MY_INF : f);
 }
 
 #include "direct.h"
@@ -88,7 +104,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "stogo.h"
 #include "l-bfgs-b.h"
 
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
+/*************************************************************************/
 
 nlopt_result nlopt_minimize(
      nlopt_algorithm algorithm,
