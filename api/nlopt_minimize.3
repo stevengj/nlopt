@@ -35,11 +35,11 @@ attempts to minimize a nonlinear function
 .I f
 of
 .I n
-variables using the specified
+design variables using the specified
 .IR algorithm .
 The minimum function value found is returned in
 .IR fmin ,
-corresponding to the variables in the array
+with the corresponding design variable values stored in the array
 .I x
 of length
 .IR n .
@@ -49,7 +49,7 @@ and
 .I ub
 are arrays of length
 .I n
-containing lower and upper bounds, respectively, on the variables
+containing lower and upper bounds, respectively, on the design variables
 .IR x .
 The other parameters specify stopping criteria (tolerances, the maximum
 number of function evaluations, etcetera) and other information as described
@@ -64,7 +64,9 @@ require the gradient (derivatives) of the function to be supplied via
 .IR f ,
 and other algorithms do not require derivatives.  Some of the
 algorithms attempt to find a global minimum within the given bounds,
-and others find only a local minimum.
+and others find only a local minimum (with the initial value of
+.I x
+as a starting guess).
 .PP
 The
 .B nlopt_minimize
@@ -98,7 +100,7 @@ where
 .I x
 points to an array of length
 .I n
-of the function variables.  The dimension
+of the design variables.  The dimension
 .I n
 is identical to the one passed to
 .BR nlopt_minimize ().
@@ -110,13 +112,19 @@ is not NULL, then
 points to an array of length
 .I n
 which should (upon return) be set to the gradient of the function with
-respect to the function variables at
+respect to the design variables at
 .IR x .
+That is,
+.IR grad[i]
+should upon return contain the partial derivative df/dx[i],
+for 0 <= i < n, if
+.I grad
+is non-NULL.
 Not all of the optimization algorithms (below) use the gradient information:
 for algorithms listed as "derivative-free," the 
 .I grad
 argument will always be NULL and need never be computed.  (For
-algorithms that use gradient information, however,
+algorithms that do use gradient information, however,
 .I grad
 may still be NULL for some calls.)
 .sp
@@ -124,9 +132,10 @@ The
 .I f_data
 argument is the same as the one passed to 
 .BR nlopt_minimize (),
-and may be used to pass any additional data through to the function.  (That
-is, it may be a pointer to some data structure/type containing information
-your function needs, which you convert from void* by a typecast.)
+and may be used to pass any additional data through to the function.
+(That is, it may be a pointer to some caller-defined data
+structure/type containing information your function needs, which you
+convert from void* by a typecast.)
 .SH ALGORITHMS
 The 
 .I algorithm
@@ -141,9 +150,9 @@ The value returned is one of the following enumerated constants.
 (Positive return values indicate successful termination, while negative
 return values indicate an error condition.)
 .SH BUGS
-Currently the NLopt library is in pre-alpha stage.  Most not all
-algorithms support all termination conditions: the only termination
-condition that is consistently supported right now is
+Currently the NLopt library is in pre-alpha stage.  Most algorithms
+currently do not support all termination conditions: the only
+termination condition that is consistently supported right now is
 .BR maxeval .
 .SH AUTHORS
 Written by Steven G. Johnson.
