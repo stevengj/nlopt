@@ -37,6 +37,10 @@ typedef double (*objective_func)(int n, const double *x, double *grad,
 
        maxtime: if nonzero, a maximum time (in seconds)
 
+       nrandom: number of randomized search points to use per box,
+                in addition to 2*n+1 deterministic search points
+		(0 for a deterministic algorithm).
+
    Output:
 
       fmin: the minimum value of the objective function found
@@ -51,7 +55,8 @@ int stogo_minimize(int n,
                    objective_func fgrad, void *data,
                    double *x, double *fmin,
                    const double *l, const double *u,
-                   long int maxeval, double maxtime);
+                   long int maxeval, double maxtime,
+		   int nrandom);
 
 extern int stogo_verbose; /* set to nonzero for verbose output */
 

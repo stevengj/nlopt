@@ -201,8 +201,12 @@ as well as nonlinear constraints as described above).
 Global optimization using the StoGO algorithm by Madsen et al.  StoGO
 exploits gradient information (which must be supplied by the
 objective) for its local searches, and performs the global search by a
-stochastic branch-and-bound technique.  Only bound-constrained optimization
+branch-and-bound technique.  Only bound-constrained optimization
 is supported.
+.TP 
+.B NLOPT_GLOBAL_STOGO_RANDOMIZED
+As above, but uses randomized starting points for the local searches
+(which is sometimes better, often worse than the deterministic version).
 .TP
 .B NLOPT_LOCAL_LBFGS
 Local gradient-based optimization using the low-storage BFGS (L-BFGS)

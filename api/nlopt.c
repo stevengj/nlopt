@@ -44,6 +44,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "DIRECT-L (global)",
      "Subplex (local)",
      "StoGO (global)",
+     "StoGO with randomized search (global)",
      "Low-storage BFGS (LBFGS) (local)"
 };
 
@@ -180,8 +181,11 @@ static nlopt_result nlopt_minimize_(
 	      break;
 
 	 case NLOPT_GLOBAL_STOGO:
+	 case NLOPT_GLOBAL_STOGO_RANDOMIZED:
 	      if (!stogo_minimize(n, f, f_data, x, fmin, lb, ub,
-				  maxeval, maxtime))
+				  maxeval, maxtime,
+				  algorithm == NLOPT_GLOBAL_STOGO
+				  ? 0 : 2*n))
 		   return NLOPT_FAILURE;
 	      break;
 

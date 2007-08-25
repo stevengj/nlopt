@@ -18,6 +18,7 @@ typedef enum {
 
      /* gradient-based algorithms */
      NLOPT_GLOBAL_STOGO,
+     NLOPT_GLOBAL_STOGO_RANDOMIZED,
      NLOPT_LOCAL_LBFGS,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
