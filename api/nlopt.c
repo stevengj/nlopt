@@ -265,8 +265,7 @@ static nlopt_result nlopt_minimize_(
 	      d.xtmp = (double *) malloc(sizeof(double) * n*2);
 	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
 	      memcpy(d.xtmp + n, x, sizeof(double) * n); d.x0 = d.xtmp + n;
-	      iret = stogo_minimize(n, f_recenter, &d, x, fmin, lb, ub,
-				    maxeval, maxtime,
+	      iret = stogo_minimize(n, f_recenter, &d, x, fmin, lb, ub, &stop,
 				    algorithm == NLOPT_GLOBAL_STOGO
 				    ? 0 : 2*n);
 	      recenter_x(n, x, lb, ub, d.x0, x);

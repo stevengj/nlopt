@@ -4,6 +4,8 @@
 #ifndef STOGO_H
 #define STOGO_H
 
+#include "nlopt-util.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,8 +36,8 @@ typedef double (*objective_func)(int n, const double *x, double *grad,
              search space
 
        maxeval: if nonzero, a maximum number of fgrad evaluations
-
        maxtime: if nonzero, a maximum time (in seconds)
+        -- REPLACED in NLopt by nlopt_stopping *stop
 
        nrandom: number of randomized search points to use per box,
                 in addition to 2*n+1 deterministic search points
@@ -55,7 +57,11 @@ int stogo_minimize(int n,
                    objective_func fgrad, void *data,
                    double *x, double *fmin,
                    const double *l, const double *u,
-                   long int maxeval, double maxtime,
+#ifdef NLOPT_UTIL_H
+		   nlopt_stopping *stop,
+#else
+		   long int maxeval, double maxtime,
+#endif
 		   int nrandom);
 
 extern int stogo_verbose; /* set to nonzero for verbose output */

@@ -30,7 +30,11 @@ int stogo_minimize(int n,
 		   objective_func fgrad, void *data,
 		   double *x, double *fmin,
 		   const double *l, const double *u,
+#ifdef NLOPT_UTIL_H
+		   nlopt_stopping *stop,
+#else
 		   long int maxeval, double maxtime,
+#endif
 		   int nrandom)
 {
   GlobalParams params;
@@ -40,9 +44,7 @@ int stogo_minimize(int n,
   params.det_pnts=2*n+1 - nrandom; 
   params.eps_cl=0.1; params.rshift=0.3;
   params.mu=1.0E-4;
-
-  params.maxtime = maxtime;
-  params.maxeval = maxeval;
+  params.stop = stop;
 
   TBox D(n);
   for (int i = 0; i < n; ++i) {

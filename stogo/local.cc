@@ -11,8 +11,20 @@
 #include "local.h"
 #include "tools.h"
 
+#ifdef NLOPT_UTIL_H
+#  define IF_NLOPT_CHECK_EVALS stop->nevals++; \
+                               if (nlopt_stop_evalstime(stop)) \
+                                  return LS_MaxEvalTime
+#else
+#  define IF_NLOPT_CHECK_EVALS 
+#endif
+
 int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
-          Global &glob, int axis, RCRVector x_av) {
+          Global &glob, int axis, RCRVector x_av
+#ifdef NLOPT_UTIL_H
+	  , nlopt_stopping *stop
+#endif
+	  ) {
 
   int k_max, info, outside ;
   int k, i, good_enough, iTmp ;
@@ -63,6 +75,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     f=glob.ObjectiveGradient(x_av,g_av,OBJECTIVE_AND_GRADIENT);
     g(0)=g_av(axis);
   }
+  IF_NLOPT_CHECK_EVALS;
   FC++;GC++;
 
   if (axis == -1) {
@@ -217,7 +230,8 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       x_av(axis)=x_new(0);
       f_new=glob.ObjectiveGradient(x_av,g_av,OBJECTIVE_AND_GRADIENT);
     }
-    FC++;
+    IF_NLOPT_CHECK_EVALS;
+    FC++; GC++;
     gemv('N',0.5,B,h_dl,0.0,z);
     ro = (f_new-f) / (dot(g,h_dl) + dot(h_dl,z)); // Quadratic model
     if (ro > 0.75) {
@@ -236,11 +250,12 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 	glob.ObjectiveGradient(x_av,g_av,GRADIENT_ONLY);
 	g_new(0)=g_av(axis);
       }
+      GC++;
+      IF_NLOPT_CHECK_EVALS;
 #else
       if (axis != -1)
 	g_new(0)=g_av(axis);
 #endif
-      GC++;
 
       // y=g_new-g
       copy(g_new,y);

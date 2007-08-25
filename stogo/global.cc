@@ -35,8 +35,12 @@ Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P): Domain(D) {
   Gradient=g;
 
   // Initialize parameters
+#ifdef NLOPT_UTIL_H
+  stop = P.stop;
+#else
   maxtime=P.maxtime;
   maxeval = P.maxeval;
+#endif
   numeval = 0;
   eps_cl=P.eps_cl; mu=P.mu; rshift=P.rshift;
   det_pnts=P.det_pnts; rnd_pnts=P.rnd_pnts;
@@ -47,8 +51,12 @@ Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P): Domain(D) {
 Global& Global::operator=(const Global &G) {
   // Copy the problem info and parameter settings
   Domain=G.Domain; Objective=G.Objective;  Gradient=G.Gradient;
+#ifdef NLOPT_UTIL_H
+  stop = G.stop;
+#else
   maxtime=G.maxtime;
   maxeval = G.maxeval;
+#endif
   numeval = G.numeval;
   eps_cl=G.eps_cl; mu=G.mu; rshift=G.rshift;
   det_pnts=G.det_pnts; rnd_pnts=G.rnd_pnts;
@@ -115,11 +123,15 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
   while ( !SampleBox.EmptyBox() ) {
     SampleBox.RemoveTrial(tmpTrial) ;
     info = local(tmpTrial, box, Domain, eps_cl, &maxgrad, *this,
-		 axis, x_av) ;
+		 axis, x_av
+#ifdef NLOPT_UTIL_H
+		 , stop
+#endif
+		 ) ;
     // What should we do when info=LS_Unstable?
     if (info == LS_Out)
       nout++;
-    if (info == LS_New ) {
+    else if (info == LS_New ) {
       box.AddTrial(tmpTrial) ;
 
       if (tmpTrial.objval<=fbound+mu && tmpTrial.objval<=box.fmin+mu) {
@@ -135,7 +147,7 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
 #endif
     }
 
-    if (!InTime())
+    if (!InTime() || info == LS_MaxEvalTime)
       break;
   }
   *noutside=nout;
@@ -280,7 +292,11 @@ double Global::GetTime()
 
 bool Global::InTime()
 {
+#ifdef NLOPT_UTIL_H
+  return !nlopt_stop_evalstime(stop);
+#else
  return (maxtime <= 0.0 || GetTime()<maxtime) && (!maxeval || numeval<maxeval);
+#endif
 }
 
 double Global::GetMinValue() {
