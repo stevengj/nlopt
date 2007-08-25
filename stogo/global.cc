@@ -70,8 +70,9 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
     SampleBox.AddTrial(tmpTrial) ;
     // Add the rest
     i=1 ; flag=1 ; dir=0 ;
-    x=m ; w=box.Width(dir) ;
+    x=m ; 
     while (i<det_pnts) {
+      w=box.Width(dir) ;
       x(dir)=m(dir)+flag*rshift*w ;
       tmpTrial.xvals=x ; 
       SampleBox.AddTrial(tmpTrial) ;
@@ -79,7 +80,6 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
       if (flag==1 && dir<dim) {
 	x(dir)=m(dir) ;
 	dir++ ;
-	w=box.Width(dir) ;
       }
       i++ ;
     }
