@@ -41,21 +41,21 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
 
 /* JG 09/15/00 Added variable JONES (see above) */
     /* Parameter adjustments */
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
 
     /* Function Body */
     if (jones == 0) {
-	help = length[*pos + length_dim1];
+	help = length[*pos * length_dim1 + 1];
 	k = help;
 	p = 1;
 	i__1 = *n;
 	for (i__ = 2; i__ <= i__1; ++i__) {
-	    if (length[*pos + i__ * length_dim1] < k) {
-		k = length[*pos + i__ * length_dim1];
+	    if (length[i__ + *pos * length_dim1] < k) {
+		k = length[i__ + *pos * length_dim1];
 	    }
-	    if (length[*pos + i__ * length_dim1] == help) {
+	    if (length[i__ + *pos * length_dim1] == help) {
 		++p;
 	    }
 /* L100: */
@@ -66,11 +66,11 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
 	    ret_val = k * *n + p;
 	}
     } else {
-	help = length[*pos + length_dim1];
+	help = length[*pos * length_dim1 + 1];
 	i__1 = *n;
 	for (i__ = 2; i__ <= i__1; ++i__) {
-	    if (length[*pos + i__ * length_dim1] < help) {
-		help = length[*pos + i__ * length_dim1];
+	    if (length[i__ + *pos * length_dim1] < help) {
+		help = length[i__ + *pos * length_dim1];
 	    }
 /* L10: */
 	}
@@ -104,8 +104,7 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
 	integer *cheat, doublereal *kmax, integer *ifeasiblef, integer jones)
 {
     /* System generated locals */
-    integer s_dim1, s_offset, length_dim1, length_offset, f_dim1, f_offset, 
-	    i__1;
+    integer s_dim1, s_offset, length_dim1, length_offset, i__1;
 
     /* Local variables */
     integer i__, j, k;
@@ -117,14 +116,12 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
     integer novalue;
 
     /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     ++anchor;
     s_dim1 = *maxdiv;
     s_offset = 1 + s_dim1;
     s -= s_offset;
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
 
@@ -185,10 +182,10 @@ L12:
 /* |             statement is already not true.                            | */
 /* +-----------------------------------------------------------------------+ */
 	    if (i___ > 0 && ! (i__ == j)) {
-		if (f[i___ + (f_dim1 << 1)] <= 1.) {
+		if (f[(i___ << 1) + 2] <= 1.) {
 		    help2 = thirds[s[i__ + (s_dim1 << 1)]] - thirds[s[j + (
 			    s_dim1 << 1)]];
-		    help2 = (f[i___ + f_dim1] - f[j___ + f_dim1]) / help2;
+		    help2 = (f[(i___ << 1) + 1] - f[(j___ << 1) + 1]) / help2;
 		    if (help2 <= 0.) {
 			 if (logfile)
 			      fprintf(logfile, "thirds > 0, help2 <= 0\n");
@@ -213,10 +210,10 @@ L12:
 /* |             statement is already not true.                            | */
 /* +-----------------------------------------------------------------------+ */
 	    if (i___ > 0 && ! (i__ == j)) {
-		if (f[i___ + (f_dim1 << 1)] <= 1.) {
+		if (f[(i___ << 1) + 2] <= 1.) {
 		    help2 = thirds[s[i__ + (s_dim1 << 1)]] - thirds[s[j + (
 			    s_dim1 << 1)]];
-		    help2 = (f[i___ + f_dim1] - f[j___ + f_dim1]) / help2;
+		    help2 = (f[(i___ << 1) + 1] - f[(j___ << 1) + 1]) / help2;
 		    if (help2 <= 0.) {
 			if (logfile)
 			     fprintf(logfile, "thirds < 0, help2 <= 0\n");
@@ -239,7 +236,7 @@ L12:
 	    if (*cheat == 1 && helplower > *kmax) {
 		helplower = *kmax;
 	    }
-	    if (f[j___ + f_dim1] - helplower * thirds[s[j + (s_dim1 << 1)]] > 
+	    if (f[(j___ << 1) + 1] - helplower * thirds[s[j + (s_dim1 << 1)]] >
 		     MIN(*fmin - epsrel * fabs(*fmin), 
 			 *fmin - epsabs)) {
 		if (logfile)
@@ -281,7 +278,7 @@ L40:
 	maxfunc, integer *maxdiv, integer *ierror)
 {
     /* System generated locals */
-    integer s_dim1, s_offset, f_dim1, f_offset, i__1;
+    integer s_dim1, s_offset, i__1;
 
     /* Local variables */
     integer i__, oldmaxpos, pos, help, iflag, actdeep;
@@ -291,9 +288,7 @@ L40:
 /* +-----------------------------------------------------------------------+ */
     /* Parameter adjustments */
     ++anchor;
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     --point;
     s_dim1 = *maxdiv;
     s_offset = 1 + s_dim1;
@@ -314,7 +309,7 @@ L40:
 /* |             evaluated even if the first one is already not true.      | */
 /* +-----------------------------------------------------------------------+ */
 	    while(pos > 0 && iflag == 0) {
-		if (f[pos + f_dim1] - f[help + f_dim1] <= 1e-13) {
+		if (f[(pos << 1) + 1] - f[(help << 1) + 1] <= 1e-13) {
 		    if (*maxpos < *maxdiv) {
 			++(*maxpos);
 			s[*maxpos + s_dim1] = pos;
@@ -360,16 +355,16 @@ integer direct_dirgetmaxdeep_(integer *pos, integer *length, integer *maxfunc,
     integer i__, help;
 
     /* Parameter adjustments */
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
 
     /* Function Body */
-    help = length[*pos + length_dim1];
+    help = length[*pos * length_dim1 + 1];
     i__1 = *n;
     for (i__ = 2; i__ <= i__1; ++i__) {
 /* Computing MIN */
-	i__2 = help, i__3 = length[*pos + i__ * length_dim1];
+	i__2 = help, i__3 = length[i__ + *pos * length_dim1];
 	help = MIN(i__2,i__3);
 /* L10: */
     }
@@ -419,7 +414,7 @@ L1010:
 					    integer jones)
 {
     /* System generated locals */
-    integer f_dim1, f_offset, length_dim1, length_offset, i__1;
+    integer length_dim1, length_offset, i__1;
 
     /* Local variables */
     integer i__, l, pos;
@@ -433,10 +428,8 @@ L1010:
 /*      l = DIRgetmaxDeep(replace,length,maxfunc,n) */
     /* Parameter adjustments */
     --point;
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
-    length_dim1 = *maxfunc;
+    f -= 3;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
     ++anchor;
@@ -478,7 +471,7 @@ L1010:
 /* | nearby point, put the infeasible point at the beginning of the list.  | */
 /* +-----------------------------------------------------------------------+ */
 L20:
-	if (f[start + f_dim1] > f[*replace + f_dim1]) {
+	if (f[(start << 1) + 1] > f[(*replace << 1) + 1]) {
 	    anchor[l] = *replace;
 	    point[*replace] = start;
 /*            write(logfile,*) 'Point is replacing current anchor for ' */
@@ -501,7 +494,7 @@ L20:
 /*     +             , 'list ',l, replace */
 		    goto L40;
 		} else {
-		    if (f[point[pos] + f_dim1] > f[*replace + f_dim1]) {
+		    if (f[(point[pos] << 1) + 1] > f[(*replace << 1) + 1]) {
 			point[*replace] = point[pos];
 			point[pos] = *replace;
 /*                     write(logfile,*) 'There are points with a higher ' */
@@ -533,8 +526,7 @@ L40:
 	FILE *logfile, doublereal *fmax, integer jones)
 {
     /* System generated locals */
-    integer f_dim1, f_offset, c_dim1, c_offset, length_dim1, length_offset, 
-	    i__1, i__2, i__3;
+    integer c_dim1, c_offset, length_dim1, length_offset, i__1, i__2, i__3;
     doublereal d__1, d__2;
 
     /* Local variables */
@@ -548,14 +540,12 @@ L40:
 /* +-----------------------------------------------------------------------+ */
     /* Parameter adjustments */
     --point;
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     ++anchor;
-    length_dim1 = *maxfunc;
+    length_dim1 = *maxdim;
     length_offset = 1 + length_dim1;
     length -= length_offset;
-    c_dim1 = *maxfunc;
+    c_dim1 = *maxdim;
     c_offset = 1 + c_dim1;
     c__ -= c_offset;
     --c2;
@@ -564,7 +554,7 @@ L40:
     /* Function Body */
     i__1 = *free - 1;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (f[i__ + (f_dim1 << 1)] > 0.) {
+	if (f[(i__ << 1) + 2] > 0.) {
 /* +-----------------------------------------------------------------------+ */
 /* | Get the maximum side length of the hyper rectangle and then set the   | */
 /* | new side length to this lengths times the growth factor.              | */
@@ -577,8 +567,8 @@ L40:
 	    i__2 = *n;
 	    for (j = 1; j <= i__2; ++j) {
 		sidelength = thirds[length[i__ + j * length_dim1]];
-		a[j - 1] = c__[i__ + j * c_dim1] - sidelength;
-		b[j - 1] = c__[i__ + j * c_dim1] + sidelength;
+		a[j - 1] = c__[j + i__ * c_dim1] - sidelength;
+		b[j - 1] = c__[j + i__ * c_dim1] + sidelength;
 /* L20: */
 	    }
 /* +-----------------------------------------------------------------------+ */
@@ -587,8 +577,8 @@ L40:
 /* | is not close anymore (since the hyper rectangle surrounding the       | */
 /* | current point may have shrunk).                                       | */
 /* +-----------------------------------------------------------------------+ */
-	    f[i__ + f_dim1] = 1e6f;
-	    f[i__ + (f_dim1 << 1)] = 2.;
+	    f[(i__ << 1) + 1] = 1e6f;
+	    f[(i__ << 1) + 2] = 2.;
 /* +-----------------------------------------------------------------------+ */
 /* | Check if any feasible point is near this infeasible point.            | */
 /* +-----------------------------------------------------------------------+ */
@@ -597,13 +587,13 @@ L40:
 /* +-----------------------------------------------------------------------+ */
 /* | If the point k is feasible, check if it is near.                      | */
 /* +-----------------------------------------------------------------------+ */
-		if (f[k + (f_dim1 << 1)] == 0.) {
+		if (f[(k << 1) + 2] == 0.) {
 /* +-----------------------------------------------------------------------+ */
 /* | Copy the coordinates of the point k into x.                           | */
 /* +-----------------------------------------------------------------------+ */
 		    i__3 = *n;
 		    for (l = 1; l <= i__3; ++l) {
-			x[l - 1] = c__[k + l * c_dim1];
+			x[l - 1] = c__[l + k * c_dim1];
 /* L40: */
 		    }
 /* +-----------------------------------------------------------------------+ */
@@ -612,35 +602,35 @@ L40:
 /* +-----------------------------------------------------------------------+ */
 		    if (isinbox_(x, a, b, n, &c__32) == 1) {
 /* Computing MIN */
-			d__1 = f[i__ + f_dim1], d__2 = f[k + f_dim1];
-			f[i__ + f_dim1] = MIN(d__1,d__2);
-			f[i__ + (f_dim1 << 1)] = 1.;
+			 d__1 = f[(i__ << 1) + 1], d__2 = f[(k << 1) + 1];
+			 f[(i__ << 1) + 1] = MIN(d__1,d__2);
+			 f[(i__ << 1) + 2] = 1.; 
 		    }
 		}
 /* L30: */
 	    }
-	    if (f[i__ + (f_dim1 << 1)] == 1.) {
-		f[i__ + f_dim1] += (d__1 = f[i__ + f_dim1], fabs(d__1)) * 
+	    if (f[(i__ << 1) + 2] == 1.) {
+		f[(i__ << 1) + 1] += (d__1 = f[(i__ << 1) + 1], fabs(d__1)) *
 			1e-6f;
 		i__2 = *n;
 		for (l = 1; l <= i__2; ++l) {
-		    x[l - 1] = c__[i__ + l * c_dim1] * c1[l] + c__[i__ + l * 
+		    x[l - 1] = c__[l + i__ * c_dim1] * c1[l] + c__[l + i__ *
 			    c_dim1] * c2[l];
 /* L200: */
 		}
-		dirresortlist_(&i__, &anchor[-1], &f[f_offset], &point[1], &
-			length[length_offset], n, maxfunc, maxdim, maxdeep, 
-			logfile, jones);
+		dirresortlist_(&i__, &anchor[-1], &f[3], &point[1], 
+			       &length[length_offset], n, 
+			       maxfunc, maxdim, maxdeep, logfile, jones);
 	    } else {
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01                                                           | */
 /* | Replaced fixed value for infeasible points with maximum value found,  | */
 /* | increased by 1.                                                       | */
 /* +-----------------------------------------------------------------------+ */
-		if (! (*fmax == f[i__ + f_dim1])) {
+		if (! (*fmax == f[(i__ << 1) + 1])) {
 /* Computing MAX */
-		    d__1 = *fmax + 1., d__2 = f[i__ + f_dim1];
-		    f[i__ + f_dim1] = MAX(d__1,d__2);
+		    d__1 = *fmax + 1., d__2 = f[(i__ << 1) + 1];
+		    f[(i__ << 1) + 1] = MAX(d__1,d__2);
 		}
 	    }
 	}
@@ -656,7 +646,7 @@ L40:
 	doublereal *f, integer *maxfunc)
 {
     /* System generated locals */
-    integer f_dim1, f_offset, i__1;
+    integer i__1;
 
     /* Local variables */
     integer i__, help;
@@ -678,9 +668,7 @@ L40:
 /* 10    CONTINUE */
 /* 20    END */
     /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     --point;
 
     /* Function Body */
@@ -690,7 +678,7 @@ L40:
 	    point[*start] = *ins;
 	    point[*ins] = 0;
 	    return;
-	} else if (f[*ins + f_dim1] < f[point[*start] + f_dim1]) {
+	} else if (f[(*ins << 1) + 1] < f[(point[*start] << 1) + 1]) {
 	     help = point[*start];
 	     point[*start] = *ins;
 	     point[*ins] = help;
@@ -715,7 +703,7 @@ L40:
 					    integer jones)
 {
     /* System generated locals */
-    integer length_dim1, length_offset, f_dim1, f_offset, i__1;
+    integer length_dim1, length_offset, i__1;
 
     /* Local variables */
     integer j;
@@ -724,12 +712,10 @@ L40:
 
 /* JG 09/24/00 Changed this to Getlevel */
     /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     --point;
     ++anchor;
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
 
@@ -743,7 +729,7 @@ L40:
 /*        deep = DIRGetMaxdeep(pos1,length,maxfunc,n) */
 	deep = direct_dirgetlevel_(&pos1, &length[length_offset], maxfunc, n, jones);
 	if (anchor[deep] == 0) {
-	    if (f[pos2 + f_dim1] < f[pos1 + f_dim1]) {
+	    if (f[(pos2 << 1) + 1] < f[(pos1 << 1) + 1]) {
 		anchor[deep] = pos2;
 		point[pos2] = pos1;
 		point[pos1] = 0;
@@ -753,39 +739,37 @@ L40:
 	    }
 	} else {
 	    pos = anchor[deep];
-	    if (f[pos2 + f_dim1] < f[pos1 + f_dim1]) {
-		if (f[pos2 + f_dim1] < f[pos + f_dim1]) {
+	    if (f[(pos2 << 1) + 1] < f[(pos1 << 1) + 1]) {
+		if (f[(pos2 << 1) + 1] < f[(pos << 1) + 1]) {
 		    anchor[deep] = pos2;
 /* JG 08/30/00 Fixed bug. Sorting was not correct when */
-/*      f(pos2,1) < f(pos1,1) < f(pos,1) */
-		    if (f[pos1 + f_dim1] < f[pos + f_dim1]) {
+/*      f(1,pos2) < f(1,pos1) < f(1,pos) */
+		    if (f[(pos1 << 1) + 1] < f[(pos << 1) + 1]) {
 			point[pos2] = pos1;
 			point[pos1] = pos;
 		    } else {
 			point[pos2] = pos;
-			dirinsert_(&pos, &pos1, &point[1], &f[f_offset], 
-				maxfunc);
+			dirinsert_(&pos, &pos1, &point[1], &f[3], maxfunc);
 		    }
 		} else {
-		    dirinsert_(&pos, &pos2, &point[1], &f[f_offset], maxfunc);
-		    dirinsert_(&pos, &pos1, &point[1], &f[f_offset], maxfunc);
+		    dirinsert_(&pos, &pos2, &point[1], &f[3], maxfunc);
+		    dirinsert_(&pos, &pos1, &point[1], &f[3], maxfunc);
 		}
 	    } else {
-		if (f[pos1 + f_dim1] < f[pos + f_dim1]) {
+		if (f[(pos1 << 1) + 1] < f[(pos << 1) + 1]) {
 /* JG 08/30/00 Fixed bug. Sorting was not correct when */
 /*      f(pos1,1) < f(pos2,1) < f(pos,1) */
 		    anchor[deep] = pos1;
-		    if (f[pos + f_dim1] < f[pos2 + f_dim1]) {
+		    if (f[(pos << 1) + 1] < f[(pos2 << 1) + 1]) {
 			point[pos1] = pos;
-			dirinsert_(&pos, &pos2, &point[1], &f[f_offset], 
-				maxfunc);
+			dirinsert_(&pos, &pos2, &point[1], &f[3], maxfunc);
 		    } else {
 			point[pos1] = pos2;
 			point[pos2] = pos;
 		    }
 		} else {
-		    dirinsert_(&pos, &pos1, &point[1], &f[f_offset], maxfunc);
-		    dirinsert_(&pos, &pos2, &point[1], &f[f_offset], maxfunc);
+		    dirinsert_(&pos, &pos1, &point[1], &f[3], maxfunc);
+		    dirinsert_(&pos, &pos2, &point[1], &f[3], maxfunc);
 		}
 	    }
 	}
@@ -795,11 +779,11 @@ L40:
 /*      deep = DIRGetMaxdeep(samp,length,maxfunc,n) */
     deep = direct_dirgetlevel_(samp, &length[length_offset], maxfunc, n, jones);
     pos = anchor[deep];
-    if (f[*samp + f_dim1] < f[pos + f_dim1]) {
+    if (f[(*samp << 1) + 1] < f[(pos << 1) + 1]) {
 	anchor[deep] = *samp;
 	point[*samp] = pos;
     } else {
-	dirinsert_(&pos, samp, &point[1], &f[f_offset], maxfunc);
+	dirinsert_(&pos, samp, &point[1], &f[3], maxfunc);
     }
 } /* dirinsertlist_ */
 
@@ -886,8 +870,7 @@ L50:
 	integer *maxfunc, integer *maxdeep, integer *oops)
 {
     /* System generated locals */
-    integer length_dim1, length_offset, c_dim1, c_offset, f_dim1, f_offset, 
-	    i__1, i__2;
+    integer length_dim1, length_offset, c_dim1, c_offset, i__1, i__2;
 
     /* Local variables */
     integer j, k, pos;
@@ -899,13 +882,11 @@ L50:
     --x;
     --arrayi;
     --point;
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
-    length_dim1 = *maxfunc;
+    f -= 3;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
-    c_dim1 = *maxfunc;
+    c_dim1 = *n;
     c_offset = 1 + c_dim1;
     c__ -= c_offset;
 
@@ -917,9 +898,9 @@ L50:
     for (k = 1; k <= i__1; ++k) {
 	i__2 = *n;
 	for (j = 1; j <= i__2; ++j) {
-	    length[*free + j * length_dim1] = length[*sample + j * 
+	    length[j + *free * length_dim1] = length[j + *sample *
 		    length_dim1];
-	    c__[*free + j * c_dim1] = c__[*sample + j * c_dim1];
+	    c__[j + *free * c_dim1] = c__[j + *sample * c_dim1];
 /* L20: */
 	}
 	pos = *free;
@@ -937,10 +918,10 @@ L50:
     pos = *start;
     i__1 = *maxi;
     for (j = 1; j <= i__1; ++j) {
-	c__[pos + arrayi[j] * c_dim1] = c__[*sample + arrayi[j] * c_dim1] + *
+	c__[arrayi[j] + pos * c_dim1] = c__[arrayi[j] + *sample * c_dim1] + *
 		delta;
 	pos = point[pos];
-	c__[pos + arrayi[j] * c_dim1] = c__[*sample + arrayi[j] * c_dim1] - *
+	c__[arrayi[j] + pos * c_dim1] = c__[arrayi[j] + *sample * c_dim1] - *
 		delta;
 	pos = point[pos];
 /* L30: */
@@ -960,8 +941,7 @@ L50:
 	maxfunc, integer *maxdeep, integer *n)
 {
     /* System generated locals */
-    integer length_dim1, length_offset, list2_dim1, list2_offset, f_dim1, 
-	    f_offset, i__1, i__2;
+    integer length_dim1, length_offset, list2_dim1, list2_offset, i__1, i__2;
     doublereal d__1, d__2;
 
     /* Local variables */
@@ -970,16 +950,14 @@ L50:
 
 
     /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     --point;
     --w;
     list2_dim1 = *n;
     list2_offset = 1 + list2_dim1;
     list2 -= list2_offset;
     --arrayi;
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
 
@@ -989,11 +967,11 @@ L50:
     i__1 = *maxi;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	j = arrayi[i__];
-	w[j] = f[pos + f_dim1];
+	w[j] = f[(pos << 1) + 1];
 	k = pos;
 	pos = point[pos];
 /* Computing MIN */
-	d__1 = f[pos + f_dim1], d__2 = w[j];
+	d__1 = f[(pos << 1) + 1], d__2 = w[j];
 	w[j] = MIN(d__1,d__2);
 	pos = point[pos];
 	dirinsertlist_2__(&start, &j, &k, &list2[list2_offset], &w[1], maxi, 
@@ -1005,12 +983,12 @@ L50:
     for (j = 1; j <= i__1; ++j) {
 	dirsearchmin_(&start, &list2[list2_offset], &pos, &k, n);
 	pos2 = start;
-	length[*sample + k * length_dim1] = *currentlength + 1;
+	length[k + *sample * length_dim1] = *currentlength + 1; 
 	i__2 = *maxi - j + 1;
 	for (i__ = 1; i__ <= i__2; ++i__) {
-	    length[pos + k * length_dim1] = *currentlength + 1;
+	    length[k + pos * length_dim1] = *currentlength + 1; 
 	    pos = point[pos];
-	    length[pos + k * length_dim1] = *currentlength + 1;
+	    length[k + pos * length_dim1] = *currentlength + 1;
 /* JG 07/10/01 pos2 = 0 at the end of the 30-loop. Since we end */
 /*             the loop now, we do not need to reassign pos and pos2. */
 	    if (pos2 > 0) {
@@ -1116,23 +1094,23 @@ L50:
 
     /* Parameter adjustments */
     --arrayi;
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
 
     /* Function Body */
     j = 1;
-    help = length[*pos + length_dim1];
+    help = length[*pos * length_dim1 + 1];
     i__1 = *n;
     for (i__ = 2; i__ <= i__1; ++i__) {
-	if (length[*pos + i__ * length_dim1] < help) {
-	    help = length[*pos + i__ * length_dim1];
+	if (length[i__ + *pos * length_dim1] < help) {
+	    help = length[i__ + *pos * length_dim1];
 	}
 /* L10: */
     }
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (length[*pos + i__ * length_dim1] == help) {
+	if (length[i__ + *pos * length_dim1] == help) {
 	    arrayi[j] = i__;
 	    ++j;
 	}
@@ -1173,8 +1151,8 @@ L50:
 				      integer jones)
 {
     /* System generated locals */
-    integer f_dim1, f_offset, c_dim1, c_offset, length_dim1, length_offset, 
-	    list2_dim1, list2_offset, i__1, i__2;
+    integer c_dim1, c_offset, length_dim1, length_offset, list2_dim1, 
+	    list2_offset, i__1, i__2;
 
     /* Local variables */
     integer i__, j;
@@ -1198,9 +1176,7 @@ L50:
 /* +-----------------------------------------------------------------------+ */
     /* Parameter adjustments */
     --point;
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     ++anchor;
     --u;
     --l;
@@ -1210,10 +1186,10 @@ L50:
     list2_offset = 1 + list2_dim1;
     list2 -= list2_offset;
     --arrayi;
-    length_dim1 = *maxfunc;
+    length_dim1 = *n;
     length_offset = 1 + length_dim1;
     length -= length_offset;
-    c_dim1 = *maxfunc;
+    c_dim1 = *maxor;
     c_offset = 1 + c_dim1;
     c__ -= c_offset;
 
@@ -1260,27 +1236,27 @@ L50:
     thirds[0] = 1.;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	c__[i__ * c_dim1 + 1] = .5;
+	c__[i__ + c_dim1] = .5;
 	x[i__] = .5;
-	length[i__ * length_dim1 + 1] = 0;
+	length[i__ + length_dim1] = 0;
 /* L20: */
     }
-    direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[f_dim1 + 1], &help, fcndata);
-    f[(f_dim1 << 1) + 1] = (doublereal) help;
+    direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[3], &help, fcndata);
+    f[4] = (doublereal) help;
     *iinfeasible = help;
-    *fmax = f[f_dim1 + 1];
+    *fmax = f[3];
 /* 09/25/00 Added this */
 /*      if (f(1,1) .ge. 1.E+6) then */
-    if (f[(f_dim1 << 1) + 1] > 0.) {
-	f[f_dim1 + 1] = 1e6;
-	*fmax = f[f_dim1 + 1];
+    if (f[4] > 0.) {
+	f[3] = 1e6;
+	*fmax = f[3];
 	*ifeasiblef = 1;
     } else {
 	*ifeasiblef = 0;
     }
 /* JG 09/25/00 Remove IF */
-    *fmin = f[f_dim1 + 1];
-    costmin = f[f_dim1 + 1];
+    *fmin = f[3];
+    costmin = f[3];
     *minpos = 1;
     *actdeep = 2;
     point[1] = 0;
@@ -1289,7 +1265,7 @@ L50:
     direct_dirget_i__(&length[length_offset], &c__1, &arrayi[1], maxi, n, maxfunc);
     new__ = *free;
     direct_dirsamplepoints_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &
-	    length[length_offset], logfile, &f[f_offset], free, maxi, &
+	    length[length_offset], logfile, &f[3], free, maxi, &
 	    point[1], &x[1], &l[1], fmin, minpos, &u[1], n, 
 	    maxfunc, maxdeep, &oops);
 /* +-----------------------------------------------------------------------+ */
@@ -1304,7 +1280,7 @@ L50:
 /* |             Added variable to keep track if feasible point was found. | */
 /* +-----------------------------------------------------------------------+ */
     direct_dirsamplef_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &length[
-	    length_offset], logfile, &f[f_offset], free, maxi, &point[
+	    length_offset], logfile, &f[3], free, maxi, &point[
 	    1], fcn, &x[1], &l[1], fmin, minpos, &u[1], n, maxfunc, 
 	    maxdeep, &oops, fmax, ifeasiblef, iinfeasible, fcndata);
 /* +-----------------------------------------------------------------------+ */
@@ -1315,9 +1291,9 @@ L50:
 	return;
     }
     direct_dirdivide_(&new__, &c__0, &length[length_offset], &point[1], &arrayi[1], &
-	    c__1, &list2[list2_offset], &w[1], maxi, &f[f_offset], maxfunc, 
+	    c__1, &list2[list2_offset], &w[1], maxi, &f[3], maxfunc, 
 	    maxdeep, n);
-    direct_dirinsertlist_(&new__, &anchor[-1], &point[1], &f[f_offset], maxi, &
+    direct_dirinsertlist_(&new__, &anchor[-1], &point[1], &f[3], maxi, &
 	    length[length_offset], maxfunc, maxdeep, n, &c__1, jones);
 } /* dirinit_ */
 
@@ -1329,7 +1305,7 @@ L50:
 	point, doublereal *f, integer *maxfunc, integer *maxdeep)
 {
     /* System generated locals */
-    integer f_dim1, f_offset, i__1;
+    integer i__1;
 
     /* Local variables */
     integer i__;
@@ -1339,9 +1315,7 @@ L50:
 /*   point -- lists */
 /*   free  -- first free position */
     /* Parameter adjustments */
-    f_dim1 = *maxfunc;
-    f_offset = 1 + f_dim1;
-    f -= f_offset;
+    f -= 3;
     --point;
     ++anchor;
 
@@ -1353,8 +1327,8 @@ L50:
     }
     i__1 = *maxfunc;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	f[i__ + f_dim1] = 0.;
-	f[i__ + (f_dim1 << 1)] = 0.;
+	f[(i__ << 1) + 1] = 0.;
+	f[(i__ << 1) + 2] = 0.;
 	point[i__] = i__ + 1;
 /*       point(i) = 0 */
 /* L20: */

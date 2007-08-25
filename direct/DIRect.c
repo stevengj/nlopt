@@ -1,4 +1,4 @@
-/* DIRect.f -- translated by f2c (version 20050501).
+/* DIRect-transp.f -- translated by f2c (version 20050501).
    
    f2c output hand-cleaned by SGJ (August 2007). 
 */
@@ -86,8 +86,20 @@
     /* FIXME: change sizes dynamically? */
 #define MY_ALLOC(p, t, n) p = (t *) malloc(sizeof(t) * (n)); \
                           if (!(p)) { *ierror = -100; goto cleanup; }
+
+    /* Note that I've transposed c__, length, and f relative to the 
+       original Fortran code.  e.g. length was length(maxfunc,n) 
+       in Fortran [ or actually length(maxfunc, maxdims), but by
+       using malloc I can just allocate n ], corresponding to
+       length[n][maxfunc] in C, but I've changed the code to access
+       it as length[maxfunc][n].  That is, the maxfunc direction
+       is the discontiguous one.  This makes it easier to resize
+       dynamically (by adding contiguous rows) using realloc, without
+       having to move data around manually. */
     MY_ALLOC(c__, doublereal, MAXFUNC * (*n));
+    MY_ALLOC(length, integer, MAXFUNC * (*n));
     MY_ALLOC(f, doublereal, MAXFUNC * 2);
+
     MY_ALLOC(s, integer, MAXDIV * 2);
     MY_ALLOC(w, doublereal, (*n));
     MY_ALLOC(oldl, doublereal, (*n));
@@ -95,7 +107,6 @@
     MY_ALLOC(list2, integer, (*n) * 2);
     MY_ALLOC(point, integer, MAXFUNC);
     MY_ALLOC(anchor, integer, MAXDEEP + 2);
-    MY_ALLOC(length, integer, MAXFUNC * (*n));
     MY_ALLOC(arrayi, integer, (*n));
     MY_ALLOC(levels, doublereal, MAXDEEP + 1);
     MY_ALLOC(thirds, doublereal, MAXDEEP + 1);    
@@ -498,7 +509,7 @@
 		    anchor[actdeep + 1] = point[help - 1];
 		}
 		if (actdeep < 0) {
-		    actdeep = (integer) f[help - 1];
+		    actdeep = (integer) f[(help << 1) - 2];
 		}
 /* +-----------------------------------------------------------------------+ */
 /* | Get the Directions in which to decrease the intervall-length.         | */
@@ -706,7 +717,7 @@ L100:
 /* +-----------------------------------------------------------------------+ */
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	x[i__] = c__[minpos + i__ * 90000 - 90001] * l[i__] + l[i__] * u[i__];
+	x[i__] = c__[i__ + minpos * i__1 - i__1-1] * l[i__] + l[i__] * u[i__];
 	u[i__] = oldu[i__ - 1];
 	l[i__] = oldl[i__ - 1];
 /* L50: */
