@@ -212,10 +212,10 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 
     // Compute the gain
     if (axis==-1)
-      f_new=glob.ObjectiveGradient(x_new,x_new,OBJECTIVE_ONLY);
+      f_new=glob.ObjectiveGradient(x_new,g_new,OBJECTIVE_AND_GRADIENT);
     else {
       x_av(axis)=x_new(0);
-      f_new=glob.ObjectiveGradient(x_av,x_new,OBJECTIVE_ONLY);
+      f_new=glob.ObjectiveGradient(x_av,g_av,OBJECTIVE_AND_GRADIENT);
     }
     FC++;
     gemv('N',0.5,B,h_dl,0.0,z);
@@ -228,6 +228,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     }
     if (ro > 0) {
       // Update the Hessian and it's inverse using the BFGS formula
+#if 0 // changed by SGJ to compute OBJECTIVE_AND_GRADIENT above
       if (axis==-1)
 	glob.ObjectiveGradient(x_new,g_new,GRADIENT_ONLY);
       else {
@@ -235,6 +236,10 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 	glob.ObjectiveGradient(x_av,g_av,GRADIENT_ONLY);
 	g_new(0)=g_av(axis);
       }
+#else
+      if (axis != -1)
+	g_new(0)=g_av(axis);
+#endif
       GC++;
 
       // y=g_new-g
