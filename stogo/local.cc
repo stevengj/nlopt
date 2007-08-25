@@ -26,18 +26,10 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 #endif
 	  ) {
 
-  int k_max, info, outside ;
-  int k, i, good_enough, iTmp ;
   int n=box.GetDim();
+  RVector x(n);
+  double tmp;
 
-  double maxgrad, delta, f, f_new, tmp ;
-  double alpha, gamma, beta, d2, s2, nom, den, ro ;
-  double nrm_sd, nrm_hn, snrm_hn, nrm_dl ;
-  RVector x(n), g(n), h_sd(n), h_dl(n), h_n(n), x_new(n), g_new(n) ;
-  RVector s(n),y(n),z(n),w(n) ; // Temporary vectors
-  RMatrix B(n), H(n) ;          // Hessian and it's inverse
-
-  k_max = max_iter*n ;
   x=T.xvals ;
 
 #ifdef LS_DEBUG
@@ -58,6 +50,18 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
      T.objval=tmp;
      return LS_Old ;
    } 
+
+  int k_max, info, outside ;
+  int k, i, good_enough, iTmp ;
+
+  double maxgrad, delta, f, f_new;
+  double alpha, gamma, beta, d2, s2, nom, den, ro ;
+  double nrm_sd, nrm_hn, snrm_hn, nrm_dl ;
+  RVector g(n), h_sd(n), h_dl(n), h_n(n), x_new(n), g_new(n) ;
+  RVector s(n),y(n),z(n),w(n) ; // Temporary vectors
+  RMatrix B(n), H(n) ;          // Hessian and it's inverse
+
+  k_max = max_iter*n ;
 
   // Initially B and H are equal to the identity matrix
   B=0 ; H=0 ;
