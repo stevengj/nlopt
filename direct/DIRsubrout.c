@@ -577,7 +577,7 @@ L40:
 /* | is not close anymore (since the hyper rectangle surrounding the       | */
 /* | current point may have shrunk).                                       | */
 /* +-----------------------------------------------------------------------+ */
-	    f[(i__ << 1) + 1] = 1e6f;
+	    f[(i__ << 1) + 1] = HUGE_VAL;
 	    f[(i__ << 1) + 2] = 2.;
 /* +-----------------------------------------------------------------------+ */
 /* | Check if any feasible point is near this infeasible point.            | */
@@ -1248,7 +1248,7 @@ L50:
 /* 09/25/00 Added this */
 /*      if (f(1,1) .ge. 1.E+6) then */
     if (f[4] > 0.) {
-	f[3] = 1e6;
+	f[3] = HUGE_VAL;
 	*fmax = f[3];
 	*ifeasiblef = 1;
     } else {
