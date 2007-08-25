@@ -271,6 +271,24 @@ static const double sixhumpcamel_ub[2] = {5,5};
 static const double sixhumpcamel_xmin[2] = {0.08984, -0.71266};
 
 /****************************************************************************/
+static double convexcosh_f(int n, const double *x, double *grad, void *data)
+{
+     int i;
+     double f = 1;
+     UNUSED(data);
+     for (i = 0; i < n; ++i)
+	  f *= cosh((x[i] - i) * (i+1));
+     if (grad)
+	  for (i = 0; i < n; ++i)
+	       grad[i] = f * tanh((x[i] - i) * (i+1)) * (i+1);
+     RETURN(f);
+}
+
+static const double convexcosh_lb[10] = {-1,0,0,0,0,0,0,0,0,0};
+static const double convexcosh_ub[10] = {2,3,6,7,8,10,11,13,14,16};
+static const double convexcosh_xmin[10] = {0,1,2,3,4,5,6,7,8,9};
+
+/****************************************************************************/
 /****************************************************************************/
 
 const testfunc testfuncs[NTESTFUNCS] = {
@@ -318,5 +336,8 @@ const testfunc testfuncs[NTESTFUNCS] = {
        0.0, "Griewank function" },
      { sixhumpcamel_f, NULL, 1, 2,
        sixhumpcamel_lb, sixhumpcamel_ub, sixhumpcamel_xmin,
-       -1.03163, "Six-hump camel back function" }
+       -1.03163, "Six-hump camel back function" },
+     { convexcosh_f, NULL, 1, 10,
+       convexcosh_lb, convexcosh_ub, convexcosh_xmin,
+       1.0, "Convex product of cosh functions" }
 };
