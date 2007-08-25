@@ -17,8 +17,9 @@
 
 static nlopt_algorithm algorithm = NLOPT_GLOBAL_DIRECT;
 static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max = -HUGE_VAL;
-static int maxeval = 1000;
+static int maxeval = 1000, iterations = 1;
 static double maxtime = 0.0;
+static double xinit_tol = -1;
 
 static void listalgs(FILE *f)
 {
@@ -39,7 +40,7 @@ static void listfuncs(FILE *f)
 static int test_function(int ifunc)
 {
   testfunc func;
-  int i;
+  int i, iter;
   double *x, fmin, f0, *xtabs;
   nlopt_result ret;
   double start = nlopt_seconds();
@@ -66,9 +67,26 @@ static int test_function(int ifunc)
   printf("-----------------------------------------------------------\n");
   printf("Optimizing %s (%d dims) using %s algorithm\n",
 	 func.name, func.n, nlopt_algorithm_name(algorithm));
+  printf("lower bounds at lb = [");
+  for (i = 0; i < func.n; ++i) printf(" %g", func.lb[i]);
+  printf("]\n");
+  printf("upper bounds at ub = [");
+  for (i = 0; i < func.n; ++i) printf(" %g", func.ub[i]);
+  printf("]\n");
+
+
   printf("Starting guess x = [");
-  for (i = 0; i < func.n; ++i)
-    printf(" %g", x[i] = nlopt_urand(func.lb[i], func.ub[i]));
+  for (i = 0; i < func.n; ++i) {
+    if (xinit_tol < 0) { /* random starting point near center of box */
+      double dx = (func.ub[i] - func.lb[i]) * 0.25;
+      double xm = 0.5 * (func.ub[i] + func.lb[i]);
+      x[i] = nlopt_urand(xm - dx, xm + dx);
+    }
+    else 
+      x[i] = nlopt_urand(-xinit_tol, xinit_tol)
+	+ (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
+    printf(" %g", x[i]);
+  }
   printf("]\n");
   f0 = func.f(func.n, x, x + func.n, func.f_data);
   printf("Starting function value = %g\n", f0);
@@ -85,29 +103,31 @@ static int test_function(int ifunc)
     }
   }
 
-  testfuncs_counter = 0;
-  ret = nlopt_minimize(algorithm,
-		       func.n, func.f, func.f_data,
-		       func.lb, func.ub,
-		       x, &fmin,
-		       fmin_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
-		       maxeval, maxtime);
-  printf("finished after %g seconds.\n", nlopt_seconds() - start);
-  printf("return code %d from nlopt_minimize\n", ret);
-  if (ret < 0) {
-    fprintf(stderr, "testopt: error in nlopt_minimize\n");
-    return 0;
+  for (iter = 0; iter < iterations; ++iter) {
+    testfuncs_counter = 0;
+    ret = nlopt_minimize(algorithm,
+			 func.n, func.f, func.f_data,
+			 func.lb, func.ub,
+			 x, &fmin,
+			 fmin_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
+			 maxeval, maxtime);
+    printf("finished after %g seconds.\n", nlopt_seconds() - start);
+    printf("return code %d from nlopt_minimize\n", ret);
+    if (ret < 0) {
+      fprintf(stderr, "testopt: error in nlopt_minimize\n");
+      return 0;
+    }
+    printf("Found minimum f = %g after %d evaluations.\n", 
+	   fmin, testfuncs_counter);
+    printf("Minimum at x = [");
+    for (i = 0; i < func.n; ++i) printf(" %g", x[i]);
+    printf("]\n");
+    printf("|f - fmin| = %g, |f - fmin| / |fmin| = %e\n",
+	   fabs(fmin - func.fmin), fabs(fmin - func.fmin) / fabs(func.fmin));
   }
-  printf("Found minimum f = %g after %d evaluations.\n", 
-	 fmin, testfuncs_counter);
-  printf("Minimum at x = [");
-  for (i = 0; i < func.n; ++i) printf(" %g", x[i]);
-  printf("]\n");
   printf("vs. global minimum f = %g at x = [", func.fmin);
   for (i = 0; i < func.n; ++i) printf(" %g", func.xmin[i]);
   printf("]\n");
-  printf("|f - fmin| = %g, |f - fmin| / |fmin| = %e\n",
-	 fabs(fmin - func.fmin), fabs(fmin - func.fmin) / fabs(func.fmin));
   
   free(x);
   return 1;
@@ -120,9 +140,9 @@ static void usage(FILE *f)
 	  "     -h : print this help\n"
 	  "     -L : list available algorithms and objective functions\n"
 	  "     -v : verbose mode\n"
-	  " -r <s> : use random seed <s> for starting guesses\n"
 	  " -a <n> : use optimization algorithm <n>\n"
 	  " -o <n> : use objective function <n>\n"
+	  " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
 	  " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
 	  " -t <t> : use at most <t> seconds (default: disabled)\n"
 	  " -x <t> : relative tolerance <t> on x (default: disabled)\n"
@@ -130,6 +150,8 @@ static void usage(FILE *f)
 	  " -f <t> : relative tolerance <t> on f (default: disabled)\n"
 	  " -F <t> : absolute tolerance <t> on f (default: disabled)\n"
 	  " -m <m> : minimize f until <m> is reached (default: disabled)\n"
+	  " -i <n> : iterate optimization <n> times (default: 1)\n"
+	  " -r <s> : use random seed <s> for starting guesses\n"
 	  , maxeval);
 }
 
@@ -143,7 +165,7 @@ int main(int argc, char **argv)
   if (argc <= 1)
     usage(stdout);
   
-  while ((c = getopt(argc, argv, "hLvr:a:o:e:t:x:X:f:F:m:")) != -1)
+  while ((c = getopt(argc, argv, "hLv0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
     switch (c) {
     case 'h':
       usage(stdout);
@@ -174,6 +196,9 @@ int main(int argc, char **argv)
     case 'e':
       maxeval = atoi(optarg);
       break;
+    case 'i':
+      iterations = atoi(optarg);
+      break;
     case 't':
       maxtime = atof(optarg);
       break;
@@ -191,6 +216,9 @@ int main(int argc, char **argv)
       break;
     case 'm':
       fmin_max = atof(optarg);
+      break;
+    case '0':
+      xinit_tol = atof(optarg);
       break;
     default:
       fprintf(stderr, "harminv: invalid argument -%c\n", c);

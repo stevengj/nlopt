@@ -42,10 +42,13 @@ design variables using the specified
 .IR algorithm .
 The minimum function value found is returned in
 .IR fmin ,
-with the corresponding design variable values stored in the array
+with the corresponding design variable values returned in the array
 .I x
 of length
 .IR n .
+The input values in
+.I x
+should be a starting guess for the optimum.
 The inputs
 .I lb
 and
@@ -67,9 +70,7 @@ require the gradient (derivatives) of the function to be supplied via
 .IR f ,
 and other algorithms do not require derivatives.  Some of the
 algorithms attempt to find a global minimum within the given bounds,
-and others find only a local minimum (with the initial value of
-.I x
-as a starting guess).
+and others find only a local minimum.
 .PP
 The
 .B nlopt_minimize

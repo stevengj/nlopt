@@ -64,10 +64,8 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
   RVector m(dim), x(dim);
 
   if (det_pnts>0) {
-    // Add midpoint
     box.Midpoint(m) ;
-    tmpTrial.xvals=m ; tmpTrial.objval=DBL_MAX ;
-    SampleBox.AddTrial(tmpTrial) ;
+    tmpTrial.objval=DBL_MAX ;
     // Add the rest
     i=1 ; flag=1 ; dir=0 ;
     x=m ; 
@@ -83,6 +81,9 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
       }
       i++ ;
     }
+    // Add midpoint
+    tmpTrial.xvals=m ; 
+    SampleBox.AddTrial(tmpTrial) ;
   }
 }
 
@@ -107,8 +108,8 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
   double maxgrad=0 ;
 
   // Create sampling points
-  FillRegular(SampleBox, box);
   FillRandom(SampleBox, box);
+  FillRegular(SampleBox, box);
 
   // Perform the actual sampling
   while ( !SampleBox.EmptyBox() ) {
