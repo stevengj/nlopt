@@ -34,9 +34,9 @@ typedef struct {
      int which_diam; /* which measure of hyper-rectangle diam to use:
 			0 = Jones, 1 = Gablonsky */
      int which_div; /* which way to divide rects:
-		       0: Jones/Gablonsky (cubes divide all, rects longest)
-		       1: He (divide all longest sides)
-		       2: pick random longest side */
+		       0: Gablonsky (cubes divide all, rects longest)
+		       1: orig. Jones (divide all longest sides)
+		       2: Jones Encyc. Opt.: pick random longest side */
      const double *lb, *ub;
      nlopt_stopping *stop; /* stopping criteria */
      int n;
