@@ -201,6 +201,12 @@ double nlopt_urand(double a, double b)
      return(a + (b - a) * nlopt_genrand_res53());
 }
 
+/* generate a uniform random number in [0,n), added by SGJ */
+int nlopt_iurand(int n)
+{
+     return(nlopt_genrand_int32() % n);
+}
+
 #if 0
 #include <stdio.h>
 int main(void)

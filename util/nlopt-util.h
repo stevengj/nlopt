@@ -13,6 +13,7 @@ extern unsigned long nlopt_time_seed(void);
 /* pseudorandom number generation by Mersenne twister algorithm */
 extern void nlopt_init_genrand(unsigned long s);
 extern double nlopt_urand(double a, double b);
+extern int nlopt_iurand(int n);
 
 /* stopping criteria */
 typedef struct {

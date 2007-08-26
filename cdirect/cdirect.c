@@ -33,6 +33,10 @@ typedef struct {
      double magic_eps; /* Jones' epsilon parameter (1e-4 is recommended) */
      int which_diam; /* which measure of hyper-rectangle diam to use:
 			0 = Jones, 1 = Gablonsky */
+     int which_div; /* which way to divide rects:
+		       0: Jones/Gablonsky (cubes divide all, rects longest)
+		       1: He (divide all longest sides)
+		       2: pick random longest side */
      const double *lb, *ub;
      nlopt_stopping *stop; /* stopping criteria */
      int n;
@@ -61,22 +65,6 @@ static double rect_diameter(int n, const double *w, const params *p)
 		    maxw = w[i];
 	  return maxw * 0.5; /* half-width of longest side */
      }
-}
-
-#define CUBE_TOL 5e-2 /* fractional tolerance to call something a "cube" */
-
-/* return true if the elements of w[n] (> 0) are all equal to within a
-   fractional tolerance of tol (i.e. they are the widths of a hypercube) */
-static int all_equal(int n, const double *w, double tol)
-{
-     double wmin, wmax;
-     int i;
-     wmin = wmax = w[0];
-     for (i = 1; i < n; ++i) {
-	  if (w[i] < wmin) wmin = w[i];
-	  if (w[i] > wmax) wmax = w[i];
-     }
-     return (wmax - wmin) < tol * wmax;
 }
 
 static double *alloc_rects(int n, int *Na, double *rects, int newN)
@@ -125,6 +113,7 @@ static double function_eval(const double *x, params *p) {
 
 #define THIRD (0.3333333333333333333333)
 
+#define EQUAL_SIDE_TOL 5e-2 /* tolerance to equate side sizes */
 
 /* divide rectangle idiv in the list rects */
 static nlopt_result divide_rect(int *N, int *Na, double **rects, int idiv,
@@ -136,22 +125,37 @@ static nlopt_result divide_rect(int *N, int *Na, double **rects, int idiv,
      double *r = *rects;
      double *c = r + L*idiv + 2; /* center of rect to divide */
      double *w = c + n; /* widths of rect to divide */
+     double wmax = w[0];
+     int imax = 0, nlongest = 0;
 
-     if (all_equal(n, w, CUBE_TOL)) { /* divide all dimensions */
+     for (i = 1; i < n; ++i)
+	  if (w[i] > wmax)
+	       wmax = w[imax = i];
+     for (i = 0; i < n; ++i)
+	  if (wmax - w[i] <= wmax * EQUAL_SIDE_TOL)
+	       ++nlongest;
+     if (p->which_div == 1 || (p->which_div == 0 && nlongest == n)) {
+	  /* trisect all longest sides, in increasing order of the average
+	     function value along that direction */
 	  double *fv = p->work;
 	  int *isort = p->iwork;
 	  for (i = 0; i < n; ++i) {
-	       double csave = c[i];
-	       c[i] = csave - w[i] * THIRD;
-	       FUNCTION_EVAL(fv[2*i], c, p);
-	       c[i] = csave + w[i] * THIRD;
-	       FUNCTION_EVAL(fv[2*i+1], c, p);
-	       c[i] = csave;
+	       if (wmax - w[i] <= wmax * EQUAL_SIDE_TOL) {
+		    double csave = c[i];
+		    c[i] = csave - w[i] * THIRD;
+		    FUNCTION_EVAL(fv[2*i], c, p);
+		    c[i] = csave + w[i] * THIRD;
+		    FUNCTION_EVAL(fv[2*i+1], c, p);
+		    c[i] = csave;
+	       }
+	       else {
+		    fv[2*i] = fv[2*i+1] = HUGE_VAL;
+	       }
 	  }
 	  sort_fv(n, fv, isort);
-	  ALLOC_RECTS(n, Na, r, (*N)+2*n); 
+	  ALLOC_RECTS(n, Na, r, (*N)+2*nlongest); 
 	  *rects = r; c = r + L*idiv + 2; w = c + n;
-	  for (i = 0; i < n; ++i) {
+	  for (i = 0; i < nlongest; ++i) {
 	       int k;
 	       w[isort[i]] *= THIRD;
 	       r[L*idiv + 1] = rect_diameter(n, w, p);
@@ -163,21 +167,28 @@ static nlopt_result divide_rect(int *N, int *Na, double **rects, int idiv,
 	       }
 	  }
      }
-     else { /* divide longest side by 3 and split off 2 new rectangles */
-	  int imax = 0;
-	  double wmax = w[0];
-	  for (i = 1; i < n; ++i)
-	       if (w[i] > wmax)
-		    wmax = w[imax = i];
+     else {
+	  int k;
+	  if (nlongest > 1 && p->which_div == 2) { 
+               /* randomly choose longest side */
+	       i = nlopt_iurand(nlongest);
+	       for (k = 0; k < n; ++k)
+		    if (wmax - w[k] <= wmax * EQUAL_SIDE_TOL) {
+			 if (!i) { i = k; break; }
+			 --i;
+		    }
+	  }
+	  else
+	       i = imax; /* trisect longest side */
 	  ALLOC_RECTS(n, Na, r, (*N)+2);
-	  *rects = r; c = r + L*idiv + 2; w = c + n;
-	  w[imax] *= THIRD;
+          *rects = r; c = r + L*idiv + 2; w = c + n;
+	  w[i] *= THIRD;
 	  r[L*idiv + 1] = rect_diameter(n, w, p);
-	  for (i = 0; i <= 1; ++i) {
+	  for (k = 0; k <= 1; ++k) {
 	       memcpy(r + L*(*N) + 1, c-1, sizeof(double) * (2*n+1));
-	       r[L*(*N) + 2 + imax] += w[imax] * (2*i-1); /* move center */
+	       r[L*(*N) + 2 + i] += w[i] * (2*k-1);
+	       FUNCTION_EVAL(r[L*(*N)], r + L*(*N) + 2, p);
 	       ++(*N);
-	       FUNCTION_EVAL(r[L*((*N)-1)], r + L*((*N)-1) + 2, p);
 	  }
      }
      return NLOPT_SUCCESS;
@@ -351,7 +362,8 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      nlopt_result ret = NLOPT_OUT_OF_MEMORY;
 
      p.magic_eps = magic_eps;
-     p.which_diam = which_alg & 1;
+     p.which_diam = which_alg % 2;
+     p.which_div = 0;
      p.lb = lb; p.ub = ub;
      p.stop = stop;
      p.n = n;
