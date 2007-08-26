@@ -59,7 +59,7 @@ static double rect_diameter(int n, const double *w, const params *p)
 	  for (i = 0; i < n; ++i)
 	       if (w[i] > maxw)
 		    maxw = w[i];
-	  return w[i] * 0.5; /* half-width of longest side */
+	  return maxw * 0.5; /* half-width of longest side */
      }
 }
 
