@@ -96,6 +96,7 @@ AC_CONFIG_FILES([
    api/Makefile
    util/Makefile
    direct/Makefile
+   cdirect/Makefile
    stogo/Makefile
    lbfgs/Makefile
    subplex/Makefile

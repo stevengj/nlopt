@@ -175,6 +175,8 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 
 #include "l-bfgs-b.h"
 
+#include "cdirect.h"
+
 /*************************************************************************/
 
 /* same as nlopt_minimize, but xtol_abs is required to be non-NULL */
@@ -221,7 +223,12 @@ static nlopt_result nlopt_minimize_(
 
      switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
-	 case NLOPT_GLOBAL_DIRECT_L: {
+	 case NLOPT_GLOBAL_DIRECT_L: 
+#if 0
+	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0, 
+			     algorithm == NLOPT_GLOBAL_DIRECT ? 0 : 1);
+#endif
+	 {
 	      int iret;
 	      d.xtmp = (double *) malloc(sizeof(double) * n*2);
 	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
