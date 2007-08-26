@@ -19,6 +19,37 @@
 #  define IF_NLOPT_CHECK_EVALS 
 #endif
 
+////////////////////////////////////////////////////////////////////////
+// SGJ, 2007: allow local to use local optimizers in NLopt, to compare
+// to the BFGS code below
+#if 0
+#include "nlopt.h"
+
+typedef struct {
+  Global *glob;
+  double maxgrad;
+  nlopt_stopping *stop;
+} f_local_data;
+
+static double f_local(int n, const double *x, double *grad, void *data_)
+{
+  f_local_data *data = (f_local_data *) data_;
+  double f;
+  RVector xv, gv;
+  // hack to avoid pointless copy of x and grad
+  xv.len = gv.len = n;
+  xv.elements = const_cast<double *>(x);
+  gv.elements = grad;
+  f=data->glob->ObjectiveGradient(xv, gv,
+				   grad?OBJECTIVE_AND_GRADIENT:OBJECTIVE_ONLY);
+  if (grad) data->maxgrad = max(data->maxgrad, normInf(gv));
+  xv.elements = gv.elements = 0; // prevent deallocation
+  data->stop->nevals++;
+  return f;
+}
+#endif
+////////////////////////////////////////////////////////////////////////
+
 int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
           Global &glob, int axis, RCRVector x_av
 #ifdef NLOPT_UTIL_H
@@ -28,7 +59,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 
   int n=box.GetDim();
   RVector x(n);
-  double tmp;
+  double tmp, f;
 
   x=T.xvals ;
 
@@ -51,10 +82,39 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
      return LS_Old ;
    } 
 
-  int k_max, info, outside ;
+#ifdef NLOPT_H
+
+  if (axis != -1) {
+    cout << "NLopt code only works with axis == -1, exiting...\n" ;
+    exit(EXIT_FAILURE);
+  }
+  f_local_data data;
+  data.glob = &glob;
+  data.maxgrad = *mgr;
+  data.stop = stop;
+  nlopt_result ret = nlopt_minimize(NLOPT_LOCAL_LBFGS, n, f_local, &data,
+				    box.lb.raw_data(), box.ub.raw_data(),
+				    x.raw_data(), &f, 
+				    stop->fmin_max,
+				    stop->ftol_rel, stop->ftol_abs,
+				    stop->xtol_rel, stop->xtol_abs,
+				    stop->maxeval - stop->nevals,
+				    stop->maxtime - stop->start);
+  *mgr = data.maxgrad;
+  T.xvals=x ; T.objval=f ;
+  if (ret == NLOPT_MAXEVAL_REACHED || ret == NLOPT_MAXTIME_REACHED)
+    return LS_MaxEvalTime;
+  else if (ret > 0)
+    return LS_New;
+  else
+    return LS_Out; // failure
+  
+#else /* not using NLopt local optimizer ... use original STOgo BFGS code */
+
+  int k_max, info, outside = 0;
   int k, i, good_enough, iTmp ;
 
-  double maxgrad, delta, f, f_new;
+  double maxgrad, delta, f_new;
   double alpha, gamma, beta, d2, s2, nom, den, ro ;
   double nrm_sd, nrm_hn, snrm_hn, nrm_dl ;
   RVector g(n), h_sd(n), h_dl(n), h_n(n), x_new(n), g_new(n) ;
@@ -337,10 +397,13 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     exit(1);
   }
 
-  T.xvals=x ; T.objval=f ;
   *mgr=maxgrad ;
+
+  T.xvals=x ; T.objval=f ;
   if (outside>0)
     return LS_Out ;
   else
     return info ;
+
+#endif
 }

@@ -25,10 +25,11 @@ double eps() ;
 
 class RVector{
 protected:
-  double*  elements;  // array of values
-  int      len;       // size of array
 
  public:
+  int      len;       // size of array
+  double*  elements;  // array of values
+
   RVector() ;
   RVector(int);       // Constructor
   RVector(RCRVector); // copy constructor

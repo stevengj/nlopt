@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/util
+AM_CPPFLAGS = -I$(top_srcdir)/util -I$(top_srcdir)/api
 
 noinst_LTLIBRARIES = libstogo.la
 libstogo_la_SOURCES = global.cc linalg.cc local.cc stogo.cc tools.cc	\
