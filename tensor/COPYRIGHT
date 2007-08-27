@@ -1,0 +1,143 @@
+The original Fortran source is copyrighted/licensed according to the
+"MIT license" below
+
+If you modify it, please clearly state the modifications to avoid
+confusion with the original program, and please cite the paper by Chow
+et al. (see README) if you use it in a publication.  (These are polite
+requests, not legal requirements per se.)
+
+Copyright (c) 1994 University of Colorado at Boulder
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-------------------------------------------------------------------------
+
+Permission to use the above license for this code was received in
+personal correspondence with the author, R. Schabel.  A copy of this
+correspondence is included below.
+
+-------------------------------------------------------------------------
+
+From schnabel@indiana.edu Sun Aug 26 21:30:53 2007
+Date: Sun, 26 Aug 2007 21:29:55 -0400
+From: "Schnabel, Robert B" <schnabel@indiana.edu>
+To: stevenj@math.mit.edu
+Subject: RE: free/open-source licenses for your TOMS/739 quasi-newton software?
+
+Steven,
+  I have to admit that I've not been asked to be this precise before,
+but what you propose is fine, and the copyright should be with Colorado.
+Bobby
+
+-----Original Message-----
+From: Steven G. Johnson [mailto:stevenj@fftw.org] 
+Sent: Sunday, August 26, 2007 3:09 PM
+To: Schnabel, Robert B
+Subject: RE: free/open-source licenses for your TOMS/739 quasi-newton
+software?
+
+Bobby,
+
+Thanks so much for your response!  That sounds great!
+
+It is important for the long term to be explicit about the legal 
+permissions (the license).
+
+Is it okay to consider your code to be under the MIT (X11) license:
+ 	http://opensource.org/licenses/mit-license.php
+?  This is a simple, commonly used, permissive license that requires
+that your copyright notice be preserved, and disclaims all warranty
+and responsibility.
+
+(It's important to use a standard license, as unusual legal
+requirements often cause unforeseen difficulties.  If you have
+additional preferences, it works well to attach them as polite
+requests to the license, rather than as legal requirements, as
+requests cannot conflict with anything or cause legal uncertainty.
+In practice everyone will honor reasonable requests.)
+
+Also, as for copyright notices, should I list it as:
+
+ 	Copyright (c) 1994 Robert B. Schnabel, T. Chow, and E. Eskow.
+
+?  Or should I list it as copyright Indiana University?
+
+Thanks again for your help with these legal minutiae.
+
+Regards,
+Steven G. Johnson
+
+On Sun, 26 Aug 2007, Schnabel, Robert B wrote:
+
+> Dear Steve,
+>  Thanks for asking.  Yes, all that I ask on this is attribution if you
+> use the code intact, and if you modify it, a clear statement that the
+> resultant code is your modified code, not mine, and that the
+> responsibility is yours.
+>   Thanks, Bobby
+>
+> -----Original Message-----
+> From: Steven G. Johnson [mailto:stevenj@fftw.org]
+> Sent: Thursday, August 23, 2007 12:09 PM
+> To: robert.schnabel@colorado.edu
+> Cc: louise-marie.davis@colorado.edu
+> Subject: free/open-source licenses for your TOMS/739 quasi-newton
+> software?
+>
+> Dear Prof. Schnabel,
+>
+> I'm in the Applied Mathematics faculty at MIT, and use a variety of free
+> local optimization packages in my work.  I recently came across your
+> quasi-Newton software (from TOMS algorithm 739) and was very interested
+> in trying it out.
+>
+> However, I downloaded your source code from www.netlib.org, and I didn't
+> find any information on the copyright/license status of the code. Many
+> people ignore this, but under US copyright law the default (in the absence
+> of an explicit license statement) is very restrictive: no copying,
+> modification, or redistribution in any form are permitted.
+>
+> This is a problem for me because I not only use optimization code, but I
+> also write/distribute free/open-source simulation software for
+> electromagnetism and I like to include optimization routines with my
+> software.  Also, I was thinking of putting together several nonlinear 
+> optimization routines in a free package, for eventual inclusion in 
+> free GNU/Linux distributions.  None of this is possible without an explicit
+> license.
+>
+> I'm guessing that, by posting the code online, you intended for the code
+> to be used free of restrictions. It would be great if you could let me know
+> whether I can use/copy/modify the code under one of the standard Open Source
+> licenses; see the list at:
+>         http://opensource.org/licenses/category
+> In particular, if you just want a simple permissive license the "MIT
+> license" (http://opensource.org/licenses/mit-license.php) is popular.
+>
+> (All of these licenses require attribution of the original authors to be
+>
+> preserved in the code, of course!  And in any case I would certainly
+> cite you prominently in any package where I used your code.)
+>
+> I've released a lot of my own open-source scientific code (e.g. our FFTW
+> software for FFTs, which is used e.g. in Matlab) and would be happy to
+> discuss any concerns you might have over licensing/copyright issues.
+>
+> Regards,
+> Steven G. Johnson
