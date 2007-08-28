@@ -37,6 +37,8 @@ extern int rb_tree_insert(rb_tree *t, int k);
 extern int rb_tree_check(rb_tree *t);
 extern rb_node *rb_tree_find(rb_tree *t, int k);
 extern rb_node *rb_tree_find_exact(rb_tree *t, int k);
+extern rb_node *rb_tree_find_le(rb_tree *t, int k);
+extern rb_node *rb_tree_find_gt(rb_tree *t, int k);
 extern rb_node *rb_tree_resort(rb_tree *t, rb_node *n);
 extern rb_node *rb_tree_min(rb_tree *t);
 extern rb_node *rb_tree_max(rb_tree *t);

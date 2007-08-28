@@ -232,7 +232,7 @@ rb_node *rb_tree_find_exact(rb_tree *t, int k)
 }
 
 /* find greatest point in subtree p that is <= k */
-rb_node *find_le(rb_node *p, int k, rb_tree *t)
+static rb_node *find_le(rb_node *p, int k, rb_tree *t)
 {
      rb_node *nil = &t->nil;
      rb_compare compare = t->compare;
@@ -256,7 +256,7 @@ rb_node *rb_tree_find_le(rb_tree *t, int k)
 }
 
 /* find least point in subtree p that is > k */
-rb_node *find_gt(rb_node *p, int k, rb_tree *t)
+static rb_node *find_gt(rb_node *p, int k, rb_tree *t)
 {
      rb_node *nil = &t->nil;
      rb_compare compare = t->compare;

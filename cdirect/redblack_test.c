@@ -99,8 +99,49 @@ int main(int argc, char **argv)
 	  k[i] = -1 - knew;
      }
 
-     for (i = 0; i < N; ++i)
+     if (t.N != N) {
+	  fprintf(stderr, "incorrect N (%d) in tree (vs. %d)\n", t.N, N);
+	  return 1;
+     }
+
+     for (i = 0; i < N; ++i) {
 	  k[i] = -1 - k[i];
+	  /* rescale keys by 100 to add more space between them */
+	  k[i] *= 100;
+	  t.nodes[i].k *= 100;
+     }
+
+     for (i = 0; i < N; ++i) {
+	  int k = rand() % (N * 150) - N*25;
+	  rb_node *le = rb_tree_find_le(&t, k);
+	  rb_node *gt = rb_tree_find_gt(&t, k);
+	  rb_node *n = rb_tree_min(&t);
+	  if (n->k > k) {
+	       if (le) {
+		    fprintf(stderr, "found invalid le %d for %d\n", le->k, k);
+		    return 1;
+	       }
+	       if (gt != n) {
+		    fprintf(stderr, "gt is not first node for k=%d\n", k);
+		    return 1;
+	       }
+	  }
+	  else {
+	       rb_node *succ = n;
+	       do {
+		    n = succ;
+		    succ = rb_tree_succ(&t, n);
+	       } while (succ && succ->k <= k);
+	       if (n != le) {
+		    fprintf("rb_tree_find_le gave wrong result for k=%d\n", k);
+		    return 1;
+	       }
+	       if (succ != gt) {
+		    fprintf("rb_tree_find_gt gave wrong result for k=%d\n", k);
+		    return 1;
+	       }
+	  }
+     }
      
      for (M = N; M > 0; --M) {
 	  j = rand() % M;
