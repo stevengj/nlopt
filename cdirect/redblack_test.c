@@ -116,6 +116,7 @@ int main(int argc, char **argv)
 	  rb_node *le = rb_tree_find_le(&t, k);
 	  rb_node *gt = rb_tree_find_gt(&t, k);
 	  rb_node *n = rb_tree_min(&t);
+	  printf("%d <= %d < %d\n", le? le->k:-999999, k, gt? gt->k:999999);
 	  if (n->k > k) {
 	       if (le) {
 		    fprintf(stderr, "found invalid le %d for %d\n", le->k, k);
