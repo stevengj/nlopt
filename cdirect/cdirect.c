@@ -14,8 +14,8 @@
 /***************************************************************************/
 /* basic data structure:
  *
- * a hyper-rectangle is stored as an array of length L = 2n+2, where [0]
- * is the value (f) of the function at the center, [1] is the "size"
+ * a hyper-rectangle is stored as an array of length L = 2n+2, where [1]
+ * is the value (f) of the function at the center, [0] is the "size"
  * measure (d) of the rectangle, [2..n+1] are the coordinates of the
  * center (c), and [n+2..2n+1] are the widths of the sides (w).
  *
@@ -167,12 +167,13 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	       if (!(node = rb_tree_find_exact(&p->rtree, idiv)))
 		    return NLOPT_FAILURE;
 	       w[isort[i]] *= THIRD;
-	       r[L*idiv + 1] = rect_diameter(n, w, p);
+	       r[L*idiv] = rect_diameter(n, w, p);
 	       rb_tree_resort(&p->rtree, node);
 	       for (k = 0; k <= 1; ++k) {
-		    memcpy(r + L*(*N) + 1, c-1, sizeof(double) * (2*n+1));
+		    r[L*(*N)] = r[L*idiv];
+		    memcpy(r + L*(*N) + 2, c, sizeof(double) * 2*n);
 		    r[L*(*N) + 2 + isort[i]] += w[isort[i]] * (2*k-1);
-		    r[L*(*N)] = fv[2*isort[i]+k];
+		    r[L*(*N) + 1] = fv[2*isort[i]+k];
 		    if (!rb_tree_insert(&p->rtree, *N))
 			 return NLOPT_FAILURE;
 		    ++(*N);
@@ -197,12 +198,13 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	  if (!(node = rb_tree_find_exact(&p->rtree, idiv)))
 	       return NLOPT_FAILURE;
 	  w[i] *= THIRD;
-	  r[L*idiv + 1] = rect_diameter(n, w, p);
+	  r[L*idiv] = rect_diameter(n, w, p);
 	  rb_tree_resort(&p->rtree, node);
 	  for (k = 0; k <= 1; ++k) {
-	       memcpy(r + L*(*N) + 1, c-1, sizeof(double) * (2*n+1));
+	       r[L*(*N)] = r[L*idiv];
+	       memcpy(r + L*(*N) + 2, c, sizeof(double) * 2*n);
 	       r[L*(*N) + 2 + i] += w[i] * (2*k-1);
-	       FUNCTION_EVAL(r[L*(*N)], r + L*(*N) + 2, p);
+	       FUNCTION_EVAL(r[L*(*N) + 1], r + L*(*N) + 2, p);
 	       if (!rb_tree_insert(&p->rtree, *N))
 		    return NLOPT_FAILURE;
 	       ++(*N);
@@ -215,7 +217,7 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 /* O(N log N) convex hull algorithm, used later to find the potentially
    optimal points */
 
-/* Find the lower convex hull of a set of points (xy[s*i+1], xy[s*i]), where
+/* Find the lower convex hull of a set of points (xy[s*i], xy[s*i+1]), where
    0 <= i < N and s >= 2.
 
    Unlike standard convex hulls, we allow redundant points on the hull.
@@ -223,7 +225,7 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
    The return value is the number of points in the hull, with indices
    stored in ihull.  ihull should point to arrays of length >= N.
    rb_tree should be a red-black tree of indices (keys == i) sorted
-   in lexographic order by (xy[s*i+1], xy[s*i]).
+   in lexographic order by (xy[s*i], xy[s*i+1]).
 */
 static int convex_hull(int N, double *xy, int s, int *ihull, rb_tree *t)
 {
@@ -239,35 +241,35 @@ static int convex_hull(int N, double *xy, int s, int *ihull, rb_tree *t)
      n = rb_tree_min(t);
      nmax = rb_tree_max(t);
 
-     xmin = xy[s*(n->k)+1];
-     yminmin = xy[s*(n->k)];
-     xmax = xy[s*(nmax->k)+1];
+     xmin = xy[s*(n->k)];
+     yminmin = xy[s*(n->k)+1];
+     xmax = xy[s*(nmax->k)];
 
      ihull[nhull = 1] = n->k;
      if (xmin == xmax) return nhull;
 
      /* set nmax = min mode with x == xmax */
-     while (xy[s*(nmax->k)+1] == xmax)
+     while (xy[s*(nmax->k)] == xmax)
 	  nmax = rb_tree_pred(t, nmax); /* non-NULL since xmin != xmax */
      nmax = rb_tree_succ(t, nmax);
 
-     ymaxmin = xy[s*(nmax->k)];
+     ymaxmin = xy[s*(nmax->k)+1];
      minslope = (ymaxmin - yminmin) / (xmax - xmin);
 
      /* set n = first node with x != xmin */
-     while (xy[s*(n->k)+1] == xmin)
+     while (xy[s*(n->k)] == xmin)
 	  n = rb_tree_succ(t, n); /* non-NULL since xmin != xmax */
 
      for (; n != nmax; n = rb_tree_succ(t, n)) { 
 	  int k = n->k;
-	  if (xy[s*k] > yminmin + (xy[s*k+1] - xmin) * minslope)
+	  if (xy[s*k+1] > yminmin + (xy[s*k] - xmin) * minslope)
 	       continue;
 	  /* remove points until we are making a "left turn" to k */
 	  while (nhull > 1) {
 	       int t1 = ihull[nhull - 1], t2 = ihull[nhull - 2];
 	       /* cross product (t1-t2) x (k-t2) > 0 for a left turn: */
-	       if ((xy[s*t1+1]-xy[s*t2+1]) * (xy[s*k]-xy[s*t2])
-		   - (xy[s*t1]-xy[s*t2]) * (xy[s*k+1]-xy[s*t2+1]) >= 0)
+	       if ((xy[s*t1]-xy[s*t2]) * (xy[s*k+1]-xy[s*t2+1])
+		   - (xy[s*t1+1]-xy[s*t2+1]) * (xy[s*k]-xy[s*t2]) >= 0)
 		    break;
 	       --nhull;
 	  }
@@ -309,13 +311,13 @@ static nlopt_result divide_good_rects(int *N, int *Na, params *p)
      for (i = 0; i < nhull; ++i) {
 	  double K1 = -HUGE_VAL, K2 = -HUGE_VAL, K;
 	  if (i > 0)
-	       K1 = (r[L*ihull[i]] - r[L*ihull[i-1]]) /
-		    (r[L*ihull[i]+1] - r[L*ihull[i-1]+1]);
+	       K1 = (r[L*ihull[i]+1] - r[L*ihull[i-1]+1]) /
+		    (r[L*ihull[i]] - r[L*ihull[i-1]]);
 	  if (i < nhull-1)
-	       K1 = (r[L*ihull[i]] - r[L*ihull[i+1]]) /
-		    (r[L*ihull[i]+1] - r[L*ihull[i+1]+1]);
+	       K1 = (r[L*ihull[i]+1] - r[L*ihull[i+1]+1]) /
+		    (r[L*ihull[i]] - r[L*ihull[i+1]]);
 	  K = MAX(K1, K2);
-	  if (r[L*ihull[i]] - K * r[L*ihull[i]+1]
+	  if (r[L*ihull[i]+1] - K * r[L*ihull[i]]
 	      <= p->fmin - magic_eps * fabs(p->fmin)) {
 	       /* "potentially optimal" rectangle, so subdivide */
 	       divided_some = 1;
@@ -332,11 +334,11 @@ static nlopt_result divide_good_rects(int *N, int *Na, params *p)
 	       goto divisions; /* try again */
 	  }
 	  else { /* WTF? divide largest rectangle */
-	       double wmax = r[1];
+	       double wmax = r[0];
 	       int imax = 0;
 	       for (i = 1; i < *N; ++i)
-		    if (r[L*i+1] > wmax)
-			 wmax = r[L*(imax=i)+1];
+		    if (r[L*i] > wmax)
+			 wmax = r[L*(imax=i)];
 	       return divide_rect(N, Na, imax, p);
 	  }
      }
@@ -351,10 +353,10 @@ static int hyperrect_compare(int i, int j, void *p_)
      params *p = (params *) p_;
      int L = p->L;
      double *r = p->rects;
-     double di = r[i*L+1], dj = r[j*L+1], fi, fj;
+     double di = r[i*L], dj = r[j*L], fi, fj;
      if (di < dj) return -1;
      if (dj < di) return +1;
-     fi = r[i*L]; fj = r[j*L];
+     fi = r[i*L+1]; fj = r[j*L+1];
      if (fi < fj) return -1;
      if (fj < fi) return +1;
      return 0;
@@ -402,11 +404,11 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
 	       && (fabs(p.rects[2+i]-x[i]) < 1e-13*(1+fabs(x[i])));
 	  p.rects[2+n+i] = ub[i] - lb[i];
      }
-     p.rects[1] = rect_diameter(n, p.rects+2+n, &p);
+     p.rects[0] = rect_diameter(n, p.rects+2+n, &p);
      if (x_center)
-	  p.rects[0] = p.fmin; /* avoid computing f(center) twice */
+	  p.rects[1] = p.fmin; /* avoid computing f(center) twice */
      else
-	  p.rects[0] = function_eval(p.rects+2, &p);
+	  p.rects[1] = function_eval(p.rects+2, &p);
      if (!rb_tree_insert(&p.rtree, 0)) {
 	  ret = NLOPT_FAILURE;
 	  goto done;

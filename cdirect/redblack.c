@@ -300,6 +300,7 @@ rb_node *rb_tree_max(rb_tree *t)
 rb_node *rb_tree_succ(rb_tree *t, rb_node *n)
 {
      rb_node *nil = &t->nil;
+     if (!n) return NULL;
      if (n->r == nil) {
 	  rb_node *prev;
 	  do {
@@ -319,6 +320,7 @@ rb_node *rb_tree_succ(rb_tree *t, rb_node *n)
 rb_node *rb_tree_pred(rb_tree *t, rb_node *n)
 {
      rb_node *nil = &t->nil;
+     if (!n) return NULL;
      if (n->l == nil) {
 	  rb_node *prev;
 	  do {
