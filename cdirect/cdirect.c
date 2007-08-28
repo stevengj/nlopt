@@ -164,7 +164,7 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	  p->rects = r; c = r + L*idiv + 2; w = c + n;
 	  for (i = 0; i < nlongest; ++i) {
 	       int k;
-	       if (!(node = rb_tree_find(&p->rtree, idiv)))
+	       if (!(node = rb_tree_find_exact(&p->rtree, idiv)))
 		    return NLOPT_FAILURE;
 	       w[isort[i]] *= THIRD;
 	       r[L*idiv + 1] = rect_diameter(n, w, p);
@@ -194,7 +194,7 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	       i = imax; /* trisect longest side */
 	  ALLOC_RECTS(n, Na, r, (*N)+2);
           p->rects = r; c = r + L*idiv + 2; w = c + n;
-	  if (!(node = rb_tree_find(&p->rtree, idiv)))
+	  if (!(node = rb_tree_find_exact(&p->rtree, idiv)))
 	       return NLOPT_FAILURE;
 	  w[i] *= THIRD;
 	  r[L*idiv + 1] = rect_diameter(n, w, p);
@@ -217,6 +217,8 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 
 /* Find the lower convex hull of a set of points (xy[s*i+1], xy[s*i]), where
    0 <= i < N and s >= 2.
+
+   Unlike standard convex hulls, we allow redundant points on the hull.
 
    The return value is the number of points in the hull, with indices
    stored in ihull.  ihull should point to arrays of length >= N.
@@ -265,7 +267,7 @@ static int convex_hull(int N, double *xy, int s, int *ihull, rb_tree *t)
 	       int t1 = ihull[nhull - 1], t2 = ihull[nhull - 2];
 	       /* cross product (t1-t2) x (k-t2) > 0 for a left turn: */
 	       if ((xy[s*t1+1]-xy[s*t2+1]) * (xy[s*k]-xy[s*t2])
-		   - (xy[s*t1]-xy[s*t2]) * (xy[s*k+1]-xy[s*t2+1]) > 0)
+		   - (xy[s*t1]-xy[s*t2]) * (xy[s*k+1]-xy[s*t2+1]) >= 0)
 		    break;
 	       --nhull;
 	  }

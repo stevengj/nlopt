@@ -42,7 +42,7 @@ int main(int argc, char **argv)
      }
      
      for (i = 0; i < N; ++i)
-	  if (!rb_tree_find(&t, k[i])) {
+	  if (!rb_tree_find(&t, k[i]) || !rb_tree_find_exact(&t, k[i])) {
 	       fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
 	       return 1;
 	  }
@@ -76,14 +76,14 @@ int main(int argc, char **argv)
      }
      
      for (M = N; M > 0; --M) {
-	  int knew;
-	  j = rand() % M;
+	  int knew = rand() % N; /* random new key */
+	  j = rand() % M; /* random original key to replace */
 	  for (i = 0; i < N; ++i)
 	       if (k[i] >= 0)
 		    if (j-- == 0)
 			 break;
 	  if (i >= N) abort();
-	  if (!(n = rb_tree_find(&t, k[i]))) {
+	  if (!(n = rb_tree_find(&t, k[i])) || !rb_tree_find_exact(&t, k[i])) {
                fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
                return 1;
           }
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 		    if (j-- == 0)
 			 break;
 	  if (i >= N) abort();
-	  if (!(n = rb_tree_find(&t, k[i]))) {
+	  if (!(n = rb_tree_find(&t, k[i])) || !rb_tree_find_exact(&t, k[i])) {
 	       fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
 	       return 1;
 	  }

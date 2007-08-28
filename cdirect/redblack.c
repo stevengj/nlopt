@@ -6,7 +6,7 @@
 
 int rb_tree_init(rb_tree *t, rb_compare compare, void *c_data) {
      t->compare = compare; t->c_data = c_data;
-     t->nil.c = BLACK; t->nil.l = t->nil.r = t->nil.p = &t->nil;
+     t->nil.c = BLACK; t->nil.l = t->nil.r = t->nil.p = &t->nil; t->nil.k = -1;
      t->root = &t->nil;
      t->N = 0;
      t->Nalloc = 100; /* allocate some space to start with */
@@ -160,17 +160,24 @@ int rb_tree_insert(rb_tree *t, int k)
      return 1;
 }
 
-static int check_node(rb_node *n, int *nblack, rb_node *nil)
+static int check_node(rb_node *n, int *nblack, rb_tree *t)
 {
+     rb_node *nil = &t->nil;
      int nbl, nbr;
+     rb_compare compare = t->compare;
+     void *c_data = t->c_data;
      if (n == nil) { *nblack = 0; return 1; }
      if (n->r != nil && n->r->p != n) return 0;
+     if (n->r != nil && compare(n->r->k, n->k, c_data) < 0)
+	  return 0;
      if (n->l != nil && n->l->p != n) return 0;
+     if (n->l != nil && compare(n->l->k, n->k, c_data) > 0)
+	  return 0;
      if (n->c == RED) {
 	  if (n->r != nil && n->r->c == RED) return 0;
 	  if (n->l != nil && n->l->c == RED) return 0;
      }
-     if (!(check_node(n->r, &nbl, nil) && check_node(n->l, &nbr, nil))) 
+     if (!(check_node(n->r, &nbl, t) && check_node(n->l, &nbr, t))) 
 	  return 0;
      if (nbl != nbr) return 0;
      *nblack = nbl + n->c == BLACK;
@@ -183,7 +190,7 @@ int rb_tree_check(rb_tree *t)
      if (nil->c != BLACK) return 0;
      if (t->root == nil) return 1;
      if (t->root->c != BLACK) return 0;
-     return check_node(t->root, &nblack, nil);
+     return check_node(t->root, &nblack, t);
 }
 
 rb_node *rb_tree_find(rb_tree *t, int k)
@@ -198,6 +205,78 @@ rb_node *rb_tree_find(rb_tree *t, int k)
 	  p = comp <= 0 ? p->l : p->r;
      }
      return NULL;
+}
+
+/* like rb_tree_find, but guarantees that returned node n will have
+   n->k == k (may not be true above if compare(k,k') == 0 for some k != k') */
+rb_node *rb_tree_find_exact(rb_tree *t, int k)
+{
+     rb_node *nil = &t->nil;
+     rb_compare compare = t->compare;
+     void *c_data = t->c_data;
+     rb_node *p = t->root;
+     while (p != nil) {
+	  int comp = compare(k, p->k, c_data);
+	  if (!comp) break;
+	  p = comp <= 0 ? p->l : p->r;
+     }
+     if (p == nil)
+	  return NULL;
+     while (p->l != nil && !compare(k, p->l->k, c_data)) p = p->l;
+     if (p->l != nil) p = p->l;
+     do {
+	  if (p->k == k) return p;
+	  p = rb_tree_succ(t, p);
+     } while (p && compare(p->k, k, c_data) <= 0);
+     return NULL;
+}
+
+/* find greatest point in subtree p that is <= k */
+rb_node *find_le(rb_node *p, int k, rb_tree *t)
+{
+     rb_node *nil = &t->nil;
+     rb_compare compare = t->compare;
+     void *c_data = t->c_data;
+     while (p != nil) {
+	  if (compare(p->k, k, c_data) <= 0) { /* p->k <= k */
+	       rb_node *r = find_le(p->r, k, t);
+	       if (r) return r;
+	       else return p;
+	  }
+	  else /* p->k > k */
+	       p = p->l;
+     }
+     return NULL; /* k < everything in subtree */
+}
+
+/* find greatest point in t <= k */
+rb_node *rb_tree_find_le(rb_tree *t, int k)
+{
+     return find_le(t->root, k, t);
+}
+
+/* find least point in subtree p that is > k */
+rb_node *find_gt(rb_node *p, int k, rb_tree *t)
+{
+     rb_node *nil = &t->nil;
+     rb_compare compare = t->compare;
+     void *c_data = t->c_data;
+     while (p != nil) {
+	  if (compare(p->k, k, c_data) > 0) { /* p->k > k */
+	       rb_node *l = find_gt(p->l, k, t);
+	       if (l) return l;
+	       else return p;
+	  }
+	  else /* p->k <= k */
+	       p = p->r;
+     }
+     return NULL; /* k >= everything in subtree */
+}
+
+/* find least point in t > k */
+rb_node *rb_tree_find_gt(rb_tree *t, int k)
+{
+     return find_gt(t->root, k, t);
 }
 
 rb_node *rb_tree_min(rb_tree *t)
