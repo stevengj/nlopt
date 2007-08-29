@@ -376,7 +376,7 @@ static nlopt_result divide_good_rects(params *p)
 	       K1 = (hull[i][1] - hull[ip][1]) / (hull[i][0] - hull[ip][0]);
 	  K = MAX(K1, K2);
 	  if (hull[i][1] - K * hull[i][0]
-	      <= p->fmin - magic_eps * fabs(p->fmin)) {
+	      <= p->fmin - magic_eps * fabs(p->fmin) || ip == nhull) {
 	       /* "potentially optimal" rectangle, so subdivide */
 	       nlopt_result ret = divide_rect(hull[i], p);
 	       divided_some = 1;
