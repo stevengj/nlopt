@@ -194,6 +194,10 @@ static nlopt_result nlopt_minimize_(
      nlopt_data d;
      nlopt_stopping stop;
 
+     /* some basic argument checks */
+     if (n <= 0 || !f || !lb || !ub || !x || !fmin)
+	  return NLOPT_INVALID_ARGS;
+
      d.f = f;
      d.f_data = f_data;
      d.lb = lb;

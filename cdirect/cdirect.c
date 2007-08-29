@@ -19,9 +19,10 @@
  * measure (d) of the rectangle, [2..n+1] are the coordinates of the
  * center (c), and [n+2..2n+1] are the widths of the sides (w).
  *
- * a list of rectangles is just an array of N hyper-rectangles
- * stored as an N x L in row-major order.  Generally,
- * we allocate more than we need, allocating Na hyper-rectangles.
+ * we store the hyper-rectangles in a red-black tree, sorted by (d,f)
+ * in lexographic order, to allow us to perform quick convex-hull
+ * calculations (in the future, we might make this data structure
+ * more sophisticated based on the dynamic convex-hull literature).
  *
  * n > 0 always
  */
