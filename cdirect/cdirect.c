@@ -174,7 +174,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 		    rnew[1] = fv[2*isort[i]+k];
 		    if (!rb_tree_insert(&p->rtree, rnew)) {
 			 free(rnew);
-			 return NLOPT_FAILURE;
+			 return NLOPT_OUT_OF_MEMORY;
 		    }
 	       }
 	  }
@@ -205,7 +205,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       FUNCTION_EVAL(rnew[1], rnew + 2, p, rnew);
 	       if (!rb_tree_insert(&p->rtree, rnew)) {
 		    free(rnew);
-		    return NLOPT_FAILURE;
+		    return NLOPT_OUT_OF_MEMORY;
 	       }
 	  }
      }
