@@ -267,7 +267,7 @@ static int convex_hull(rb_tree *t, double **hull)
 	  /* performance hack: most of the points in DIRECT lie along
 	     vertical lines at a few x values, and we can exploit this */
 	  if (nhull && k[0] == hull[nhull - 1][0]) { /* x == previous x */
-	       if (k[1] == hull[nhull - 1][1]) {
+	       if (k[1] > hull[nhull - 1][1]) {
 		    double kshift[2];
 		    /* because of the round to float in rect_diameter, above,
 		       it shouldn't be possible for two diameters (x values)
