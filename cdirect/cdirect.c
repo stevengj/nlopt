@@ -33,7 +33,6 @@
 typedef struct {
      int n; /* dimension */
      int L; /* RECT_LEN(n) */
-     double *rects; /* the hyper-rectangles */
      double magic_eps; /* Jones' epsilon parameter (1e-4 is recommended) */
      int which_diam; /* which measure of hyper-rectangle diam to use:
 			0 = Jones, 1 = Gablonsky */
@@ -45,12 +44,14 @@ typedef struct {
      nlopt_stopping *stop; /* stopping criteria */
      nlopt_func f; void *f_data;
      double *work; /* workspace, of length >= 2*n */
-     int *iwork, iwork_len; /* workspace, of length iwork_len >= n */
+     int *iwork; /* workspace, length >= n */
      double fmin, *xmin; /* minimum so far */
      
-     /* red-black tree of hyperrect indices, sorted by (d,f) in
+     /* red-black tree of hyperrects, sorted by (d,f) in
 	lexographical order */
      rb_tree rtree;
+     double **hull; /* array to store convex hull */
+     int hull_len; /* allocated length of hull array */
 } params;
 
 /***************************************************************************/
@@ -74,16 +75,7 @@ static double rect_diameter(int n, const double *w, const params *p)
      }
 }
 
-static double *alloc_rects(int n, int *Na, double *rects, int newN)
-{
-     if (newN <= *Na)
-	  return rects;
-     else {
-	  (*Na) += newN;
-	  return realloc(rects, sizeof(double) * RECT_LEN(n) * (*Na));
-     }
-}
-#define ALLOC_RECTS(n, Nap, rects, newN) if (!(rects = alloc_rects(n, Nap, rects, newN))) return NLOPT_OUT_OF_MEMORY
+#define ALLOC_RECT(rect, L) if (!(rect = (double*) malloc(sizeof(double)*(L)))) return NLOPT_OUT_OF_MEMORY
 
 static double *fv_qsort = 0;
 static int sort_fv_compare(const void *a_, const void *b_)
@@ -116,20 +108,19 @@ static double function_eval(const double *x, params *p) {
      p->stop->nevals++;
      return f;
 }
-#define FUNCTION_EVAL(fv,x,p) fv = function_eval(x, p); if (p->fmin < p->stop->fmin_max) return NLOPT_FMIN_MAX_REACHED; else if (nlopt_stop_evals((p)->stop)) return NLOPT_MAXEVAL_REACHED; else if (nlopt_stop_time((p)->stop)) return NLOPT_MAXTIME_REACHED
+#define FUNCTION_EVAL(fv,x,p,freeonerr) fv = function_eval(x, p); if (p->fmin < p->stop->fmin_max) { free(freeonerr); return NLOPT_FMIN_MAX_REACHED; } else if (nlopt_stop_evals((p)->stop)) { free(freeonerr); return NLOPT_MAXEVAL_REACHED; } else if (nlopt_stop_time((p)->stop)) { free(freeonerr); return NLOPT_MAXTIME_REACHED; }
 
 #define THIRD (0.3333333333333333333333)
 
 #define EQUAL_SIDE_TOL 5e-2 /* tolerance to equate side sizes */
 
 /* divide rectangle idiv in the list p->rects */
-static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
+static nlopt_result divide_rect(double *rdiv, params *p)
 {
      int i;
      const const int n = p->n;
      const int L = p->L;
-     double *r = p->rects;
-     double *c = r + L*idiv + 2; /* center of rect to divide */
+     double *c = rdiv + 2; /* center of rect to divide */
      double *w = c + n; /* widths of rect to divide */
      double wmax = w[0];
      int imax = 0, nlongest = 0;
@@ -150,9 +141,9 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	       if (wmax - w[i] <= wmax * EQUAL_SIDE_TOL) {
 		    double csave = c[i];
 		    c[i] = csave - w[i] * THIRD;
-		    FUNCTION_EVAL(fv[2*i], c, p);
+		    FUNCTION_EVAL(fv[2*i], c, p, 0);
 		    c[i] = csave + w[i] * THIRD;
-		    FUNCTION_EVAL(fv[2*i+1], c, p);
+		    FUNCTION_EVAL(fv[2*i+1], c, p, 0);
 		    c[i] = csave;
 	       }
 	       else {
@@ -160,23 +151,23 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	       }
 	  }
 	  sort_fv(n, fv, isort);
-	  ALLOC_RECTS(n, Na, r, (*N)+2*nlongest); 
-	  p->rects = r; c = r + L*idiv + 2; w = c + n;
+	  if (!(node = rb_tree_find(&p->rtree, rdiv)))
+	       return NLOPT_FAILURE;
 	  for (i = 0; i < nlongest; ++i) {
 	       int k;
-	       if (!(node = rb_tree_find_exact(&p->rtree, idiv)))
-		    return NLOPT_FAILURE;
 	       w[isort[i]] *= THIRD;
-	       r[L*idiv] = rect_diameter(n, w, p);
-	       rb_tree_resort(&p->rtree, node);
+	       rdiv[0] = rect_diameter(n, w, p);
+	       node = rb_tree_resort(&p->rtree, node);
 	       for (k = 0; k <= 1; ++k) {
-		    r[L*(*N)] = r[L*idiv];
-		    memcpy(r + L*(*N) + 2, c, sizeof(double) * 2*n);
-		    r[L*(*N) + 2 + isort[i]] += w[isort[i]] * (2*k-1);
-		    r[L*(*N) + 1] = fv[2*isort[i]+k];
-		    if (!rb_tree_insert(&p->rtree, *N))
+		    double *rnew;
+		    ALLOC_RECT(rnew, L);
+		    memcpy(rnew, rdiv, sizeof(double) * L);
+		    rnew[2 + isort[i]] += w[isort[i]] * (2*k-1);
+		    rnew[1] = fv[2*isort[i]+k];
+		    if (!rb_tree_insert(&p->rtree, rnew)) {
+			 free(rnew);
 			 return NLOPT_FAILURE;
-		    ++(*N);
+		    }
 	       }
 	  }
      }
@@ -193,21 +184,21 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 	  }
 	  else
 	       i = imax; /* trisect longest side */
-	  ALLOC_RECTS(n, Na, r, (*N)+2);
-          p->rects = r; c = r + L*idiv + 2; w = c + n;
-	  if (!(node = rb_tree_find_exact(&p->rtree, idiv)))
+	  if (!(node = rb_tree_find(&p->rtree, rdiv)))
 	       return NLOPT_FAILURE;
 	  w[i] *= THIRD;
-	  r[L*idiv] = rect_diameter(n, w, p);
-	  rb_tree_resort(&p->rtree, node);
+	  rdiv[0] = rect_diameter(n, w, p);
+	  node = rb_tree_resort(&p->rtree, node);
 	  for (k = 0; k <= 1; ++k) {
-	       r[L*(*N)] = r[L*idiv];
-	       memcpy(r + L*(*N) + 2, c, sizeof(double) * 2*n);
-	       r[L*(*N) + 2 + i] += w[i] * (2*k-1);
-	       FUNCTION_EVAL(r[L*(*N) + 1], r + L*(*N) + 2, p);
-	       if (!rb_tree_insert(&p->rtree, *N))
+	       double *rnew;
+	       ALLOC_RECT(rnew, L);
+	       memcpy(rnew, rdiv, sizeof(double) * L);
+	       rnew[2 + i] += w[i] * (2*k-1);
+	       FUNCTION_EVAL(rnew[1], rnew + 2, p, rnew);
+	       if (!rb_tree_insert(&p->rtree, rnew)) {
+		    free(rnew);
 		    return NLOPT_FAILURE;
-	       ++(*N);
+	       }
 	  }
      }
      return NLOPT_SUCCESS;
@@ -217,65 +208,62 @@ static nlopt_result divide_rect(int *N, int *Na, int idiv, params *p)
 /* O(N log N) convex hull algorithm, used later to find the potentially
    optimal points */
 
-/* Find the lower convex hull of a set of points (xy[s*i], xy[s*i+1]), where
-   0 <= i < N and s >= 2.
+/* Find the lower convex hull of a set of points (x,y) stored in a rb-tree
+   of pointers to {x,y} arrays sorted in lexographic order by (x,y).
 
    Unlike standard convex hulls, we allow redundant points on the hull.
 
-   The return value is the number of points in the hull, with indices
-   stored in ihull.  ihull should point to arrays of length >= N.
-   rb_tree should be a red-black tree of indices (keys == i) sorted
-   in lexographic order by (xy[s*i], xy[s*i+1]).
+   The return value is the number of points in the hull, with pointers
+   stored in hull[i] (should be an array of length >= t->N).
 */
-static int convex_hull(int N, double *xy, int s, int *ihull, rb_tree *t)
+static int convex_hull(rb_tree *t, double **hull)
 {
-     int nhull;
+     int nhull = 0;
      double minslope;
      double xmin, xmax, yminmin, ymaxmin;
      rb_node *n, *nmax;
 
-     if (N == 0) return 0;
-     
      /* Monotone chain algorithm [Andrew, 1979]. */
 
      n = rb_tree_min(t);
+     if (!n) return 0;
      nmax = rb_tree_max(t);
 
-     xmin = xy[s*(n->k)];
-     yminmin = xy[s*(n->k)+1];
-     xmax = xy[s*(nmax->k)];
+     xmin = n->k[0];
+     yminmin = n->k[1];
+     xmax = nmax->k[0];
 
-     ihull[nhull = 1] = n->k;
+     hull[nhull++] = n->k;
      if (xmin == xmax) return nhull;
 
      /* set nmax = min mode with x == xmax */
-     while (xy[s*(nmax->k)] == xmax)
-	  nmax = rb_tree_pred(t, nmax); /* non-NULL since xmin != xmax */
-     nmax = rb_tree_succ(t, nmax);
+     while (nmax->k[0] == xmax)
+	  nmax = rb_tree_pred(nmax); /* non-NULL since xmin != xmax */
+     nmax = rb_tree_succ(nmax);
 
-     ymaxmin = xy[s*(nmax->k)+1];
+     ymaxmin = nmax->k[1];
      minslope = (ymaxmin - yminmin) / (xmax - xmin);
 
      /* set n = first node with x != xmin */
-     while (xy[s*(n->k)] == xmin)
-	  n = rb_tree_succ(t, n); /* non-NULL since xmin != xmax */
+     while (n->k[0] == xmin)
+	  n = rb_tree_succ(n); /* non-NULL since xmin != xmax */
 
-     for (; n != nmax; n = rb_tree_succ(t, n)) { 
-	  int k = n->k;
-	  if (xy[s*k+1] > yminmin + (xy[s*k] - xmin) * minslope)
+     for (; n != nmax; n = rb_tree_succ(n)) { 
+	  double *k = n->k;
+	  if (k[1] > yminmin + (k[0] - xmin) * minslope)
 	       continue;
 	  /* remove points until we are making a "left turn" to k */
 	  while (nhull > 1) {
-	       int t1 = ihull[nhull - 1], t2 = ihull[nhull - 2];
+	       double *t1 = hull[nhull - 1], *t2 = hull[nhull - 2];
 	       /* cross product (t1-t2) x (k-t2) > 0 for a left turn: */
-	       if ((xy[s*t1]-xy[s*t2]) * (xy[s*k+1]-xy[s*t2+1])
-		   - (xy[s*t1+1]-xy[s*t2+1]) * (xy[s*k]-xy[s*t2]) >= 0)
+	       if ((t1[0]-t2[0]) * (k[1]-t2[1])
+		   - (t1[1]-t2[1]) * (k[0]-t2[0]) >= 0)
 		    break;
 	       --nhull;
 	  }
-	  ihull[nhull++] = k;
+	  hull[nhull++] = k;
      }
-     ihull[nhull++] = nmax->k;
+     hull[nhull++] = nmax->k;
      return nhull;
 }
 
@@ -291,41 +279,34 @@ static int small(double *w, params *p)
      return 1;
 }
 
-static nlopt_result divide_good_rects(int *N, int *Na, params *p)
+static nlopt_result divide_good_rects(params *p)
 {
      const int n = p->n;
-     const int L = p->L;
-     int *ihull, nhull, i, xtol_reached = 1, divided_some = 0;
-     double *r = p->rects;
+     double **hull;
+     int nhull, i, xtol_reached = 1, divided_some = 0;
      double magic_eps = p->magic_eps;
 
-     if (p->iwork_len < *N) {
-	  p->iwork_len = p->iwork_len + *N;
-	  p->iwork = (int *) realloc(p->iwork, sizeof(int) * p->iwork_len);
-	  if (!p->iwork)
-	       return NLOPT_OUT_OF_MEMORY;
+     if (p->hull_len < p->rtree.N) {
+	  p->hull_len += p->rtree.N;
+	  p->hull = (double **) realloc(p->hull, sizeof(double*)*p->hull_len);
+	  if (!p->hull) return NLOPT_OUT_OF_MEMORY;
      }
-     ihull = p->iwork;
-     nhull = convex_hull(*N, r, L, ihull, &p->rtree);
+     nhull = convex_hull(&p->rtree, hull = p->hull);
  divisions:
      for (i = 0; i < nhull; ++i) {
 	  double K1 = -HUGE_VAL, K2 = -HUGE_VAL, K;
 	  if (i > 0)
-	       K1 = (r[L*ihull[i]+1] - r[L*ihull[i-1]+1]) /
-		    (r[L*ihull[i]] - r[L*ihull[i-1]]);
+	       K1 = (hull[i][1] - hull[i-1][1]) / (hull[i][0] - hull[i-1][0]);
 	  if (i < nhull-1)
-	       K1 = (r[L*ihull[i]+1] - r[L*ihull[i+1]+1]) /
-		    (r[L*ihull[i]] - r[L*ihull[i+1]]);
+	       K1 = (hull[i][1] - hull[i+1][1]) / (hull[i][0] - hull[i+1][0]);
 	  K = MAX(K1, K2);
-	  if (r[L*ihull[i]+1] - K * r[L*ihull[i]]
+	  if (hull[i][1] - K * hull[i][0]
 	      <= p->fmin - magic_eps * fabs(p->fmin)) {
 	       /* "potentially optimal" rectangle, so subdivide */
 	       divided_some = 1;
-	       nlopt_result ret;
-	       ret = divide_rect(N, Na, ihull[i], p);
-	       r = p->rects; /* may have grown */
+	       nlopt_result ret = divide_rect(hull[i], p);
 	       if (ret != NLOPT_SUCCESS) return ret;
-	       xtol_reached = xtol_reached && small(r + L*ihull[i] + 2+n, p);
+	       xtol_reached = xtol_reached && small(hull[i] + 2+n, p);
 	  }
      }
      if (!divided_some) {
@@ -333,13 +314,19 @@ static nlopt_result divide_good_rects(int *N, int *Na, params *p)
 	       magic_eps = 0;
 	       goto divisions; /* try again */
 	  }
-	  else { /* WTF? divide largest rectangle */
-	       double wmax = r[0];
-	       int imax = 0;
-	       for (i = 1; i < *N; ++i)
-		    if (r[L*i] > wmax)
-			 wmax = r[L*(imax=i)];
-	       return divide_rect(N, Na, imax, p);
+	  else { /* WTF? divide largest rectangle with smallest f */
+	       /* (note that this code actually gets called from time
+		  to time, and the heuristic here seems to work well,
+		  but I don't recall this situation being discussed in
+		  the references?) */
+	       rb_node *max = rb_tree_max(&p->rtree);
+	       rb_node *pred = max;
+	       double wmax = max->k[0];
+	       do { /* note: this loop is O(N) worst-case time */
+		    max = pred;
+		    pred = rb_tree_pred(max);
+	       } while (pred && pred->k[0] == wmax);
+	       return divide_rect(max->k, p);
 	  }
      }
      return xtol_reached ? NLOPT_XTOL_REACHED : NLOPT_SUCCESS;
@@ -348,18 +335,13 @@ static nlopt_result divide_good_rects(int *N, int *Na, params *p)
 /***************************************************************************/
 
 /* lexographic sort order (d,f) of hyper-rects, for red-black tree */
-static int hyperrect_compare(int i, int j, void *p_)
+static int hyperrect_compare(double *a, double *b)
 {
-     params *p = (params *) p_;
-     int L = p->L;
-     double *r = p->rects;
-     double di = r[i*L], dj = r[j*L], fi, fj;
-     if (di < dj) return -1;
-     if (dj < di) return +1;
-     fi = r[i*L+1]; fj = r[j*L+1];
-     if (fi < fj) return -1;
-     if (fj < fi) return +1;
-     return 0;
+     if (a[0] < b[0]) return -1;
+     if (a[0] > b[0]) return +1;
+     if (a[1] < b[1]) return -1;
+     if (a[1] > b[1]) return +1;
+     return (int) (a - b); /* tie-breaker */
 }
 
 /***************************************************************************/
@@ -372,7 +354,8 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
 			      double magic_eps, int which_alg)
 {
      params p;
-     int Na = 100, N = 1, i, x_center = 1;
+     int i, x_center = 1;
+     double *rnew;
      nlopt_result ret = NLOPT_OUT_OF_MEMORY;
 
      p.magic_eps = magic_eps;
@@ -388,38 +371,41 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      p.fmin = f(n, x, NULL, f_data); stop->nevals++;
      p.work = 0;
      p.iwork = 0;
-     p.rects = 0;
+     p.hull = 0;
 
-     if (!rb_tree_init(&p.rtree, hyperrect_compare, &p)) goto done;
-     p.work = (double *) malloc(sizeof(double) * 2*n);
+     rb_tree_init(&p.rtree, hyperrect_compare);
+
+     p.work = (double *) malloc(sizeof(double) * (2*n));
      if (!p.work) goto done;
-     p.rects = (double *) malloc(sizeof(double) * Na * RECT_LEN(n));
-     if (!p.rects) goto done;
-     p.iwork = (int *) malloc(sizeof(int) * (p.iwork_len = Na + n));
+     p.iwork = (int *) malloc(sizeof(int) * n);
      if (!p.iwork) goto done;
+     p.hull_len = 128; /* start with a reasonable number */
+     p.hull = (double **) malloc(sizeof(double *) * p.hull_len);
+     if (!p.hull) goto done;
 
+     if (!(rnew = (double *) malloc(sizeof(double) * p.L))) goto done;
      for (i = 0; i < n; ++i) {
-	  p.rects[2+i] = 0.5 * (lb[i] + ub[i]);
+	  rnew[2+i] = 0.5 * (lb[i] + ub[i]);
 	  x_center = x_center
-	       && (fabs(p.rects[2+i]-x[i]) < 1e-13*(1+fabs(x[i])));
-	  p.rects[2+n+i] = ub[i] - lb[i];
+	       && (fabs(rnew[2+i]-x[i]) < 1e-13*(1+fabs(x[i])));
+	  rnew[2+n+i] = ub[i] - lb[i];
      }
-     p.rects[0] = rect_diameter(n, p.rects+2+n, &p);
+     rnew[0] = rect_diameter(n, rnew+2+n, &p);
      if (x_center)
-	  p.rects[1] = p.fmin; /* avoid computing f(center) twice */
+	  rnew[1] = p.fmin; /* avoid computing f(center) twice */
      else
-	  p.rects[1] = function_eval(p.rects+2, &p);
-     if (!rb_tree_insert(&p.rtree, 0)) {
-	  ret = NLOPT_FAILURE;
+	  rnew[1] = function_eval(rnew+2, &p);
+     if (!rb_tree_insert(&p.rtree, rnew)) {
+	  free(rnew);
 	  goto done;
      }
 
-     ret = divide_rect(&N, &Na, 0, &p);
+     ret = divide_rect(rnew, &p);
      if (ret != NLOPT_SUCCESS) goto done;
 
      while (1) {
 	  double fmin0 = p.fmin;
-	  ret = divide_good_rects(&N, &Na, &p);
+	  ret = divide_good_rects(&p);
 	  if (ret != NLOPT_SUCCESS) goto done;
 	  if (nlopt_stop_f(p.stop, p.fmin, fmin0)) {
 	       ret = NLOPT_FTOL_REACHED;
@@ -428,9 +414,9 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      }
 
  done:
-     rb_tree_destroy(&p.rtree);
+     rb_tree_destroy_with_keys(&p.rtree);
+     free(p.hull);
      free(p.iwork);
-     free(p.rects);
      free(p.work);
 	      
      *fmin = p.fmin;

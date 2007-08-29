@@ -1,37 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <time.h>
 #include "redblack.h"
 
-static int comp(int k1, int k2, void *dummy)
+static int comp(rb_key k1, rb_key k2)
 {
-     (void) dummy;
-     return k1 - k2;
+     if (*k1 < *k2) return -1;
+     if (*k1 > *k2) return +1;
+     return 0;
 }
 
 int main(int argc, char **argv)
 {
      int N, M;
      int *k;
+     double kd;
      rb_tree t;
      rb_node *n;
      int i, j;
 
-     if (argc != 2) {
-	  fprintf(stderr, "Usage: redblack_test Ntest\n");
+     if (argc < 2) {
+	  fprintf(stderr, "Usage: redblack_test Ntest [rand seed]\n");
 	  return 1;
      }
 
      N = atoi(argv[1]);
      k = (int *) malloc(N * sizeof(int));
-     if (!rb_tree_init(&t, comp, NULL)) {
-	  fprintf(stderr, "error in rb_tree_init\n");
-	  return 1;
-     }
+     rb_tree_init(&t, comp);
 
-     srand((unsigned) time(NULL));
+     srand((unsigned) (argc > 2 ? atoi(argv[2]) : time(NULL)));
      for (i = 0; i < N; ++i) {
-	  if (!rb_tree_insert(&t, k[i] = rand() % N)) {
+	  double *newk = (double *) malloc(sizeof(double));
+	  *newk = (k[i] = rand() % N);
+	  if (!rb_tree_insert(&t, newk)) {
 	       fprintf(stderr, "error in rb_tree_insert\n");
 	       return 1;
 	  }
@@ -41,20 +43,27 @@ int main(int argc, char **argv)
 	  }
      }
      
-     for (i = 0; i < N; ++i)
-	  if (!rb_tree_find(&t, k[i]) || !rb_tree_find_exact(&t, k[i])) {
+     if (t.N != N) {
+	  fprintf(stderr, "incorrect N (%d) in tree (vs. %d)\n", t.N, N);
+	  return 1;
+     }
+
+     for (i = 0; i < N; ++i) {
+	  kd = k[i];
+	  if (!rb_tree_find(&t, &kd)) {
 	       fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
 	       return 1;
 	  }
-     
+     }
+ 
      n = rb_tree_min(&t);
      for (i = 0; i < N; ++i) {
 	  if (!n) {
 	       fprintf(stderr, "not enough successors %d\n!", i);
 	       return 1;
 	  }
-	  printf("%d: %d\n", i, n->k);
-	  n = rb_tree_succ(&t, n);
+	  printf("%d: %g\n", i, n->k[0]);
+	  n = rb_tree_succ(n);
      }
      if (n) {
 	  fprintf(stderr, "too many successors!\n");
@@ -67,8 +76,8 @@ int main(int argc, char **argv)
 	       fprintf(stderr, "not enough predecessors %d\n!", i);
 	       return 1;
 	  }
-	  printf("%d: %d\n", i, n->k);
-	  n = rb_tree_pred(&t, n);
+	  printf("%d: %g\n", i, n->k[0]);
+	  n = rb_tree_pred(n);
      }
      if (n) {
 	  fprintf(stderr, "too many predecessors!\n");
@@ -83,17 +92,19 @@ int main(int argc, char **argv)
 		    if (j-- == 0)
 			 break;
 	  if (i >= N) abort();
-	  if (!(n = rb_tree_find(&t, k[i])) || !rb_tree_find_exact(&t, k[i])) {
+	  kd = k[i];
+	  if (!(n = rb_tree_find(&t, &kd))) {
                fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
                return 1;
           }
-	  n->k = knew;
+	  n->k[0] = knew;
 	  if (!rb_tree_resort(&t, n)) {
 	       fprintf(stderr, "error in rb_tree_resort\n");
 	       return 1;
 	  }
 	  if (!rb_tree_check(&t)) {
-	       fprintf(stderr, "rb_tree_check_failed after change!\n");
+	       fprintf(stderr, "rb_tree_check_failed after change %d!\n",
+		       N - M + 1);
 	       return 1;
 	  }
 	  k[i] = -1 - knew;
@@ -104,26 +115,25 @@ int main(int argc, char **argv)
 	  return 1;
      }
 
+     for (i = 0; i < N; ++i)
+	  k[i] = -1 - k[i]; /* undo negation above */
+	  
      for (i = 0; i < N; ++i) {
-	  k[i] = -1 - k[i];
-	  /* rescale keys by 100 to add more space between them */
-	  k[i] *= 100;
-	  t.nodes[i].k *= 100;
-     }
-
-     for (i = 0; i < N; ++i) {
-	  int k = rand() % (N * 150) - N*25;
-	  rb_node *le = rb_tree_find_le(&t, k);
-	  rb_node *gt = rb_tree_find_gt(&t, k);
-	  rb_node *n = rb_tree_min(&t);
-	  printf("%d <= %d < %d\n", le? le->k:-999999, k, gt? gt->k:999999);
-	  if (n->k > k) {
+	  rb_node *le, *gt;
+	  kd = 0.01 * (rand() % (N * 150) - N*25);
+	  le = rb_tree_find_le(&t, &kd);
+	  gt = rb_tree_find_gt(&t, &kd);
+	  n = rb_tree_min(&t);
+	  double lek = le ? le->k[0] : -HUGE_VAL;
+	  double gtk = gt ? gt->k[0] : +HUGE_VAL;
+	  printf("%g <= %g < %g\n", lek, kd, gtk);
+	  if (n->k[0] > kd) {
 	       if (le) {
-		    fprintf(stderr, "found invalid le %d for %d\n", le->k, k);
+		    fprintf(stderr, "found invalid le %g for %g\n", lek, kd);
 		    return 1;
 	       }
 	       if (gt != n) {
-		    fprintf(stderr, "gt is not first node for k=%d\n", k);
+		    fprintf(stderr, "gt is not first node for k=%g\n", kd);
 		    return 1;
 	       }
 	  }
@@ -131,14 +141,16 @@ int main(int argc, char **argv)
 	       rb_node *succ = n;
 	       do {
 		    n = succ;
-		    succ = rb_tree_succ(&t, n);
-	       } while (succ && succ->k <= k);
+		    succ = rb_tree_succ(n);
+	       } while (succ && succ->k[0] <= kd);
 	       if (n != le) {
-		    fprintf("rb_tree_find_le gave wrong result for k=%d\n", k);
+		    fprintf(stderr,
+			    "rb_tree_find_le gave wrong result for k=%g\n",kd);
 		    return 1;
 	       }
 	       if (succ != gt) {
-		    fprintf("rb_tree_find_gt gave wrong result for k=%d\n", k);
+		    fprintf(stderr,
+			    "rb_tree_find_gt gave wrong result for k=%g\n",kd);
 		    return 1;
 	       }
 	  }
@@ -151,11 +163,14 @@ int main(int argc, char **argv)
 		    if (j-- == 0)
 			 break;
 	  if (i >= N) abort();
-	  if (!(n = rb_tree_find(&t, k[i])) || !rb_tree_find_exact(&t, k[i])) {
+	  kd = k[i];
+	  if (!(n = rb_tree_find(&t, &kd))) {
 	       fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
 	       return 1;
 	  }
-	  rb_tree_remove(&t, n);
+	  n = rb_tree_remove(&t, n);
+	  free(n->k); 
+	  free(n);
 	  if (!rb_tree_check(&t)) {
 	       fprintf(stderr, "rb_tree_check_failed after remove!\n");
 	       return 1;
@@ -163,6 +178,11 @@ int main(int argc, char **argv)
 	  k[i] = -1 - k[i];
      }
      
+     if (t.N != 0) {
+	  fprintf(stderr, "nonzero N (%d) in tree at end\n", t.N);
+	  return 1;
+     }
+
      rb_tree_destroy(&t);
      free(k);
      return 0;
