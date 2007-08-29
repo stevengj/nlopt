@@ -43,6 +43,8 @@ void nlopt_version(int *major, int *minor, int *bugfix)
 static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "DIRECT (global)",
      "DIRECT-L (global)",
+     "Original DIRECT version (global)",
+     "Original DIRECT-L version (global)",
      "Subplex (local)",
      "StoGO (global)",
      "StoGO with randomized search (global)",
@@ -228,21 +230,22 @@ static nlopt_result nlopt_minimize_(
      switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
 	 case NLOPT_GLOBAL_DIRECT_L: 
-#if 0
-	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0, 
+	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 1e-4, 
 			     algorithm == NLOPT_GLOBAL_DIRECT ? 0 : 1);
-#endif
+
+	 case NLOPT_GLOBAL_ORIG_DIRECT:
+	 case NLOPT_GLOBAL_ORIG_DIRECT_L: 
 	 {
 	      int iret;
 	      d.xtmp = (double *) malloc(sizeof(double) * n*2);
 	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
 	      memcpy(d.xtmp + n, x, sizeof(double) * n); d.x0 = d.xtmp + n;
 	      iret = direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
-				     maxeval, 500, ftol_rel, ftol_abs,
+				     maxeval, 500, 1e-4, 1e-4,
 				     xtol_rel, xtol_rel,
 				     DIRECT_UNKNOWN_FGLOBAL, -1.0,
 				     NULL, 
-				     algorithm == NLOPT_GLOBAL_DIRECT
+				     algorithm == NLOPT_GLOBAL_ORIG_DIRECT
 				     ? DIRECT_ORIGINAL
 				     : DIRECT_GABLONSKY);
 	      recenter_x(n, x, lb, ub, d.x0, x);

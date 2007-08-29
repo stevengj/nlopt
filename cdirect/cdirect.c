@@ -249,16 +249,36 @@ static int convex_hull(rb_tree *t, double **hull)
      if (xmin == xmax) return nhull;
 
      /* set nmax = min mode with x == xmax */
+#if 0
      while (nmax->k[0] == xmax)
 	  nmax = rb_tree_pred(nmax); /* non-NULL since xmin != xmax */
      nmax = rb_tree_succ(nmax);
+#else
+     /* performance hack (see also below) */
+     {
+	  double kshift[2];
+	  kshift[0] = xmax * (1 - 1e-13);
+	  kshift[1] = -HUGE_VAL;
+	  nmax = rb_tree_find_gt(t, kshift); /* non-NULL since xmin != xmax */
+     }
+#endif
 
      ymaxmin = nmax->k[1];
      minslope = (ymaxmin - yminmin) / (xmax - xmin);
 
      /* set n = first node with x != xmin */
+#if 0
      while (n->k[0] == xmin)
 	  n = rb_tree_succ(n); /* non-NULL since xmin != xmax */
+#else
+     /* performance hack (see also below) */
+     {
+	  double kshift[2];
+	  kshift[0] = xmin * (1 + 1e-13);
+	  kshift[1] = -HUGE_VAL;
+	  n = rb_tree_find_gt(t, kshift); /* non-NULL since xmin != xmax */
+     }
+#endif
 
      for (; n != nmax; n = rb_tree_succ(n)) { 
 	  double *k = n->k;

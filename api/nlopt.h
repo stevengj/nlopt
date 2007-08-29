@@ -12,13 +12,19 @@ typedef double (*nlopt_func)(int n, const double *x,
 
 typedef enum {
      /* non-gradient algorithms */
+
      NLOPT_GLOBAL_DIRECT = 0,
      NLOPT_GLOBAL_DIRECT_L,
+     NLOPT_GLOBAL_ORIG_DIRECT,
+     NLOPT_GLOBAL_ORIG_DIRECT_L,
+
      NLOPT_LOCAL_SUBPLEX,
 
      /* gradient-based algorithms */
+
      NLOPT_GLOBAL_STOGO,
      NLOPT_GLOBAL_STOGO_RANDOMIZED,
+
      NLOPT_LOCAL_LBFGS,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */

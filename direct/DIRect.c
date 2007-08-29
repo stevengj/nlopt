@@ -54,9 +54,9 @@
     doublereal d__1;
 
     /* constants (FIXME: change to variable?) */
-    const integer MAXFUNC = 90000;
-    const integer MAXDEEP = 600;
-    const integer MAXDIV = 3000;
+    integer MAXFUNC = *maxf <= 0 ? 100050 : *maxf + 50;
+    const integer MAXDEEP = 1000;
+    const integer MAXDIV = 5000;
 
     /* Local variables */
     integer increase;
@@ -475,7 +475,7 @@
 	newtosample = 0;
 	i__2 = maxpos;
 	for (j = 1; j <= i__2; ++j) {
-	    actdeep = s[j + 2999];
+	    actdeep = s[j + MAXDIV-1];
 /* +-----------------------------------------------------------------------+ */
 /* | If the actual index is a point to sample, do it.                      | */
 /* +-----------------------------------------------------------------------+ */
@@ -486,7 +486,7 @@
 		actdeep_div__ = direct_dirgetmaxdeep_(&s[j - 1], length, &MAXFUNC, 
 			n);
 		delta = thirds[actdeep_div__ + 1];
-		actdeep = s[j + 2999];
+		actdeep = s[j + MAXDIV-1];
 /* +-----------------------------------------------------------------------+ */
 /* | If the current dept of division is only one under the maximal allowed | */
 /* | dept, stop the computation.                                           | */
