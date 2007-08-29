@@ -407,7 +407,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
 	  double fmin0 = p.fmin;
 	  ret = divide_good_rects(&p);
 	  if (ret != NLOPT_SUCCESS) goto done;
-	  if (nlopt_stop_f(p.stop, p.fmin, fmin0)) {
+	  if (p.fmin < fmin0 && nlopt_stop_f(p.stop, p.fmin, fmin0)) {
 	       ret = NLOPT_FTOL_REACHED;
 	       goto done;
 	  }
