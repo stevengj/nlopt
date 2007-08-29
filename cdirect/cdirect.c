@@ -56,7 +56,13 @@ typedef struct {
 
 /***************************************************************************/
 
-/* evaluate the "diameter" (d) of a rectangle of widths w[n] */
+/* Evaluate the "diameter" (d) of a rectangle of widths w[n] 
+
+   We round the result to single precision, which should be plenty for
+   the use we put the diameter to (rect sorting), to allow our
+   performance hack in convex_hull to work (in the Jones and Gablonsky
+   DIRECT algorithms, all of the rects fall into a few diameter
+   values, and we don't want rounding error to spoil this) */
 static double rect_diameter(int n, const double *w, const params *p)
 {
      int i;
@@ -64,14 +70,16 @@ static double rect_diameter(int n, const double *w, const params *p)
 	  double sum = 0;
 	  for (i = 0; i < n; ++i)
 	       sum += w[i] * w[i];
-	  return sqrt(sum) * 0.5; /* distance from center to a vertex */
+	  /* distance from center to a vertex */
+	  return ((float) (sqrt(sum) * 0.5)); 
      }
      else { /* Gablonsky measure */
 	  double maxw = 0;
 	  for (i = 0; i < n; ++i)
 	       if (w[i] > maxw)
 		    maxw = w[i];
-	  return maxw * 0.5; /* half-width of longest side */
+	  /* half-width of longest side */
+	  return ((float) (maxw * 0.5));
      }
 }
 
@@ -205,8 +213,11 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 }
 
 /***************************************************************************/
-/* O(N log N) convex hull algorithm, used later to find the potentially
-   optimal points */
+/* Convex hull algorithm, used later to find the potentially optimal
+   points.  What we really have in DIRECT is a "dynamic convex hull"
+   problem, since we are dynamically adding/removing points and
+   updating the hull, but I haven't implemented any of the fancy
+   algorithms for this problem yet. */
 
 /* Find the lower convex hull of a set of points (x,y) stored in a rb-tree
    of pointers to {x,y} arrays sorted in lexographic order by (x,y).
@@ -252,9 +263,41 @@ static int convex_hull(rb_tree *t, double **hull)
 	  double *k = n->k;
 	  if (k[1] > yminmin + (k[0] - xmin) * minslope)
 	       continue;
+
+	  /* performance hack: most of the points in DIRECT lie along
+	     vertical lines at a few x values, and we can exploit this */
+	  if (nhull && k[0] == hull[nhull - 1][0]) { /* x == previous x */
+	       if (k[1] == hull[nhull - 1][1]) {
+		    double kshift[2];
+		    /* because of the round to float in rect_diameter, above,
+		       it shouldn't be possible for two diameters (x values)
+		       to have a fractional difference < 1e-13.  Note
+		       that k[0] > 0 always in DIRECT */
+		    kshift[0] = k[0] * (1 + 1e-13);
+		    kshift[1] = -HUGE_VAL;
+		    n = rb_tree_pred(rb_tree_find_gt(t, kshift));
+		    continue;
+	       }
+	       else { /* equal y values, add to hull */
+		    hull[nhull++] = k;
+		    continue;
+	       }
+	  }
+
 	  /* remove points until we are making a "left turn" to k */
 	  while (nhull > 1) {
-	       double *t1 = hull[nhull - 1], *t2 = hull[nhull - 2];
+	       double *t1 = hull[nhull - 1], *t2;
+
+	       /* because we allow equal points in our hull, we have
+		  to modify the standard convex-hull algorithm slightly:
+		  we need to look backwards in the hull list until we
+		  find a point t2 != t1 */
+	       int it2 = nhull - 2;
+	       do {
+		    t2 = hull[it2--];
+	       } while (it2 >= 0 && t2[0] == t1[0] && t2[1] == t1[1]);
+	       if (it2 < 0) break;
+
 	       /* cross product (t1-t2) x (k-t2) > 0 for a left turn: */
 	       if ((t1[0]-t2[0]) * (k[1]-t2[1])
 		   - (t1[1]-t2[1]) * (k[0]-t2[0]) >= 0)
