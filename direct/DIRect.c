@@ -54,7 +54,7 @@
     doublereal d__1;
 
     /* constants (FIXME: change to variable?) */
-    integer MAXFUNC = *maxf <= 0 ? 100050 : *maxf + 50;
+    integer MAXFUNC = *maxf <= 0 ? 101000 : (*maxf + 1000 + *maxf / 2);
     const integer MAXDEEP = 1000;
     const integer MAXDIV = 5000;
 
@@ -99,6 +99,7 @@
     MY_ALLOC(c__, doublereal, MAXFUNC * (*n));
     MY_ALLOC(length, integer, MAXFUNC * (*n));
     MY_ALLOC(f, doublereal, MAXFUNC * 2);
+    if (*maxf <= 0) *maxf = MAXFUNC - 1000;
 
     MY_ALLOC(s, integer, MAXDIV * 2);
     MY_ALLOC(w, doublereal, (*n));

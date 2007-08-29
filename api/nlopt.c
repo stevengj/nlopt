@@ -43,6 +43,7 @@ void nlopt_version(int *major, int *minor, int *bugfix)
 static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "DIRECT (global)",
      "DIRECT-L (global)",
+     "Randomized DIRECT-L (global)",
      "Original DIRECT version (global)",
      "Original DIRECT-L version (global)",
      "Subplex (local)",
@@ -230,8 +231,10 @@ static nlopt_result nlopt_minimize_(
      switch (algorithm) {
 	 case NLOPT_GLOBAL_DIRECT:
 	 case NLOPT_GLOBAL_DIRECT_L: 
-	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 1e-4, 
-			     algorithm == NLOPT_GLOBAL_DIRECT ? 0 : 1);
+	 case NLOPT_GLOBAL_DIRECT_L_RANDOMIZED: 
+	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0.0, 
+			     (algorithm == NLOPT_GLOBAL_DIRECT ? 0 : 1)
+			     + 10 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 2 : 0));
 
 	 case NLOPT_GLOBAL_ORIG_DIRECT:
 	 case NLOPT_GLOBAL_ORIG_DIRECT_L: 
@@ -241,9 +244,9 @@ static nlopt_result nlopt_minimize_(
 	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
 	      memcpy(d.xtmp + n, x, sizeof(double) * n); d.x0 = d.xtmp + n;
 	      iret = direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
-				     maxeval, 500, 1e-4, 1e-4,
-				     xtol_rel, xtol_rel,
-				     DIRECT_UNKNOWN_FGLOBAL, -1.0,
+				     maxeval, 999, 0.0, 0.0,
+				     pow(xtol_rel, (double) n), -1.0,
+				     stop.fmin_max, 0.0,
 				     NULL, 
 				     algorithm == NLOPT_GLOBAL_ORIG_DIRECT
 				     ? DIRECT_ORIGINAL
@@ -263,7 +266,7 @@ static nlopt_result nlopt_minimize_(
 		  case DIRECT_MAXITER_EXCEEDED:
 		       return NLOPT_MAXEVAL_REACHED;
 		  case DIRECT_GLOBAL_FOUND:
-		       return NLOPT_SUCCESS;
+		       return NLOPT_FMIN_MAX_REACHED;
 		  case DIRECT_VOLTOL:
 		  case DIRECT_SIGMATOL:
 		       return NLOPT_XTOL_REACHED;

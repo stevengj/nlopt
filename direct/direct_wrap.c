@@ -20,8 +20,12 @@
    x: an array of length dimension, set to optimum variables upon return
    fmin: on return, set to minimum f value
 
+   magic_eps, magic_eps_abs: Jones' "magic" epsilon parameter, and
+                             also an absolute version of the same
+			     (not multipled by fmin).  Jones suggests
+			     setting this to 1e-4, but 0 also works...
+
    max_feval, max_iter: maximum number of function evaluations & DIRECT iters
-   reltol, abstol: relative and absolute tolerances (0 if none)
    volume_reltol: relative tolerance on hypercube volume (0 if none)
    sigma_reltol: relative tolerance on hypercube "measure" (??) (0 if none)
 
@@ -44,7 +48,7 @@ direct_return_code direct_optimize(
      double *x, double *fmin, 
 
      int max_feval, int max_iter,
-     double reltol, double abstol,
+     double magic_eps, double magic_eps_abs,
      double volume_reltol, double sigma_reltol,
 
      double fglobal,
@@ -80,7 +84,7 @@ direct_return_code direct_optimize(
 	  u[i] = upper_bounds[i];
      }
      
-     direct_direct_(f, x, &dimension, &reltol, abstol,
+     direct_direct_(f, x, &dimension, &magic_eps, magic_eps_abs,
 		    &max_feval, &max_iter,
 		    fmin,
 		    l, u,

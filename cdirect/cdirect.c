@@ -245,7 +245,10 @@ static int convex_hull(rb_tree *t, double **hull)
      yminmin = n->k[1];
      xmax = nmax->k[0];
 
-     hull[nhull++] = n->k;
+     do { /* include any duplicate points at (xmin,yminmin) */
+	  hull[nhull++] = n->k;
+	  n = rb_tree_succ(n);
+     } while (n && n->k[0] == xmin && n->k[1] == yminmin);
      if (xmin == xmax) return nhull;
 
      /* set nmax = min mode with x == xmax */
@@ -327,7 +330,12 @@ static int convex_hull(rb_tree *t, double **hull)
 	  }
 	  hull[nhull++] = k;
      }
-     hull[nhull++] = nmax->k;
+
+     do { /* include any duplicate points at (xmax,ymaxmin) */
+	  hull[nhull++] = nmax->k;
+	  nmax = rb_tree_succ(nmax);
+     } while (nmax && nmax->k[0] == xmax && n->k[1] == ymaxmin);
+
      return nhull;
 }
 
@@ -359,16 +367,19 @@ static nlopt_result divide_good_rects(params *p)
  divisions:
      for (i = 0; i < nhull; ++i) {
 	  double K1 = -HUGE_VAL, K2 = -HUGE_VAL, K;
-	  if (i > 0)
-	       K1 = (hull[i][1] - hull[i-1][1]) / (hull[i][0] - hull[i-1][0]);
-	  if (i < nhull-1)
-	       K1 = (hull[i][1] - hull[i+1][1]) / (hull[i][0] - hull[i+1][0]);
+	  int im, ip;
+	  for (im = i-1; im >= 0 && hull[im][0] == hull[i][0]; --im);
+	  for (ip = i+1; ip < nhull && hull[ip][0] == hull[i][0]; ++ip);
+	  if (im >= 0)
+	       K1 = (hull[i][1] - hull[im][1]) / (hull[i][0] - hull[im][0]);
+	  if (ip < nhull)
+	       K1 = (hull[i][1] - hull[ip][1]) / (hull[i][0] - hull[ip][0]);
 	  K = MAX(K1, K2);
 	  if (hull[i][1] - K * hull[i][0]
 	      <= p->fmin - magic_eps * fabs(p->fmin)) {
 	       /* "potentially optimal" rectangle, so subdivide */
-	       divided_some = 1;
 	       nlopt_result ret = divide_rect(hull[i], p);
+	       divided_some = 1;
 	       if (ret != NLOPT_SUCCESS) return ret;
 	       xtol_reached = xtol_reached && small(hull[i] + 2+n, p);
 	  }
@@ -423,8 +434,8 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      nlopt_result ret = NLOPT_OUT_OF_MEMORY;
 
      p.magic_eps = magic_eps;
-     p.which_diam = which_alg % 2;
-     p.which_div = 0;
+     p.which_diam = which_alg % 10;
+     p.which_div = (which_alg / 10) % 10;
      p.lb = lb; p.ub = ub;
      p.stop = stop;
      p.n = n;

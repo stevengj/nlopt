@@ -44,7 +44,7 @@ extern direct_return_code direct_optimize(
      double *x, double *fmin, 
 
      int max_feval, int max_iter,
-     double reltol, double abstol,
+     double magic_eps, double magic_eps_abs,
      double volume_reltol, double sigma_reltol,
 
      double fglobal,
