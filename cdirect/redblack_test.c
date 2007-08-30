@@ -185,5 +185,7 @@ int main(int argc, char **argv)
 
      rb_tree_destroy(&t);
      free(k);
+
+     printf("SUCCESS.\n");
      return 0;
 }
