@@ -52,9 +52,10 @@ typedef struct {
      int *iwork; /* workspace, length >= n */
      double fmin, *xmin; /* minimum so far */
      
-     /* red-black tree of hyperrects, sorted by (d,f) in
+     /* red-black tree of hyperrects, sorted by (d,f,age) in
 	lexographical order */
      rb_tree rtree;
+     int age; /* age for next new rect */
      double **hull; /* array to store convex hull */
      int hull_len; /* allocated length of hull array */
 } params;
@@ -170,6 +171,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       int k;
 	       w[isort[i]] *= THIRD;
 	       rdiv[0] = rect_diameter(n, w, p);
+	       rdiv[2] = p->age++;
 	       node = rb_tree_resort(&p->rtree, node);
 	       for (k = 0; k <= 1; ++k) {
 		    double *rnew;
@@ -177,7 +179,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 		    memcpy(rnew, rdiv, sizeof(double) * L);
 		    rnew[3 + isort[i]] += w[isort[i]] * (2*k-1);
 		    rnew[1] = fv[2*isort[i]+k];
-		    rnew[2] = p->rtree.N; /* age */
+		    rnew[2] = p->age++;
 		    if (!rb_tree_insert(&p->rtree, rnew)) {
 			 free(rnew);
 			 return NLOPT_OUT_OF_MEMORY;
@@ -202,6 +204,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       return NLOPT_FAILURE;
 	  w[i] *= THIRD;
 	  rdiv[0] = rect_diameter(n, w, p);
+	  rdiv[2] = p->age++;
 	  node = rb_tree_resort(&p->rtree, node);
 	  for (k = 0; k <= 1; ++k) {
 	       double *rnew;
@@ -209,7 +212,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       memcpy(rnew, rdiv, sizeof(double) * L);
 	       rnew[3 + i] += w[i] * (2*k-1);
 	       FUNCTION_EVAL(rnew[1], rnew + 3, p, rnew);
-	       rnew[2] = p->rtree.N; /* age */
+	       rnew[2] = p->age++;
 	       if (!rb_tree_insert(&p->rtree, rnew)) {
 		    free(rnew);
 		    return NLOPT_OUT_OF_MEMORY;
@@ -477,6 +480,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      p.work = 0;
      p.iwork = 0;
      p.hull = 0;
+     p.age = 0;
 
      rb_tree_init(&p.rtree, hyperrect_compare);
 
@@ -495,7 +499,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      }
      rnew[0] = rect_diameter(n, rnew+3+n, &p);
      rnew[1] = function_eval(rnew+3, &p);
-     rnew[2] = -1; /* oldest rect */
+     rnew[2] = p.age++;
      if (!rb_tree_insert(&p.rtree, rnew)) {
 	  free(rnew);
 	  goto done;
