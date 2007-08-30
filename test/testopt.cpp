@@ -17,7 +17,7 @@
 
 static nlopt_algorithm algorithm = NLOPT_GLOBAL_DIRECT;
 static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max = -HUGE_VAL;
-static int maxeval = 1000, iterations = 1;
+static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
 
@@ -77,14 +77,19 @@ static int test_function(int ifunc)
 
   printf("Starting guess x = [");
   for (i = 0; i < func.n; ++i) {
-    if (xinit_tol < 0) { /* random starting point near center of box */
+    if (center_start)
+      x[i] = (func.ub[i] + func.lb[i]) * 0.5;
+    else if (xinit_tol < 0) { /* random starting point near center of box */
       double dx = (func.ub[i] - func.lb[i]) * 0.25;
       double xm = 0.5 * (func.ub[i] + func.lb[i]);
       x[i] = nlopt_urand(xm - dx, xm + dx);
     }
-    else 
+    else {
       x[i] = nlopt_urand(-xinit_tol, xinit_tol)
 	+ (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
+      if (x[i] > func.ub[i]) x[i] = func.ub[i];
+      else if (x[i] < func.lb[i]) x[i] = func.lb[i];
+    }
     printf(" %g", x[i]);
   }
   printf("]\n");
@@ -143,6 +148,7 @@ static void usage(FILE *f)
 	  " -a <n> : use optimization algorithm <n>\n"
 	  " -o <n> : use objective function <n>\n"
 	  " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
+	  "     -c : starting guess at center of cell\n"
 	  " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
 	  " -t <t> : use at most <t> seconds (default: disabled)\n"
 	  " -x <t> : relative tolerance <t> on x (default: disabled)\n"
@@ -165,7 +171,7 @@ int main(int argc, char **argv)
   if (argc <= 1)
     usage(stdout);
   
-  while ((c = getopt(argc, argv, "hLv0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
+  while ((c = getopt(argc, argv, "hLvc0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
     switch (c) {
     case 'h':
       usage(stdout);
@@ -217,7 +223,11 @@ int main(int argc, char **argv)
     case 'm':
       fmin_max = atof(optarg);
       break;
+    case 'c':
+      center_start = 1;
+      break;
     case '0':
+      center_start = 0;
       xinit_tol = atof(optarg);
       break;
     default:

@@ -429,7 +429,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
 			      double magic_eps, int which_alg)
 {
      params p;
-     int i, x_center = 1;
+     int i;
      double *rnew;
      nlopt_result ret = NLOPT_OUT_OF_MEMORY;
 
@@ -443,7 +443,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      p.f = f;
      p.f_data = f_data;
      p.xmin = x;
-     p.fmin = f(n, x, NULL, f_data); stop->nevals++;
+     p.fmin = HUGE_VAL;
      p.work = 0;
      p.iwork = 0;
      p.hull = 0;
@@ -461,15 +461,10 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      if (!(rnew = (double *) malloc(sizeof(double) * p.L))) goto done;
      for (i = 0; i < n; ++i) {
 	  rnew[2+i] = 0.5 * (lb[i] + ub[i]);
-	  x_center = x_center
-	       && (fabs(rnew[2+i]-x[i]) < 1e-13*(1+fabs(x[i])));
 	  rnew[2+n+i] = ub[i] - lb[i];
      }
      rnew[0] = rect_diameter(n, rnew+2+n, &p);
-     if (x_center)
-	  rnew[1] = p.fmin; /* avoid computing f(center) twice */
-     else
-	  rnew[1] = function_eval(rnew+2, &p);
+     rnew[1] = function_eval(rnew+2, &p);
      if (!rb_tree_insert(&p.rtree, rnew)) {
 	  free(rnew);
 	  goto done;

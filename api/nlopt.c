@@ -75,74 +75,8 @@ void nlopt_srand_time() {
 typedef struct {
      nlopt_func f;
      void *f_data;
-     const double *lb, *ub, *x0;
-     double *xtmp;
+     const double *lb, *ub;
 } nlopt_data;
-
-#define RECENTER 1 /* 0 to disable recentering */
-
-/* for global-search algorithms that ignore the starting guess,
-   but always check the center of the search box, we perform a
-   coordinate transformation to put the initial guess x0 at the
-   center of the box, and store the transformed x in xtmp. */
-static void recenter_x(int n, const double *x,
-		       const double *lb, const double *ub,
-		       const double *x0, double *xtmp)
-{
-     int i;
-     for (i = 0; i < n; ++i) {
-#if RECENTER
-	  /* Lagrange interpolating polynomial */
-	  double xm = 0.5 * (lb[i] + ub[i]);
-	  double dlu = 1. / (lb[i] - ub[i]);
-	  double dlm = 1. / (lb[i] - xm);
-	  double dum = 1. / (ub[i] - xm);
-	  double dxu = x[i] - ub[i];
-	  double dxl = x[i] - lb[i];
-	  double dxm = x[i] - xm;
-	  xtmp[i] = (lb[i] * (dxu * dlu) * (dxm * dlm)
-		     - ub[i] * (dxl * dlu) * (dxm * dum)
-		     + x0[i] * (dxl * dlm) * (dxu * dum));
-#else
-	  xtmp[i] = x[i];
-#endif
-     }
-}
-
-/* transform grad from df/dxtmp to df/dx */
-static void recenter_grad(int n, const double *x,
-			  const double *lb, const double *ub,
-			  const double *x0,
-			  double *grad)
-{
-#if RECENTER
-     if (grad) {
-	  int i;
-	  for (i = 0; i < n; ++i) {
-	       double xm = 0.5 * (lb[i] + ub[i]);
-	       double dlu = 1. / (lb[i] - ub[i]);
-	       double dlm = 1. / (lb[i] - xm);
-	       double dum = 1. / (ub[i] - xm);
-	       double dxu = x[i] - ub[i];
-	       double dxl = x[i] - lb[i];
-	       double dxm = x[i] - xm;
-	       grad[i] *= (lb[i] * dlu*dlm * (dxm + dxu)
-			   - ub[i] * dum*dlu * (dxm + dxl)
-			   + x0[i] * dlm*dum * (dxu + dxl));
-	  }
-     }
-#endif
-}
-
-static double f_recenter(int n, const double *x, double *grad, void *data_)
-{
-     nlopt_data *data = (nlopt_data *) data_;
-     double f;
-     recenter_x(n, x, data->lb, data->ub, data->x0, data->xtmp);
-     f = data->f(n, data->xtmp, grad, data->f_data);
-     recenter_grad(n, x, data->lb, data->ub, data->x0, grad);
-     return f;
-}
 
 #include "subplex.h"
 
@@ -168,8 +102,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 {
      nlopt_data *data = (nlopt_data *) data_;
      double f;
-     recenter_x(n, x, data->lb, data->ub, data->x0, data->xtmp);
-     f = data->f(n, data->xtmp, NULL, data->f_data);
+     f = data->f(n, x, NULL, data->f_data);
      *undefined = isnan(f) || my_isinf(f);
      return f;
 }
@@ -205,7 +138,6 @@ static nlopt_result nlopt_minimize_(
      d.f_data = f_data;
      d.lb = lb;
      d.ub = ub;
-     d.x0 = d.xtmp = NULL;
 
      /* make sure rand generator is inited */
      if (!nlopt_srand_called)
@@ -235,25 +167,17 @@ static nlopt_result nlopt_minimize_(
 	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0.0, 
 			     (algorithm == NLOPT_GLOBAL_DIRECT ? 0 : 1)
 			     + 10 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 2 : 0));
-
+	      
 	 case NLOPT_GLOBAL_ORIG_DIRECT:
 	 case NLOPT_GLOBAL_ORIG_DIRECT_L: 
-	 {
-	      int iret;
-	      d.xtmp = (double *) malloc(sizeof(double) * n*2);
-	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
-	      memcpy(d.xtmp + n, x, sizeof(double) * n); d.x0 = d.xtmp + n;
-	      iret = direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
-				     maxeval, -1, 0.0, 0.0,
-				     pow(xtol_rel, (double) n), -1.0,
-				     stop.fmin_max, 0.0,
-				     NULL, 
-				     algorithm == NLOPT_GLOBAL_ORIG_DIRECT
-				     ? DIRECT_ORIGINAL
-				     : DIRECT_GABLONSKY);
-	      recenter_x(n, x, lb, ub, d.x0, x);
-	      free(d.xtmp);
-	      switch (iret) {
+	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
+				      maxeval, -1, 0.0, 0.0,
+				      pow(xtol_rel, (double) n), -1.0,
+				      stop.fmin_max, 0.0,
+				      NULL, 
+				      algorithm == NLOPT_GLOBAL_ORIG_DIRECT
+				      ? DIRECT_ORIGINAL
+				      : DIRECT_GABLONSKY)) {
 		  case DIRECT_INVALID_BOUNDS:
 		  case DIRECT_MAXFEVAL_TOOBIG:
 		  case DIRECT_INVALID_ARGS:
@@ -272,24 +196,16 @@ static nlopt_result nlopt_minimize_(
 		       return NLOPT_XTOL_REACHED;
 		  case DIRECT_OUT_OF_MEMORY:
 		       return NLOPT_OUT_OF_MEMORY;
-	      }
 	      break;
 	 }
 
 	 case NLOPT_GLOBAL_STOGO:
-	 case NLOPT_GLOBAL_STOGO_RANDOMIZED: {
-	      int iret;
-	      d.xtmp = (double *) malloc(sizeof(double) * n*2);
-	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
-	      memcpy(d.xtmp + n, x, sizeof(double) * n); d.x0 = d.xtmp + n;
-	      iret = stogo_minimize(n, f_recenter, &d, x, fmin, lb, ub, &stop,
-				    algorithm == NLOPT_GLOBAL_STOGO
-				    ? 0 : 2*n);
-	      recenter_x(n, x, lb, ub, d.x0, x);
-	      free(d.xtmp);
-	      if (!iret) return NLOPT_FAILURE;
+	 case NLOPT_GLOBAL_STOGO_RANDOMIZED:
+	      if (!stogo_minimize(n, f, f_data, x, fmin, lb, ub, &stop,
+				  algorithm == NLOPT_GLOBAL_STOGO
+				  ? 0 : 2*n))
+		   return NLOPT_FAILURE;
 	      break;
-	 }
 
 	 case NLOPT_LOCAL_SUBPLEX: {
 	      int iret;
