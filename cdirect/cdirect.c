@@ -14,33 +14,37 @@
 /***************************************************************************/
 /* basic data structure:
  *
- * a hyper-rectangle is stored as an array of length L = 2n+2, where [1]
+ * a hyper-rectangle is stored as an array of length L = 2n+3, where [1]
  * is the value (f) of the function at the center, [0] is the "size"
- * measure (d) of the rectangle, [2..n+1] are the coordinates of the
- * center (c), and [n+2..2n+1] are the widths of the sides (w).
+ * measure (d) of the rectangle, [3..n+2] are the coordinates of the
+ * center (c), [n+3..2n+2] are the widths of the sides (w), and [2]
+ * is an "age" measure for tie-breaking purposes.
  *
  * we store the hyper-rectangles in a red-black tree, sorted by (d,f)
  * in lexographic order, to allow us to perform quick convex-hull
  * calculations (in the future, we might make this data structure
  * more sophisticated based on the dynamic convex-hull literature).
  *
- * n > 0 always
+ * n > 0 always, of course.
  */
-
-#define RECT_LEN(n) (2*(n)+2) /* number of double values in a hyperrect */
 
 /* parameters of the search algorithm and various information that
    needs to be passed around */
 typedef struct {
      int n; /* dimension */
-     int L; /* RECT_LEN(n) */
+     int L; /* size of each rectangle (2n+3) */
      double magic_eps; /* Jones' epsilon parameter (1e-4 is recommended) */
      int which_diam; /* which measure of hyper-rectangle diam to use:
 			0 = Jones, 1 = Gablonsky */
      int which_div; /* which way to divide rects:
-		       0: Gablonsky (cubes divide all, rects longest)
-		       1: orig. Jones (divide all longest sides)
+		       0: orig. Jones (divide all longest sides)
+		       1: Gablonsky (cubes divide all, rects longest)
 		       2: Jones Encyc. Opt.: pick random longest side */
+     int which_opt; /* which rects are considered "potentially optimal"
+		       0: Jones (all pts on cvx hull, even equal pts)
+		       1: Gablonsky DIRECT-L (pick one pt, if equal pts)
+		       2: ~ 1, but pick points randomly if equal pts 
+		    ... 2 seems to suck compared to just picking oldest pt */
      const double *lb, *ub;
      nlopt_stopping *stop; /* stopping criteria */
      nlopt_func f; void *f_data;
@@ -129,7 +133,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
      int i;
      const const int n = p->n;
      const int L = p->L;
-     double *c = rdiv + 2; /* center of rect to divide */
+     double *c = rdiv + 3; /* center of rect to divide */
      double *w = c + n; /* widths of rect to divide */
      double wmax = w[0];
      int imax = 0, nlongest = 0;
@@ -171,8 +175,9 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 		    double *rnew;
 		    ALLOC_RECT(rnew, L);
 		    memcpy(rnew, rdiv, sizeof(double) * L);
-		    rnew[2 + isort[i]] += w[isort[i]] * (2*k-1);
+		    rnew[3 + isort[i]] += w[isort[i]] * (2*k-1);
 		    rnew[1] = fv[2*isort[i]+k];
+		    rnew[2] = p->rtree.N; /* age */
 		    if (!rb_tree_insert(&p->rtree, rnew)) {
 			 free(rnew);
 			 return NLOPT_OUT_OF_MEMORY;
@@ -202,8 +207,9 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       double *rnew;
 	       ALLOC_RECT(rnew, L);
 	       memcpy(rnew, rdiv, sizeof(double) * L);
-	       rnew[2 + i] += w[i] * (2*k-1);
-	       FUNCTION_EVAL(rnew[1], rnew + 2, p, rnew);
+	       rnew[3 + i] += w[i] * (2*k-1);
+	       FUNCTION_EVAL(rnew[1], rnew + 3, p, rnew);
+	       rnew[2] = p->rtree.N; /* age */
 	       if (!rb_tree_insert(&p->rtree, rnew)) {
 		    free(rnew);
 		    return NLOPT_OUT_OF_MEMORY;
@@ -223,12 +229,13 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 /* Find the lower convex hull of a set of points (x,y) stored in a rb-tree
    of pointers to {x,y} arrays sorted in lexographic order by (x,y).
 
-   Unlike standard convex hulls, we allow redundant points on the hull.
+   Unlike standard convex hulls, we allow redundant points on the hull,
+   and even allow duplicate points if allow_dups is nonzero.
 
    The return value is the number of points in the hull, with pointers
    stored in hull[i] (should be an array of length >= t->N).
 */
-static int convex_hull(rb_tree *t, double **hull)
+static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 {
      int nhull = 0;
      double minslope;
@@ -245,10 +252,14 @@ static int convex_hull(rb_tree *t, double **hull)
      yminmin = n->k[1];
      xmax = nmax->k[0];
 
-     do { /* include any duplicate points at (xmin,yminmin) */
+     if (allow_dups)
+	  do { /* include any duplicate points at (xmin,yminmin) */
+	       hull[nhull++] = n->k;
+	       n = rb_tree_succ(n);
+	  } while (n && n->k[0] == xmin && n->k[1] == yminmin);
+     else
 	  hull[nhull++] = n->k;
-	  n = rb_tree_succ(n);
-     } while (n && n->k[0] == xmin && n->k[1] == yminmin);
+
      if (xmin == xmax) return nhull;
 
      /* set nmax = min mode with x == xmax */
@@ -303,7 +314,8 @@ static int convex_hull(rb_tree *t, double **hull)
 		    continue;
 	       }
 	       else { /* equal y values, add to hull */
-		    hull[nhull++] = k;
+		    if (allow_dups)
+			 hull[nhull++] = k;
 		    continue;
 	       }
 	  }
@@ -331,10 +343,13 @@ static int convex_hull(rb_tree *t, double **hull)
 	  hull[nhull++] = k;
      }
 
-     do { /* include any duplicate points at (xmax,ymaxmin) */
+     if (allow_dups)
+	  do { /* include any duplicate points at (xmax,ymaxmin) */
+	       hull[nhull++] = nmax->k;
+	       nmax = rb_tree_succ(nmax);
+	  } while (nmax && nmax->k[0] == xmax && n->k[1] == ymaxmin);
+     else
 	  hull[nhull++] = nmax->k;
-	  nmax = rb_tree_succ(nmax);
-     } while (nmax && nmax->k[0] == xmax && n->k[1] == ymaxmin);
 
      return nhull;
 }
@@ -363,13 +378,16 @@ static nlopt_result divide_good_rects(params *p)
 	  p->hull = (double **) realloc(p->hull, sizeof(double*)*p->hull_len);
 	  if (!p->hull) return NLOPT_OUT_OF_MEMORY;
      }
-     nhull = convex_hull(&p->rtree, hull = p->hull);
+     nhull = convex_hull(&p->rtree, hull = p->hull, p->which_opt != 1);
  divisions:
      for (i = 0; i < nhull; ++i) {
 	  double K1 = -HUGE_VAL, K2 = -HUGE_VAL, K;
 	  int im, ip;
+
+	  /* find unequal points before (im) and after (ip) to get slope */
 	  for (im = i-1; im >= 0 && hull[im][0] == hull[i][0]; --im);
 	  for (ip = i+1; ip < nhull && hull[ip][0] == hull[i][0]; ++ip);
+
 	  if (im >= 0)
 	       K1 = (hull[i][1] - hull[im][1]) / (hull[i][0] - hull[im][0]);
 	  if (ip < nhull)
@@ -381,8 +399,17 @@ static nlopt_result divide_good_rects(params *p)
 	       nlopt_result ret = divide_rect(hull[i], p);
 	       divided_some = 1;
 	       if (ret != NLOPT_SUCCESS) return ret;
-	       xtol_reached = xtol_reached && small(hull[i] + 2+n, p);
+	       xtol_reached = xtol_reached && small(hull[i] + 3+n, p);
 	  }
+
+	  /* for the DIRECT-L variant, we only divide one rectangle out
+	     of all points with equal diameter and function values
+	     ... note that for p->which_opt == 1, i == ip-1 should be a no-op
+	         anyway, since we set allow_dups=0 in convex_hull above */
+	  if (p->which_opt == 1)
+	       i = ip - 1; /* skip to next unequal point for next iteration */
+	  else if (p->which_opt == 2) /* like DIRECT-L but randomized */
+	       i += nlopt_iurand(ip - i); /* possibly do another equal pt */
      }
      if (!divided_some) {
 	  if (magic_eps != 0) {
@@ -409,14 +436,16 @@ static nlopt_result divide_good_rects(params *p)
 
 /***************************************************************************/
 
-/* lexographic sort order (d,f) of hyper-rects, for red-black tree */
+/* lexographic sort order (d,f,age) of hyper-rects, for red-black tree */
 static int hyperrect_compare(double *a, double *b)
 {
      if (a[0] < b[0]) return -1;
      if (a[0] > b[0]) return +1;
      if (a[1] < b[1]) return -1;
      if (a[1] > b[1]) return +1;
-     return (int) (a - b); /* tie-breaker */
+     if (a[2] < b[2]) return -1;
+     if (a[2] > b[2]) return +1;
+     return (int) (a - b); /* tie-breaker, shouldn't be needed */
 }
 
 /***************************************************************************/
@@ -434,12 +463,13 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      nlopt_result ret = NLOPT_OUT_OF_MEMORY;
 
      p.magic_eps = magic_eps;
-     p.which_diam = which_alg % 10;
-     p.which_div = (which_alg / 10) % 10;
+     p.which_diam = which_alg % 3;
+     p.which_div = (which_alg / 3) % 3;
+     p.which_opt = (which_alg / (3*3)) % 3;
      p.lb = lb; p.ub = ub;
      p.stop = stop;
      p.n = n;
-     p.L = RECT_LEN(n);
+     p.L = 2*n+3;
      p.f = f;
      p.f_data = f_data;
      p.xmin = x;
@@ -460,11 +490,12 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
 
      if (!(rnew = (double *) malloc(sizeof(double) * p.L))) goto done;
      for (i = 0; i < n; ++i) {
-	  rnew[2+i] = 0.5 * (lb[i] + ub[i]);
-	  rnew[2+n+i] = ub[i] - lb[i];
+	  rnew[3+i] = 0.5 * (lb[i] + ub[i]);
+	  rnew[3+n+i] = ub[i] - lb[i];
      }
-     rnew[0] = rect_diameter(n, rnew+2+n, &p);
-     rnew[1] = function_eval(rnew+2, &p);
+     rnew[0] = rect_diameter(n, rnew+3+n, &p);
+     rnew[1] = function_eval(rnew+3, &p);
+     rnew[2] = -1; /* oldest rect */
      if (!rb_tree_insert(&p.rtree, rnew)) {
 	  free(rnew);
 	  goto done;

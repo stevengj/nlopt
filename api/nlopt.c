@@ -165,8 +165,9 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_GLOBAL_DIRECT_L: 
 	 case NLOPT_GLOBAL_DIRECT_L_RANDOMIZED: 
 	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0.0, 
-			     (algorithm == NLOPT_GLOBAL_DIRECT ? 0 : 1)
-			     + 10 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 2 : 0));
+			     (algorithm != NLOPT_GLOBAL_DIRECT)
+			     + 3 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 2 : (algorithm != NLOPT_GLOBAL_DIRECT))
+			     + 9 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 1 : (algorithm != NLOPT_GLOBAL_DIRECT)));
 	      
 	 case NLOPT_GLOBAL_ORIG_DIRECT:
 	 case NLOPT_GLOBAL_ORIG_DIRECT_L: 
