@@ -25,6 +25,10 @@ static double testfuncs_status(int n, const double *x, double f)
 
 #define RETURN(f) return testfuncs_status(n, x, f);
 
+#define PI2 6.283185307179586 /* 2*pi */
+#define PI3 9.424777960769379 /* 3*pi */
+#define PI4 12.5663706143592 /* 4*pi */
+
 /****************************************************************************/
 static double rosenbrock_f(int n, const double *x, double *grad, void *data)
 {
@@ -200,8 +204,6 @@ static const double shekel1_xmin[4] = {4.00057,4.00069,3.99949,3.99961};
 static const double shekel2_xmin[4] = {4.00075,4.00059,3.99966,3.99951};
 
 /****************************************************************************/
-#define PI3 9.424777960769379 /* 3*pi */
-#define PI2 6.283185307179586 /* 2*pi */
 static double levy_f(int n, const double *x, double *grad, void *data)
 {
      UNUSED(data);
@@ -289,6 +291,73 @@ static const double convexcosh_ub[10] = {2,3,6,7,8,10,11,13,14,16};
 static const double convexcosh_xmin[10] = {0,1,2,3,4,5,6,7,8,9};
 
 /****************************************************************************/
+static double branin_f(int n, const double *x, double *grad, void *data)
+{
+     double a = 1 - 2*x[1] + 0.05 * sin(PI4 * x[1]) - x[0];
+     double b = x[1] - 0.5 * sin(PI2 * x[0]);
+     UNUSED(data);
+     if (grad) {
+	  grad[0] = -2*a - cos(PI2 * x[0]) * PI2 * b;
+	  grad[1] = 2*a*(0.05 * PI4 * cos(PI4*x[1]) - 2) + 2*b;
+     }
+     RETURN(sqr(a) + sqr(b));
+}
+
+static const double branin_lb[2] = {-10,-10};
+static const double branin_ub[2] = {10,10};
+static const double branin_xmin[2] = {1,0};
+
+/****************************************************************************/
+static double shubert_f(int n, const double *x, double *grad, void *data)
+{
+     UNUSED(data);
+     int i, j;
+     double f = 0;
+     for (j = 1; j <= 5; ++j)
+	  for (i = 0; i < n; ++i)
+	       f -= j * sin((j+1) * x[i] + j);
+     if (grad) {
+	  for (i = 0; i < n; ++i) {
+	       grad[i] = 0;
+	       for (j = 1; j <= 5; ++j)
+		    grad[i] -= j * (j+1) * cos((j+1) * x[i] + j);
+	  }
+     }
+     RETURN(f);
+}
+
+static const double shubert_lb[2] = {-10,-10};
+static const double shubert_ub[2] = {10,10};
+static const double shubert_xmin[2] = {-6.774576, -6.774576};
+
+/****************************************************************************/
+static double hansen_f(int n, const double *x, double *grad, void *data)
+{
+     int i;
+     double a = 0, b = 0;
+     UNUSED(data);
+     for (i = 1; i <= 5; ++i)
+	  a += i * cos((i-1) * x[0] + i);
+     for (i = 1; i <= 5; ++i)
+	  b += i * cos((i+1) * x[1] + i);
+     if (grad) {
+	  grad[0] = 0;
+	  for (i = 1; i <= 5; ++i)
+	       grad[0] -= i * (i-1) * sin((i-1) * x[0] + i);
+	  grad[0] *= b;
+	  grad[1] = 0;
+	  for (i = 1; i <= 5; ++i)
+	       grad[1] -= i * (i+1) * sin((i+1) * x[1] + i);
+	  grad[1] *= a;
+     }
+     RETURN(a*b);
+}
+
+static const double hansen_lb[2] = {-10,-10};
+static const double hansen_ub[2] = {10,10};
+static const double hansen_xmin[2] = {-1.306708,-1.425128};
+
+/****************************************************************************/
 /****************************************************************************/
 
 const testfunc testfuncs[NTESTFUNCS] = {
@@ -339,5 +408,14 @@ const testfunc testfuncs[NTESTFUNCS] = {
        -1.03163, "Six-hump camel back function" },
      { convexcosh_f, NULL, 1, 10,
        convexcosh_lb, convexcosh_ub, convexcosh_xmin,
-       1.0, "Convex product of cosh functions" }
+       1.0, "Convex product of cosh functions" },
+     { branin_f, NULL, 1, 2,
+       branin_lb, branin_ub, branin_xmin,
+       -.0, "Branin function" },
+     { shubert_f, NULL, 1, 2,
+       shubert_lb, shubert_ub, shubert_xmin,
+       -24.062499, "Shubert function" },
+     { hansen_f, NULL, 1, 2,
+       hansen_lb, hansen_ub, hansen_xmin,
+       -176.541793, "Hansen function" }
 };
