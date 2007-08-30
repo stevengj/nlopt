@@ -53,9 +53,10 @@
     integer i__1, i__2;
     doublereal d__1;
 
-    /* constants (FIXME: change to variable?) */
+    /* changed by SGJ to be dynamically allocated ... would be
+       even better to use realloc, below, to grow these as needed */
     integer MAXFUNC = *maxf <= 0 ? 101000 : (*maxf + 1000 + *maxf / 2);
-    const integer MAXDEEP = 1000;
+    integer MAXDEEP = *maxt <= 0 ? MAXFUNC/5: *maxt + 1000;
     const integer MAXDIV = 5000;
 
     /* Local variables */
@@ -99,18 +100,21 @@
     MY_ALLOC(c__, doublereal, MAXFUNC * (*n));
     MY_ALLOC(length, integer, MAXFUNC * (*n));
     MY_ALLOC(f, doublereal, MAXFUNC * 2);
+    MY_ALLOC(point, integer, MAXFUNC);
     if (*maxf <= 0) *maxf = MAXFUNC - 1000;
 
     MY_ALLOC(s, integer, MAXDIV * 2);
+
+    MY_ALLOC(anchor, integer, MAXDEEP + 2);
+    MY_ALLOC(levels, doublereal, MAXDEEP + 1);
+    MY_ALLOC(thirds, doublereal, MAXDEEP + 1);    
+    if (*maxt <= 0) *maxt = MAXDEEP;
+
     MY_ALLOC(w, doublereal, (*n));
     MY_ALLOC(oldl, doublereal, (*n));
     MY_ALLOC(oldu, doublereal, (*n));
     MY_ALLOC(list2, integer, (*n) * 2);
-    MY_ALLOC(point, integer, MAXFUNC);
-    MY_ALLOC(anchor, integer, MAXDEEP + 2);
     MY_ALLOC(arrayi, integer, (*n));
-    MY_ALLOC(levels, doublereal, MAXDEEP + 1);
-    MY_ALLOC(thirds, doublereal, MAXDEEP + 1);    
 
 /* +-----------------------------------------------------------------------+ */
 /* |    SUBROUTINE Direct                                                  | */

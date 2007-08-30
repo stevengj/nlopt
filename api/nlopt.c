@@ -244,7 +244,7 @@ static nlopt_result nlopt_minimize_(
 	      if (!d.xtmp) return NLOPT_OUT_OF_MEMORY;
 	      memcpy(d.xtmp + n, x, sizeof(double) * n); d.x0 = d.xtmp + n;
 	      iret = direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
-				     maxeval, 999, 0.0, 0.0,
+				     maxeval, -1, 0.0, 0.0,
 				     pow(xtol_rel, (double) n), -1.0,
 				     stop.fmin_max, 0.0,
 				     NULL, 
