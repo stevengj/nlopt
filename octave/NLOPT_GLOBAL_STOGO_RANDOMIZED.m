@@ -1,0 +1,2 @@
+function a = NLOPT_GLOBAL_STOGO_RANDOMIZED
+  a = 7;

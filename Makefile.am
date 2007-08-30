@@ -3,7 +3,7 @@ lib_LTLIBRARIES = libnlopt.la
 
 ACLOCAL_AMFLAGS=-I ./m4
 
-SUBDIRS= util lbfgs subplex direct cdirect stogo api . test
+SUBDIRS= util lbfgs subplex direct cdirect stogo api octave . test
 EXTRA_DIST=COPYRIGHT autogen.sh nlopt.pc.in m4
 
 libnlopt_la_SOURCES = 

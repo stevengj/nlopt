@@ -55,6 +55,44 @@ fi
 AC_MSG_RESULT(${ok})
 
 dnl -----------------------------------------------------------------------
+dnl Compiling Octave plug-in
+
+AC_ARG_VAR(OCT_INSTALL_DIR, [where to install GNU Octave .oct plug-ins])
+AC_ARG_VAR(M_INSTALL_DIR, [where to install GNU Octave .m plug-ins])
+AC_ARG_VAR(MKOCTFILE, [name of mkoctfile program to compile Octave plug-ins])
+
+AC_CHECK_PROGS(MKOCTFILE, mkoctfile, echo)
+if test "$MKOCTFILE" = "echo"; then
+	AC_MSG_WARN([can't find mkoctfile: won't be able to compile GNU Octave plugin])
+elif test x"$OCT_INSTALL_DIR" = "x"; then
+	# try to find installation directory
+	AC_CHECK_PROGS(OCTAVE, octave, echo)
+	AC_MSG_CHECKING(for Octave loadpath)
+	OCTAVE_LOADPATH=`echo "DEFAULT_LOADPATH" | $OCTAVE -q | cut -d'=' -f2`
+	AC_MSG_RESULT($OCTAVE_LOADPATH)
+	AC_MSG_CHECKING(where Octave plugins go)
+	OCT_INSTALL_DIR=`echo "$OCTAVE_LOADPATH" | tr ':' '\n' | grep "site/oct" | head -1`
+	if test -n "$OCT_INSTALL_DIR"; then
+		AC_MSG_RESULT($OCT_INSTALL_DIR)
+	else
+		AC_MSG_RESULT(unknown)
+		AC_MSG_WARN([can't find where to install GNU Octave plugins])
+	fi
+	AC_MSG_CHECKING(where Octave scripts go)
+	M_INSTALL_DIR=`echo "$OCTAVE_LOADPATH" | tr ':' '\n' | grep "site/m" | head -1`
+	if test -n "$M_INSTALL_DIR"; then
+		AC_MSG_RESULT($M_INSTALL_DIR)
+	else
+		AC_MSG_RESULT(unknown)
+		AC_MSG_WARN([can't find where to install GNU Octave scripts])
+	fi
+fi
+AM_CONDITIONAL(WITH_OCTAVE, test x"$OCT_INSTALL_DIR" != "x")
+AC_SUBST(OCT_INSTALL_DIR)
+AC_SUBST(M_INSTALL_DIR)
+AC_SUBST(MKOCTFILE)
+
+dnl -----------------------------------------------------------------------
 dnl Debugging
 
 AC_ARG_ENABLE(debug, [AC_HELP_STRING([--enable-debug],[compile with extra runtime checks for debugging])], ok=$enableval, ok=no)
@@ -95,6 +133,7 @@ AC_CONFIG_FILES([
    nlopt.pc
    api/Makefile
    util/Makefile
+   octave/Makefile
    direct/Makefile
    cdirect/Makefile
    stogo/Makefile
