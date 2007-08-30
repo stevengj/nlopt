@@ -16,7 +16,7 @@
 #include "testfuncs.h"
 
 static nlopt_algorithm algorithm = NLOPT_GLOBAL_DIRECT;
-static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max = -HUGE_VAL;
+static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max_delta = -HUGE_VAL;
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
@@ -41,7 +41,7 @@ static int test_function(int ifunc)
 {
   testfunc func;
   int i, iter;
-  double *x, fmin, f0, *xtabs;
+  double *x, fmin, fmin_max, f0, *xtabs;
   nlopt_result ret;
   double start = nlopt_seconds();
   
@@ -62,7 +62,7 @@ static int test_function(int ifunc)
 
   xtabs = x + func.n * 2;
   for (i = 0; i < func.n; ++i) xtabs[i] = xtol_abs;
-
+  fmin_max = fmin_max_delta > (-HUGE_VAL) ? fmin_max_delta + func.fmin : (-HUGE_VAL);
   
   printf("-----------------------------------------------------------\n");
   printf("Optimizing %s (%d dims) using %s algorithm\n",
@@ -155,7 +155,7 @@ static void usage(FILE *f)
 	  " -X <t> : absolute tolerance <t> on x (default: disabled)\n"
 	  " -f <t> : relative tolerance <t> on f (default: disabled)\n"
 	  " -F <t> : absolute tolerance <t> on f (default: disabled)\n"
-	  " -m <m> : minimize f until <m> is reached (default: disabled)\n"
+	  " -m <m> : stop when fmin+<m> is reached (default: disabled)\n"
 	  " -i <n> : iterate optimization <n> times (default: 1)\n"
 	  " -r <s> : use random seed <s> for starting guesses\n"
 	  , maxeval);
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
       ftol_abs = atof(optarg);
       break;
     case 'm':
-      fmin_max = atof(optarg);
+      fmin_max_delta = atof(optarg);
       break;
     case 'c':
       center_start = 1;
