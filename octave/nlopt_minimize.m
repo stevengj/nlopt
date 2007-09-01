@@ -49,13 +49,13 @@
 % interpretation are the same as for the C function):
 %
 % Derivative-free algorithms:
-%     NLOPT_GLOBAL_DIRECT, NLOPT_GLOBAL_DIRECT_L,
-%     NLOPT_GLOBAL_DIRECT_L_RANDOMIZED,
-%     NLOPT_GLOBAL_ORIG_DIRECT, NLOPT_GLOBAL_ORIG_DIRECT_L,
-%     NLOPT_LOCAL_SUBPLEX
+%     NLOPT_GN_DIRECT, NLOPT_GN_DIRECT_L,
+%     NLOPT_GN_DIRECT_L_RAND,
+%     NLOPT_GN_ORIG_DIRECT, NLOPT_GN_ORIG_DIRECT_L,
+%     NLOPT_LN_SUBPLEX
 %
 % Gradient-based algorithms:
-%    NLOPT_GLOBAL_STOGO, NLOPT_GLOBAL_STOGO_RANDOMIZED, NLOPT_LOCAL_LBFGS
+%    NLOPT_GD_STOGO, NLOPT_GD_STOGO_RAND, NLOPT_LD_LBFGS
 %
 % For more information on individual functions, see their individual
-% help pages (e.g. "help NLOPT_LOCAL_SUBPLEX").
+% help pages (e.g. "help NLOPT_LN_SUBPLEX").
