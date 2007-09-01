@@ -15,7 +15,7 @@
 #include "nlopt-util.h"
 #include "testfuncs.h"
 
-static nlopt_algorithm algorithm = NLOPT_GLOBAL_DIRECT;
+static nlopt_algorithm algorithm = NLOPT_GN_DIRECT_L;
 static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max_delta = -HUGE_VAL;
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
@@ -51,12 +51,6 @@ static int test_function(int ifunc)
     return 0;
   }
   func = testfuncs[ifunc];
-  if (!func.has_gradient && algorithm >= NLOPT_GLOBAL_STOGO) {
-    fprintf(stderr, 
-	    "testopt: A function with gradients is required for %s\n",
-	    nlopt_algorithm_name(algorithm));
-    return 0;
-  }
   x = (double *) malloc(sizeof(double) * func.n * 3);
   if (!x) { fprintf(stderr, "testopt: Out of memory!\n"); return 0; }
 

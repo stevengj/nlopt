@@ -45,6 +45,7 @@ typedef struct {
 		       1: Gablonsky DIRECT-L (pick one pt, if equal pts)
 		       2: ~ 1, but pick points randomly if equal pts 
 		    ... 2 seems to suck compared to just picking oldest pt */
+  
      const double *lb, *ub;
      nlopt_stopping *stop; /* stopping criteria */
      nlopt_func f; void *f_data;
@@ -440,7 +441,7 @@ static nlopt_result divide_good_rects(params *p)
 /***************************************************************************/
 
 /* lexographic sort order (d,f,age) of hyper-rects, for red-black tree */
-static int hyperrect_compare(double *a, double *b)
+int cdirect_hyperrect_compare(double *a, double *b)
 {
      if (a[0] < b[0]) return -1;
      if (a[0] > b[0]) return +1;
@@ -482,7 +483,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      p.hull = 0;
      p.age = 0;
 
-     rb_tree_init(&p.rtree, hyperrect_compare);
+     rb_tree_init(&p.rtree, cdirect_hyperrect_compare);
 
      p.work = (double *) malloc(sizeof(double) * (2*n));
      if (!p.work) goto done;
@@ -532,15 +533,9 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
    coordinates to a unit hypercube ... we do this simply by
    wrapping cdirect() around cdirect_unscaled(). */
 
-typedef struct {
-     nlopt_func f;
-     void *f_data;
-     double *x;
-     const double *lb, *ub;
-} uf_data;
-static double uf(int n, const double *xu, double *grad, void *d_)
+double cdirect_uf(int n, const double *xu, double *grad, void *d_)
 {
-     uf_data *d = (uf_data *) d_;
+     cdirect_uf_data *d = (cdirect_uf_data *) d_;
      double f;
      int i;
      for (i = 0; i < n; ++i)
@@ -559,7 +554,7 @@ nlopt_result cdirect(int n, nlopt_func f, void *f_data,
                      nlopt_stopping *stop,
                      double magic_eps, int which_alg)
 {
-     uf_data d;
+     cdirect_uf_data d;
      nlopt_result ret;
      const double *xtol_abs_save;
      int i;
@@ -576,7 +571,7 @@ nlopt_result cdirect(int n, nlopt_func f, void *f_data,
      }
      xtol_abs_save = stop->xtol_abs;
      stop->xtol_abs = d.x + 3*n;
-     ret = cdirect_unscaled(n, uf, &d, d.x+n, d.x+2*n, x, fmin, stop,
+     ret = cdirect_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n, x, fmin, stop,
 			    magic_eps, which_alg);
      stop->xtol_abs = xtol_abs_save;
      for (i = 0; i < n; ++i)

@@ -11,22 +11,36 @@ typedef double (*nlopt_func)(int n, const double *x,
 			     void *func_data);
 
 typedef enum {
-     /* non-gradient algorithms */
+     /* Naming conventions:
 
-     NLOPT_GLOBAL_DIRECT = 0,
-     NLOPT_GLOBAL_DIRECT_L,
-     NLOPT_GLOBAL_DIRECT_L_RANDOMIZED,
-     NLOPT_GLOBAL_ORIG_DIRECT,
-     NLOPT_GLOBAL_ORIG_DIRECT_L,
+        NLOPT_{G/L}{D/N}_* 
+	    = global/local derivative/no-derivative optimization, 
+              respectively 
+ 
+	*_RAND algorithms involve some randomization.
 
-     NLOPT_LOCAL_SUBPLEX,
+	*_NOSCAL algorithms are *not* scaled to a unit hypercube
+	         (i.e. they are sensitive to the units of x)
+	*/
 
-     /* gradient-based algorithms */
+     NLOPT_GN_DIRECT = 0,
+     NLOPT_GN_DIRECT_L,
+     NLOPT_GN_DIRECT_L_RAND,
+     NLOPT_GN_DIRECT_NOSCAL,
+     NLOPT_GN_DIRECT_L_NOSCAL,
+     NLOPT_GN_DIRECT_L_RAND_NOSCAL,
 
-     NLOPT_GLOBAL_STOGO,
-     NLOPT_GLOBAL_STOGO_RANDOMIZED,
+     NLOPT_GN_ORIG_DIRECT,
+     NLOPT_GN_ORIG_DIRECT_L,
 
-     NLOPT_LOCAL_LBFGS,
+     NLOPT_LN_SUBPLEX,
+
+     NLOPT_GD_STOGO,
+     NLOPT_GD_STOGO_RAND,
+
+     NLOPT_LD_LBFGS,
+
+     NLOPT_LN_PRAXIS,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
@@ -60,6 +74,13 @@ extern void nlopt_srand(unsigned long seed);
 extern void nlopt_srand_time(void);
 
 extern void nlopt_version(int *major, int *minor, int *bugfix);
+
+extern void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
+					     nlopt_algorithm *nonderiv,
+					     int *maxeval);
+extern void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
+					     nlopt_algorithm nonderiv,
+					     int maxeval);
 
 #ifdef __cplusplus
 }  /* extern "C" */

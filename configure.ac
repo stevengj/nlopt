@@ -139,6 +139,7 @@ AC_CONFIG_FILES([
    stogo/Makefile
    lbfgs/Makefile
    subplex/Makefile
+   praxis/Makefile
    test/Makefile
 ])
 

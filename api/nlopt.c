@@ -41,15 +41,19 @@ void nlopt_version(int *major, int *minor, int *bugfix)
 /*************************************************************************/
 
 static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
-     "DIRECT (global)",
-     "DIRECT-L (global)",
-     "Randomized DIRECT-L (global)",
-     "Original DIRECT version (global)",
-     "Original DIRECT-L version (global)",
-     "Subplex (local)",
-     "StoGO (global)",
-     "StoGO with randomized search (global)",
-     "Low-storage BFGS (LBFGS) (local)"
+     "DIRECT (global, no-derivative)",
+     "DIRECT-L (global, no-derivative)",
+     "Randomized DIRECT-L (global, no-derivative)",
+     "Unscaled DIRECT (global, no-derivative)",
+     "Unscaled DIRECT-L (global, no-derivative)",
+     "Unscaled Randomized DIRECT-L (global, no-derivative)",
+     "Original DIRECT version (global, no-derivative)",
+     "Original DIRECT-L version (global, no-derivative)",
+     "Subplex (local, no-derivative)",
+     "StoGO (global, derivative-based)",
+     "StoGO with randomized search (global, derivative-based)",
+     "Principal-axis, praxis (local, no-derivative)",
+     "Low-storage BFGS (LBFGS) (local, derivative-based)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -79,6 +83,7 @@ typedef struct {
 } nlopt_data;
 
 #include "subplex.h"
+#include "praxis.h"
 
 static double f_subplex(int n, const double *x, void *data_)
 {
@@ -112,6 +117,38 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "l-bfgs-b.h"
 
 #include "cdirect.h"
+
+/*************************************************************************/
+
+/* for "hybrid" algorithms that combine global search with some
+   local search algorithm, most of the time we anticipate that people
+   will stick with the default local search algorithm, so we
+   don't add this as a parameter to nlopt_minimize.  Instead, the user
+   can call nlopt_{set/get}_hybrid_local_algorithm to get/set the defaults. */
+
+/* default local-search algorithms */
+static nlopt_algorithm local_search_alg_deriv = NLOPT_LD_LBFGS;
+static nlopt_algorithm local_search_alg_nonderiv = NLOPT_LN_SUBPLEX;
+
+static int local_search_maxeval = -1; /* no maximum by default */
+
+void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
+				      nlopt_algorithm *nonderiv,
+				      int *maxeval)
+{
+     *deriv = local_search_alg_deriv;
+     *nonderiv = local_search_alg_nonderiv;
+     *maxeval = local_search_maxeval;
+}
+
+void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
+				      nlopt_algorithm nonderiv,
+				      int maxeval)
+{
+     local_search_alg_deriv = deriv;
+     local_search_alg_nonderiv = nonderiv;
+     local_search_maxeval = maxeval;
+}
 
 /*************************************************************************/
 
@@ -161,22 +198,31 @@ static nlopt_result nlopt_minimize_(
      stop.start = nlopt_seconds();
 
      switch (algorithm) {
-	 case NLOPT_GLOBAL_DIRECT:
-	 case NLOPT_GLOBAL_DIRECT_L: 
-	 case NLOPT_GLOBAL_DIRECT_L_RANDOMIZED: 
+	 case NLOPT_GN_DIRECT:
+	 case NLOPT_GN_DIRECT_L: 
+	 case NLOPT_GN_DIRECT_L_RAND: 
 	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0.0, 
-			     (algorithm != NLOPT_GLOBAL_DIRECT)
-			     + 3 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 2 : (algorithm != NLOPT_GLOBAL_DIRECT))
-			     + 9 * (algorithm == NLOPT_GLOBAL_DIRECT_L_RANDOMIZED ? 1 : (algorithm != NLOPT_GLOBAL_DIRECT)));
+			     (algorithm != NLOPT_GN_DIRECT)
+			     + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
+			     + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 1 : (algorithm != NLOPT_GN_DIRECT)));
 	      
-	 case NLOPT_GLOBAL_ORIG_DIRECT:
-	 case NLOPT_GLOBAL_ORIG_DIRECT_L: 
+	 case NLOPT_GN_DIRECT_NOSCAL:
+	 case NLOPT_GN_DIRECT_L_NOSCAL: 
+	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
+	      return cdirect_unscaled(n, f, f_data, lb, ub, x, fmin, 
+				      &stop, 0.0, 
+				      (algorithm != NLOPT_GN_DIRECT)
+				      + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
+				      + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 1 : (algorithm != NLOPT_GN_DIRECT)));
+	      
+	 case NLOPT_GN_ORIG_DIRECT:
+	 case NLOPT_GN_ORIG_DIRECT_L: 
 	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
 				      maxeval, -1, 0.0, 0.0,
 				      pow(xtol_rel, (double) n), -1.0,
 				      stop.fmin_max, 0.0,
 				      NULL, 
-				      algorithm == NLOPT_GLOBAL_ORIG_DIRECT
+				      algorithm == NLOPT_GN_ORIG_DIRECT
 				      ? DIRECT_ORIGINAL
 				      : DIRECT_GABLONSKY)) {
 		  case DIRECT_INVALID_BOUNDS:
@@ -200,15 +246,15 @@ static nlopt_result nlopt_minimize_(
 	      break;
 	 }
 
-	 case NLOPT_GLOBAL_STOGO:
-	 case NLOPT_GLOBAL_STOGO_RANDOMIZED:
+	 case NLOPT_GD_STOGO:
+	 case NLOPT_GD_STOGO_RAND:
 	      if (!stogo_minimize(n, f, f_data, x, fmin, lb, ub, &stop,
-				  algorithm == NLOPT_GLOBAL_STOGO
+				  algorithm == NLOPT_GD_STOGO
 				  ? 0 : 2*n))
 		   return NLOPT_FAILURE;
 	      break;
 
-	 case NLOPT_LOCAL_SUBPLEX: {
+	 case NLOPT_LN_SUBPLEX: {
 	      int iret;
 	      double *scale = (double *) malloc(sizeof(double) * n);
 	      if (!scale) return NLOPT_OUT_OF_MEMORY;
@@ -238,7 +284,14 @@ static nlopt_result nlopt_minimize_(
 	      break;
 	 }
 
-	 case NLOPT_LOCAL_LBFGS: {
+	 case NLOPT_LN_PRAXIS: {
+	      double t0 = xtol_rel, macheps = 1e-14;
+	      double h0 = 0.1;
+	      *fmin = praxis_(&t0, &macheps, &h0, &n, x, f_subplex, &d);
+	      break;
+	 }
+
+	 case NLOPT_LD_LBFGS: {
 	      int iret, *nbd = (int *) malloc(sizeof(int) * n);
 	      if (!nbd) return NLOPT_OUT_OF_MEMORY;
 	      for (i = 0; i < n; ++i) {
