@@ -1,5 +1,6 @@
 /* See README */
 
+#include <stdlib.h>
 #include <math.h>
 #include "nlopt-util.h"
 #include "praxis.h"
@@ -9,11 +10,13 @@
 struct global_s {
     double fx, ldt, dmin__;
     int nf, nl;
+     nlopt_stopping *stop;
 };
 
 struct q_s {
-    double v[400]	/* was [20][20] */, q0[20], q1[20], qa, qb, qc, qd0, 
-	    qd1, qf1;
+     double *v; /* size n x n */
+     double *q0, *q1, *t_flin; /* size n */
+     double qa, qb, qc, qd0, qd1, qf1;
 };
 
 /* Table of constant values */
@@ -28,29 +31,32 @@ static int pow_ii(int x, int n) /* compute x^n, n >= 0 */
      return p;
 }
 
-static void minfit_(int *m, int *n, double *machep, 
-	     double *tol, double *ab, double *q);
-static void min_(int n, int j, int nits, double *d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *x, double *t, double *machep, double *h__, struct global_s *global_1, struct q_s *q_1);
+static void minfit_(int m, int n, double machep, 
+	     double *tol, double *ab, double *q, double *ework);
+static void min_(int n, int j, int nits, double *d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
 static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double *x, int *nf, struct q_s *q_1);
-static void sort_(int *m, int *n, double *d__, double *v);
-static void quad_(int *n, praxis_func f, void *f_data, double *x, double *t, 
-	   double *machep, double *h__, struct global_s *global_1, struct q_s *q_1);
+static void sort_(int m, int n, double *d__, double *v);
+static void quad_(int n, praxis_func f, void *f_data, double *x, double *t, 
+	   double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
 
-double praxis_(double *t0, double *machep, double *h0, 
-	       int *n, double *x, praxis_func f, void *f_data)
+nlopt_result praxis_(double *t0, double machep, double *h0, 
+		     int n, double *x, praxis_func f, void *f_data,
+		     nlopt_stopping *stop, double *minf)
 {
     /* System generated locals */
     int i__1, i__2, i__3;
-    double ret_val, d__1;
+    nlopt_result ret = NLOPT_SUCCESS;
+    double d__1;
 
     /* Global */
     struct global_s global_1;
     struct q_s q_1;
 
     /* Local variables */
-    double d__[20], h__;
+    double *d__, *y, *z__, *e_minfit; /* size n */
+    double h__;
     int i__, j, k;
-    double s, t, y[20], z__[20], f1;
+    double s, t, f1;
     int k2;
     double m2, m4, t2, df, dn;
     int kl, ii;
@@ -61,15 +67,22 @@ double praxis_(double *t0, double *machep, double *h0,
     double dni, lds;
     int ktm;
     double scbd;
-    int idim;
     int illc;
     int klmk;
     double ldfac, large, small, value;
     double vlarge;
     double vsmall;
+    double *work;
 
 /*                             LAST MODIFIED 3/1/73 */
-
+/*            Modified August 2007 by S. G. Johnson:
+	          after conversion to C via f2c and some manual cleanup,
+		  eliminating write statements, I additionally:
+		     - modified the routine to use NLopt stop criteria
+		     - allocate arrays dynamically to allow n > 20
+		     - return the NLopt return code, where the min.
+		       function value is now given by the parameter minf
+*/
 /*     PRAXIS RETURNS THE MINIMUM OF THE FUNCTION F(N,X) OF N VARIABLES */
 /*     USING THE PRINCIPAL AXIS METHOD.  THE GRADIENT OF THE FUNCTION IS */
 /*     NOT REQUIRED. */
@@ -112,7 +125,7 @@ double praxis_(double *t0, double *machep, double *h0,
 /* .....IF N>20 OR IF N<20 AND YOU NEED MORE SPACE, CHANGE '20' TO THE */
 /*     LARGEST VALUE OF N IN THE NEXT CARD, IN THE CARD 'IDIM=20', AND */
 /*     IN THE DIMENSION STATEMENTS IN SUBROUTINES MINFIT,MIN,FLIN,QUAD. */
-
+    /* ...changed by S. G. Johnson, 2007, to use malloc */
 
 /* .....INITIALIZATION..... */
 /*     MACHINE DEPENDENT NUMBERS: */
@@ -121,12 +134,24 @@ double praxis_(double *t0, double *machep, double *h0,
     --x;
 
     /* Function Body */
-    small = *machep * *machep;
+    small = machep * machep;
     vsmall = small * small;
     large = 1. / small;
     vlarge = 1. / vsmall;
-    m2 = sqrt(*machep);
+    m2 = sqrt(machep);
     m4 = sqrt(m2);
+
+    /* new: dynamic allocation of temporary arrays */
+    work = (double *) malloc(sizeof(double) * (n*n + n*7));
+    if (!work) return NLOPT_OUT_OF_MEMORY;
+    q_1.v = work;
+    q_1.q0 = q_1.v + n*n;
+    q_1.q1 = q_1.q0 + n;
+    q_1.t_flin = q_1.q1 + n;
+    d__ = q_1.t_flin + n;
+    y = d__ + n;
+    z__ = y + n;
+    e_minfit = y + n;
 
 /*     HEURISTIC NUMBERS: */
 /*     IF THE AXES MAY BE BADLY SCALED (WHICH IS TO BE AVOIDED IF */
@@ -148,7 +173,8 @@ double praxis_(double *t0, double *machep, double *h0,
     kt = 0;
     global_1.nl = 0;
     global_1.nf = 1;
-    global_1.fx = f(*n, &x[1], f_data);
+    global_1.fx = f(n, &x[1], f_data);
+    stop->nevals++;
     q_1.qf1 = global_1.fx;
     t = small + fabs(*t0);
     t2 = t;
@@ -159,19 +185,19 @@ double praxis_(double *t0, double *machep, double *h0,
     }
     global_1.ldt = h__;
 /* .....THE FIRST SET OF SEARCH DIRECTIONS V IS THE IDENTITY MATRIX..... */
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	i__2 = *n;
+	i__2 = n;
 	for (j = 1; j <= i__2; ++j) {
 /* L10: */
-	    q_1.v[i__ + j * 20 - 21] = 0.;
+	    q_1.v[i__ + j * n - (n+1)] = 0.;
 	}
 /* L20: */
-	q_1.v[i__ + i__ * 20 - 21] = 1.;
+	q_1.v[i__ + i__ * n - (n+1)] = 1.;
     }
     d__[0] = 0.;
     q_1.qd0 = 0.;
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	q_1.q0[i__ - 1] = x[i__];
 /* L30: */
@@ -187,12 +213,12 @@ L40:
 /* .....MINIMIZE ALONG THE FIRST DIRECTION V(*,1). */
 /*     FX MUST BE PASSED TO MIN BY VALUE. */
     value = global_1.fx;
-    min_(*n, 1, 2, d__, &s, &value, 0, f,f_data, &x[1], &t, 
+    min_(n, 1, 2, d__, &s, &value, 0, f,f_data, &x[1], &t, 
 	    machep, &h__, &global_1, &q_1);
     if (s > 0.) {
 	goto L50;
     }
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L45: */
 	q_1.v[i__ - 1] = -q_1.v[i__ - 1];
@@ -201,7 +227,7 @@ L50:
     if (sf > d__[0] * .9 && sf * .9 < d__[0]) {
 	goto L70;
     }
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 2; i__ <= i__1; ++i__) {
 /* L60: */
 	d__[i__ - 1] = 0.;
@@ -209,9 +235,9 @@ L50:
 
 /* .....THE INNER LOOP STARTS HERE..... */
 L70:
-    i__1 = *n;
+    i__1 = n;
     for (k = 2; k <= i__1; ++k) {
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 /* L75: */
 	    y[i__ - 1] = x[i__];
@@ -231,31 +257,31 @@ L80:
 	if (! illc) {
 	    goto L95;
 	}
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 	     s = (global_1.ldt * .1 + t2 * pow_ii(10, kt)) 
 		  * nlopt_urand(-.5,.5);
 	     /* was: (random_(n) - .5); */
 	    z__[i__ - 1] = s;
-	    i__3 = *n;
+	    i__3 = n;
 	    for (j = 1; j <= i__3; ++j) {
 /* L85: */
-		x[j] += s * q_1.v[j + i__ * 20 - 21];
+		x[j] += s * q_1.v[j + i__ * n - (n+1)];
 	    }
 /* L90: */
 	}
-	global_1.fx = (*f)(*n, &x[1], f_data);
+	global_1.fx = (*f)(n, &x[1], f_data);
 	++global_1.nf;
 
 /* .....MINIMIZE ALONG THE "NON-CONJUGATE" DIRECTIONS V(*,K),...,V(*,N) */
 
 L95:
-	i__2 = *n;
+	i__2 = n;
 	for (k2 = k; k2 <= i__2; ++k2) {
 	    sl = global_1.fx;
 	    s = 0.;
 	    value = global_1.fx;
-	    min_(*n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
+	    min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
 		    x[1], &t, machep, &h__, &global_1, &q_1);
 	    if (illc) {
 		goto L97;
@@ -275,7 +301,7 @@ L99:
 L105:
 	    ;
 	}
-	if (illc || df >= (d__1 = *machep * 100 * global_1.fx, fabs(d__1))) {
+	if (illc || df >= (d__1 = machep * 100 * global_1.fx, fabs(d__1))) {
 	    goto L110;
 	}
 
@@ -293,14 +319,14 @@ L110:
 	for (k2 = 1; k2 <= i__2; ++k2) {
 	    s = 0.;
 	    value = global_1.fx;
-	    min_(*n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
+	    min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
 		    x[1], &t, machep, &h__, &global_1, &q_1);
 /* L120: */
 	}
 	f1 = global_1.fx;
 	global_1.fx = sf;
 	lds = 0.;
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 	    sl = x[i__];
 	    x[i__] = y[i__ - 1];
@@ -325,36 +351,36 @@ L110:
 	i__2 = klmk;
 	for (ii = 1; ii <= i__2; ++ii) {
 	    i__ = kl - ii;
-	    i__3 = *n;
+	    i__3 = n;
 	    for (j = 1; j <= i__3; ++j) {
 /* L135: */
-		q_1.v[j + (i__ + 1) * 20 - 21] = q_1.v[j + i__ * 20 - 21];
+		q_1.v[j + (i__ + 1) * n - (n+1)] = q_1.v[j + i__ * n - (n+1)];
 	    }
 /* L140: */
 	    d__[i__] = d__[i__ - 1];
 	}
 L141:
 	d__[k - 1] = 0.;
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 /* L145: */
-	    q_1.v[i__ + k * 20 - 21] = y[i__ - 1] / lds;
+	    q_1.v[i__ + k * n - (n+1)] = y[i__ - 1] / lds;
 	}
 
 /* .....MINIMIZE ALONG THE NEW "CONJUGATE" DIRECTION V(*,K), WHICH IS */
 /*     THE NORMALIZED VECTOR:  (NEW X) - (0LD X)..... */
 
 	value = f1;
-	min_(*n, k, 4, &d__[k - 1], &lds, &value, 1, f,f_data, &x[1],
+	min_(n, k, 4, &d__[k - 1], &lds, &value, 1, f,f_data, &x[1],
 		 &t, machep, &h__, &global_1, &q_1);
 	if (lds > 0.) {
 	    goto L160;
 	}
 	lds = -lds;
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 /* L150: */
-	    q_1.v[i__ + k * 20 - 21] = -q_1.v[i__ + k * 20 - 21];
+	    q_1.v[i__ + k * n - (n+1)] = -q_1.v[i__ + k * n - (n+1)];
 	}
 L160:
 	global_1.ldt = ldfac * global_1.ldt;
@@ -362,7 +388,7 @@ L160:
 	    global_1.ldt = lds;
 	}
 	t2 = 0.;
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 /* L165: */
 /* Computing 2nd power */
@@ -390,7 +416,7 @@ L160:
 /* L171: */
     quad_(n, f,f_data, &x[1], &t, machep, &h__, &global_1, &q_1);
     dn = 0.;
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	d__[i__ - 1] = 1. / sqrt(d__[i__ - 1]);
 	if (dn < d__[i__ - 1]) {
@@ -398,13 +424,13 @@ L160:
 	}
 /* L175: */
     }
-    i__1 = *n;
+    i__1 = n;
     for (j = 1; j <= i__1; ++j) {
 	s = d__[j - 1] / dn;
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 /* L180: */
-	    q_1.v[i__ + j * 20 - 21] = s * q_1.v[i__ + j * 20 - 21];
+	    q_1.v[i__ + j * n - (n+1)] = s * q_1.v[i__ + j * n - (n+1)];
 	}
     }
 
@@ -414,13 +440,13 @@ L160:
 	goto L200;
     }
     s = vlarge;
-    i__2 = *n;
+    i__2 = n;
     for (i__ = 1; i__ <= i__2; ++i__) {
 	sl = 0.;
-	i__1 = *n;
+	i__1 = n;
 	for (j = 1; j <= i__1; ++j) {
 /* L182: */
-	    sl += q_1.v[i__ + j * 20 - 21] * q_1.v[i__ + j * 20 - 21];
+	    sl += q_1.v[i__ + j * n - (n+1)] * q_1.v[i__ + j * n - (n+1)];
 	}
 	z__[i__ - 1] = sqrt(sl);
 	if (z__[i__ - 1] < m4) {
@@ -431,7 +457,7 @@ L160:
 	}
 /* L185: */
     }
-    i__2 = *n;
+    i__2 = n;
     for (i__ = 1; i__ <= i__2; ++i__) {
 	sl = s / z__[i__ - 1];
 	z__[i__ - 1] = 1. / sl;
@@ -441,10 +467,10 @@ L160:
 	sl = 1. / scbd;
 	z__[i__ - 1] = scbd;
 L189:
-	i__1 = *n;
+	i__1 = n;
 	for (j = 1; j <= i__1; ++j) {
 /* L190: */
-	    q_1.v[i__ + j * 20 - 21] = sl * q_1.v[i__ + j * 20 - 21];
+	    q_1.v[i__ + j * n - (n+1)] = sl * q_1.v[i__ + j * n - (n+1)];
 	}
 /* L195: */
     }
@@ -454,15 +480,15 @@ L189:
 /*     FIRST TRANSPOSE V FOR MINFIT: */
 
 L200:
-    i__2 = *n;
+    i__2 = n;
     for (i__ = 2; i__ <= i__2; ++i__) {
 	im1 = i__ - 1;
 	i__1 = im1;
 	for (j = 1; j <= i__1; ++j) {
-	    s = q_1.v[i__ + j * 20 - 21];
-	    q_1.v[i__ + j * 20 - 21] = q_1.v[j + i__ * 20 - 21];
+	    s = q_1.v[i__ + j * n - (n+1)];
+	    q_1.v[i__ + j * n - (n+1)] = q_1.v[j + i__ * n - (n+1)];
 /* L210: */
-	    q_1.v[j + i__ * 20 - 21] = s;
+	    q_1.v[j + i__ * n - (n+1)] = s;
 	}
 /* L220: */
     }
@@ -472,46 +498,46 @@ L200:
 /*     APPROXIMATING QUADRATIC FORM WITHOUT SQUARING THE CONDITION */
 /*     NUMBER..... */
 
-    minfit_(&idim, n, machep, &vsmall, q_1.v, d__);
+    minfit_(n, n, machep, &vsmall, q_1.v, d__, e_minfit);
 
 /* .....UNSCALE THE AXES..... */
 
     if (scbd <= 1.) {
 	goto L250;
     }
-    i__2 = *n;
+    i__2 = n;
     for (i__ = 1; i__ <= i__2; ++i__) {
 	s = z__[i__ - 1];
-	i__1 = *n;
+	i__1 = n;
 	for (j = 1; j <= i__1; ++j) {
 /* L225: */
-	    q_1.v[i__ + j * 20 - 21] = s * q_1.v[i__ + j * 20 - 21];
+	    q_1.v[i__ + j * n - (n+1)] = s * q_1.v[i__ + j * n - (n+1)];
 	}
 /* L230: */
     }
-    i__2 = *n;
+    i__2 = n;
     for (i__ = 1; i__ <= i__2; ++i__) {
 	s = 0.;
-	i__1 = *n;
+	i__1 = n;
 	for (j = 1; j <= i__1; ++j) {
 /* L235: */
 /* Computing 2nd power */
-	    d__1 = q_1.v[j + i__ * 20 - 21];
+	    d__1 = q_1.v[j + i__ * n - (n+1)];
 	    s += d__1 * d__1;
 	}
 	s = sqrt(s);
 	d__[i__ - 1] = s * d__[i__ - 1];
 	s = 1 / s;
-	i__1 = *n;
+	i__1 = n;
 	for (j = 1; j <= i__1; ++j) {
 /* L240: */
-	    q_1.v[j + i__ * 20 - 21] = s * q_1.v[j + i__ * 20 - 21];
+	    q_1.v[j + i__ * n - (n+1)] = s * q_1.v[j + i__ * n - (n+1)];
 	}
 /* L245: */
     }
 
 L250:
-    i__2 = *n;
+    i__2 = n;
     for (i__ = 1; i__ <= i__2; ++i__) {
 	dni = dn * d__[i__ - 1];
 	if (dni > large) {
@@ -533,8 +559,8 @@ L270:
 
 /* .....SORT THE EIGENVALUES AND EIGENVECTORS..... */
 
-    sort_(&idim, n, d__, q_1.v);
-    global_1.dmin__ = d__[*n - 1];
+    sort_(n, n, d__, q_1.v);
+    global_1.dmin__ = d__[n - 1];
     if (global_1.dmin__ < small) {
 	global_1.dmin__ = small;
     }
@@ -550,23 +576,27 @@ L270:
 /* .....RETURN..... */
 
 L400:
-    ret_val = global_1.fx;
-    return ret_val;
+    *minf = global_1.fx;
+    free(work);
+    return ret;
 } /* praxis_ */
 
-static void minfit_(int *m, int *n, double *machep, 
-	double *tol, double *ab, double *q)
+static void minfit_(int m, int n, double machep, 
+	double *tol, double *ab, double *q, double *ework)
 {
     /* System generated locals */
     int ab_dim1, ab_offset, i__1, i__2, i__3;
     double d__1, d__2;
 
     /* Local variables */
-    double c__, e[20], f, g, h__;
+    double *e; /* size n */
+    double c__, f, g, h__;
     int i__, j, k, l;
     double s, x, y, z__;
     int l2, ii, kk, kt, ll2, lp1;
     double eps, temp;
+    
+    e = ework;
 
 /* ...AN IMPROVED VERSION OF MINFIT (SEE GOLUB AND REINSCH, 1969) */
 /*   RESTRICTED TO M=N,P=0. */
@@ -576,23 +606,23 @@ static void minfit_(int *m, int *n, double *machep,
 /* ...HOUSEHOLDER'S REDUCTION TO BIDIAGONAL FORM... */
     /* Parameter adjustments */
     --q;
-    ab_dim1 = *m;
+    ab_dim1 = m;
     ab_offset = 1 + ab_dim1;
     ab -= ab_offset;
 
     /* Function Body */
-    if (*n == 1) {
+    if (n == 1) {
 	goto L200;
     }
-    eps = *machep;
+    eps = machep;
     g = 0.;
     x = 0.;
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	e[i__ - 1] = g;
 	s = 0.;
 	l = i__ + 1;
-	i__2 = *n;
+	i__2 = n;
 	for (j = i__; j <= i__2; ++j) {
 /* L1: */
 /* Computing 2nd power */
@@ -610,19 +640,19 @@ static void minfit_(int *m, int *n, double *machep,
 	}
 	h__ = f * g - s;
 	ab[i__ + i__ * ab_dim1] = f - g;
-	if (l > *n) {
+	if (l > n) {
 	    goto L4;
 	}
-	i__2 = *n;
+	i__2 = n;
 	for (j = l; j <= i__2; ++j) {
 	    f = 0.;
-	    i__3 = *n;
+	    i__3 = n;
 	    for (k = i__; k <= i__3; ++k) {
 /* L2: */
 		f += ab[k + i__ * ab_dim1] * ab[k + j * ab_dim1];
 	    }
 	    f /= h__;
-	    i__3 = *n;
+	    i__3 = n;
 	    for (k = i__; k <= i__3; ++k) {
 /* L3: */
 		ab[k + j * ab_dim1] += f * ab[k + i__ * ab_dim1];
@@ -631,10 +661,10 @@ static void minfit_(int *m, int *n, double *machep,
 L4:
 	q[i__] = g;
 	s = 0.;
-	if (i__ == *n) {
+	if (i__ == n) {
 	    goto L6;
 	}
-	i__3 = *n;
+	i__3 = n;
 	for (j = l; j <= i__3; ++j) {
 /* L5: */
 	    s += ab[i__ + j * ab_dim1] * ab[i__ + j * ab_dim1];
@@ -644,7 +674,7 @@ L6:
 	if (s < *tol) {
 	    goto L10;
 	}
-	if (i__ == *n) {
+	if (i__ == n) {
 	    goto L16;
 	}
 	f = ab[i__ + (i__ + 1) * ab_dim1];
@@ -654,24 +684,24 @@ L16:
 	    g = -g;
 	}
 	h__ = f * g - s;
-	if (i__ == *n) {
+	if (i__ == n) {
 	    goto L10;
 	}
 	ab[i__ + (i__ + 1) * ab_dim1] = f - g;
-	i__3 = *n;
+	i__3 = n;
 	for (j = l; j <= i__3; ++j) {
 /* L7: */
 	    e[j - 1] = ab[i__ + j * ab_dim1] / h__;
 	}
-	i__3 = *n;
+	i__3 = n;
 	for (j = l; j <= i__3; ++j) {
 	    s = 0.;
-	    i__2 = *n;
+	    i__2 = n;
 	    for (k = l; k <= i__2; ++k) {
 /* L8: */
 		s += ab[j + k * ab_dim1] * ab[i__ + k * ab_dim1];
 	    }
-	    i__2 = *n;
+	    i__2 = n;
 	    for (k = l; k <= i__2; ++k) {
 /* L9: */
 		ab[j + k * ab_dim1] += s * e[k - 1];
@@ -685,37 +715,37 @@ L10:
 	}
     }
 /* ...ACCUMULATION OF RIGHT-HAND TRANSFORMATIONS... */
-    ab[*n + *n * ab_dim1] = 1.;
-    g = e[*n - 1];
-    l = *n;
-    i__1 = *n;
+    ab[n + n * ab_dim1] = 1.;
+    g = e[n - 1];
+    l = n;
+    i__1 = n;
     for (ii = 2; ii <= i__1; ++ii) {
-	i__ = *n - ii + 1;
+	i__ = n - ii + 1;
 	if (g == 0.) {
 	    goto L23;
 	}
 	h__ = ab[i__ + (i__ + 1) * ab_dim1] * g;
-	i__2 = *n;
+	i__2 = n;
 	for (j = l; j <= i__2; ++j) {
 /* L20: */
 	    ab[j + i__ * ab_dim1] = ab[i__ + j * ab_dim1] / h__;
 	}
-	i__2 = *n;
+	i__2 = n;
 	for (j = l; j <= i__2; ++j) {
 	    s = 0.;
-	    i__3 = *n;
+	    i__3 = n;
 	    for (k = l; k <= i__3; ++k) {
 /* L21: */
 		s += ab[i__ + k * ab_dim1] * ab[k + j * ab_dim1];
 	    }
-	    i__3 = *n;
+	    i__3 = n;
 	    for (k = l; k <= i__3; ++k) {
 /* L22: */
 		ab[k + j * ab_dim1] += s * ab[k + i__ * ab_dim1];
 	    }
 	}
 L23:
-	i__3 = *n;
+	i__3 = n;
 	for (j = l; j <= i__3; ++j) {
 	    ab[i__ + j * ab_dim1] = 0.;
 /* L24: */
@@ -729,9 +759,9 @@ L23:
 /* ...DIAGONALIZATION OF THE BIDIAGONAL FORM... */
 /* L100: */
     eps *= x;
-    i__1 = *n;
+    i__1 = n;
     for (kk = 1; kk <= i__1; ++kk) {
-	k = *n - kk + 1;
+	k = n - kk + 1;
 	kt = 0;
 L101:
 	++kt;
@@ -867,7 +897,7 @@ L125:
 	    g = -x * s + g * c__;
 	    h__ = y * s;
 	    y *= c__;
-	    i__2 = *n;
+	    i__2 = n;
 	    for (j = 1; j <= i__2; ++j) {
 		x = ab[j + (i__ - 1) * ab_dim1];
 		z__ = ab[j + i__ * ab_dim1];
@@ -920,7 +950,7 @@ L140:
 	    goto L150;
 	}
 	q[k] = -z__;
-	i__3 = *n;
+	i__3 = n;
 	for (j = 1; j <= i__3; ++j) {
 /* L141: */
 	    ab[j + k * ab_dim1] = -ab[j + k * ab_dim1];
@@ -936,7 +966,7 @@ L200:
 
 static void min_(int n, int j, int nits, double *
 	d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *
-	x, double *t, double *machep, double *h__, struct global_s *global_1, struct q_s *q_1)
+	x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1)
 {
     /* System generated locals */
     int i__1;
@@ -965,9 +995,9 @@ static void min_(int n, int j, int nits, double *
 
     /* Function Body */
 /* Computing 2nd power */
-    d__1 = *machep;
+    d__1 = machep;
     small = d__1 * d__1;
-    m2 = sqrt(*machep);
+    m2 = sqrt(machep);
     m4 = sqrt(m2);
     sf1 = *f1;
     sx1 = *x1;
@@ -975,7 +1005,7 @@ static void min_(int n, int j, int nits, double *
     xm = 0.;
     fm = global_1->fx;
     f0 = global_1->fx;
-    dz = *d2 < *machep;
+    dz = *d2 < machep;
 /* ...FIND THE STEP SIZE... */
     s = 0.;
     i__1 = n;
@@ -1120,7 +1150,7 @@ L17:
     i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L18: */
-	x[i__] += *x1 * q_1->v[i__ + j * 20 - 21];
+	x[i__] += *x1 * q_1->v[i__ + j * n - (n+1)];
     }
 } /* min_ */
 
@@ -1133,7 +1163,9 @@ static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double
 
     /* Local variables */
     int i__;
-    double t[20];
+    double *t; /* size n */
+
+    t = q_1->t_flin;
 
 /* ...FLIN IS THE FUNCTION OF ONE REAL VARIABLE L THAT IS MINIMIZED */
 /*   BY THE SUBROUTINE MIN... */
@@ -1148,7 +1180,7 @@ static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double
     i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L1: */
-	t[i__ - 1] = x[i__] + *l * q_1->v[i__ + j * 20 - 21];
+	t[i__ - 1] = x[i__] + *l * q_1->v[i__ + j * n - (n+1)];
     }
     goto L4;
 /* ...THE SEARCH IS ALONG A PARABOLIC SPACE CURVE... */
@@ -1169,7 +1201,7 @@ L4:
     return ret_val;
 } /* flin_ */
 
-static void sort_(int *m, int *n, double *d__, double *v)
+static void sort_(int m, int n, double *d__, double *v)
 {
     /* System generated locals */
     int v_dim1, v_offset, i__1, i__2;
@@ -1183,22 +1215,22 @@ static void sort_(int *m, int *n, double *d__, double *v)
 /*   CORRESPONDING COLUMNS OF V(N,N). */
 /*   M IS THE ROW DIMENSION OF V AS DECLARED IN THE CALLING PROGRAM. */
     /* Parameter adjustments */
-    v_dim1 = *m;
+    v_dim1 = m;
     v_offset = 1 + v_dim1;
     v -= v_offset;
     --d__;
 
     /* Function Body */
-    if (*n == 1) {
+    if (n == 1) {
 	return;
     }
-    nm1 = *n - 1;
+    nm1 = n - 1;
     i__1 = nm1;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	k = i__;
 	s = d__[i__];
 	ip1 = i__ + 1;
-	i__2 = *n;
+	i__2 = n;
 	for (j = ip1; j <= i__2; ++j) {
 	    if (d__[j] <= s) {
 		goto L1;
@@ -1213,7 +1245,7 @@ L1:
 	}
 	d__[k] = d__[i__];
 	d__[i__] = s;
-	i__2 = *n;
+	i__2 = n;
 	for (j = 1; j <= i__2; ++j) {
 	    s = v[j + i__ * v_dim1];
 	    v[j + i__ * v_dim1] = v[j + k * v_dim1];
@@ -1225,8 +1257,8 @@ L3:
     }
 } /* sort_ */
 
-static void quad_(int *n, praxis_func f, void *f_data, double *x, double *t, 
-		  double *machep, double *h__, struct global_s *global_1, struct q_s *q_1)
+static void quad_(int n, praxis_func f, void *f_data, double *x, double *t, 
+		  double machep, double *h__, struct global_s *global_1, struct q_s *q_1)
 {
     /* System generated locals */
     int i__1;
@@ -1246,7 +1278,7 @@ static void quad_(int *n, praxis_func f, void *f_data, double *x, double *t,
     global_1->fx = q_1->qf1;
     q_1->qf1 = s;
     q_1->qd1 = 0.;
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	s = x[i__];
 	l = q_1->q1[i__ - 1];
@@ -1260,11 +1292,11 @@ static void quad_(int *n, praxis_func f, void *f_data, double *x, double *t,
     q_1->qd1 = sqrt(q_1->qd1);
     l = q_1->qd1;
     s = 0.;
-    if (q_1->qd0 <= 0. || q_1->qd1 <= 0. || global_1->nl < *n * 3 * *n) {
+    if (q_1->qd0 <= 0. || q_1->qd1 <= 0. || global_1->nl < n * 3 * n) {
 	goto L2;
     }
     value = q_1->qf1;
-    min_(*n, 0, 2, &s, &l, &value, 1, f,f_data, &x[1], t, machep, 
+    min_(n, 0, 2, &s, &l, &value, 1, f,f_data, &x[1], t, machep, 
 	    h__, global_1, q_1);
     q_1->qa = l * (l - q_1->qd1) / (q_1->qd0 * (q_1->qd0 + q_1->qd1));
     q_1->qb = (l + q_1->qd0) * (q_1->qd1 - l) / (q_1->qd0 * q_1->qd1);
@@ -1277,7 +1309,7 @@ L2:
     q_1->qc = 1.;
 L3:
     q_1->qd0 = q_1->qd1;
-    i__1 = *n;
+    i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	s = q_1->q0[i__ - 1];
 	q_1->q0[i__ - 1] = x[i__];

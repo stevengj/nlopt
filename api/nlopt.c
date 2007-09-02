@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <float.h>
 
 #include "nlopt.h"
 #include "nlopt-util.h"
@@ -287,8 +288,8 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_LN_PRAXIS: {
 	      double t0 = xtol_rel, macheps = 1e-14;
 	      double h0 = 0.1;
-	      *fmin = praxis_(&t0, &macheps, &h0, &n, x, f_subplex, &d);
-	      break;
+	      return praxis_(&t0, DBL_EPSILON, &h0, n, x, f_subplex, &d,
+			     &stop, &fmin);
 	 }
 
 	 case NLOPT_LD_LBFGS: {
