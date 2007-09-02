@@ -286,9 +286,18 @@ static nlopt_result nlopt_minimize_(
 	 }
 
 	 case NLOPT_LN_PRAXIS: {
-	      double t0 = xtol_rel, macheps = 1e-14;
-	      double h0 = 0.1;
-	      return praxis_(&t0, DBL_EPSILON, &h0, n, x, f_subplex, &d,
+	      double h0 = HUGE_VAL;
+	      for (i = 0; i < n; ++i) {
+		   if (!my_isinf(ub[i]) && !my_isinf(lb[i]))
+			h0 = MIN(h0, (ub[i] - lb[i]) * 0.01);
+		   else if (!my_isinf(lb[i]) && x[i] > lb[i])
+			h0 = MIN(h0, (x[i] - lb[i]) * 0.01);
+		   else if (!my_isinf(ub[i]) && x[i] < ub[i])
+			h0 = MIN(h0, (ub[i] - x[i]) * 0.01);
+		   else
+			h0 = MIN(h0, 0.01 * x[i] + 0.0001);
+	      }
+	      return praxis_(0.0, DBL_EPSILON, h0, n, x, f_subplex, &d,
 			     &stop, fmin);
 	 }
 

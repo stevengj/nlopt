@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "nlopt-util.h"
 #include "praxis.h"
 
@@ -35,13 +36,13 @@ static int pow_ii(int x, int n) /* compute x^n, n >= 0 */
 
 static void minfit_(int m, int n, double machep, 
 	     double *tol, double *ab, double *q, double *ework);
-static nlopt_result min_(int n, int j, int nits, double *d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
+static nlopt_result min_(int n, int j, int nits, double *d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *x, double *t_old, double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
 static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double *x, int *nf, struct q_s *q_1, nlopt_result *ret);
 static void sort_(int m, int n, double *d__, double *v);
-static void quad_(int n, praxis_func f, void *f_data, double *x, double *t, 
-	   double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
+static void quad_(int n, praxis_func f, void *f_data, double *x, 
+		  double *t_old, double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
 
-nlopt_result praxis_(double *t0, double machep, double *h0, 
+nlopt_result praxis_(double t0, double machep, double h0, 
 		     int n, double *x, praxis_func f, void *f_data,
 		     nlopt_stopping *stop, double *minf)
 {
@@ -55,12 +56,13 @@ nlopt_result praxis_(double *t0, double machep, double *h0,
     struct q_s q_1;
 
     /* Local variables */
-    double *d__, *y, *z__, *e_minfit; /* size n */
+    double *d__, *y, *z__, *e_minfit, *prev_xbest; /* size n */
+    double prev_fbest;
     double h__;
     int i__, j, k;
-    double s, t, f1;
+    double s, t_old, f1;
     int k2;
-    double m2, m4, t2, df, dn;
+    double m2, m4, t2_old, df, dn;
     int kl, ii;
     double sf;
     int kt;
@@ -144,7 +146,7 @@ nlopt_result praxis_(double *t0, double machep, double *h0,
     m4 = sqrt(m2);
 
     /* new: dynamic allocation of temporary arrays */
-    work = (double *) malloc(sizeof(double) * (n*n + n*8));
+    work = (double *) malloc(sizeof(double) * (n*n + n*9));
     if (!work) return NLOPT_OUT_OF_MEMORY;
     q_1.v = work;
     q_1.q0 = q_1.v + n*n;
@@ -155,6 +157,7 @@ nlopt_result praxis_(double *t0, double machep, double *h0,
     y = d__ + n;
     z__ = y + n;
     e_minfit = y + n;
+    prev_xbest = e_minfit + n;
 
 /*     HEURISTIC NUMBERS: */
 /*     IF THE AXES MAY BE BADLY SCALED (WHICH IS TO BE AVOIDED IF */
@@ -176,17 +179,26 @@ nlopt_result praxis_(double *t0, double machep, double *h0,
     kt = 0;
     global_1.nl = 0;
     global_1.nf = 1;
-    q_1.fbest = global_1.fx = f(n, &x[1], f_data);
+    prev_fbest = q_1.fbest = global_1.fx = f(n, &x[1], f_data);
     memcpy(q_1.xbest, &x[1], n*sizeof(double));
+    memcpy(prev_xbest, &x[1], n*sizeof(double));
     stop->nevals++;
     q_1.stop = stop;
     q_1.qf1 = global_1.fx;
-    t = small + fabs(*t0);
-    t2 = t;
+    if (t0 > 0)
+	 t_old = small + t0;
+    else {
+	 t_old = 0;
+	 for (i__ = 0; i__ < n; ++i__)
+	      if (stop->xtol_abs[i__] > t_old)
+		   t_old = stop->xtol_abs[i__];
+	 t_old += small;
+    }
+    t2_old = t_old;
     global_1.dmin__ = small;
-    h__ = *h0;
-    if (h__ < t * 100) {
-	h__ = t * 100;
+    h__ = h0;
+    if (h__ < t_old * 100) {
+	h__ = t_old * 100;
     }
     global_1.ldt = h__;
 /* .....THE FIRST SET OF SEARCH DIRECTIONS V IS THE IDENTITY MATRIX..... */
@@ -218,8 +230,8 @@ L40:
 /* .....MINIMIZE ALONG THE FIRST DIRECTION V(*,1). */
 /*     FX MUST BE PASSED TO MIN BY VALUE. */
     value = global_1.fx;
-    ret = min_(n, 1, 2, d__, &s, &value, 0, f,f_data, &x[1], &t, 
-	    machep, &h__, &global_1, &q_1);
+    ret = min_(n, 1, 2, d__, &s, &value, 0, f,f_data, &x[1], 
+	    &t_old, machep, &h__, &global_1, &q_1);
     if (ret != NLOPT_SUCCESS) goto done;
     if (s > 0.) {
 	goto L50;
@@ -265,7 +277,7 @@ L80:
 	}
 	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
-	     s = (global_1.ldt * .1 + t2 * pow_ii(10, kt)) 
+	     s = (global_1.ldt * .1 + t2_old * pow_ii(10, kt)) 
 		  * nlopt_urand(-.5,.5);
 	     /* was: (random_(n) - .5); */
 	    z__[i__ - 1] = s;
@@ -288,7 +300,7 @@ L95:
 	    s = 0.;
 	    value = global_1.fx;
 	    ret = min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
-		    x[1], &t, machep, &h__, &global_1, &q_1);
+		       x[1], &t_old, machep, &h__, &global_1, &q_1);
 	    if (ret != NLOPT_SUCCESS) goto done;
 	    if (illc) {
 		goto L97;
@@ -327,7 +339,7 @@ L110:
 	    s = 0.;
 	    value = global_1.fx;
 	    ret = min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
-		    x[1], &t, machep, &h__, &global_1, &q_1);
+		       x[1], &t_old, machep, &h__, &global_1, &q_1);
 	    if (ret != NLOPT_SUCCESS) goto done;
 /* L120: */
 	}
@@ -380,7 +392,7 @@ L141:
 
 	value = f1;
 	ret = min_(n, k, 4, &d__[k - 1], &lds, &value, 1, f,f_data, &x[1],
-		 &t, machep, &h__, &global_1, &q_1);
+		   &t_old, machep, &h__, &global_1, &q_1);
 	if (ret != NLOPT_SUCCESS) goto done;
 	if (lds > 0.) {
 	    goto L160;
@@ -396,26 +408,34 @@ L160:
 	if (global_1.ldt < lds) {
 	    global_1.ldt = lds;
 	}
-	t2 = 0.;
+	t2_old = 0.;
 	i__2 = n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
 /* L165: */
 /* Computing 2nd power */
 	    d__1 = x[i__];
-	    t2 += d__1 * d__1;
+	    t2_old += d__1 * d__1;
 	}
-	t2 = m2 * sqrt(t2) + t;
+	t2_old = m2 * sqrt(t2_old) + t_old;
 
 /* .....SEE WHETHER THE LENGTH OF THE STEP TAKEN SINCE STARTING THE */
 /*     INNER LOOP EXCEEDS HALF THE TOLERANCE..... */
 
-	if (global_1.ldt > t2 * .5f) {
+	if (global_1.ldt > t2_old * .5f
+	    && !nlopt_stop_f(stop, q_1.fbest, prev_fbest)
+	    && !nlopt_stop_x(stop, q_1.xbest, prev_xbest)) {
 	    kt = -1;
 	}
 	++kt;
 	if (kt > ktm) {
-	    goto done;
+	     if (nlopt_stop_f(stop, q_1.fbest, prev_fbest))
+		  ret = NLOPT_FTOL_REACHED;
+	     else if (nlopt_stop_x(stop, q_1.xbest, prev_xbest))
+		  ret = NLOPT_XTOL_REACHED;
+	     goto done;
 	}
+	prev_fbest = q_1.fbest;
+	memcpy(prev_xbest, q_1.xbest, n * sizeof(double));
 /* L170: */
     }
 /* .....THE INNER LOOP ENDS HERE. */
@@ -423,7 +443,7 @@ L160:
 /*     TRY QUADRATIC EXTRAPOLATION IN CASE WE ARE IN A CURVED VALLEY. */
 
 /* L171: */
-    quad_(n, f,f_data, &x[1], &t, machep, &h__, &global_1, &q_1);
+    quad_(n, f,f_data, &x[1], &t_old, machep, &h__, &global_1, &q_1);
     dn = 0.;
     i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
@@ -978,7 +998,7 @@ L200:
 
 static nlopt_result min_(int n, int j, int nits, double *
 	d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *
-	x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1)
+	x, double *t_old, double machep, double *h__, struct global_s *global_1, struct q_s *q_1)
 {
     /* System generated locals */
     int i__1;
@@ -1035,7 +1055,7 @@ static nlopt_result min_(int n, int j, int nits, double *
     }
     t2 = m4 * sqrt(fabs(global_1->fx) / temp + s * global_1->ldt) + m2 * 
 	    global_1->ldt;
-    s = m4 * s + *t;
+    s = m4 * s + *t_old;
     if (dz && t2 > s) {
 	t2 = s;
     }
@@ -1283,7 +1303,7 @@ L3:
     }
 } /* sort_ */
 
-static void quad_(int n, praxis_func f, void *f_data, double *x, double *t, 
+static void quad_(int n, praxis_func f, void *f_data, double *x, double *t_old, 
 		  double machep, double *h__, struct global_s *global_1, struct q_s *q_1)
 {
     /* System generated locals */
@@ -1322,7 +1342,7 @@ static void quad_(int n, praxis_func f, void *f_data, double *x, double *t,
 	goto L2;
     }
     value = q_1->qf1;
-    min_(n, 0, 2, &s, &l, &value, 1, f,f_data, &x[1], t, machep, 
+    min_(n, 0, 2, &s, &l, &value, 1, f,f_data, &x[1], t_old, machep, 
 	    h__, global_1, q_1);
     q_1->qa = l * (l - q_1->qd1) / (q_1->qd0 * (q_1->qd0 + q_1->qd1));
     q_1->qb = (l + q_1->qd0) * (q_1->qd1 - l) / (q_1->qd0 * q_1->qd1);
