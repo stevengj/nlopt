@@ -362,7 +362,7 @@ static double osc1d_f(int n, const double *x, double *grad, void *data)
 {
      double y = *x - 1.23456789;
      UNUSED(data);
-     if (grad) grad[0] = y*0.02 - sin(y - 2*sin(3*y)) * (1 - 6*cos(3*y));
+     if (grad) grad[0] = y*0.02 + sin(y - 2*sin(3*y)) * (1 - 6*cos(3*y));
      RETURN(sqr(y*0.1) - cos(y - 2*sin(3*y)));
 }
 
