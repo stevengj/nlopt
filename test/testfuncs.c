@@ -358,6 +358,19 @@ static const double hansen_ub[2] = {10,10};
 static const double hansen_xmin[2] = {-1.306708,-1.425128};
 
 /****************************************************************************/
+static double osc1d_f(int n, const double *x, double *grad, void *data)
+{
+     double y = *x - 1.23456789;
+     UNUSED(data);
+     if (grad) grad[0] = y*0.02 - sin(y - 2*sin(3*y)) * (1 - 6*cos(3*y));
+     RETURN(sqr(y*0.1) - cos(y - 2*sin(3*y)));
+}
+
+static const double osc1d_lb[1] = {-5};
+static const double osc1d_ub[1] = {5};
+static const double osc1d_xmin[1] = {1.23456789};
+
+/****************************************************************************/
 /****************************************************************************/
 
 const testfunc testfuncs[NTESTFUNCS] = {
@@ -417,5 +430,8 @@ const testfunc testfuncs[NTESTFUNCS] = {
        -24.062499, "Shubert function" },
      { hansen_f, NULL, 1, 2,
        hansen_lb, hansen_ub, hansen_xmin,
-       -176.541793, "Hansen function" }
+       -176.541793, "Hansen function" },
+     { osc1d_f, NULL, 1, 1,
+       osc1d_lb, osc1d_ub, osc1d_xmin,
+       -1.0, "1d oscillating function with a single minimum" }
 };
