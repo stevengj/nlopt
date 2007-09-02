@@ -10,13 +10,15 @@
 struct global_s {
     double fx, ldt, dmin__;
     int nf, nl;
-     nlopt_stopping *stop;
 };
 
 struct q_s {
      double *v; /* size n x n */
      double *q0, *q1, *t_flin; /* size n */
      double qa, qb, qc, qd0, qd1, qf1;
+
+     double fbest, *xbest; /* size n */
+     nlopt_stopping *stop;
 };
 
 /* Table of constant values */
@@ -25,7 +27,7 @@ static int pow_ii(int x, int n) /* compute x^n, n >= 0 */
 {
      int p = 1;
      while (n > 0) {
-	  if (n & 1) p *= x;
+	  if (n & 1) { n--; p *= x; }
 	  else { n >>= 1; x *= x; }
      }
      return p;
@@ -33,8 +35,8 @@ static int pow_ii(int x, int n) /* compute x^n, n >= 0 */
 
 static void minfit_(int m, int n, double machep, 
 	     double *tol, double *ab, double *q, double *ework);
-static void min_(int n, int j, int nits, double *d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
-static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double *x, int *nf, struct q_s *q_1);
+static nlopt_result min_(int n, int j, int nits, double *d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
+static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double *x, int *nf, struct q_s *q_1, nlopt_result *ret);
 static void sort_(int m, int n, double *d__, double *v);
 static void quad_(int n, praxis_func f, void *f_data, double *x, double *t, 
 	   double machep, double *h__, struct global_s *global_1, struct q_s *q_1);
@@ -142,13 +144,14 @@ nlopt_result praxis_(double *t0, double machep, double *h0,
     m4 = sqrt(m2);
 
     /* new: dynamic allocation of temporary arrays */
-    work = (double *) malloc(sizeof(double) * (n*n + n*7));
+    work = (double *) malloc(sizeof(double) * (n*n + n*8));
     if (!work) return NLOPT_OUT_OF_MEMORY;
     q_1.v = work;
     q_1.q0 = q_1.v + n*n;
     q_1.q1 = q_1.q0 + n;
     q_1.t_flin = q_1.q1 + n;
-    d__ = q_1.t_flin + n;
+    q_1.xbest = q_1.t_flin + n;
+    d__ = q_1.xbest + n;
     y = d__ + n;
     z__ = y + n;
     e_minfit = y + n;
@@ -173,8 +176,10 @@ nlopt_result praxis_(double *t0, double machep, double *h0,
     kt = 0;
     global_1.nl = 0;
     global_1.nf = 1;
-    global_1.fx = f(n, &x[1], f_data);
+    q_1.fbest = global_1.fx = f(n, &x[1], f_data);
+    memcpy(q_1.xbest, &x[1], n*sizeof(double));
     stop->nevals++;
+    q_1.stop = stop;
     q_1.qf1 = global_1.fx;
     t = small + fabs(*t0);
     t2 = t;
@@ -213,8 +218,9 @@ L40:
 /* .....MINIMIZE ALONG THE FIRST DIRECTION V(*,1). */
 /*     FX MUST BE PASSED TO MIN BY VALUE. */
     value = global_1.fx;
-    min_(n, 1, 2, d__, &s, &value, 0, f,f_data, &x[1], &t, 
+    ret = min_(n, 1, 2, d__, &s, &value, 0, f,f_data, &x[1], &t, 
 	    machep, &h__, &global_1, &q_1);
+    if (ret != NLOPT_SUCCESS) goto done;
     if (s > 0.) {
 	goto L50;
     }
@@ -281,8 +287,9 @@ L95:
 	    sl = global_1.fx;
 	    s = 0.;
 	    value = global_1.fx;
-	    min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
+	    ret = min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
 		    x[1], &t, machep, &h__, &global_1, &q_1);
+	    if (ret != NLOPT_SUCCESS) goto done;
 	    if (illc) {
 		goto L97;
 	    }
@@ -319,8 +326,9 @@ L110:
 	for (k2 = 1; k2 <= i__2; ++k2) {
 	    s = 0.;
 	    value = global_1.fx;
-	    min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
+	    ret = min_(n, k2, 2, &d__[k2 - 1], &s, &value, 0, f,f_data, &
 		    x[1], &t, machep, &h__, &global_1, &q_1);
+	    if (ret != NLOPT_SUCCESS) goto done;
 /* L120: */
 	}
 	f1 = global_1.fx;
@@ -371,8 +379,9 @@ L141:
 /*     THE NORMALIZED VECTOR:  (NEW X) - (0LD X)..... */
 
 	value = f1;
-	min_(n, k, 4, &d__[k - 1], &lds, &value, 1, f,f_data, &x[1],
+	ret = min_(n, k, 4, &d__[k - 1], &lds, &value, 1, f,f_data, &x[1],
 		 &t, machep, &h__, &global_1, &q_1);
+	if (ret != NLOPT_SUCCESS) goto done;
 	if (lds > 0.) {
 	    goto L160;
 	}
@@ -405,7 +414,7 @@ L160:
 	}
 	++kt;
 	if (kt > ktm) {
-	    goto L400;
+	    goto done;
 	}
 /* L170: */
     }
@@ -575,8 +584,11 @@ L270:
 
 /* .....RETURN..... */
 
-L400:
-    *minf = global_1.fx;
+done:
+    if (ret != NLOPT_OUT_OF_MEMORY) {
+	 *minf = q_1.fbest;
+	 memcpy(&x[1], q_1.xbest, n * sizeof(double));
+    }
     free(work);
     return ret;
 } /* praxis_ */
@@ -964,7 +976,7 @@ L200:
     ab[ab_dim1 + 1] = 1.;
 } /* minfit_ */
 
-static void min_(int n, int j, int nits, double *
+static nlopt_result min_(int n, int j, int nits, double *
 	d2, double *x1, double *f1, int fk, praxis_func f, void *f_data, double *
 	x, double *t, double machep, double *h__, struct global_s *global_1, struct q_s *q_1)
 {
@@ -978,6 +990,7 @@ static void min_(int n, int j, int nits, double *
     int dz;
     double xm, sf1, sx1;
     double temp, small;
+    nlopt_result ret = NLOPT_SUCCESS;
 
 /* ...THE SUBROUTINE MIN MINIMIZES F FROM X IN THE DIRECTION V(*,J) UNLESS */
 /*   J IS LESS THAN 1, WHEN A QUADRATIC SEARCH IS MADE IN THE PLANE */
@@ -1044,7 +1057,8 @@ L2:
 	temp = -1.;
     }
     *x1 = temp * t2;
-    *f1 = flin_(n, j, x1, f,f_data, &x[1], &global_1->nf, q_1);
+    *f1 = flin_(n, j, x1, f,f_data, &x[1], &global_1->nf, q_1, &ret);
+    if (ret != NLOPT_SUCCESS) return ret;
 L3:
     if (*f1 > fm) {
 	goto L4;
@@ -1060,7 +1074,8 @@ L4:
     if (f0 >= *f1) {
 	x2 = *x1 * 2.;
     }
-    f2 = flin_(n, j, &x2, f,f_data, &x[1], &global_1->nf, q_1);
+    f2 = flin_(n, j, &x2, f,f_data, &x[1], &global_1->nf, q_1, &ret);
+    if (ret != NLOPT_SUCCESS) return ret;
     if (f2 > fm) {
 	goto L5;
     }
@@ -1099,7 +1114,8 @@ L10:
     x2 = *h__;
 /* ...EVALUATE F AT THE PREDICTED MINIMUM... */
 L11:
-    f2 = flin_(n, j, &x2, f,f_data, &x[1], &global_1->nf, q_1);
+    f2 = flin_(n, j, &x2, f,f_data, &x[1], &global_1->nf, q_1, &ret);
+    if (ret != NLOPT_SUCCESS) return ret;
     if (k >= nits || f2 <= f0) {
 	goto L12;
     }
@@ -1145,23 +1161,25 @@ L16:
 /* ...UPDATE X FOR LINEAR BUT NOT PARABOLIC SEARCH... */
 L17:
     if (j == 0) {
-	return;
+	return NLOPT_SUCCESS;
     }
     i__1 = n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L18: */
 	x[i__] += *x1 * q_1->v[i__ + j * n - (n+1)];
     }
+    return NLOPT_SUCCESS;
 } /* min_ */
 
 static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double *x,
-	 int *nf, struct q_s *q_1)
+	 int *nf, struct q_s *q_1, nlopt_result *ret)
 {
     /* System generated locals */
     int i__1;
     double ret_val;
 
     /* Local variables */
+    nlopt_stopping *stop = q_1->stop;
     int i__;
     double *t; /* size n */
 
@@ -1198,6 +1216,14 @@ L2:
 L4:
     ++(*nf);
     ret_val = f(n, t, f_data);
+    stop->nevals++;
+    if (ret_val < q_1->fbest) {
+	 q_1->fbest = ret_val;
+	 memcpy(q_1->xbest, t, n * sizeof(double));
+    }
+    if (nlopt_stop_evals(stop)) *ret = NLOPT_MAXEVAL_REACHED;
+    else if (nlopt_stop_time(stop)) *ret = NLOPT_MAXTIME_REACHED;
+    else if (ret_val <= stop->fmin_max) *ret = NLOPT_FMIN_MAX_REACHED;
     return ret_val;
 } /* flin_ */
 

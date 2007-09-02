@@ -53,8 +53,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "Subplex (local, no-derivative)",
      "StoGO (global, derivative-based)",
      "StoGO with randomized search (global, derivative-based)",
+     "Low-storage BFGS (LBFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
-     "Low-storage BFGS (LBFGS) (local, derivative-based)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -289,7 +289,7 @@ static nlopt_result nlopt_minimize_(
 	      double t0 = xtol_rel, macheps = 1e-14;
 	      double h0 = 0.1;
 	      return praxis_(&t0, DBL_EPSILON, &h0, n, x, f_subplex, &d,
-			     &stop, &fmin);
+			     &stop, fmin);
 	 }
 
 	 case NLOPT_LD_LBFGS: {
