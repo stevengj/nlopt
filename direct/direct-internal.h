@@ -35,7 +35,7 @@ extern void direct_dirinit_(
      integer *length, integer *actdeep, integer *point, integer *anchor,
      integer *free, FILE *logfile, integer *arrayi,
      integer *maxi, integer *list2, doublereal *w, doublereal *x,
-     doublereal *l, doublereal *u, doublereal *fmin, integer *minpos,
+     doublereal *l, doublereal *u, doublereal *minf, integer *minpos,
      doublereal *thirds, doublereal *levels, integer *maxfunc, integer *
      maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
      ifeasiblef, integer *iinfeasible, integer *ierror, void *fcndata,
@@ -47,7 +47,7 @@ extern void direct_dirpreprc_(doublereal *u, doublereal *l, integer *n,
 			      doublereal *xs1, doublereal *xs2, integer *oops);
 extern void direct_dirchoose_(
      integer *anchor, integer *s, integer *actdeep,
-     doublereal *f, doublereal *fmin, doublereal epsrel, doublereal epsabs, doublereal *thirds,
+     doublereal *f, doublereal *minf, doublereal epsrel, doublereal epsabs, doublereal *thirds,
      integer *maxpos, integer *length, integer *maxfunc, integer *maxdeep,
      integer *maxdiv, integer *n, FILE *logfile,
      integer *cheat, doublereal *kmax, integer *ifeasiblef, integer jones);
@@ -65,7 +65,7 @@ extern void direct_dirsamplepoints_(
      doublereal *delta, integer *sample, integer *start, integer *length, 
      FILE *logfile, doublereal *f, integer *free, 
      integer *maxi, integer *point, doublereal *x, doublereal *l,
-     doublereal *fmin, integer *minpos, doublereal *u, integer *n, 
+     doublereal *minf, integer *minpos, doublereal *u, integer *n, 
      integer *maxfunc, integer *maxdeep, integer *oops);
 extern void direct_dirdivide_(
      integer *new__, integer *currentlength, 
@@ -84,7 +84,7 @@ extern void direct_dirreplaceinf_(
      FILE *logfile, doublereal *fmax, integer jones);
 extern void direct_dirsummary_(
      FILE *logfile, doublereal *x, doublereal *l, doublereal *u, 
-     integer *n, doublereal *fmin, doublereal *fglobal, 
+     integer *n, doublereal *minf, doublereal *fglobal, 
      integer *numfunc, integer *ierror);
 extern integer direct_dirgetlevel_(
      integer *pos, integer *length, 
@@ -100,14 +100,14 @@ extern void direct_dirsamplef_(
      *delta, integer *sample, integer *new__, integer *length, 
      FILE *logfile, doublereal *f, integer *free, integer *maxi, 
      integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
-     fmin, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
+     minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
      integer *maxdeep, integer *oops, doublereal *fmax, integer *
      ifeasiblef, integer *iinfesiblef, void *fcn_data);
 
 /* DIRect.c */
 extern void direct_direct_(
      fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs,
-     integer *maxf, integer *maxt, doublereal *fmin, doublereal *l, 
+     integer *maxf, integer *maxt, doublereal *minf, doublereal *l, 
      doublereal *u, integer *algmethod, integer *ierror, FILE *logfile, 
      doublereal *fglobal, doublereal *fglper, doublereal *volper, 
      doublereal *sigmaper, void *fcn_data);

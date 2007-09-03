@@ -20,8 +20,8 @@ nlopt_minimize \- Minimize a multivariate nonlinear function
 .BI "                            const double* " "lb" ,
 .BI "                            const double* " "ub" ,
 .BI "                            double* " "x" ,
-.BI "                            double* " "fmin" ,
-.BI "                            double " "fmin_max" ,
+.BI "                            double* " "minf" ,
+.BI "                            double " "minf_max" ,
 .BI "                            double " "ftol_rel" ,
 .BI "                            double " "ftol_abs" ,
 .BI "                            double " "xtol_rel" ,
@@ -41,7 +41,7 @@ of
 design variables using the specified
 .IR algorithm .
 The minimum function value found is returned in
-.IR fmin ,
+.IR minf ,
 with the corresponding design variable values returned in the array
 .I x
 of length
@@ -224,9 +224,9 @@ criterion depends on the optimization algorithm above (although we
 have tried to make them as consistent as reasonably possible), and
 some algorithms do not support all of the stopping criteria.
 .TP
-.B fmin_max
+.B minf_max
 Stop when a function value less than or equal to
-.I fmin_max
+.I minf_max
 is found.  Set to -Inf or NaN (see constraints section above) to disable.
 .TP
 .B ftol_rel
@@ -293,9 +293,9 @@ The value returned is one of the following enumerated constants.
 .B NLOPT_SUCCESS
 Generic success return value.
 .TP
-.B NLOPT_FMIN_MAX_REACHED
+.B NLOPT_MINF_MAX_REACHED
 Optimization stopped because
-.I fmin_max
+.I minf_max
 (above) was reached.
 .TP
 .B NLOPT_FTOL_REACHED

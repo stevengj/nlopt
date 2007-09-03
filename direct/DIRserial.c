@@ -18,7 +18,7 @@
 	*delta, integer *sample, integer *new__, integer *length, 
 	FILE *logfile, doublereal *f, integer *free, integer *maxi, 
 	integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
-	fmin, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
+	minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
 	integer *maxdeep, integer *oops, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfesiblef, void *fcn_data)
 {
@@ -132,8 +132,8 @@
 /* +-----------------------------------------------------------------------+ */
     i__1 = *maxi + *maxi;
     for (j = 1; j <= i__1; ++j) {
-	if (f[(pos << 1) + 1] < *fmin && f[(pos << 1) + 2] == 0.) {
-	    *fmin = f[(pos << 1) + 1];
+	if (f[(pos << 1) + 1] < *minf && f[(pos << 1) + 2] == 0.) {
+	    *minf = f[(pos << 1) + 1];
 	    *minpos = pos;
 	}
 	pos = point[pos];

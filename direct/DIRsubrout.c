@@ -98,7 +98,7 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
                  | */
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ void direct_dirchoose_(integer *anchor, integer *s, integer *actdeep,
-	 doublereal *f, doublereal *fmin, doublereal epsrel, doublereal epsabs, doublereal *thirds,
+	 doublereal *f, doublereal *minf, doublereal epsrel, doublereal epsabs, doublereal *thirds,
 	 integer *maxpos, integer *length, integer *maxfunc, integer *maxdeep,
 	 integer *maxdiv, integer *n, FILE *logfile,
 	integer *cheat, doublereal *kmax, integer *ifeasiblef, integer jones)
@@ -237,10 +237,10 @@ L12:
 		helplower = *kmax;
 	    }
 	    if (f[(j___ << 1) + 1] - helplower * thirds[s[j + (s_dim1 << 1)]] >
-		     MIN(*fmin - epsrel * fabs(*fmin), 
-			 *fmin - epsabs)) {
+		     MIN(*minf - epsrel * fabs(*minf), 
+			 *minf - epsabs)) {
 		if (logfile)
-		     fprintf(logfile, "> fmin - epslfminl\n");
+		     fprintf(logfile, "> minf - epslminfl\n");
 		goto L60;
 	    }
 	} else {
@@ -866,7 +866,7 @@ L50:
 	doublereal *delta, integer *sample, integer *start, integer *length, 
 	FILE *logfile, doublereal *f, integer *free, 
 	integer *maxi, integer *point, doublereal *x, doublereal *l,
-	 doublereal *fmin, integer *minpos, doublereal *u, integer *n, 
+	 doublereal *minf, integer *minpos, doublereal *u, integer *n, 
 	integer *maxfunc, integer *maxdeep, integer *oops)
 {
     /* System generated locals */
@@ -1144,7 +1144,7 @@ L50:
 	integer *length, integer *actdeep, integer *point, integer *anchor, 
 	integer *free, FILE *logfile, integer *arrayi, 
 	integer *maxi, integer *list2, doublereal *w, doublereal *x, 
-	doublereal *l, doublereal *u, doublereal *fmin, integer *minpos, 
+	doublereal *l, doublereal *u, doublereal *minf, integer *minpos, 
 	doublereal *thirds, doublereal *levels, integer *maxfunc, integer *
 	maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfeasible, integer *ierror, void *fcndata,
@@ -1194,8 +1194,8 @@ L50:
     c__ -= c_offset;
 
     /* Function Body */
-    *fmin = 1e20;
-    costmin = *fmin;
+    *minf = 1e20;
+    costmin = *minf;
 /* JG 09/15/00 If Jones way of characterising rectangles is used, */
 /*             initialise thirds to reflect this. */
     if (jones == 0) {
@@ -1255,7 +1255,7 @@ L50:
 	*ifeasiblef = 0;
     }
 /* JG 09/25/00 Remove IF */
-    *fmin = f[3];
+    *minf = f[3];
     costmin = f[3];
     *minpos = 1;
     *actdeep = 2;
@@ -1266,7 +1266,7 @@ L50:
     new__ = *free;
     direct_dirsamplepoints_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &
 	    length[length_offset], logfile, &f[3], free, maxi, &
-	    point[1], &x[1], &l[1], fmin, minpos, &u[1], n, 
+	    point[1], &x[1], &l[1], minf, minpos, &u[1], n, 
 	    maxfunc, maxdeep, &oops);
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/23/01 Added error checking.                                     | */
@@ -1281,7 +1281,7 @@ L50:
 /* +-----------------------------------------------------------------------+ */
     direct_dirsamplef_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &length[
 	    length_offset], logfile, &f[3], free, maxi, &point[
-	    1], fcn, &x[1], &l[1], fmin, minpos, &u[1], n, maxfunc, 
+	    1], fcn, &x[1], &l[1], minf, minpos, &u[1], n, maxfunc, 
 	    maxdeep, &oops, fmax, ifeasiblef, iinfeasible, fcndata);
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/23/01 Added error checking.                                     | */
@@ -1535,13 +1535,13 @@ L50:
     if (logfile) fprintf(logfile, "----------------------------------\n");
     if (*ierror >= 0) {
 	 if (logfile)
-	      fprintf(logfile, "Iteration # of f-eval. fmin\n");
+	      fprintf(logfile, "Iteration # of f-eval. minf\n");
     }
 /* L10005: */
 } /* dirheader_ */
 
 /* Subroutine */ void direct_dirsummary_(FILE *logfile, doublereal *x, doublereal *
-	l, doublereal *u, integer *n, doublereal *fmin, doublereal *fglobal, 
+	l, doublereal *u, integer *n, doublereal *minf, doublereal *fglobal, 
 	integer *numfunc, integer *ierror)
 {
     /* Local variables */
@@ -1556,9 +1556,9 @@ L50:
     if (logfile) {
 	 fprintf(logfile, "-----------------------Summary------------------\n"
 		 "Final function value: %g\n"
-		 "Number of function evaluations: %d\n", *fmin, *numfunc);
+		 "Number of function evaluations: %d\n", *minf, *numfunc);
 	 if (*fglobal > -1e99)
-	      fprintf(logfile, "Final function value is within %g%% of global optimum\n", 100*(*fmin - *fglobal) / MAX(1.0, fabs(*fglobal)));
+	      fprintf(logfile, "Final function value is within %g%% of global optimum\n", 100*(*minf - *fglobal) / MAX(1.0, fabs(*fglobal)));
 	 fprintf(logfile, "Index, final solution, x(i)-l(i), u(i)-x(i)\n");
 	 for (i__ = 1; i__ <= *n; ++i__)
 	      fprintf(logfile, "%d, %g, %g, %g\n", i__, x[i__], 

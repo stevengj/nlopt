@@ -159,8 +159,8 @@ static nlopt_result nlopt_minimize_(
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
-     double *fmin, /* out: minimum */
-     double fmin_max, double ftol_rel, double ftol_abs,
+     double *minf, /* out: minimum */
+     double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
@@ -169,7 +169,7 @@ static nlopt_result nlopt_minimize_(
      nlopt_stopping stop;
 
      /* some basic argument checks */
-     if (n <= 0 || !f || !lb || !ub || !x || !fmin)
+     if (n <= 0 || !f || !lb || !ub || !x || !minf)
 	  return NLOPT_INVALID_ARGS;
 
      d.f = f;
@@ -187,8 +187,8 @@ static nlopt_result nlopt_minimize_(
 	       return NLOPT_INVALID_ARGS;
 
      stop.n = n;
-     stop.fmin_max = (isnan(fmin_max) || (my_isinf(fmin_max) && fmin_max < 0))
-	  ? -MY_INF : fmin_max;
+     stop.minf_max = (isnan(minf_max) || (my_isinf(minf_max) && minf_max < 0))
+	  ? -MY_INF : minf_max;
      stop.ftol_rel = ftol_rel;
      stop.ftol_abs = ftol_abs;
      stop.xtol_rel = xtol_rel;
@@ -202,7 +202,7 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_GN_DIRECT:
 	 case NLOPT_GN_DIRECT_L: 
 	 case NLOPT_GN_DIRECT_L_RAND: 
-	      return cdirect(n, f, f_data, lb, ub, x, fmin, &stop, 0.0, 
+	      return cdirect(n, f, f_data, lb, ub, x, minf, &stop, 0.0, 
 			     (algorithm != NLOPT_GN_DIRECT)
 			     + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
 			     + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 1 : (algorithm != NLOPT_GN_DIRECT)));
@@ -210,7 +210,7 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_GN_DIRECT_NOSCAL:
 	 case NLOPT_GN_DIRECT_L_NOSCAL: 
 	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
-	      return cdirect_unscaled(n, f, f_data, lb, ub, x, fmin, 
+	      return cdirect_unscaled(n, f, f_data, lb, ub, x, minf, 
 				      &stop, 0.0, 
 				      (algorithm != NLOPT_GN_DIRECT)
 				      + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
@@ -218,10 +218,10 @@ static nlopt_result nlopt_minimize_(
 	      
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L: 
-	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, fmin,
+	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, minf,
 				      maxeval, -1, 0.0, 0.0,
 				      pow(xtol_rel, (double) n), -1.0,
-				      stop.fmin_max, 0.0,
+				      stop.minf_max, 0.0,
 				      NULL, 
 				      algorithm == NLOPT_GN_ORIG_DIRECT
 				      ? DIRECT_ORIGINAL
@@ -238,7 +238,7 @@ static nlopt_result nlopt_minimize_(
 		  case DIRECT_MAXITER_EXCEEDED:
 		       return NLOPT_MAXEVAL_REACHED;
 		  case DIRECT_GLOBAL_FOUND:
-		       return NLOPT_FMIN_MAX_REACHED;
+		       return NLOPT_MINF_MAX_REACHED;
 		  case DIRECT_VOLTOL:
 		  case DIRECT_SIGMATOL:
 		       return NLOPT_XTOL_REACHED;
@@ -249,7 +249,7 @@ static nlopt_result nlopt_minimize_(
 
 	 case NLOPT_GD_STOGO:
 	 case NLOPT_GD_STOGO_RAND:
-	      if (!stogo_minimize(n, f, f_data, x, fmin, lb, ub, &stop,
+	      if (!stogo_minimize(n, f, f_data, x, minf, lb, ub, &stop,
 				  algorithm == NLOPT_GD_STOGO
 				  ? 0 : 2*n))
 		   return NLOPT_FAILURE;
@@ -269,7 +269,7 @@ static nlopt_result nlopt_minimize_(
 		   else
 			scale[i] = 0.01 * x[i] + 0.0001;
 	      }
-	      iret = subplex(f_subplex, fmin, x, n, &d, &stop, scale);
+	      iret = subplex(f_subplex, minf, x, n, &d, &stop, scale);
 	      free(scale);
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;
@@ -277,7 +277,7 @@ static nlopt_result nlopt_minimize_(
 		  case -1: return NLOPT_MAXEVAL_REACHED;
 		  case 0: return NLOPT_XTOL_REACHED;
 		  case 1: return NLOPT_SUCCESS;
-		  case 2: return NLOPT_FMIN_MAX_REACHED;
+		  case 2: return NLOPT_MINF_MAX_REACHED;
 		  case 20: return NLOPT_FTOL_REACHED;
 		  case -200: return NLOPT_OUT_OF_MEMORY;
 		  default: return NLOPT_FAILURE; /* unknown return code */
@@ -298,7 +298,7 @@ static nlopt_result nlopt_minimize_(
 			h0 = MIN(h0, 0.01 * x[i] + 0.0001);
 	      }
 	      return praxis_(0.0, DBL_EPSILON, h0, n, x, f_subplex, &d,
-			     &stop, fmin);
+			     &stop, minf);
 	 }
 
 	 case NLOPT_LD_LBFGS: {
@@ -321,7 +321,7 @@ static nlopt_result nlopt_minimize_(
 		   }
 	      }
 	      else {
-		   *fmin = f(n, x, NULL, f_data);
+		   *minf = f(n, x, NULL, f_data);
 		   switch (iret) {
 		       case 5: return NLOPT_MAXEVAL_REACHED;
 		       case 2: return NLOPT_XTOL_REACHED;
@@ -344,15 +344,15 @@ nlopt_result nlopt_minimize(
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
-     double *fmin, /* out: minimum */
-     double fmin_max, double ftol_rel, double ftol_abs,
+     double *minf, /* out: minimum */
+     double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
      nlopt_result ret;
      if (xtol_abs)
 	  ret = nlopt_minimize_(algorithm, n, f, f_data, lb, ub,
-				x, fmin, fmin_max, ftol_rel, ftol_abs,
+				x, minf, minf_max, ftol_rel, ftol_abs,
 				xtol_rel, xtol_abs, maxeval, maxtime);
      else {
 	  int i;
@@ -360,7 +360,7 @@ nlopt_result nlopt_minimize(
 	  if (!xtol) return NLOPT_OUT_OF_MEMORY;
 	  for (i = 0; i < n; ++i) xtol[i] = -1;
 	  ret = nlopt_minimize_(algorithm, n, f, f_data, lb, ub,
-				x, fmin, fmin_max, ftol_rel, ftol_abs,
+				x, minf, minf_max, ftol_rel, ftol_abs,
 				xtol_rel, xtol, maxeval, maxtime);
 	  free(xtol);
      }

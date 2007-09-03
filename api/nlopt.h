@@ -53,7 +53,7 @@ typedef enum {
      NLOPT_OUT_OF_MEMORY = -3,
 
      NLOPT_SUCCESS = 1, /* generic success code */
-     NLOPT_FMIN_MAX_REACHED = 2,
+     NLOPT_MINF_MAX_REACHED = 2,
      NLOPT_FTOL_REACHED = 3,
      NLOPT_XTOL_REACHED = 4,
      NLOPT_MAXEVAL_REACHED = 5,
@@ -65,8 +65,8 @@ extern nlopt_result nlopt_minimize(
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
-     double *fmin, /* out: minimum */
-     double fmin_max, double ftol_rel, double ftol_abs,
+     double *minf, /* out: minimum */
+     double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 

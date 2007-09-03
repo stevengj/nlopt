@@ -1243,7 +1243,7 @@ L4:
     }
     if (nlopt_stop_evals(stop)) *ret = NLOPT_MAXEVAL_REACHED;
     else if (nlopt_stop_time(stop)) *ret = NLOPT_MAXTIME_REACHED;
-    else if (ret_val <= stop->fmin_max) *ret = NLOPT_FMIN_MAX_REACHED;
+    else if (ret_val <= stop->minf_max) *ret = NLOPT_MINF_MAX_REACHED;
     return ret_val;
 } /* flin_ */
 

@@ -1500,7 +1500,7 @@ L40:
 	*fx = isubc_1.sfbest;
     }
 L50:
-    if (*fx < stop->fmin_max)
+    if (*fx < stop->minf_max)
 	 *iflag = 2;
     else if (nlopt_stop_evals(stop))
 	 *iflag = -1;
@@ -2159,14 +2159,14 @@ L120:
    
    f: function f(n,x,fdata) to be optimized
    n: problem dimension
-   fmin: (output) value of f at minimum
+   minf: (output) value of f at minimum
    x[n]: (input) starting guess position, (output) computed minimum
    fdata: data pointer passed to f
    
    old args:
    tol: relative error tolerance for x
    maxnfe: maximum number of function evaluations
-   fmin_max, use_fmin_max: if use_fmin_max, stop when f <= fmin_max
+   minf_max, use_minf_max: if use_minf_max, stop when f <= minf_max
    
    new args: nlopt_stopping *stop (stopping criteria)
 
@@ -2185,7 +2185,7 @@ L120:
             = 20 : ftol reached
             = -200 : out of memory
 */
-int subplex(subplex_func f, double *fmin, double *x, int n, void *fdata,
+int subplex(subplex_func f, double *minf, double *x, int n, void *fdata,
 	    nlopt_stopping *stop,
 	    const double *scale)
 {
@@ -2206,7 +2206,7 @@ int subplex(subplex_func f, double *fmin, double *x, int n, void *fdata,
      subplx_(f,fdata, &n,
 	     stop, &mode,
 	     scale, x, 
-	     fmin, &nfe,
+	     minf, &nfe,
 	     work, iwork, &errflag);
 
      free(iwork);

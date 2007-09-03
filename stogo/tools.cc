@@ -67,17 +67,17 @@ ostream & operator << (ostream & os, const VBox & B) {
 /************************ Trial Box ***********************/
 TBox::TBox() : VBox() {
   // Constructor
-  fmin=DBL_MAX;
+  minf=DBL_MAX;
 }
 
 TBox::TBox(int n) : VBox(n) {
   // Constructor
-  fmin=DBL_MAX;
+  minf=DBL_MAX;
 }
 
 TBox::TBox(RCTBox box) : VBox(box) {
   // Constructor + Copy
-  fmin=box.fmin;
+  minf=box.minf;
   TList=box.TList ;
 }
 
@@ -86,13 +86,13 @@ RCTBox TBox::operator=(RCTBox box) {
   // NB We should 'somehow' use VBox to copy lb and ub
   // Note that assignment operators are _not_ inherited
   lb=box.lb ; ub=box.ub ;
-  fmin=box.fmin ;
+  minf=box.minf ;
   TList=box.TList ;
   return *this ;
 }
 
 double TBox::GetMin() {
-  return fmin;
+  return minf;
 }
 
 bool TBox::EmptyBox() {
@@ -103,8 +103,8 @@ bool TBox::EmptyBox() {
 void TBox::AddTrial(RCTrial T) {
   // Add a Trial to the (back of) TList
   TList.push_back(T) ;
-  if (T.objval<fmin)
-    fmin=T.objval ;
+  if (T.objval<minf)
+    minf=T.objval ;
 }
 
 void TBox::RemoveTrial(Trial &T) {
@@ -133,7 +133,7 @@ void TBox::GetTrial(list<Trial>::const_iterator itr, Trial &T) {
 
 void TBox::ClearBox() {
   TList.erase(TList.begin(), TList.end());
-  fmin=DBL_MAX;
+  minf=DBL_MAX;
 }
 
 bool TBox::CloseToMin(RVector &vec, double *objval, double eps_cl) {
@@ -225,8 +225,8 @@ void TBox::split(RTBox B1, RTBox B2) {
       fm2=min(fm2,(*itr).objval);
     }
   }
-  // Set fmin of B1 and B2
-  B1.fmin=fm1 ; B2.fmin=fm2;
+  // Set minf of B1 and B2
+  B1.minf=fm1 ; B2.minf=fm2;
 }
 
 void TBox::dispTrials() {
@@ -242,7 +242,7 @@ ostream & operator << (ostream & os, const TBox & B) {
   int n=(B.lb).GetLength() ;
   for (int i=0 ; i<n ;i++)
     os << '[' << B.lb(i) << "," << B.ub(i) << "]";
-  os << "   fmin= " << B.fmin << endl;
+  os << "   minf= " << B.minf << endl;
   return os;
 }
 
@@ -392,7 +392,7 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
 
 double TBox::LowerBound(double maxgrad) {
 // Lower bound estimation
-  double lb=fmin ;
+  double lb=minf ;
   double f1,f2,est ;
   list<Trial>::const_iterator itr1,itr2 ;
 

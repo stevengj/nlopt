@@ -16,7 +16,7 @@
 #include "testfuncs.h"
 
 static nlopt_algorithm algorithm = NLOPT_GN_DIRECT_L;
-static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, fmin_max_delta = -HUGE_VAL;
+static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_delta = -HUGE_VAL;
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
@@ -41,7 +41,7 @@ static int test_function(int ifunc)
 {
   testfunc func;
   int i, iter;
-  double *x, fmin, fmin_max, f0, *xtabs;
+  double *x, minf, minf_max, f0, *xtabs;
   nlopt_result ret;
   double start = nlopt_seconds();
   
@@ -56,7 +56,7 @@ static int test_function(int ifunc)
 
   xtabs = x + func.n * 2;
   for (i = 0; i < func.n; ++i) xtabs[i] = xtol_abs;
-  fmin_max = fmin_max_delta > (-HUGE_VAL) ? fmin_max_delta + func.fmin : (-HUGE_VAL);
+  minf_max = minf_max_delta > (-HUGE_VAL) ? minf_max_delta + func.minf : (-HUGE_VAL);
   
   printf("-----------------------------------------------------------\n");
   printf("Optimizing %s (%d dims) using %s algorithm\n",
@@ -107,8 +107,8 @@ static int test_function(int ifunc)
     ret = nlopt_minimize(algorithm,
 			 func.n, func.f, func.f_data,
 			 func.lb, func.ub,
-			 x, &fmin,
-			 fmin_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
+			 x, &minf,
+			 minf_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
 			 maxeval, maxtime);
     printf("finished after %g seconds.\n", nlopt_seconds() - start);
     printf("return code %d from nlopt_minimize\n", ret);
@@ -117,14 +117,14 @@ static int test_function(int ifunc)
       return 0;
     }
     printf("Found minimum f = %g after %d evaluations.\n", 
-	   fmin, testfuncs_counter);
+	   minf, testfuncs_counter);
     printf("Minimum at x = [");
     for (i = 0; i < func.n; ++i) printf(" %g", x[i]);
     printf("]\n");
-    printf("|f - fmin| = %g, |f - fmin| / |fmin| = %e\n",
-	   fabs(fmin - func.fmin), fabs(fmin - func.fmin) / fabs(func.fmin));
+    printf("|f - minf| = %g, |f - minf| / |minf| = %e\n",
+	   fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));
   }
-  printf("vs. global minimum f = %g at x = [", func.fmin);
+  printf("vs. global minimum f = %g at x = [", func.minf);
   for (i = 0; i < func.n; ++i) printf(" %g", func.xmin[i]);
   printf("]\n");
   
@@ -149,7 +149,7 @@ static void usage(FILE *f)
 	  " -X <t> : absolute tolerance <t> on x (default: disabled)\n"
 	  " -f <t> : relative tolerance <t> on f (default: disabled)\n"
 	  " -F <t> : absolute tolerance <t> on f (default: disabled)\n"
-	  " -m <m> : stop when fmin+<m> is reached (default: disabled)\n"
+	  " -m <m> : stop when minf+<m> is reached (default: disabled)\n"
 	  " -i <n> : iterate optimization <n> times (default: 1)\n"
 	  " -r <s> : use random seed <s> for starting guesses\n"
 	  , maxeval);
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
       ftol_abs = atof(optarg);
       break;
     case 'm':
-      fmin_max_delta = atof(optarg);
+      minf_max_delta = atof(optarg);
       break;
     case 'c':
       center_start = 1;

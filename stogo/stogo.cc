@@ -28,7 +28,7 @@ public:
 
 int stogo_minimize(int n,
 		   objective_func fgrad, void *data,
-		   double *x, double *fmin,
+		   double *x, double *minf,
 		   const double *l, const double *u,
 #ifdef NLOPT_UTIL_H
 		   nlopt_stopping *stop,
@@ -59,7 +59,7 @@ int stogo_minimize(int n,
   if (Problem.NoMinimizers())
     return 0;
   
-  *fmin = Problem.OneMinimizer(dummyvec);
+  *minf = Problem.OneMinimizer(dummyvec);
   for (int i = 0; i < n; ++i) x[i] = dummyvec(i);
   return 1;
 }

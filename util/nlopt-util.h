@@ -18,7 +18,7 @@ extern int nlopt_iurand(int n);
 /* stopping criteria */
 typedef struct {
      int n;
-     double fmin_max;
+     double minf_max;
      double ftol_rel;
      double ftol_abs;
      double xtol_rel;

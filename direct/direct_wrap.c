@@ -18,11 +18,11 @@
    lower_bounds, upper_bounds: arrays of length dimension of variable bounds
 
    x: an array of length dimension, set to optimum variables upon return
-   fmin: on return, set to minimum f value
+   minf: on return, set to minimum f value
 
    magic_eps, magic_eps_abs: Jones' "magic" epsilon parameter, and
                              also an absolute version of the same
-			     (not multipled by fmin).  Jones suggests
+			     (not multipled by minf).  Jones suggests
 			     setting this to 1e-4, but 0 also works...
 
    max_feval, max_iter: maximum number of function evaluations & DIRECT iters
@@ -45,7 +45,7 @@ direct_return_code direct_optimize(
      int dimension,
      const double *lower_bounds, const double *upper_bounds,
 
-     double *x, double *fmin, 
+     double *x, double *minf, 
 
      int max_feval, int max_iter,
      double magic_eps, double magic_eps_abs,
@@ -86,7 +86,7 @@ direct_return_code direct_optimize(
      
      direct_direct_(f, x, &dimension, &magic_eps, magic_eps_abs,
 		    &max_feval, &max_iter,
-		    fmin,
+		    minf,
 		    l, u,
 		    &algmethod,
 		    &ierror,

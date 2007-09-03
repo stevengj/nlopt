@@ -76,7 +76,7 @@ typedef CTBox& RCTBox;
 
 class TBox: public VBox {
 public:
-  double fmin;   // Smallest function value found so far
+  double minf;   // Smallest function value found so far
   list<Trial> TList; // List of trials
 
   TBox();        // Construct a box
@@ -85,7 +85,7 @@ public:
 
   RCTBox operator=(RCTBox);      // assignment operator
 
-  double GetMin();               // Returns 'fmin'
+  double GetMin();               // Returns 'minf'
   bool EmptyBox();               // Returns TRUE if Box contains no trials
   void AddTrial(RCTrial);        // Add a trial to the (back of) box
   void RemoveTrial(Trial &);     // Remove a trial from the (back of) box
@@ -112,7 +112,7 @@ public:
   bool Intersection(RCRVector, RCRVector, RCRVector);
   double LowerBound(double);
 
-  bool operator<(const TBox & x) const {return (fmin>x.fmin);}
+  bool operator<(const TBox & x) const {return (minf>x.minf);}
   friend ostream & operator << (ostream &, const TBox &);
 };
 

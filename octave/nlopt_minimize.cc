@@ -109,7 +109,7 @@ DEFUN_DLD(nlopt_minimize, args, nargout, NLOPT_MINIMIZE_USAGE)
 
   CHECK(args(6).is_map(), "stop must be structure");
   Octave_map stop = args(6).map_value();
-  double fmin_max = struct_val_default(stop, "fmin_max", -HUGE_VAL);
+  double minf_max = struct_val_default(stop, "minf_max", -HUGE_VAL);
   double ftol_rel = struct_val_default(stop, "ftol_rel", 0);
   double ftol_abs = struct_val_default(stop, "ftol_abs", 0);
   double xtol_rel = struct_val_default(stop, "xtol_rel", 0);
@@ -119,19 +119,19 @@ DEFUN_DLD(nlopt_minimize, args, nargout, NLOPT_MINIMIZE_USAGE)
   int maxeval = int(struct_val_default(stop, "maxeval", -1));
   double maxtime = struct_val_default(stop, "maxtime", -1);
   
-  double fmin = HUGE_VAL;
+  double minf = HUGE_VAL;
   nlopt_result ret = nlopt_minimize(algorithm,
 				    n,
 				    user_function, &d,
 				    lb.data(), ub.data(),
-				    x.fortran_vec(), &fmin,
-				    fmin_max, ftol_rel, ftol_abs,
+				    x.fortran_vec(), &minf,
+				    minf_max, ftol_rel, ftol_abs,
 				    xtol_rel, xtol_abs.data(),
 				    maxeval, maxtime);
 				    
   retval(0) = x;
   if (nargout > 1)
-    retval(1) = fmin;
+    retval(1) = minf;
   if (nargout > 2)
     retval(2) = int(ret);
 

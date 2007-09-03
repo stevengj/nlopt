@@ -14,7 +14,7 @@ typedef struct {
      int has_gradient;
      int n;
      const double *lb, *ub, *xmin;
-     double fmin;
+     double minf;
      const char *name;
 } testfunc;
 

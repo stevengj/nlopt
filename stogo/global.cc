@@ -134,7 +134,7 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
     else if (info == LS_New ) {
       box.AddTrial(tmpTrial) ;
 
-      if (tmpTrial.objval<=fbound+mu && tmpTrial.objval<=box.fmin+mu) {
+      if (tmpTrial.objval<=fbound+mu && tmpTrial.objval<=box.minf+mu) {
 	if (stogo_verbose) {
 	  cout << "Found a candidate, x=" << tmpTrial.xvals;
 	  cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
@@ -186,8 +186,8 @@ void Global::ReduceOrSubdivide(RTBox box, int axis, RCRVector x_av) {
       }
 
   // Update fbound
-  if (box.fmin < fbound) {
-    fbound=box.fmin ;
+  if (box.minf < fbound) {
+    fbound=box.minf ;
 #ifdef GS_DEBUG
     cout <<"*** Improving fbound, fbound=" << fbound << endl;
 #endif

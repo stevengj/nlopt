@@ -30,17 +30,17 @@ int main(int argc, char **argv)
   double x[2], l[2], u[2];
   long int maxits = 0, maxtim = 0;
   int info;
-  double fmin;
+  double minf;
 
   maxits = argc < 2 ? 100 : atoi(argv[1]);
 
   l[0] = -3; l[1] = -3;
   u[0] = 3; u[1] = 3;
 
-  info = stogo_minimize(n, tst_obj, NULL, x, &fmin, l, u, maxits, maxtim);
+  info = stogo_minimize(n, tst_obj, NULL, x, &minf, l, u, maxits, maxtim);
 
   printf("min f = %g at (%g,%g) after %d evals, return value %d\n",
-	 fmin, x[0], x[1], cnt, info);
+	 minf, x[0], x[1], cnt, info);
 
   return EXIT_SUCCESS;
 }

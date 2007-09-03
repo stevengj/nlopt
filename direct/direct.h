@@ -41,7 +41,7 @@ extern direct_return_code direct_optimize(
      int dimension,
      const double *lower_bounds, const double *upper_bounds,
 
-     double *x, double *fmin, 
+     double *x, double *minf, 
 
      int max_feval, int max_iter,
      double magic_eps, double magic_eps_abs,

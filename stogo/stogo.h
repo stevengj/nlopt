@@ -45,7 +45,7 @@ typedef double (*objective_func)(int n, const double *x, double *grad,
 
    Output:
 
-      fmin: the minimum value of the objective function found
+      minf: the minimum value of the objective function found
 
       x: pointer to array of length n, giving the location of the minimum
 
@@ -55,7 +55,7 @@ typedef double (*objective_func)(int n, const double *x, double *grad,
 
 int stogo_minimize(int n,
                    objective_func fgrad, void *data,
-                   double *x, double *fmin,
+                   double *x, double *minf,
                    const double *l, const double *u,
 #ifdef NLOPT_UTIL_H
 		   nlopt_stopping *stop,

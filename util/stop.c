@@ -16,7 +16,7 @@ int nlopt_stop_ftol(const nlopt_stopping *s, const double f, double oldf)
 
 int nlopt_stop_f(const nlopt_stopping *s, const double f, double oldf)
 {
-     return (f <= s->fmin_max || nlopt_stop_ftol(s, f, oldf));
+     return (f <= s->minf_max || nlopt_stop_ftol(s, f, oldf));
 }
 
 int nlopt_stop_x(const nlopt_stopping *s, const double *x, const double *oldx)

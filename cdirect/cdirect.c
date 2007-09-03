@@ -51,7 +51,7 @@ typedef struct {
      nlopt_func f; void *f_data;
      double *work; /* workspace, of length >= 2*n */
      int *iwork; /* workspace, length >= n */
-     double fmin, *xmin; /* minimum so far */
+     double minf, *xmin; /* minimum so far */
      
      /* red-black tree of hyperrects, sorted by (d,f,age) in
 	lexographical order */
@@ -116,14 +116,14 @@ static void sort_fv(int n, double *fv, int *isort)
 
 static double function_eval(const double *x, params *p) {
      double f = p->f(p->n, x, NULL, p->f_data);
-     if (f < p->fmin) {
-	  p->fmin = f;
+     if (f < p->minf) {
+	  p->minf = f;
 	  memcpy(p->xmin, x, sizeof(double) * p->n);
      }
      p->stop->nevals++;
      return f;
 }
-#define FUNCTION_EVAL(fv,x,p,freeonerr) fv = function_eval(x, p); if (p->fmin < p->stop->fmin_max) { free(freeonerr); return NLOPT_FMIN_MAX_REACHED; } else if (nlopt_stop_evals((p)->stop)) { free(freeonerr); return NLOPT_MAXEVAL_REACHED; } else if (nlopt_stop_time((p)->stop)) { free(freeonerr); return NLOPT_MAXTIME_REACHED; }
+#define FUNCTION_EVAL(fv,x,p,freeonerr) fv = function_eval(x, p); if (p->minf < p->stop->minf_max) { free(freeonerr); return NLOPT_MINF_MAX_REACHED; } else if (nlopt_stop_evals((p)->stop)) { free(freeonerr); return NLOPT_MAXEVAL_REACHED; } else if (nlopt_stop_time((p)->stop)) { free(freeonerr); return NLOPT_MAXTIME_REACHED; }
 
 #define THIRD (0.3333333333333333333333)
 
@@ -398,7 +398,7 @@ static nlopt_result divide_good_rects(params *p)
 	       K1 = (hull[i][1] - hull[ip][1]) / (hull[i][0] - hull[ip][0]);
 	  K = MAX(K1, K2);
 	  if (hull[i][1] - K * hull[i][0]
-	      <= p->fmin - magic_eps * fabs(p->fmin) || ip == nhull) {
+	      <= p->minf - magic_eps * fabs(p->minf) || ip == nhull) {
 	       /* "potentially optimal" rectangle, so subdivide */
 	       nlopt_result ret = divide_rect(hull[i], p);
 	       divided_some = 1;
@@ -457,7 +457,7 @@ int cdirect_hyperrect_compare(double *a, double *b)
 nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
 			      const double *lb, const double *ub,
 			      double *x,
-			      double *fmin,
+			      double *minf,
 			      nlopt_stopping *stop,
 			      double magic_eps, int which_alg)
 {
@@ -477,7 +477,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      p.f = f;
      p.f_data = f_data;
      p.xmin = x;
-     p.fmin = HUGE_VAL;
+     p.minf = HUGE_VAL;
      p.work = 0;
      p.iwork = 0;
      p.hull = 0;
@@ -510,10 +510,10 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      if (ret != NLOPT_SUCCESS) goto done;
 
      while (1) {
-	  double fmin0 = p.fmin;
+	  double minf0 = p.minf;
 	  ret = divide_good_rects(&p);
 	  if (ret != NLOPT_SUCCESS) goto done;
-	  if (p.fmin < fmin0 && nlopt_stop_f(p.stop, p.fmin, fmin0)) {
+	  if (p.minf < minf0 && nlopt_stop_f(p.stop, p.minf, minf0)) {
 	       ret = NLOPT_FTOL_REACHED;
 	       goto done;
 	  }
@@ -525,7 +525,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      free(p.iwork);
      free(p.work);
 	      
-     *fmin = p.fmin;
+     *minf = p.minf;
      return ret;
 }
 
@@ -550,7 +550,7 @@ double cdirect_uf(int n, const double *xu, double *grad, void *d_)
 nlopt_result cdirect(int n, nlopt_func f, void *f_data,
                      const double *lb, const double *ub,
                      double *x,
-                     double *fmin,
+                     double *minf,
                      nlopt_stopping *stop,
                      double magic_eps, int which_alg)
 {
@@ -571,7 +571,7 @@ nlopt_result cdirect(int n, nlopt_func f, void *f_data,
      }
      xtol_abs_save = stop->xtol_abs;
      stop->xtol_abs = d.x + 3*n;
-     ret = cdirect_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n, x, fmin, stop,
+     ret = cdirect_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n, x, minf, stop,
 			    magic_eps, which_alg);
      stop->xtol_abs = xtol_abs_save;
      for (i = 0; i < n; ++i)

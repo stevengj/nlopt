@@ -44,7 +44,7 @@
 /* |   Lipschitz continues. However, DIRECT has proven to be effective on  | */
 /* |   more complex problems than these.                                   | */
 /* +-----------------------------------------------------------------------+ */
-/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, doublereal *fmin, doublereal *l, 
+/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, doublereal *minf, doublereal *l, 
 	doublereal *u, integer *algmethod, integer *ierror, FILE *logfile, 
 	doublereal *fglobal, doublereal *fglper, doublereal *volper, 
 	doublereal *sigmaper, void *fcn_data)
@@ -126,7 +126,7 @@
 /* |     eps -- Exceeding value. If eps > 0, we use the same epsilon for   | */
 /* |            all iterations. If eps < 0, we use the update formula from | */
 /* |            Jones:                                                     | */
-/* |               eps = max(1.D-4*abs(fmin),epsfix),                      | */
+/* |               eps = max(1.D-4*abs(minf),epsfix),                      | */
 /* |            where epsfix = abs(eps), the absolute value of eps which is| */
 /* |            passed to the function.                                    | */
 /* |    maxf -- The maximum number of function evaluations.                | */
@@ -147,10 +147,10 @@
 /* |  fglper -- Terminate the optimization when the percent error          | */
 /* |                100(f_min - fglobal)/max(1,abs(fglobal)) < fglper.     | */
 /* |  volper -- Terminate the optimization when the volume of the          | */
-/* |            hyperrectangle S with f(c(S)) = fmin is less then volper   | */
+/* |            hyperrectangle S with f(c(S)) = minf is less then volper   | */
 /* |            percent of the volume of the original hyperrectangle.      | */
 /* |sigmaper -- Terminate the optimization when the measure of the         | */
-/* |            hyperrectangle S with f(c(S)) = fmin is less then sigmaper.| */
+/* |            hyperrectangle S with f(c(S)) = minf is less then sigmaper.| */
 /* |                                                                       | */
 /* | User data that is passed through without being changed:               | */
 /* |  fcn_data - opaque pointer to any user data                           | */
@@ -161,7 +161,7 @@
 /* |            X should be a good approximation to the global minimum     | */
 /* |            for the function within the hyper-box.                     | */
 /* |                                                                       | */
-/* |    fmin -- The value of the function at x.                            | */
+/* |    minf -- The value of the function at x.                            | */
 /* |  Ierror -- Error flag. If Ierror is lower 0, an error has occured. The| */
 /* |            values of Ierror mean                                      | */
 /* |            Fatal errors :                                             | */
@@ -182,14 +182,14 @@
 /* |              2   Number of iterations is equal to maxT.               | */
 /* |              3   The best function value found is within fglper of    | */
 /* |                  the (known) global optimum, that is                  | */
-/* |                   100(fmin - fglobal/max(1,|fglobal|))  < fglper.     | */
+/* |                   100(minf - fglobal/max(1,|fglobal|))  < fglper.     | */
 /* |                  Note that this termination signal only occurs when   | */
 /* |                  the global optimal value is known, that is, a test   | */
 /* |                  function is optimized.                               | */
-/* |              4   The volume of the hyperrectangle with fmin at its    | */
+/* |              4   The volume of the hyperrectangle with minf at its    | */
 /* |                  center is less than volper percent of the volume of  | */
 /* |                  the original hyperrectangle.                         | */
-/* |              5   The measure of the hyperrectangle with fmin at its   | */
+/* |              5   The measure of the hyperrectangle with minf at its   | */
 /* |                  center is less than sigmaper.                        | */
 /* |                                                                       | */
 /* | SUBROUTINEs used :                                                    | */
@@ -404,7 +404,7 @@
 /* +-----------------------------------------------------------------------+ */
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
 	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
-	    fmin, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
+	    minf, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
 	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
@@ -428,7 +428,7 @@
 /* +-----------------------------------------------------------------------+ */
 /* | If no feasible point has been found, give out the iteration, the      | */
 /* | number of function evaluations and a warning. Otherwise, give out     | */
-/* | the iteration, the number of function evaluations done and fmin.      | */
+/* | the iteration, the number of function evaluations done and minf.      | */
 /* +-----------------------------------------------------------------------+ */
     if (ifeasiblef > 0) {
 	 if (logfile)
@@ -437,7 +437,7 @@
     } else {
 	 if (logfile)
 	      fprintf(logfile, "%d, %d, %g, %g\n", 
-		      tstart-1, numfunc, *fmin, fmax);
+		      tstart-1, numfunc, *minf, fmax);
     }
 /* +-----------------------------------------------------------------------+ */
 /* +-----------------------------------------------------------------------+ */
@@ -451,7 +451,7 @@
 /* | in the list S.                                                        | */
 /* +-----------------------------------------------------------------------+ */
 	actdeep = actmaxdeep;
-	direct_dirchoose_(anchor, s, &MAXDEEP, f, fmin, *eps, epsabs, levels, &maxpos, length, 
+	direct_dirchoose_(anchor, s, &MAXDEEP, f, minf, *eps, epsabs, levels, &maxpos, length, 
 		&MAXFUNC, &MAXDEEP, &MAXDIV, n, logfile, &cheat, &
 		kmax, &ifeasiblef, jones);
 /* +-----------------------------------------------------------------------+ */
@@ -528,7 +528,7 @@
 /* +-----------------------------------------------------------------------+ */
 		direct_dirsamplepoints_(c__, arrayi, &delta, &help, &start, length, 
 			logfile, f, &ifree, &maxi, point, &x[
-			1], &l[1], fmin, &minpos, &u[1], n, &MAXFUNC, &
+			1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
 			MAXDEEP, &oops);
 		if (oops > 0) {
 		    if (logfile)
@@ -542,7 +542,7 @@
 /* +-----------------------------------------------------------------------+ */
 		direct_dirsamplef_(c__, arrayi, &delta, &help, &start, length,
 			    logfile, f, &ifree, &maxi, point, fcn, &x[
-			1], &l[1], fmin, &minpos, &u[1], n, &MAXFUNC, &
+			1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
 			MAXDEEP, &oops, &fmax, &ifeasiblef, &iinfesiblef, 
 			fcn_data);
 		if (oops > 0) {
@@ -579,7 +579,7 @@
 	if (oldpos < minpos) {
 	    if (logfile)
 		 fprintf(logfile, "%d, %d, %g, %g\n",
-			 t, numfunc, *fmin, fmax);
+			 t, numfunc, *minf, fmax);
 	}
 /* +-----------------------------------------------------------------------+ */
 /* | If no feasible point has been found, give out the iteration, the      | */
@@ -596,7 +596,7 @@
 /* +-----------------------------------------------------------------------+ */
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Calculate the index for the hyperrectangle at which       | */
-/* |             fmin is assumed. We then calculate the volume of this     | */
+/* |             minf is assumed. We then calculate the volume of this     | */
 /* |             hyperrectangle and store it in delta. This delta can be   | */
 /* |             used to stop DIRECT once the volume is below a certain    | */
 /* |             percentage of the original volume. Since the original     | */
@@ -621,7 +621,7 @@
 	}
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/23/01 Calculate the measure for the hyperrectangle at which     | */
-/* |             fmin is assumed. If this measure is smaller then sigmaper,| */
+/* |             minf is assumed. If this measure is smaller then sigmaper,| */
 /* |             we stop DIRECT.                                           | */
 /* +-----------------------------------------------------------------------+ */
 	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
@@ -638,10 +638,10 @@
 /* | global minimum value, terminate. This only makes sense if this optimal| */
 /* | value is known, that is, in test problems.                            | */
 /* +-----------------------------------------------------------------------+ */
-	if ((*fmin - *fglobal) * 100 / divfactor <= *fglper) {
+	if ((*minf - *fglobal) * 100 / divfactor <= *fglper) {
 	    *ierror = 3;
 	    if (logfile)
-		 fprintf(logfile, "DIRECT stopped: fmin within fglper of global minimum.\n");
+		 fprintf(logfile, "DIRECT stopped: minf within fglper of global minimum.\n");
 	    goto L100;
 	}
 /* +-----------------------------------------------------------------------+ */
@@ -661,7 +661,7 @@
 /* +-----------------------------------------------------------------------+ */
 	if (iepschange == 1) {
 /* Computing MAX */
-	    d__1 = fabs(*fmin) * 1e-4;
+	    d__1 = fabs(*minf) * 1e-4;
 	    *eps = MAX(d__1,epsfix);
 	}
 /* +-----------------------------------------------------------------------+ */
@@ -734,7 +734,7 @@ L100:
 /* +-----------------------------------------------------------------------+ */
 /* | Give out a summary of the run.                                        | */
 /* +-----------------------------------------------------------------------+ */
-    direct_dirsummary_(logfile, &x[1], &l[1], &u[1], n, fmin, fglobal, &numfunc, 
+    direct_dirsummary_(logfile, &x[1], &l[1], &u[1], n, minf, fglobal, &numfunc, 
 	    ierror);
 /* +-----------------------------------------------------------------------+ */
 /* | Format statements.                                                    | */
