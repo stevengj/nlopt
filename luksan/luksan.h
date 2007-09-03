@@ -15,6 +15,13 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
                   double *minf,
                   nlopt_stopping *stop);
 
+nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
+			 const double *lb, const double *ub, /* bounds */
+			 double *x, /* in: initial guess, out: minimizer */
+			 double *minf,
+			 nlopt_stopping *stop,
+			 int method);
+
 /*****************************  internal routines *************************/
 
 /* mssubs.c: */
@@ -117,6 +124,11 @@ typedef struct {
      /* int nfv;   -- now stored in stop->nevals */
      int nfg, nfh;
 } stat_common;
+
+/* number of double variables that can be stored in scratch memory
+   ... it's >= 2007, and this is in the context of scientific computation,
+   so assume that at least 10M are available, and that sizeof(double)==8 */
+#define MEMAVAIL 1310720
 
 #ifdef __cplusplus
 }  /* extern "C" */

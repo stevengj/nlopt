@@ -55,6 +55,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "StoGO with randomized search (global, derivative-based)",
      "Low-storage BFGS (LBFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
+     "Limited-memory variable-metric, rank 1 (local, derivative-based)",
+     "Limited-memory variable-metric, rank 2 (local, derivative-based)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -303,6 +305,11 @@ static nlopt_result nlopt_minimize_(
 
 	 case NLOPT_LD_LBFGS: 
 	      return luksan_plis(n, f, f_data, lb, ub, x, minf, &stop);
+
+	 case NLOPT_LD_VAR1: 
+	 case NLOPT_LD_VAR2: 
+	      return luksan_plip(n, f, f_data, lb, ub, x, minf, &stop,
+		   algorithm == NLOPT_LD_VAR1 ? 1 : 2);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

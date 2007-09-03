@@ -415,11 +415,6 @@ L11190:
     return;
 } /* plis_ */
 
-/* number of double variables that can be stored in scratch memory
-   ... it's >= 2007, and this is in the context of scientific computation,
-   so assume that at least 10M are available, and that sizeof(double)==8 */
-#define MEMAVAIL 1310720
-
 /* NLopt wrapper around plis_, handling dynamic allocation etc. */
 nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 		  const double *lb, const double *ub, /* bounds */
@@ -427,7 +422,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 		  double *minf,
 		  nlopt_stopping *stop)
 {
-     int i, *ix;
+     int i, *ix, nb = 1;
      double *work, *xl, *xu, *xo, *gf, *s, *go, *uo, *vo;
      double gmax, minf_est;
      double xmax = 0; /* no maximum */
@@ -458,7 +453,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 					       max(n,mf)*2));
      if (!work) { 
 	  if (mf > 0) {
-	       mf /= 4;
+	       mf = 0; /* allocate minimal memory */
 	       goto retry_alloc;
 	  }
 	  free(ix);
@@ -483,7 +478,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 	arrays to zero by default? */
      memset(xo, 0, sizeof(double) * max(n,n*mf));
 
-     plis_(&n, &n, x, ix, xl, xu, 
+     plis_(&n, &nb, x, ix, xl, xu, 
 	   gf, s, xo, go, uo, vo,
 	   &xmax,
 

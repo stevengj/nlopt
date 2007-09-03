@@ -42,6 +42,9 @@ typedef enum {
 
      NLOPT_LN_PRAXIS,
 
+     NLOPT_LD_VAR1,
+     NLOPT_LD_VAR2,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

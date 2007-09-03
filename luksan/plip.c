@@ -420,3 +420,101 @@ L11190:
     return;
 } /* plip_ */
 
+/* NLopt wrapper around plip_, handling dynamic allocation etc. */
+nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
+			 const double *lb, const double *ub, /* bounds */
+			 double *x, /* in: initial guess, out: minimizer */
+			 double *minf,
+			 nlopt_stopping *stop,
+			 int method) /* 1 or 2, see below */
+{
+     int i, *ix, nb = 1;
+     double *work, *xl, *xu, *gf, *s, *xo, *go, *so, *xm, *xr, *gr;
+     double gmax, minf_est;
+     double xmax = 0; /* no maximum */
+     double tolg = 0; /* default gradient tolerance */
+     int iest = 0; /* we have no estimate of min function value */
+     int mit = 0; /* default no limit on #iterations */
+     int mfv = stop->maxeval;
+     stat_common stat;
+     int iterm;
+     int mf;
+
+     ix = (int*) malloc(sizeof(int) * n);
+     if (!ix) return NLOPT_OUT_OF_MEMORY;
+
+     /* FIXME: what should we set mf to?  The example program tlis.for
+        sets it to zero as far as I can tell, but it seems to greatly
+	improve convergence to make it > 0.  The computation time
+	per iteration, and of course the memory, seem to go as O(n * mf),
+	and we'll assume that the main limiting factor is the memory.
+	We'll assume that at least MEMAVAIL memory, or 4*n memory, whichever
+	is bigger, is available. */
+     mf = max(MEMAVAIL/n, 4);
+     if (stop->maxeval && stop->maxeval <= mf)
+	  mf = max(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
+
+ retry_alloc:
+     work = (double*) malloc(sizeof(double) * (n * 7 + max(n,n*mf) + 
+					       max(n,mf)*2));
+     if (!work) { 
+	  if (mf > 0) {
+	       mf = 0; /* allocate minimal memory */
+	       goto retry_alloc;
+	  }
+	  free(ix);
+	  return NLOPT_OUT_OF_MEMORY;
+     }
+
+     xl = work; xu = xl + n;
+     gf = xu + n; s = gf + n; xo = s + n; go = xo + n; so = go + n;
+     xm = so + n;
+     xr = xm + max(n*mf,n); gr = xr + max(n,mf);
+
+     for (i = 0; i < n; ++i) {
+	  int lbu = lb[i] <= -0.99 * HUGE_VAL; /* lb unbounded */
+	  int ubu = ub[i] >= 0.99 * HUGE_VAL;  /* ub unbounded */
+	  ix[i] = lbu ? (ubu ? 0 : 2) : (ubu ? 1 : (lb[i] == ub[i] ? 5 : 3));
+	  xl[i] = lb[i];
+	  xu[i] = ub[i];
+     }
+
+     /* ?  xo does not seem to be initialized in the
+	original Fortran code, but it is used upon
+	input to plip if mf > 0 ... perhaps ALLOCATE initializes
+	arrays to zero by default? */
+     memset(xo, 0, sizeof(double) * max(n,n*mf));
+
+     plip_(&n, &nb, x, ix, xl, xu, 
+	   gf, s, xo, go, so, xm, xr, gr,
+	   &xmax,
+
+	   /* fixme: pass tol_rel and tol_abs and use NLopt check */
+	   &stop->xtol_rel,
+	   &stop->ftol_rel,
+	   &stop->minf_max,
+	   &tolg,
+	   stop,
+
+	   &minf_est, &gmax,
+	   minf,
+	   &mit, &mfv,
+	   &iest,
+	   &method, /* 1 == rank-one method VAR1, 2 == rank-two method VAR2 */
+	   &mf,
+	   &iterm, &stat,
+	   f, f_data);
+
+     free(work);
+     free(ix);
+
+     switch (iterm) {
+	 case 1: return NLOPT_XTOL_REACHED;
+	 case 2: return NLOPT_FTOL_REACHED;
+	 case 3: return NLOPT_MINF_MAX_REACHED;
+	 case 4: return NLOPT_SUCCESS; /* gradient tolerance reached */
+	 case 6: return NLOPT_SUCCESS;
+	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
+	 default: return NLOPT_FAILURE;
+     }
+}
