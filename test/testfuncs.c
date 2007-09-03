@@ -125,7 +125,7 @@ static double grosenbrock_f(int n, const double *x, double *grad, void *data)
 	  double a = x[i+1] - x[i] * x[i], b = 1 - x[i];
 	  if (grad) {
 	       grad[i] += -400 * a * x[i] - 2*b;
-	       grad[i+1] = -200 * a;
+	       grad[i+1] = 200 * a;
 	  }
 	  f += 100 * sqr(a) + sqr(b);
      }
