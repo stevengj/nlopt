@@ -7,14 +7,6 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
-/* Common Block Declarations */
-
-typedef struct {
-     int nres, ndec, nin, nit;
-     /* int nfv;   -- now stored in stop->nevals */
-     int nfg, nfh;
-} stat_common;
-
 /* *********************************************************************** */
 /* SUBROUTINE PLIS               ALL SYSTEMS                   01/09/22 */
 /* PURPOSE : */
@@ -204,7 +196,7 @@ static void plis_(int *nf, int *nb, double *x, int *
     dmax__ = eta9;
     maxf = 1e20;
     if (*iest <= 0) {
-	*minf_est = -HUGE_VAL;
+	 *minf_est = -HUGE_VAL; /* changed from -1e60 by SGJ */
     }
     if (*iest > 0) {
 	*iest = 1;

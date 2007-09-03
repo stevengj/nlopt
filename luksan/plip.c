@@ -1,17 +1,11 @@
+#include <limits.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "luksan.h"
 
-#define TRUE_ 1
-#define FALSE_ 0
-
-/* Common Block Declarations */
-
-struct {
-    int nres, ndec, nin, nit, nfv, nfg, nfh;
-} stat_;
-
-#define stat_1 stat_
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#define min(a,b) ((a) < (b) ? (a) : (b))
 
 /* *********************************************************************** */
 /* SUBROUTINE PLIP               ALL SYSTEMS                   01/09/22 */
@@ -44,21 +38,16 @@ struct {
 /*  RI  TOLF  TOLERANCE FOR CHANGE OF FUNCTION VALUES. */
 /*  RI  TOLB  TOLERANCE FOR THE FUNCTION VALUE. */
 /*  RI  TOLG  TOLERANCE FOR THE GRADIENT NORM. */
-/*  RI  FMIN  ESTIMATION OF THE MINIMUM FUNCTION VALUE. */
+/*  RI  MINF_EST  ESTIMATION OF THE MINIMUM FUNCTION VALUE. */
 /*  RO  GMAX  MAXIMUM PARTIAL DERIVATIVE. */
 /*  RO  F  VALUE OF THE OBJECTIVE FUNCTION. */
 /*  II  MIT  MAXIMUM NUMBER OF ITERATIONS. */
 /*  II  MFV  MAXIMUM NUMBER OF FUNCTION EVALUATIONS. */
 /*  II  IEST  ESTIMATION INDICATOR. IEST=0-MINIMUM IS NOT ESTIMATED. */
-/*         IEST=1-MINIMUM IS ESTIMATED BY THE VALUE FMIN. */
+/*         IEST=1-MINIMUM IS ESTIMATED BY THE VALUE MINF_EST. */
 /*  II  MET  METHOD USED. MET=1-RANK-ONE METHOD. MET=2-RANK-TWO */
 /*         METHOD. */
 /*  II  MF  NUMBER OF LIMITED MEMORY STEPS. */
-/*  II  IPRNT  PRINT SPECIFICATION. IPRNT=0-NO PRINT. */
-/*         ABS(IPRNT)=1-PRINT OF FINAL RESULTS. */
-/*         ABS(IPRNT)=2-PRINT OF FINAL RESULTS AND ITERATIONS. */
-/*         IPRNT>0-BASIC FINAL RESULTS. IPRNT<0-EXTENDED FINAL */
-/*         RESULTS. */
 /*  IO  ITERM  VARIABLE THAT INDICATES THE CAUSE OF TERMINATION. */
 /*         ITERM=1-IF ABS(X-XO) WAS LESS THAN OR EQUAL TO TOLX IN */
 /*                   MTESX (USUALLY TWO) SUBSEQUEBT ITERATIONS. */
@@ -114,19 +103,22 @@ struct {
 /*         CALLING SEQUENCE: CALL DOBJ(NF,X,GF) WHERE NF IS THE NUMBER */
 /*         OF VARIABLES, X(NF) IS THE VECTOR OF VARIABLES AND GF(NF) */
 /*         IS THE GRADIENT OF THE OBJECTIVE FUNCTION. */
+/* -- OBJ and DOBJ are replaced by a single function, objgrad, in NLopt */
 
 /* METHOD : */
 /* HYBRID METHOD WITH SPARSE MARWIL UPDATES FOR SPARSE LEAST SQUARES */
 /* PROBLEMS. */
 
 static void plip_(int *nf, int *nb, double *x, int *
-	ix, double *xl, double *xu, double *gf, double *s, 
-	double *xo, double *go, double *so, double *xm, 
-	double *xr, double *gr, double *xmax, double *tolx, 
-	double *tolf, double *tolb, double *tolg, double *
-	fmin, double *gmax, double *f, int *mit, int *mfv, 
-	int *iest, int *met, int *mf, int *iprnt, int *
-	iterm)
+		  ix, double *xl, double *xu, double *gf, double *s, 
+		  double *xo, double *go, double *so, double *xm, 
+		  double *xr, double *gr, double *xmax, double *tolx, 
+		  double *tolf, double *tolb, double *tolg, 
+		  nlopt_stopping *stop, double *
+		  minf_est, double *gmax, double *f, int *mit, int *mfv, 
+		  int *iest, int *met, int *mf, 
+		  int *iterm, stat_common *stat_1,
+		  nlopt_func objgrad, void *objgrad_data)
 {
     /* System generated locals */
     int i__1;
@@ -142,75 +134,24 @@ static void plip_(int *nf, int *nb, double *x, int *
     int nn;
     double po, pp, ro, rp;
     int kbf, mec, mfg;
-    extern static void obj_(int *, double *, double *);
     double par;
     int mes, kit;
     double alf1, alf2, eta0, eta9, par1, par2;
     int mes1, mes2, mes3, met3;
     double eps8, eps9;
-    extern static void dobj_(int *, double *, double *);
     int meta, mred, nred, iold;
-    double fmax, dmax__;
-    extern static void luksan_ps1l01__(double *, double *, 
-	    double *, double *, double *, double *, 
-	    double *, double *, double *, double *, 
-	    double *, double *, double *, double *, 
-	    double *, double *, int *, int *, int *, 
-	    int *, int *, int *, int *, int *, int *, 
-	    int *, int *, int *, int *);
+    double maxf, dmax__;
     int inew;
     double told;
     int ites;
     double rmin, rmax, umax, tolp, tols;
     int isys;
-    extern static void luksan_pcbs04__(int *, double *, 
-	    int *, double *, double *, double *, int *);
     int ires1, ires2;
-    extern static void luksan_pyadc0__(int *, int *, 
-	    double *, int *, double *, double *, int *);
     int iterd, iterh, mtesf, ntesf;
     double gnorm;
-    extern static void luksan_pyrmc0__(int *, int *, int 
-	    *, double *, double *, double *, double *, 
-	    double *, int *, int *);
     int iters, irest, inits, kters, maxst;
     double snorm;
     int mtesx, ntesx;
-    extern static void luksan_pulsp3__(int *, int *, int 
-	    *, double *, double *, double *, double *, 
-	    double *, double *, double *, int *, int *), 
-	    luksan_pyfut1__(int *, double *, double *, double 
-	    *, double *, double *, double *, double *, 
-	    double *, double *, int *, int *, int *, 
-	    int *, int *, int *, int *, int *, int *, 
-	    int *, int *, int *, int *, int *, int *, 
-	    int *, int *, int *), luksan_pulvp3__(int *, 
-	    int *, double *, double *, double *, double *,
-	     double *, double *, double *, double *, 
-	    double *, double *, int *, int *, int *, 
-	    int *), luksan_mxdcmd__(int *, int *, double *, 
-	    double *, double *, double *, double *), 
-	    luksan_mxuneg__(int *, double *, double *, int *, 
-	    int *), luksan_mxdrmm__(int *, int *, double *, 
-	    double *, double *), luksan_pytrcd__(int *, 
-	    double *, int *, double *, double *, double *,
-	     double *, double *, double *, double *, 
-	    double *, double *, int *, int *, int *, 
-	    int *), luksan_pytrcg__(int *, int *, int *, 
-	    double *, double *, double *, int *, int *), 
-	    luksan_mxudir__(int *, double *, double *, double 
-	    *, double *, int *, int *), luksan_mxucop__(int *,
-	     double *, double *, int *, int *), 
-	    luksan_mxvcop__(int *, double *, double *), 
-	    luksan_pytrcs__(int *, double *, int *, double *, 
-	    double *, double *, double *, double *, 
-	    double *, double *, double *, double *, 
-	    double *, double *, double *, double *, 
-	    double *, int *), luksan_mxuzer__(int *, double *,
-	     int *, int *);
-    extern double mxudot_(int *, double *, double *, int *
-	    , int *);
-
 
 /*     INITIATION */
 
@@ -233,13 +174,13 @@ static void plip_(int *nf, int *nb, double *x, int *
     if (*nb > 0) {
 	kbf = 2;
     }
-    stat_1.nres = 0;
-    stat_1.ndec = 0;
-    stat_1.nin = 0;
-    stat_1.nit = 0;
-    stat_1.nfv = 0;
-    stat_1.nfg = 0;
-    stat_1.nfh = 0;
+    stat_1->nres = 0;
+    stat_1->ndec = 0;
+    stat_1->nin = 0;
+    stat_1->nit = 0;
+    stop->nevals = 0;
+    stat_1->nfg = 0;
+    stat_1->nfh = 0;
     isys = 0;
     ites = 1;
     mtesx = 2;
@@ -269,9 +210,9 @@ static void plip_(int *nf, int *nb, double *x, int *
     alf2 = 1e10;
     rmax = eta9;
     dmax__ = eta9;
-    fmax = 1e20;
+    maxf = 1e20;
     if (*iest <= 0) {
-	*fmin = -1e60;
+	 *minf_est = -HUGE_VAL; /* changed from -1e60 by SGJ */
     }
     if (*iest > 0) {
 	*iest = 1;
@@ -286,28 +227,34 @@ static void plip_(int *nf, int *nb, double *x, int *
 	*tolf = 1e-14;
     }
     if (*tolg <= 0.) {
-	*tolg = 1e-6;
+	 *tolg = 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
     }
+#if 0
+    /* removed by SGJ: this check prevented us from using minf_max <= 0,
+       which doesn't make sense.  Instead, if you don't want to have a
+       lower limit, you should set minf_max = -HUGE_VAL */
     if (*tolb <= 0.) {
-	*tolb = *fmin + 1e-16;
+	*tolb = *minf_est + 1e-16;
     }
+#endif
     told = 1e-4;
     tols = 1e-4;
     tolp = .9;
     if (*met <= 0) {
 	*met = 2;
     }
+    /* changed by SGJ: default is no limit (INT_MAX) on # iterations/fevals */
     if (*mit <= 0) {
-	*mit = 9000;
+	*mit = INT_MAX;
     }
     if (*mfv <= 0) {
-	*mfv = 9000;
+	*mfv = INT_MAX;
     }
     mfg = *mfv;
     kd = 1;
     ld = -1;
     kit = -(ires1 * *nf + ires2);
-    fo = *fmin;
+    fo = *minf_est;
 
 /*     INITIAL OPERATIONS WITH SIMPLE BOUNDS */
 
@@ -330,14 +277,13 @@ static void plip_(int *nf, int *nb, double *x, int *
     if (*iterm != 0) {
 	goto L11190;
     }
-    obj_(nf, &x[1], f);
-    ++stat_1.nfv;
-    dobj_(nf, &x[1], &gf[1]);
-    ++stat_1.nfg;
+    *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
+    ++stop->nevals;
+    ++stat_1->nfg;
 L11120:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
     luksan_pyfut1__(nf, f, &fo, &umax, gmax, &dmax__, tolx, tolf, tolb, tolg, 
-	    &kd, &stat_1.nit, &kit, mit, &stat_1.nfv, mfv, &stat_1.nfg, &mfg, 
+	    &kd, &stat_1->nit, &kit, mit, &stop->nevals, mfv, &stat_1->nfg, &mfg, 
 	    &ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
 	    iters, iterm);
     if (*iterm != 0) {
@@ -352,9 +298,9 @@ L11130:
 	nn = 0;
 	par = 1.;
 	ld = min(ld,1);
-	if (kit < stat_1.nit) {
-	    ++stat_1.nres;
-	    kit = stat_1.nit;
+	if (kit < stat_1->nit) {
+	    ++stat_1->nres;
+	    kit = stat_1->nit;
 	} else {
 	    *iterm = -10;
 	    if (iters < 0) {
@@ -368,7 +314,7 @@ L11130:
 
 /*     DIRECTION DETERMINATION */
 
-    gnorm = sqrt(mxudot_(nf, &gf[1], &gf[1], &ix[1], &kbf));
+    gnorm = sqrt(luksan_mxudot__(nf, &gf[1], &gf[1], &ix[1], &kbf));
 
 /*     NEWTON LIKE STEP */
 
@@ -377,12 +323,12 @@ L11130:
     luksan_mxdcmd__(nf, &nn, &xm[1], &gr[1], &par, &s[1], &s[1]);
     luksan_mxuzer__(nf, &s[1], &ix[1], &kbf);
     iterd = 1;
-    snorm = sqrt(mxudot_(nf, &s[1], &s[1], &ix[1], &kbf));
+    snorm = sqrt(luksan_mxudot__(nf, &s[1], &s[1], &ix[1], &kbf));
 
 /*     TEST ON DESCENT DIRECTION AND PREPARATION OF LINE SEARCH */
 
     if (kd > 0) {
-	p = mxudot_(nf, &gf[1], &s[1], &ix[1], &kbf);
+	p = luksan_mxudot__(nf, &gf[1], &s[1], &ix[1], &kbf);
     }
     if (iterd < 0) {
 	*iterm = iterd;
@@ -423,19 +369,18 @@ L11130:
 	goto L11175;
     }
 L11170:
-    luksan_ps1l01__(&r__, &rp, f, &fo, &fp, &p, &po, &pp, fmin, &fmax, &rmin, 
-	    &rmax, &tols, &tolp, &par1, &par2, &kd, &ld, &stat_1.nit, &kit, &
+    luksan_ps1l01__(&r__, &rp, f, &fo, &fp, &p, &po, &pp, minf_est, &maxf, &rmin, 
+	    &rmax, &tols, &tolp, &par1, &par2, &kd, &ld, &stat_1->nit, &kit, &
 	    nred, &mred, &maxst, iest, &inits, &iters, &kters, &mes, &isys);
     if (isys == 0) {
 	goto L11174;
     }
     luksan_mxudir__(nf, &r__, &s[1], &xo[1], &x[1], &ix[1], &kbf);
     luksan_pcbs04__(nf, &x[1], &ix[1], &xl[1], &xu[1], &eps9, &kbf);
-    obj_(nf, &x[1], f);
-    ++stat_1.nfv;
-    dobj_(nf, &x[1], &gf[1]);
-    ++stat_1.nfg;
-    p = mxudot_(nf, &gf[1], &s[1], &ix[1], &kbf);
+    *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
+    ++stop->nevals;
+    ++stat_1->nfg;
+    p = luksan_mxudot__(nf, &gf[1], &s[1], &ix[1], &kbf);
     goto L11170;
 L11174:
     if (iters <= 0) {
