@@ -1,0 +1,329 @@
+***********************************************************************
+*                                                                     *
+*         PNET - A LIMITED MEMORY VARIABLE METRIC ALGORITHM FOR       *
+*                LARGE-SCALE OPTIMIZATION.                            *
+*                                                                     *
+***********************************************************************
+
+
+1. Introduction:
+----------------
+
+      The double-precision FORTRAN 77 basic subroutine PNET is designed
+to find a close approximation to a local minimum of a nonlinear
+function F(X) with simple bounds on variables. Here X is a vector of NF
+variables and F(X) is a smooth function. We suppose that NF is large
+but the sparsity pattern of the Hessian matrix is not known (or the
+Hessian matrix is dense). Simple bounds are assumed in the form
+
+               X(I) unbounded if  IX(I) = 0,
+      XL(I) <= X(I)           if  IX(I) = 1,
+               X(I) <= XU(I)  if  IX(I) = 2,
+      XL(I) <= X(I) <= XU(I)  if  IX(I) = 3,
+      XL(I)  = X(I)  = XU(I)  if  IX(I) = 5,
+
+where 1 <= I <= NF. To simplify user's work, two additional easy to use
+subroutines are added. They call the basic general subroutine PNET:
+
+      PNETU - unconstrained large-scale optimization,
+      PNETS - large-scale optimization with simple bounds.
+
+All subroutines contain a description of formal parameters and
+extensive comments. Furthermore, two test programs TNETU and TNETS are
+included, which contain several test problems (see e.g. [2]). These
+test programs serve as examples for using the subroutines, verify their
+correctness and demonstrate their efficiency.
+      In this short guide, we describe all subroutines which can be
+called from the user's program. A detailed description of the method is
+given in [1]. In the description of formal parameters, we introduce a
+type of the argument that specifies whether the argument must have a
+value defined on entry to the subroutine (I), whether it is a value
+which will be returned (O), or both (U), or whether it is an auxiliary
+value (A). Note that the arguments of the type I can be changed on
+output under some circumstances, especially if improper input values
+were given. Besides formal parameters, we can use a COMMON /STAT/ block
+containing statistical information. This block, used in each subroutine
+has the following form:
+
+      COMMON /STAT/ NRES,NDEC,NIN,NIT,NFV,NFG,NFH
+
+The arguments have the following meaning:
+
+ Argument  Type Significance
+ ----------------------------------------------------------------------
+  NRES      O   Positive INTEGER variable that indicates the number of
+                restarts.
+  NDEC      O   Positive INTEGER variable that indicates the number of
+                matrix decompositions.
+  NIN       O   Positive INTEGER variable that indicates the number of
+                inner iterations (for solving linear systems).
+  NIT       O   Positive INTEGER variable that indicates the number of
+                iterations.
+  NFV       O   Positive INTEGER variable that indicates the number of
+                function evaluations.
+  NFG       O   Positive INTEGER variable that specifies the number of
+                gradient evaluations.
+  NFH       O   Positive INTEGER variable that specifies the number of
+                Hessian evaluations.
+
+
+2. Subroutines PNETU, PNETS:
+----------------------------
+
+The calling sequences are
+
+      CALL PNETU(NF,X,IPAR,RPAR,F,GMAX,IPRNT,ITERM)
+      CALL PNETS(NF,X,IX,XL,XU,IPAR,RPAR,F,GMAX,IPRNT,ITERM)
+
+The arguments have the following meaning.
+
+ Argument  Type Significance
+ ----------------------------------------------------------------------
+  NF        I   Positive INTEGER variable that specifies the number of
+                variables of the objective function.
+  X(NF)     U   On input, DOUBLE PRECISION vector with the initial
+                estimate to the solution. On output, the approximation
+                to the minimum.
+  IX(NF)    I   On input (significant only if NB>0) INTEGER vector
+                containing the simple bounds types:
+                   IX(I)=0 - the variable X(I) is unbounded,
+                   IX(I)=1 - the lower bound X(I) >= XL(I),
+                   IX(I)=2 - the upper bound X(I) <= XU(I),
+                   IX(I)=3 - the two side bound XL(I) <= X(I) <= XU(I),
+                   IX(I)=5 - the variable X(I) is fixed (given by its
+                             initial estimate).
+  XL(NF)    I   DOUBLE PRECISION vector with lower bounds for variables
+                (significant only if NB>0).
+  XU(NF)    I   DOUBLE PRECISION vector with upper bounds for variables
+                (significant only if NB>0).
+  IPAR(7)   I   INTEGER parameters:
+                  IPAR(1)=MIT,  IPAR(2)=MFV,  IPAR(3)=MFG,
+                  IPAR(4)=IEST, IPAR(5)=MOS1, IPAR(6)=MOS2,
+                  IPAR(7)=MF.
+                Parameters MIT, MFV, MFG, IEST, MOS1, MOS2, MF are
+		    described in Section 3 together with other parameters
+		    of the subroutine PNET.
+  RPAR(9)   I   DOUBLE PRECISION parameters:
+                  RPAR(1)=XMAX,  RPAR(2)=TOLX,  RPAR(3)=TOLF,
+                  RPAR(4)=TOLB,  RPAR(5)=TOLG,  RPAR(6)=FMIN,
+                  RPAR(7)-NONE,  RPAR(6)-NONE,  RPAR(9)-NONE.
+                Parameters XMAX, TOLX, TOLF, TOLB, TOLG, FMIN are
+                described in Section 3 together with other parameters
+                of the subroutine PNET.
+  F         O   DOUBLE PRECISION value of the objective function at the
+                solution X.
+  GMAX      O   DOUBLE PRECISION maximum absolute value of a partial
+                derivative of the Lagrangian function.
+  IPRNT     I   INTEGER variable that specifies PRINT:
+                  IPRNT= 0 - print is suppressed,
+                  IPRNT= 1 - basic print of final results,
+                  IPRNT=-1 - extended print of final results,
+                  IPRNT= 2 - basic print of intermediate and final
+                             results,
+                  IPRNT=-2 - extended print of intermediate and final
+                             results.
+  ITERM     O   INTEGER variable that indicates the cause of termination:
+                  ITERM= 1 - if |X - XO| was less than or equal to TOLX
+                             in two subsequent iterations,
+                  ITERM= 2 - if |F - FO| was less than or equal to TOLF
+                             in two subsequent iterations,
+                  ITERM= 3 - if F is less than or equal to TOLB,
+                  ITERM= 4 - if GMAX is less than or equal to TOLG,
+                  ITERM= 6 - if termination criterion was not satisfied,
+                             but the solution is probably acceptable,
+                  ITERM=11 - if NIT exceeded MIT,
+                  ITERM=12 - if NFV exceeded MFV,
+                  ITERM=13 - if NFG exceeded MFG,
+                  ITERM< 0 - if the method failed.
+
+      The subroutines PNETU, PNETS require the user supplied subroutines
+OBJ and DOBJ that define the objective function and its gradient and
+have the form
+
+      SUBROUTINE  OBJ(NF,X,F)
+      SUBROUTINE DOBJ(NF,X,G)
+
+The arguments of the user supplied subroutines have the following
+meaning.
+
+ Argument  Type Significance
+ ----------------------------------------------------------------------
+  NF        I   Positive INTEGER variable that specifies the number of
+                variables of the objective function.
+  X(NF)     I   DOUBLE PRECISION an estimate to the solution.
+  F         O   DOUBLE PRECISION value of the objective function at the
+                point X.
+  G(NF)     O   DOUBLE PRECISION gradient of the objective function
+                at the point X.
+
+
+3. Subroutine PNET:
+-------------------
+
+      This general subroutine is called from all subroutines described
+in Section 2. The calling sequence is
+
+      CALL PNET(NF,NB,X,IX,XL,XU,GF,GN,S,XO,GO,XS,GS,XM,GM,U1,U2,XMAX,
+     & TOLX,TOLF,TOLB,TOLG,FMIN,GMAX,F,MIT,MFV,MFG,IEST,MOS1,MOS2,MF,
+     & IPRNT,ITERM)
+
+
+The arguments NF, NB, X, IX, XL, XU, GMAX, F, IPRNT, ITERM, have the
+same meaning as in Section 2. Other arguments have the following meaning:
+
+ Argument  Type Significance
+ -----------------------------------------------------------------------
+  GF(NF)    A   DOUBLE PRECISION gradient of the objective function.
+  GN(NF)    A   DOUBLE PRECISION old gradient of the objective function.
+  S(NF)     A   DOUBLE PRECISION direction vector.
+  XO(NF)    A   DOUBLE PRECISION array which contains increments of
+                variables.
+  GO(NF)    A   DOUBLE PRECISION array which contains increments of
+                gradients.
+  XS(NF)    A   DOUBLE PRECISION auxiliary array.
+  GS(NF)    A   DOUBLE PRECISION auxiliary array.
+  XM(NF*MF) A   DOUBLE PRECISION array which contains increments of
+                variables.
+  GM(NF*MF) A   DOUBLE PRECISION array which contains increments of
+                gradients.
+  U1(MF)    A   DOUBLE PRECISION auxiliary array.
+  U2(MF)    A   DOUBLE PRECISION auxiliary array.
+  XMAX      I   DOUBLE PRECISION maximum stepsize; the choice XMAX=0
+                causes that the default value 1.0D+16 will be taken.
+  TOLX      I   DOUBLE PRECISION tolerance for the change of the
+                coordinate vector X; the choice TOLX=0 causes that the
+                default value TOLX=1.0D-16 will be taken.
+  TOLF      I   DOUBLE PRECISION tolerance for the change of function
+                values; the choice TOLF=0 causes that the default
+                value TOLF=1.0D-14 will be taken.
+  TOLB      I   DOUBLE PRECISION minimum acceptable function value;
+                the choice TOLB=0 causes that the default value
+                TOLB=FMIN+1.0D-16 will be taken.
+  TOLG      I   DOUBLE PRECISION tolerance for the Lagrangian function
+                gradient; the choice TOLG=0 causes that the default
+                value TOLG=1.0D-6 will be taken.
+  FMIN      I   DOUBLE PRECISION lower bound for the minimum function
+                value.
+  MIT       I   INTEGER variable that specifies the maximum number of
+                iterations; the choice MIT=0 causes that the default
+                value 5000 will be taken.
+  MFV       I   INTEGER variable that specifies the maximum number of
+                function evaluations; the choice MFV=0 causes that
+                the default value 5000 will be taken.
+  MFG       I   INTEGER variable that specifies the maximum number of
+                gradient evaluations; the choice MFG=0 causes that
+                the default value 30000 will be taken.
+  IEST      I   INTEGER estimation of the minimum functiom value for
+                the line search:
+                  IEST=0 - estimation is not used,
+                  IEST=1 - lower bound FMIN is used as an estimation
+                           for the minimum function value.
+  MOS1      I   INTEGER choice of restarts after constraint change:
+                  MOS1=1 - restarts are suppressed,
+                  MOS1=2 - restarts with steepest descent directions are
+                           used.
+  MOS2      I   INTEGER choice of preconditioning strategy:
+                  MOS2=1 - preconditioning is not used,
+                  MOS2=2 - preconditioning by the incomplete
+                            Gill-Murray decomposition,
+                  MOS2=3 - preconditioning by the incomplete
+                            Gill-Murray decomposition combined with
+                            preliminary solution of the preconditioned
+                            system.
+  MF        I   The number of limited-memory variable metric updates
+                in each iteration (they use 2*MF stored vectors).
+
+The choice of parameter XMAX can be sensitive in many cases. First, the
+objective function can be evaluated only in a relatively small region
+(if it contains exponentials) so that the maximum stepsize is necessary.
+Secondly, the problem can be very ill-conditioned far from the solution
+point so that large steps can be unsuitable. Finally, if the problem has
+more local solutions, a suitably chosen maximum stepsize can lead to
+obtaining a better local solution.
+      The subroutine PNET requires the user supplied subroutines OBJ
+and DOBJ which are described in Section 2.
+
+4. Verification of the subroutines:
+-----------------------------------
+
+      Subroutine PNETU can be verified and tested using the program
+TNETU. This program calls the subroutines TIUD14 (initiation), TFFU14
+(function evaluation) and TFGU14 (gradient evaluation) containing
+22 unconstrained test problems with at most 1000 variables [2]. The
+results obtained by the program TNETU on a PC computer with Microsoft
+Power Station Fortran compiler have the following form.
+
+NIT= 1481  NFV= 1656  NFG=26037  F= 0.117631766E-15  G= 0.354E-06  ITERM=  4
+NIT=  132  NFV=  387  NFG= 7945  F= 0.153382199E-15  G= 0.988E-08  ITERM=  4
+NIT=   19  NFV=   20  NFG=  110  F= 0.421204156E-09  G= 0.353E-06  ITERM=  4
+NIT=   19  NFV=   20  NFG=  230  F=  269.499543      G= 0.779E-07  ITERM=  4
+NIT=   12  NFV=   13  NFG=   49  F= 0.465606821E-11  G= 0.364E-06  ITERM=  4
+NIT=   13  NFV=   14  NFG=   76  F= 0.366783327E-11  G= 0.404E-06  ITERM=  4
+NIT=    9  NFV=   10  NFG=   37  F=  336.937181      G= 0.248E-06  ITERM=  4
+NIT=   11  NFV=   12  NFG=   58  F=  761774.954      G= 0.155E-07  ITERM=  4
+NIT=    7  NFV=   11  NFG=   28  F=  316.436141      G= 0.158E-07  ITERM=  4
+NIT=   75  NFV=  153  NFG= 3213  F= -133.610000      G= 0.777E-08  ITERM=  4
+NIT=   33  NFV=   45  NFG=  181  F=  10.7765879      G= 0.414E-07  ITERM=  4
+NIT=   23  NFV=   30  NFG=  457  F=  982.273617      G= 0.591E-08  ITERM=  4
+NIT=    7  NFV=    8  NFG=   16  F= 0.533593908E-15  G= 0.327E-07  ITERM=  4
+NIT=    1  NFV=    2  NFG= 1005  F= 0.120245125E-08  G= 0.879E-07  ITERM=  4
+NIT=   14  NFV=   15  NFG= 4033  F=  1.92401599      G= 0.468E-07  ITERM=  4
+NIT=   13  NFV=   17  NFG=  295  F= -427.404476      G= 0.800E-08  ITERM=  4
+NIT=    4  NFV=    5  NFG=  810  F=-0.379921091E-01  G= 0.537E-06  ITERM=  4
+NIT=    4  NFV=    5  NFG= 1146  F=-0.245741193E-01  G= 0.425E-06  ITERM=  4
+NIT=   10  NFV=   11  NFG= 1986  F=  59.5986241      G= 0.423E-06  ITERM=  4
+NIT=   18  NFV=   39  NFG= 3051  F= -1.00013520      G= 0.712E-07  ITERM=  4
+NIT=    7  NFV=    8  NFG= 4901  F=  2.13866377      G= 0.120E-08  ITERM=  4
+NIT=   55  NFV=  145  NFG= 4760  F=  1.00000000      G= 0.206E-08  ITERM=  4
+NITER = 1967    NFVAL = 2626    NSUCC =   22
+TIME= 0:00:06.95
+
+The rows corresponding to individual test problems contain the number of
+iterations NIT, the number of function evaluations NFV, the number of
+gradient evaluations NFG, the final value of the objective function F,
+the norm of gradient G and the cause of termination ITERM.
+      Subroutine PNETS can be verified and tested using the program
+TNETS. This program calls the subroutines TIUD14 (initiation), TFFU14
+(function evaluation), TFGU14 (gradient evaluation) containing 22 box
+constrained test problems with at most 1000 variables [2]. The results
+obtained by the program TNETS on a PC computer with Microsoft Power
+Station Fortran compiler have the following form.
+
+NIT= 1611  NFV= 1793  NFG=28524  F=  0.00000000      G= 0.000E+00  ITERM=  3
+NIT=  259  NFV=  259  NFG= 4418  F=  3930.43956      G= 0.230E-07  ITERM=  4
+NIT=   17  NFV=   18  NFG=   98  F= 0.158634811E-08  G= 0.954E-06  ITERM=  4
+NIT=   12  NFV=   13  NFG=  105  F=  269.522686      G= 0.103E-07  ITERM=  4
+NIT=   12  NFV=   13  NFG=   49  F= 0.465606821E-11  G= 0.364E-06  ITERM=  4
+NIT=   13  NFV=   14  NFG=   76  F= 0.366783327E-11  G= 0.404E-06  ITERM=  4
+NIT=    9  NFV=   10  NFG=   37  F=  336.937181      G= 0.248E-06  ITERM=  4
+NIT=   40  NFV=   41  NFG=  248  F=  761925.725      G= 0.281E-06  ITERM=  4
+NIT=  553  NFV=  555  NFG= 2056  F=  428.056916      G= 0.850E-07  ITERM=  4
+NIT=  112  NFV=  137  NFG= 2109  F= -84.1426617      G= 0.732E-06  ITERM=  4
+NIT=    7  NFV=    8  NFG=   17  F=  96517.2947      G= 0.112E-11  ITERM=  4
+NIT=  133  NFV=  136  NFG= 2689  F=  4994.21410      G= 0.180E-06  ITERM=  4
+NIT=    7  NFV=    8  NFG=   16  F= 0.533593908E-15  G= 0.327E-07  ITERM=  4
+NIT=    1  NFV=    2  NFG= 1005  F= 0.120245125E-08  G= 0.879E-07  ITERM=  4
+NIT=   14  NFV=   15  NFG= 4033  F=  1.92401599      G= 0.468E-07  ITERM=  4
+NIT=   12  NFV=   13  NFG=  294  F= -427.391653      G= 0.594E-06  ITERM=  4
+NIT=    4  NFV=    5  NFG=  810  F=-0.379921091E-01  G= 0.537E-06  ITERM=  4
+NIT=    4  NFV=    5  NFG= 1146  F=-0.245741193E-01  G= 0.425E-06  ITERM=  4
+NIT=    8  NFV=    9  NFG= 1902  F=  1654.94525      G= 0.690E-07  ITERM=  4
+NIT=   16  NFV=   25  NFG= 3254  F= -1.00013520      G= 0.836E-08  ITERM=  4
+NIT=    4  NFV=    5  NFG= 1211  F=  2.41354873      G= 0.135E-06  ITERM=  4
+NIT=   52  NFV=  137  NFG= 4843  F=  1.00000000      G= 0.657E-06  ITERM=  4
+NITER = 2900    NFVAL = 3221    NSUCC =   22
+TIME= 0:00:08.56
+
+
+References:
+-----------
+
+[1] Luksan L., Matonoha C., Vlcek J.: LSA: Algorithms for large-scale
+    unconstrained and box constrained optimization Technical Report V-896.
+    Prague, ICS AS CR, 2004.
+
+[2] Luksan L., Vlcek J.: Sparse and partially separable test problems
+    for unconstrained and equality constrained optimization. Research
+    Report V-767, Institute of Computer Science, Academy of Sciences
+    of the Czech Republic, Prague, Czech Republic, 1998.
+
