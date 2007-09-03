@@ -258,6 +258,7 @@ static void plis_(int *nf, int *nb, double *x, int *
     if (*iterm != 0) {
 	goto L11190;
     }
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
     ++stop->nevals;
     ++stat_1->nfg;
@@ -368,6 +369,7 @@ L12620:
     if (*iterm != 0) {
 	goto L11190;
     }
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
     if (irest != 0) {
 	goto L11130;
     }

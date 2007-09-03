@@ -277,6 +277,7 @@ static void plip_(int *nf, int *nb, double *x, int *
     if (*iterm != 0) {
 	goto L11190;
     }
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
     ++stop->nevals;
     ++stat_1->nfg;
@@ -289,6 +290,7 @@ L11120:
     if (*iterm != 0) {
 	goto L11190;
     }
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
     if (kbf > 0 && rmax > 0.) {
 	luksan_pyrmc0__(nf, &n, &ix[1], &gf[1], &eps8, &umax, gmax, &rmax, &
 		iold, &irest);
@@ -311,6 +313,7 @@ L11130:
     if (*iterm != 0) {
 	goto L11190;
     }
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
 
 /*     DIRECTION DETERMINATION */
 
@@ -360,6 +363,7 @@ L11130:
     if (*iterm != 0) {
 	goto L11190;
     }
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
     if (irest != 0) {
 	goto L11130;
     }
