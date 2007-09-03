@@ -326,4 +326,3 @@ References:
     for unconstrained and equality constrained optimization. Research
     Report V-767, Institute of Computer Science, Academy of Sciences
     of the Czech Republic, Prague, Czech Republic, 1998.
-
