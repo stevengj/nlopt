@@ -115,9 +115,9 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 
 #include "stogo.h"
 
-#include "l-bfgs-b.h"
-
 #include "cdirect.h"
+
+#include "luksan.h"
 
 /*************************************************************************/
 
@@ -301,36 +301,8 @@ static nlopt_result nlopt_minimize_(
 			     &stop, minf);
 	 }
 
-	 case NLOPT_LD_LBFGS: {
-	      int iret, *nbd = (int *) malloc(sizeof(int) * n);
-	      if (!nbd) return NLOPT_OUT_OF_MEMORY;
-	      for (i = 0; i < n; ++i) {
-		   int linf = my_isinf(lb[i]) && lb[i] < 0;
-		   int uinf = my_isinf(ub[i]) && ub[i] > 0;
-		   nbd[i] = linf && uinf ? 0 : (uinf ? 1 : (linf ? 3 : 2));
-	      }
-	      iret = lbfgsb_minimize(n, f, f_data, x, nbd, lb, ub,
-				     MIN(n, 5), 0.0, ftol_rel, 
-				     xtol_abs ? *xtol_abs : xtol_rel,
-				     maxeval);
-	      free(nbd);
-	      if (iret <= 0) {
-		   switch (iret) {
-		       case -1: return NLOPT_INVALID_ARGS;
-		       case -2: default: return NLOPT_FAILURE;
-		   }
-	      }
-	      else {
-		   *minf = f(n, x, NULL, f_data);
-		   switch (iret) {
-		       case 5: return NLOPT_MAXEVAL_REACHED;
-		       case 2: return NLOPT_XTOL_REACHED;
-		       case 1: return NLOPT_FTOL_REACHED;
-		       default: return NLOPT_SUCCESS;
-		   }
-	      }
-	      break;
-	 }
+	 case NLOPT_LD_LBFGS: 
+	      return luksan_plis(n, f, f_data, lb, ub, x, minf, &stop);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;
