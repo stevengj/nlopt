@@ -57,6 +57,10 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "Principal-axis, praxis (local, no-derivative)",
      "Limited-memory variable-metric, rank 1 (local, derivative-based)",
      "Limited-memory variable-metric, rank 2 (local, derivative-based)",
+     "Truncated Newton (local, derivative-based)",
+     "Truncated Newton with restarting (local, derivative-based)",
+     "Preconditioned truncated Newton (local, derivative-based)",
+     "Preconditioned truncated Newton with restarting (local, derivative-based)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -310,6 +314,14 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_LD_VAR2: 
 	      return luksan_plip(n, f, f_data, lb, ub, x, minf, &stop,
 		   algorithm == NLOPT_LD_VAR1 ? 1 : 2);
+
+	 case NLOPT_LD_TNEWTON: 
+	 case NLOPT_LD_TNEWTON_RESTART: 
+	 case NLOPT_LD_TNEWTON_PRECOND: 
+	 case NLOPT_LD_TNEWTON_PRECOND_RESTART: 
+	      return luksan_pnet(n, f, f_data, lb, ub, x, minf, &stop,
+				 1 + (algorithm - NLOPT_LD_TNEWTON) % 2,
+				 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

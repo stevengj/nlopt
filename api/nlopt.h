@@ -45,6 +45,11 @@ typedef enum {
      NLOPT_LD_VAR1,
      NLOPT_LD_VAR2,
 
+     NLOPT_LD_TNEWTON,
+     NLOPT_LD_TNEWTON_RESTART,
+     NLOPT_LD_TNEWTON_PRECOND,
+     NLOPT_LD_TNEWTON_PRECOND_RESTART,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

@@ -22,6 +22,13 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 			 nlopt_stopping *stop,
 			 int method);
 
+nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
+			 const double *lb, const double *ub, /* bounds */
+			 double *x, /* in: initial guess, out: minimizer */
+			 double *minf, 
+			 nlopt_stopping *stop,
+			 int mos1, int mos2);
+
 /*****************************  internal routines *************************/
 
 /* mssubs.c: */
