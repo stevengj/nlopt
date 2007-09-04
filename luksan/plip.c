@@ -178,7 +178,6 @@ static void plip_(int *nf, int *nb, double *x, int *
     stat_1->ndec = 0;
     stat_1->nin = 0;
     stat_1->nit = 0;
-    stop->nevals = 0;
     stat_1->nfg = 0;
     stat_1->nfh = 0;
     isys = 0;
