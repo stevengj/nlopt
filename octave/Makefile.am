@@ -7,7 +7,7 @@ octdir = $(OCT_INSTALL_DIR)
 mdir = $(M_INSTALL_DIR)
 if WITH_OCTAVE
 oct_DATA = nlopt_minimize.oct
-m_DATA = $(MFILES)
+m_DATA = $(MFILES) nlopt_minimize.m
 endif
 
 nlopt_minimize.oct: nlopt_minimize-oct.cc nlopt_minimize_usage.h
@@ -21,7 +21,7 @@ nlopt_minimize_usage.h: $(srcdir)/nlopt_minimize.m
 #######################################################################
 mexdir = $(MEX_INSTALL_DIR)
 if WITH_MATLAB
-mex_DATA = nlopt_minimize.$(MEXSUFF) $(MFILES)
+mex_DATA = nlopt_minimize.$(MEXSUFF) $(MFILES) nlopt_minimize.m
 endif
 
 nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c
@@ -29,6 +29,6 @@ nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c
 
 #######################################################################
 
-EXTRA_DIST = nlopt_minimize-oct.cc nlopt_minimize-mex.c $(MFILES)
+EXTRA_DIST = nlopt_minimize-oct.cc nlopt_minimize-mex.c $(MFILES) nlopt_minimize.m
 
 CLEANFILES = nlopt_minimize.oct nlopt_minimize_usage.h nlopt_minimize.$(MEXSUFF) nlopt_minimize-oct.o
