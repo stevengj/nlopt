@@ -13,22 +13,21 @@ endif
 nlopt_minimize.oct: nlopt_minimize-oct.cc nlopt_minimize_usage.h
 	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
 
+nlopt_minimize_usage.h: $(srcdir)/nlopt_minimize.m
+	echo "#define NLOPT_MINIMIZE_USAGE \\" > $@
+	sed 's/\"/\\"/g' $(srcdir)/nlopt_minimize.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
+	echo "" >> $@
+
 #######################################################################
 mexdir = $(MEX_INSTALL_DIR)
 if WITH_MATLAB
 mex_DATA = nlopt_minimize.$(MEXSUFF) $(MFILES)
 endif
 
-nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c nlopt_minimize_usage.h
+nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c
 	$(MEX) -output nlopt_minimize -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
 
 #######################################################################
-
-nlopt_minimize_usage.h: $(srcdir)/nlopt_minimize.m
-	echo "#define NLOPT_MINIMIZE_USAGE \\" > $@
-	sed 's/\"/\\"/g' $(srcdir)/nlopt_minimize.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
-	echo "" >> $@
-
 
 EXTRA_DIST = nlopt_minimize-oct.cc nlopt_minimize-mex.c $(MFILES)
 
