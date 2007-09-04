@@ -93,6 +93,47 @@ AC_SUBST(M_INSTALL_DIR)
 AC_SUBST(MKOCTFILE)
 
 dnl -----------------------------------------------------------------------
+dnl Compiling Matlab plug-in
+
+AC_ARG_VAR(MEX_INSTALL_DIR, [where to install Matlab .mex plug-ins])
+AC_ARG_VAR(MEX, [name of mex program to compile Matlab plug-ins])
+AC_CHECK_PROGS(MEX, mex, echo)
+if test "$MEX" = "echo"; then
+	AC_MSG_WARN([can't find mex: won't be able to compile Matlab plugin])
+elif test x"$MEX_INSTALL_DIR" = "x"; then
+     AC_MSG_CHECKING([for extension of compiled mex files])
+     rm -f conftest*
+     cat > conftest.c <<EOF
+#include <mex.h>
+void mexFunction(int nlhs, mxArray *plhs[[]],
+                 int nrhs, const mxArray *prhs[[]]) { }
+EOF
+     if $MEX conftest.c; then
+        MEXSUFF=`ls conftest.m* | head -1 | cut -d'.' -f2`
+	AC_MSG_RESULT($MEXSUFF)
+	AC_CHECK_PROGS(MATLAB, matlab, echo)
+     else
+           AC_MSG_WARN([$MEX failed to compile a simple file; won't compile Matlab plugin])
+	MATLAB=echo
+     fi
+
+     # try to find installation directory
+     if test x"$MATLAB" = xecho; then
+        AC_MSG_WARN([can't fine Matlab; won't compile Matlab plugin])
+     else
+        AC_MSG_CHECKING(for MATLAB mex installation dir)
+	matlabpath_line=`matlab -n | grep -n MATLABPATH |head -1 |cut -d: -f1`
+	matlabpath_line=`expr $matlabpath_line + 1`
+	MEX_INSTALL_DIR=`matlab -n | tail -n +$matlabpath_line | head -1 | tr -d ' '`
+	AC_MSG_RESULT($MEX_INSTALL_DIR)
+      fi
+fi
+AM_CONDITIONAL(WITH_MATLAB, test x"$MEX_INSTALL_DIR" != "x")
+AC_SUBST(MEX_INSTALL_DIR)
+AC_SUBST(MEX)
+AC_SUBST(MEXSUFF)
+
+dnl -----------------------------------------------------------------------
 dnl Debugging
 
 AC_ARG_ENABLE(debug, [AC_HELP_STRING([--enable-debug],[compile with extra runtime checks for debugging])], ok=$enableval, ok=no)

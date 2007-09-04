@@ -2,22 +2,34 @@ AM_CPPFLAGS = -I$(top_srcdir)/api
 
 MFILES = NLOPT_GN_DIRECT.m NLOPT_GN_DIRECT_L.m NLOPT_GN_DIRECT_L_RAND.m NLOPT_GN_DIRECT_NOSCAL.m NLOPT_GN_DIRECT_L_NOSCAL.m NLOPT_GN_DIRECT_L_RAND_NOSCAL.m NLOPT_GN_ORIG_DIRECT.m NLOPT_GN_ORIG_DIRECT_L.m NLOPT_LN_SUBPLEX.m NLOPT_GD_STOGO.m NLOPT_GD_STOGO_RAND.m NLOPT_LD_LBFGS.m NLOPT_LN_PRAXIS.m NLOPT_LD_VAR1.m NLOPT_LD_VAR2.m 
 
+#######################################################################
 octdir = $(OCT_INSTALL_DIR)
 mdir = $(M_INSTALL_DIR)
-
 if WITH_OCTAVE
 oct_DATA = nlopt_minimize.oct
 m_DATA = $(MFILES)
 endif
 
-nlopt_minimize.oct: nlopt_minimize.cc nlopt_minimize_usage.h
-	$(MKOCTFILE) $(DEFS) $(CPPFLAGS) $(srcdir)/nlopt_minimize.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
+nlopt_minimize.oct: nlopt_minimize-oct.cc nlopt_minimize_usage.h
+	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
+
+#######################################################################
+mexdir = $(MEX_INSTALL_DIR)
+if WITH_MATLAB
+mex_DATA = nlopt_minimize.$(MEXSUFF) $(MFILES)
+endif
+
+nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c nlopt_minimize_usage.h
+	$(MEX) -output nlopt_minimize -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
+
+#######################################################################
 
 nlopt_minimize_usage.h: $(srcdir)/nlopt_minimize.m
 	echo "#define NLOPT_MINIMIZE_USAGE \\" > $@
 	sed 's/\"/\\"/g' $(srcdir)/nlopt_minimize.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
 	echo "" >> $@
 
-EXTRA_DIST = nlopt_minimize.cc $(MFILES)
 
-CLEANFILES = nlopt_minimize.oct nlopt_minimize_usage.h
+EXTRA_DIST = nlopt_minimize-oct.cc nlopt_minimize-mex.c $(MFILES)
+
+CLEANFILES = nlopt_minimize.oct nlopt_minimize_usage.h nlopt_minimize.$(MEXSUFF) nlopt_minimize-oct.o
