@@ -46,16 +46,16 @@
 % for the accuracy of the minimum function value/x.
 %
 % The algorithm should be one of the following constants (name and
-% interpretation are the same as for the C function):
+% interpretation are the same as for the C function).  Names with
+% _G*_ are global optimization, and names with _L*_ are local
+% optimization.  Names with _*N_ are derivative-free, while names
+% with _*D_ are gradient-based algorithms.  Algorithms:
 %
-% Derivative-free algorithms:
-%     NLOPT_GN_DIRECT, NLOPT_GN_DIRECT_L,
-%     NLOPT_GN_DIRECT_L_RAND,
-%     NLOPT_GN_ORIG_DIRECT, NLOPT_GN_ORIG_DIRECT_L,
-%     NLOPT_LN_SUBPLEX
-%
-% Gradient-based algorithms:
-%    NLOPT_GD_STOGO, NLOPT_GD_STOGO_RAND, NLOPT_LD_LBFGS
+% NLOPT_GN_DIRECT, NLOPT_GN_DIRECT_L, NLOPT_GN_DIRECT_L_RAND,
+% NLOPT_GN_DIRECT_NOSCAL, NLOPT_GN_DIRECT_L_NOSCAL,
+% NLOPT_GN_DIRECT_L_RAND_NOSCAL, NLOPT_GN_ORIG_DIRECT, NLOPT_GN_ORIG_DIRECT_L,
+% NLOPT_LN_SUBPLEX, NLOPT_GD_STOGO, NLOPT_GD_STOGO_RAND, NLOPT_LD_LBFGS,
+% NLOPT_LN_PRAXIS, NLOPT_LD_VAR1, NLOPT_LD_VAR2 
 %
 % For more information on individual functions, see their individual
 % help pages (e.g. "help NLOPT_LN_SUBPLEX").
