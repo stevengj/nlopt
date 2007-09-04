@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #include "config.h"
 
@@ -20,6 +21,7 @@ static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_d
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
+static int force_constraints = 0;
 
 static void listalgs(FILE *f)
 {
@@ -41,7 +43,7 @@ static int test_function(int ifunc)
 {
   testfunc func;
   int i, iter;
-  double *x, minf, minf_max, f0, *xtabs;
+  double *x, minf, minf_max, f0, *xtabs, *lb, *ub;
   nlopt_result ret;
   double start = nlopt_seconds();
   
@@ -51,10 +53,13 @@ static int test_function(int ifunc)
     return 0;
   }
   func = testfuncs[ifunc];
-  x = (double *) malloc(sizeof(double) * func.n * 3);
+  x = (double *) malloc(sizeof(double) * func.n * 5);
   if (!x) { fprintf(stderr, "testopt: Out of memory!\n"); return 0; }
 
+  lb = x + func.n * 3;
+  ub = lb + func.n;
   xtabs = x + func.n * 2;
+
   for (i = 0; i < func.n; ++i) xtabs[i] = xtol_abs;
   minf_max = minf_max_delta > (-HUGE_VAL) ? minf_max_delta + func.minf : (-HUGE_VAL);
   
@@ -67,22 +72,38 @@ static int test_function(int ifunc)
   printf("upper bounds at ub = [");
   for (i = 0; i < func.n; ++i) printf(" %g", func.ub[i]);
   printf("]\n");
+  memcpy(lb, func.lb, func.n * sizeof(double));
+  memcpy(ub, func.ub, func.n * sizeof(double));
+  if (force_constraints) {
+    for (i = 0; i < func.n; ++i) {
+      if (nlopt_iurand(2) == 0)
+	ub[i] = nlopt_urand(lb[i], func.xmin[i]);
+      else
+	lb[i] = nlopt_urand(func.xmin[i], ub[i]);
+    }
+    printf("adjusted lower bounds at lb = [");
+    for (i = 0; i < func.n; ++i) printf(" %g", lb[i]);
+    printf("]\n");
+    printf("adjusted upper bounds at ub = [");
+    for (i = 0; i < func.n; ++i) printf(" %g", ub[i]);
+    printf("]\n");
+  }
 
 
   printf("Starting guess x = [");
   for (i = 0; i < func.n; ++i) {
     if (center_start)
-      x[i] = (func.ub[i] + func.lb[i]) * 0.5;
+      x[i] = (ub[i] + lb[i]) * 0.5;
     else if (xinit_tol < 0) { /* random starting point near center of box */
-      double dx = (func.ub[i] - func.lb[i]) * 0.25;
-      double xm = 0.5 * (func.ub[i] + func.lb[i]);
+      double dx = (ub[i] - lb[i]) * 0.25;
+      double xm = 0.5 * (ub[i] + lb[i]);
       x[i] = nlopt_urand(xm - dx, xm + dx);
     }
     else {
       x[i] = nlopt_urand(-xinit_tol, xinit_tol)
 	+ (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
-      if (x[i] > func.ub[i]) x[i] = func.ub[i];
-      else if (x[i] < func.lb[i]) x[i] = func.lb[i];
+      if (x[i] > ub[i]) x[i] = ub[i];
+      else if (x[i] < lb[i]) x[i] = lb[i];
     }
     printf(" %g", x[i]);
   }
@@ -106,7 +127,7 @@ static int test_function(int ifunc)
     testfuncs_counter = 0;
     ret = nlopt_minimize(algorithm,
 			 func.n, func.f, func.f_data,
-			 func.lb, func.ub,
+			 lb, ub,
 			 x, &minf,
 			 minf_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
 			 maxeval, maxtime);
@@ -143,6 +164,7 @@ static void usage(FILE *f)
 	  " -o <n> : use objective function <n>\n"
 	  " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
 	  "     -c : starting guess at center of cell\n"
+	  "     -C : put optimum outside of bound constraints\n"
 	  " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
 	  " -t <t> : use at most <t> seconds (default: disabled)\n"
 	  " -x <t> : relative tolerance <t> on x (default: disabled)\n"
@@ -165,7 +187,7 @@ int main(int argc, char **argv)
   if (argc <= 1)
     usage(stdout);
   
-  while ((c = getopt(argc, argv, "hLvc0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
+  while ((c = getopt(argc, argv, "hLvCc0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
     switch (c) {
     case 'h':
       usage(stdout);
@@ -176,6 +198,9 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
     case 'v':
       testfuncs_verbose = 1;
+      break;
+    case 'C':
+      force_constraints = 1;
       break;
     case 'r':
       nlopt_srand((unsigned long) atoi(optarg));
