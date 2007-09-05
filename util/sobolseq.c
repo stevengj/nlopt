@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdlib.h>
 
 #include "nlopt-util.h"
@@ -32,14 +31,20 @@ typedef struct nlopt_soboldata_s {
    via binary search on the (32) bits of n. */
 static unsigned rightzero32(uint32_t n)
 {
+#if 0 /* use 8-bit lookup table ... seems slightly slower */
+     static const unsigned rightone8[256] = {
+	  8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
+     };
+#endif
      unsigned z = 0;
      n = ~n; /* change to rightmost-one bit problem */
      if (n & 0xffffU) { /* 1 in lower 16 bits */
      lower16:
 	  if (n & 0xffU) { /* 1 in lower 8 bits */
 	  lower8:
-	       /* fixme: faster to do a switch statement 
-		  or table lookup at this point? */
+#if 0 /* use 8-bit lookup table ... seems slightly slower */
+	       return z + rightone8[n & 0xffU];
+#else
 	       if (n & 0xfU) { /* 1 in lower 4 bits */
 	       lower4:
 		    if (n & 3U) /* 1 in lower 2 bits */
@@ -52,6 +57,7 @@ static unsigned rightzero32(uint32_t n)
 		    z += 4;
 		    goto lower4;
 	       }
+#endif
 	  }
 	  else { /* 1 in upper 8 bits */
 	       n >>= 8;
@@ -195,25 +201,68 @@ void nlopt_sobol_next(nlopt_sobol s, double *x,
 	  x[i] = lb[i] + (ub[i] - lb[i]) * x[i];
 }
 
+/* if we know in advance how many points (n) we want to compute, then
+   adopt the suggestion of the Joe and Kuo paper, which in turn
+   is taken from Acworth et al (1998), of skipping a number of
+   points equal to the largest power of 2 smaller than n */
+void nlopt_sobol_skip(nlopt_sobol s, unsigned n, double *x)
+{
+     unsigned k = 1;
+     while (k*2 < n) k *= 2;
+     while (k-- > 0) sobol_gen(s, x);
+}
+
 /************************************************************************/
 
 /* compile with -DSOBOLSEQ_TEST for test program */
 #ifdef SOBOLSEQ_TEST
 #include <stdio.h>
+#include <math.h>
+#include <time.h>
+
+/* test integrand from Joe and Kuo paper ... integrates to 1 */
+static double testfunc(unsigned n, const double *x)
+{
+     double f = 1;
+     unsigned j;
+     for (j = 1; j <= n; ++j) {
+	  double cj = pow((double) j, 0.3333333333333333333);
+	  f *= (fabs(4*x[j-1] - 2) + cj) / (1 + cj);
+     }
+     return f;
+}
+
 int main(int argc, char **argv)
 {
-     unsigned n, i, sdim;
+     unsigned n, j, i, sdim;
      static double x[MAXDIM];
-     soboldata sd;
-     sdim = atoi(argv[1]);
-     sobol_init(&sd, sdim);
-     for (n = atoi(argv[2]); n > 0; --n) {
-	  sobol_gen(&sd, x);
-	  printf("x: %g", x[0]);
-	  for (i = 1; i < sdim; ++i) printf(", %g", x[i]);
-	  printf("\n");
+     double testint_sobol = 0, testint_rand = 0;
+     nlopt_sobol s;
+     if (argc < 3) { 
+	  fprintf(stderr, "Usage: %s <sdim> <ngen>\n", argv[0]);
+	  return 1;
      }
-     sobol_destroy(&sd);
+     nlopt_init_genrand(time(NULL));
+     sdim = atoi(argv[1]);
+     s = nlopt_sobol_create(sdim);
+     n = atoi(argv[2]);
+     nlopt_sobol_skip(s, n, x);
+     for (j = 1; j <= n; ++j) {
+	  nlopt_sobol_next01(s, x);
+	  testint_sobol += testfunc(sdim, x);
+	  if (j < 100) {
+	       printf("x[%d]: %g", j, x[0]);
+	       for (i = 1; i < sdim; ++i) printf(", %g", x[i]);
+	       printf("\n");
+	  }
+	  for (i = 0; i < sdim; ++i) x[i] = nlopt_urand(0.,1.);
+	  testint_rand += testfunc(sdim, x);
+     }
+     nlopt_sobol_destroy(s);
+     printf("Test integral = %g using Sobol, %g using pseudorandom.\n",
+	    testint_sobol / n, testint_rand / n);
+     printf("        error = %g using Sobol, %g using pseudorandom.\n",
+	    testint_sobol / n - 1, testint_rand / n - 1);
      return 0;
 }
 #endif

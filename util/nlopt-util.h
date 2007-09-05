@@ -22,6 +22,7 @@ extern void nlopt_sobol_destroy(nlopt_sobol s);
 extern void nlopt_sobol_next01(nlopt_sobol s, double *x);
 extern void nlopt_sobol_next(nlopt_sobol s, double *x,
 			    const double *lb, const double *ub);
+extern void nlopt_sobol_skip(nlopt_sobol s, unsigned n, double *x);
 
 /* stopping criteria */
 typedef struct {
