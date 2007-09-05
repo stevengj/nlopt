@@ -143,7 +143,7 @@ static int sobol_gen(soboldata *sd, double *x)
      return 1;
 }
 
-#include "sobolseq.h"
+#include "soboldata.h"
 
 static int sobol_init(soboldata *sd, unsigned sdim)
 {
