@@ -15,6 +15,14 @@ extern void nlopt_init_genrand(unsigned long s);
 extern double nlopt_urand(double a, double b);
 extern int nlopt_iurand(int n);
 
+/* Sobol' low-discrepancy-sequence generation */
+typedef struct nlopt_soboldata_s *nlopt_sobol;
+extern nlopt_sobol nlopt_sobol_create(unsigned sdim);
+extern void nlopt_sobol_destroy(nlopt_sobol s);
+extern void nlopt_sobol_next01(nlopt_sobol s, double *x);
+extern void nlopt_sobol_next(nlopt_sobol s, double *x,
+			    const double *lb, const double *ub);
+
 /* stopping criteria */
 typedef struct {
      int n;
