@@ -230,7 +230,7 @@ extern void nlopt_sobol_destroy(nlopt_sobol s)
 /* next vector x[sdim] in Sobol sequence, with each x[i] in (0,1) */
 void nlopt_sobol_next01(nlopt_sobol s, double *x)
 {
-     if (!sobol_gen(s, x)) {
+     if (!s || !sobol_gen(s, x)) {
 	  /* fall back on pseudo random numbers in the unlikely event
 	     that we exceed 2^32-1 points */
 	  unsigned i;
