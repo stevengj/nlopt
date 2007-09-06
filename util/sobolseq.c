@@ -75,49 +75,23 @@ typedef struct nlopt_soboldata_s {
      uint32_t n; /* number of x's generated so far */
 } soboldata;
 
-/* return position (0, 1, ...) of rightmost zero bit in n,
-   via binary search on the (32) bits of n. */
+/* Return position (0, 1, ...) of rightmost zero bit in n,
+ * via binary search on the (32) bits of n. 
+ *
+ * This code uses a 32-bit version of algorithm to find the rightmost
+ * one bit in Knuth, _The Art of Computer Programming_, volume 4A
+ * (draft fascicle), section 7.1.3, "Bitwise tricks and
+ * techniques." 
+ *
+ * Assumes n has a zero bit, i.e. n < 2^32 - 1.
+ *
+ */
 static unsigned rightzero32(uint32_t n)
 {
-#if 0 /* use 8-bit lookup table ... seems slightly slower */
-     static const unsigned rightone8[256] = {
-	  8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,7,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,6,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0
-     };
-#endif
-     unsigned z = 0;
-     n = ~n; /* change to rightmost-one bit problem */
-     if (n & 0xffffU) { /* 1 in lower 16 bits */
-     lower16:
-	  if (n & 0xffU) { /* 1 in lower 8 bits */
-	  lower8:
-#if 0 /* use 8-bit lookup table ... seems slightly slower */
-	       return z + rightone8[n & 0xffU];
-#else
-	       if (n & 0xfU) { /* 1 in lower 4 bits */
-	       lower4:
-		    if (n & 3U) /* 1 in lower 2 bits */
-			 return (z + !(n & 1));
-		    else /* 1 in upper 2 bits */
-			 return (z + 2 + !(n & 4));
-	       }
-	       else { /* 1 in upper 4 bits */
-		    n >>= 4;
-		    z += 4;
-		    goto lower4;
-	       }
-#endif
-	  }
-	  else { /* 1 in upper 8 bits */
-	       n >>= 8;
-	       z += 8;
-	       goto lower8;
-	  }
-     }
-     else if (n) { /* 1 in upper 16 bits */
-	  n >>= (z = 16);
-	  goto lower16; 
-     }
-     return 32; /* no 1 */
+     const uint32_t a = 0x05f66a47; /* magic number, found by brute force */
+     static const unsigned decode[32] = {0,1,2,26,23,3,15,27,24,21,19,4,12,16,28,6,31,25,22,14,20,18,11,5,30,13,17,10,29,9,8,7};
+     n = ~n; /* change to rightmost-one problem */
+     return decode[(a * (n & (-n))) >> 27];
 }
 
 /* generate the next term x_{n+1} in the Sobol sequence, as an array
@@ -125,9 +99,13 @@ static unsigned rightzero32(uint32_t n)
    (if too many #'s generated) */
 static int sobol_gen(soboldata *sd, double *x)
 {
-     unsigned c = rightzero32(sd->n++), b, i, sdim = sd->sdim;
+     unsigned c, b, i, sdim;
 
-     if (c >= 32) return 0;
+     if (c == 4294967295U) return 0; /* c == 2^32 - 1 ... we would
+					need to switch to a 64-bit version
+					to generate more terms. */
+     c = rightzero32(sd->n++);
+     sdim = sd->sdim;
      for (i = 0; i < sdim; ++i) {
 	  b = sd->b[i];
 	  if (b >= c) {
