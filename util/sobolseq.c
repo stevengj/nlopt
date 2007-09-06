@@ -75,8 +75,7 @@ typedef struct nlopt_soboldata_s {
      uint32_t n; /* number of x's generated so far */
 } soboldata;
 
-/* Return position (0, 1, ...) of rightmost zero bit in n,
- * via binary search on the (32) bits of n. 
+/* Return position (0, 1, ...) of rightmost zero bit in n.
  *
  * This code uses a 32-bit version of algorithm to find the rightmost
  * one bit in Knuth, _The Art of Computer Programming_, volume 4A
