@@ -1,8 +1,8 @@
 #ifndef LUKSAN_H
 #define LUKSAN_H
 
-#include <nlopt.h>
-#include <nlopt-util.h>
+#include "nlopt.h"
+#include "nlopt-util.h"
 
 #ifdef __cplusplus
 extern "C"
