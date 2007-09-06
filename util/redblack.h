@@ -1,6 +1,8 @@
 #ifndef REDBLACK_H
 #define REDBLACK_H
 
+#include <stddef.h> /* for ptrdiff_t */
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -38,6 +40,7 @@ extern rb_node *rb_tree_min(rb_tree *t);
 extern rb_node *rb_tree_max(rb_tree *t);
 extern rb_node *rb_tree_succ(rb_node *n);
 extern rb_node *rb_tree_pred(rb_node *n);
+extern void rb_tree_shift_keys(rb_tree *t, ptrdiff_t kshift);
 
 /* To change a key, use rb_tree_find+resort.  Removing a node
    currently wastes memory unless you change the allocation scheme

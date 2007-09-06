@@ -371,3 +371,16 @@ rb_node *rb_tree_resort(rb_tree *t, rb_node *n)
      insert_node(t, n);
      return n;
 }
+
+/* shift all key pointers by kshift ... this is useful when the keys
+   are pointers into another array, that has been resized with realloc */
+static void shift_keys(rb_node *n, ptrdiff_t kshift) /* assumes n != NIL */
+{
+     n->k += kshift;
+     if (n->l != NIL) shift_keys(n->l, kshift);
+     if (n->r != NIL) shift_keys(n->r, kshift);
+}
+void rb_tree_shift_keys(rb_tree *t, ptrdiff_t kshift)
+{
+     if (t->root != NIL) shift_keys(t->root, kshift);
+}
