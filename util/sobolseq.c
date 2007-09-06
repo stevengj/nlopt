@@ -100,9 +100,9 @@ static int sobol_gen(soboldata *sd, double *x)
 {
      unsigned c, b, i, sdim;
 
-     if (c == 4294967295U) return 0; /* c == 2^32 - 1 ... we would
-					need to switch to a 64-bit version
-					to generate more terms. */
+     if (sd->n == 4294967295U) return 0; /* n == 2^32 - 1 ... we would
+					    need to switch to a 64-bit version
+					    to generate more terms. */
      c = rightzero32(sd->n++);
      sdim = sd->sdim;
      for (i = 0; i < sdim; ++i) {
