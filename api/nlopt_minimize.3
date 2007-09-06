@@ -170,22 +170,68 @@ The
 .I algorithm
 parameter specifies the optimization algorithm (for more detail on
 these, see the README files in the source-code subdirectories), and
-can take on any of the following values:
+can take on any of the following constant values.  Constants with
+.B _G{N,D}_
+in their names
+refer to global optimization methods, whereas
+.B _L{N,D}_
+refers to local optimization methods (that try to find a local minimum
+starting from the starting guess
+.IR x ).
+Constants with
+.B _{G,L}N_
+refer to non-gradient (derivative-free) algorithms that do not require the
+objective function to supply a gradient, whereas
+.B _{G,L}D_
+refers to derivative-based algorithms that require the objective
+function to supply a gradient.  (Especially for local optimization,
+derivative-based algorithms are generally superior to derivative-free
+ones: the gradient is good to have 
+.I if 
+you can compute it cheaply, e.g. via an adjoint method.)
 .TP 
-.B NLOPT_GLOBAL_DIRECT
-Perform a global derivative-free optimization using the DIRECT search
-algorithm by Jones et al.  Supports arbitrary nonlinear constraints as
-described above, but does not support unconstrained optimization.
+.B NLOPT_GN_DIRECT_L
+Perform a global (G) derivative-free (N) optimization using the
+DIRECT-L search algorithm by Jones et al. as modified by Gablonsky et
+al. to be more weighted towards local search.  Does not support
+unconstrainted optimization.  There are also several other variants of
+the DIRECT algorithm that are supported:
+.BR NLOPT_GLOBAL_DIRECT ,
+which is the original DIRECT algorithm;
+.BR NLOPT_GLOBAL_DIRECT_L_RAND ,
+a slightly randomized version of DIRECT-L that may be better in
+high-dimensional search spaces;
+.BR NLOPT_GLOBAL_DIRECT_NOSCAL ,
+.BR NLOPT_GLOBAL_DIRECT_L_NOSCAL ,
+and
+.BR NLOPT_GLOBAL_DIRECT_L_RAND_NOSCAL ,
+which are versions of DIRECT where the dimensions are not rescaled to
+a unit hypercube (which means that dimensions with larger bounds are
+given more weight).
 .TP 
-.B NLOPT_GLOBAL_DIRECT_L
-Perform a global derivative-free optimization using the DIRECT-L
-search algorithm by Gablonsky et al., a modified version of the DIRECT
-algorithm that is more suited to functions with modest numbers of
-local minima.  Supports arbitrary nonlinear constraints as described
-above, but does not support unconstrained optimization.
+.B NLOPT_GN_ORIG_DIRECT_L
+A global (G) derivative-free optimization using the DIRECT-L algorithm
+as above, along with
+.B NLOPT_GN_ORIG_DIRECT
+which is the original DIRECT algorithm.  Unlike 
+.B NLOPT_GN_DIRECT_L 
+above, these two algorithms refer to code based on the original
+Fortran code of Gablonsky et al., which has some hard-coded
+limitations on the number of subdivisions etc. and does not support
+all of the NLopt stopping criteria, but on the other hand supports
+arbitrary nonlinear constraints as described above.
 .TP 
-.B NLOPT_LOCAL_SUBPLEX
-Perform a local derivative-free optimization, starting at
+.B NLOPT_GD_STOGO
+Global (G) optimization using the StoGO algorithm by Madsen et al.  StoGO
+exploits gradient information (D) (which must be supplied by the
+objective) for its local searches, and performs the global search by a
+branch-and-bound technique.  Only bound-constrained optimization
+is supported.  There is also another variant of this algorithm,
+.BR NLOPT_GD_STOGO_RAND ,
+which is a randomized version of the StoGO search scheme.
+.TP 
+.B NLOPT_LN_SUBPLEX
+Perform a local (L) derivative-free (N) optimization, starting at
 .IR x ,
 using the Subplex algorithm of Rowan et al., which is an improved
 variant of Nelder-Mead simplex algorithm.  (Like Nelder-Mead, Subplex
@@ -197,23 +243,41 @@ works (both for simple bound constraints via
 and
 .I ub
 as well as nonlinear constraints as described above).
-.TP 
-.B NLOPT_GLOBAL_STOGO
-Global optimization using the StoGO algorithm by Madsen et al.  StoGO
-exploits gradient information (which must be supplied by the
-objective) for its local searches, and performs the global search by a
-branch-and-bound technique.  Only bound-constrained optimization
-is supported.
-.TP 
-.B NLOPT_GLOBAL_STOGO_RANDOMIZED
-As above, but uses randomized starting points for the local searches
-(which is sometimes better, often worse than the deterministic version).
 .TP
-.B NLOPT_LOCAL_LBFGS
-Local gradient-based optimization using the low-storage BFGS (L-BFGS)
-algorithm.  (The objective function must supply the gradient.)
-Unconstrained optimization is supported in addition to simple bound
-constraints (see above).
+.B NLOPT_LN_PRAXIS
+Local (L) derivative-free (N) optimization using the principal-axis
+method, based on code by Richard Brent.  Designed for unconstrained
+optimization, although bound constraints are supported too (via a
+potentially inefficient method).
+.TP
+.B NLOPT_LD_LBFGS
+Local (L) gradient-based (D) optimization using the low-storage BFGS
+(LBFGS) algorithm.  (The objective function must supply the
+gradient.)  Unconstrained optimization is supported in addition to
+simple bound constraints (see above).  Based on an implementation by
+Luksan et al.
+.TP
+.B NLOPT_LD_VAR2
+Local (L) gradient-based (D) optimization using a shifted limited-memory
+variable-metric method based on code by Luksan et al., supporting both
+unconstrained and bound-constrained optimization.  
+.B NLOPT_LD_VAR2
+uses a rank-2 method, while 
+.B .B NLOPT_LD_VAR1
+is another variant using a rank-1 method.
+.TP
+.B NLOPT_LD_TNEWTON_PRECOND_RESTART
+Local (L) gradient-based (D) optimization using an
+LBFGS-preconditioned truncated Newton method with steepest-descent
+restarting, based on code by Luksan et al., supporting both
+unconstrained and bound-constrained optimization.  There are several
+other variants of this algorithm:
+.B NLOPT_LD_TNEWTON_PRECOND 
+(same without restarting), 
+.B NLOPT_LD_TNEWTON_RESTART
+(same without preconditioning), and
+.B NLOPT_LD_TNEWTON
+(same without restarting or preconditioning).
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the following arguments to
