@@ -41,7 +41,7 @@ void nlopt_version(int *major, int *minor, int *bugfix)
 
 /*************************************************************************/
 
-static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
+static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "DIRECT (global, no-derivative)",
      "DIRECT-L (global, no-derivative)",
      "Randomized DIRECT-L (global, no-derivative)",
@@ -61,6 +61,9 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][128] = {
      "Truncated Newton with restarting (local, derivative-based)",
      "Preconditioned truncated Newton (local, derivative-based)",
      "Preconditioned truncated Newton with restarting (local, derivative-based)",
+     "Controlled random search (CRS2) with local mutation (global, no-derivative)",
+     "Controlled quasi-random search (CRS2) with local mutation (global, no-derivative), using Sobol' LDS",
+     
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -124,6 +127,8 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "cdirect.h"
 
 #include "luksan.h"
+
+#include "crs.h"
 
 /*************************************************************************/
 
@@ -322,6 +327,9 @@ static nlopt_result nlopt_minimize_(
 	      return luksan_pnet(n, f, f_data, lb, ub, x, minf, &stop,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) % 2,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
+
+	 case NLOPT_GN_CRS2_LM:
+	      return crs_minimize(n, f, f_data, lb, ub, x, minf, &stop, 0);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

@@ -3,13 +3,13 @@ lib_LTLIBRARIES = libnlopt.la
 
 ACLOCAL_AMFLAGS=-I ./m4
 
-SUBDIRS= util subplex direct cdirect stogo praxis luksan api octave . test
+SUBDIRS= util subplex direct cdirect stogo praxis luksan crs api octave . test
 EXTRA_DIST=COPYRIGHT autogen.sh nlopt.pc.in m4
 
 libnlopt_la_SOURCES = 
 libnlopt_la_LIBADD = subplex/libsubplex.la direct/libdirect.la	\
 cdirect/libcdirect.la stogo/libstogo.la praxis/libpraxis.la	\
-luksan/libluksan.la api/libapi.la util/libutil.la
+luksan/libluksan.la crs/libcrs.la api/libapi.la util/libutil.la
 
 libnlopt_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
 

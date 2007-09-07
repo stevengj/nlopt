@@ -207,7 +207,7 @@ extern void nlopt_sobol_destroy(nlopt_sobol s)
 /* next vector x[sdim] in Sobol sequence, with each x[i] in (0,1) */
 void nlopt_sobol_next01(nlopt_sobol s, double *x)
 {
-     if (!s || !sobol_gen(s, x)) {
+     if (!sobol_gen(s, x)) {
 	  /* fall back on pseudo random numbers in the unlikely event
 	     that we exceed 2^32-1 points */
 	  unsigned i;
@@ -232,9 +232,11 @@ void nlopt_sobol_next(nlopt_sobol s, double *x,
    points equal to the largest power of 2 smaller than n */
 void nlopt_sobol_skip(nlopt_sobol s, unsigned n, double *x)
 {
-     unsigned k = 1;
-     while (k*2 < n) k *= 2;
-     while (k-- > 0) sobol_gen(s, x);
+     if (s) {
+	  unsigned k = 1;
+	  while (k*2 < n) k *= 2;
+	  while (k-- > 0) sobol_gen(s, x);
+     }
 }
 
 /************************************************************************/

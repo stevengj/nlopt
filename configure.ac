@@ -181,6 +181,7 @@ AC_CONFIG_FILES([
    subplex/Makefile
    praxis/Makefile
    luksan/Makefile
+   crs/Makefile
    test/Makefile
 ])
 
