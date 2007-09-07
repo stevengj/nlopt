@@ -278,6 +278,11 @@ other variants of this algorithm:
 (same without preconditioning), and
 .B NLOPT_LD_TNEWTON
 (same without restarting or preconditioning).
+.TP
+.B NLOPT_GN_CRS2_LM
+Global (G) derivative-free (N) optimization using controlled random
+search (CRS2) algorithm of Price, with the "local mutation" (LM)
+modification suggested by Kaelo and Ali.
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the following arguments to
