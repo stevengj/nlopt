@@ -31,6 +31,7 @@ typedef struct {
      mxArray *plhs[2];
      mxArray *prhs[MAXRHS];
      int xrhs, nrhs;
+     int verbose, neval;
 } user_function_data;
 
 static double user_function(int n, const double *x,
@@ -60,6 +61,8 @@ static double user_function(int n, const double *x,
      memcpy(gradient, mxGetPr(d->plhs[1]), n * sizeof(double));
      mxDestroyArray(d->plhs[1]);
   }
+  d->neval++;
+  if (d->verbose) mexPrintf("nlopt_minimize eval #%d: %g\n", d->neval, f);
   return f;
 }				 
 
@@ -139,6 +142,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
      xtol_rel = struct_val_default(prhs[6], "xtol_rel", 0);
      maxeval = (int) (struct_val_default(prhs[6], "maxeval", -1) + 0.5);
      maxtime = struct_val_default(prhs[6], "maxtime", -1);
+     d.verbose = (int) struct_val_default(prhs[6], "verbose", 0);
+     d.neval = 0;
      {
 	  mxArray *val = mxGetField(prhs[6], 0, "xtol_abs");
 	  if (val) {

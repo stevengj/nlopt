@@ -39,6 +39,7 @@
 %     stop.fmin_max = stop when f < fmin_max is found
 %     stop.maxeval = maximum number of function evaluations
 %     stop.maxtime = maximum run time in seconds
+%     stop.verbose = > 0 indicates verbose output
 % Minimization stops when any one of these conditions is met; any
 % condition that is omitted from stop will be ignored.  WARNING:
 % not all algorithms interpret the stopping criteria in exactly the

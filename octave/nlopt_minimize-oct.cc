@@ -34,6 +34,7 @@ static Matrix struct_val_default(Octave_map &m, const std::string& k,
 typedef struct {
   octave_function *f;
   Cell f_data;
+  int neval, verbose;
 } user_function_data;
 
 static double user_function(int n, const double *x,
@@ -65,6 +66,9 @@ static double user_function(int n, const double *x,
 	  gradient[i] = grad(i);
       }
     }
+    data->neval++;
+    if (data->verbose) printf("nlopt_minimize eval #%d: %g\n", 
+			      data->neval, res(0).double_value());
     return res(0).double_value();
   }
   return 0;
