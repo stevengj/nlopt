@@ -172,7 +172,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
      memcpy(d->ps + 1, x, sizeof(double) * n);
      d->ps[0] = f(n, x, NULL, f_data);
      stop->nevals++;
-     rb_tree_insert(&d->t, d->ps);
+     if (!rb_tree_insert(&d->t, d->ps)) return NLOPT_OUT_OF_MEMORY;
      if (d->ps[0] < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
      if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
      if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
@@ -187,7 +187,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
 	  }
 	  k[0] = f(n, k + 1, NULL, f_data);
 	  stop->nevals++;
-	  rb_tree_insert(&d->t, k);
+	  if (!rb_tree_insert(&d->t, k)) return NLOPT_OUT_OF_MEMORY;
 	  if (k[0] < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
 	  if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
 	  if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;	  
