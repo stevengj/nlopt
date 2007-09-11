@@ -211,6 +211,28 @@ rb_node *rb_tree_find_le(rb_tree *t, rb_key k)
      return find_le(t->root, k, t);
 }
 
+/* find greatest point in subtree p that is < k */
+static rb_node *find_lt(rb_node *p, rb_key k, rb_tree *t)
+{
+     rb_compare compare = t->compare;
+     while (p != NIL) {
+	  if (compare(p->k, k) < 0) { /* p->k < k */
+	       rb_node *r = find_lt(p->r, k, t);
+	       if (r) return r;
+	       else return p;
+	  }
+	  else /* p->k >= k */
+	       p = p->l;
+     }
+     return NULL; /* k <= everything in subtree */
+}
+
+/* find greatest point in t < k */
+rb_node *rb_tree_find_lt(rb_tree *t, rb_key k)
+{
+     return find_lt(t->root, k, t);
+}
+
 /* find least point in subtree p that is > k */
 static rb_node *find_gt(rb_node *p, rb_key k, rb_tree *t)
 {
