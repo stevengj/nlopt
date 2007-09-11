@@ -140,6 +140,10 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
 	  cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
 	}
 	SolSet.push_back(tmpTrial);
+#ifdef NLOPT_UTIL_H
+	if (tmpTrial.objval < stop->minf_max)
+	  break;
+#endif
       }
 #ifdef GS_DEBUG
       cout << "Found a stationary point, X= " << tmpTrial.xvals;
@@ -236,6 +240,12 @@ void Global::Search(int axis, RCRVector x_av){
 #endif
       ReduceOrSubdivide(box, axis, x_av);
 
+#ifdef NLOPT_UTIL_H
+      if (!NoMinimizers() && OneMinimizer(x) < stop->minf_max) {
+	done = TRUE;
+	break;
+      }
+#endif
       if (!InTime()) {
         done=TRUE;
 	if (stogo_verbose)
