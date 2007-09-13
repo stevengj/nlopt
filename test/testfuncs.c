@@ -36,7 +36,7 @@ static double rosenbrock_f(int n, const double *x, double *grad, void *data)
      UNUSED(data);
      if (grad) {
 	  grad[0] = -400 * a * x[0] - 2*b;
-	  grad[1] = -200 * a;
+	  grad[1] = 200 * a;
      }
      RETURN(100 * sqr(a) + sqr(b));
 }
