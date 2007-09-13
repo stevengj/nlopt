@@ -283,6 +283,22 @@ other variants of this algorithm:
 Global (G) derivative-free (N) optimization using controlled random
 search (CRS2) algorithm of Price, with the "local mutation" (LM)
 modification suggested by Kaelo and Ali.
+.TP
+\fBNLOPT_GD_MLSL_LDS\fR, \fBNLOPT_GN_MLSL_LDS\fR
+Global (G) derivative-based (D) or derivative-free (N) optimization
+using the multi-level single-linkage (MLSL) algorithm with a
+low-discrepancy sequence (LDS).  This algorithm executes a quasi-random
+(LDS) sequence of local searches, with a clustering heuristic to
+avoid multiple local searches for the same local minimum.  The local
+search uses the derivative/nonderivative algorithm set by
+.I nlopt_set_local_search_algorithm
+(currently defaulting to
+.I NLOPT_LD_LBFGS
+and
+.I NLOPT_LN_SUBPLEX
+for derivative/nonderivative searches, respectively).  There are also
+two other variants, \fBNLOPT_GD_MLSL\fR and \fBNLOPT_GN_MLSL\fR, which use
+pseudo-random numbers (instead of an LDS) as in the original MLSL algorithm.
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the following arguments to
@@ -410,6 +426,10 @@ you want to use deterministic random numbers, you can set the seed by
 calling:
 .sp
 .BI "            void nlopt_srand(unsigned long " "seed" );
+.sp
+Some of the algorithms also support using low-discrepancy sequences (LDS),
+sometimes known as quasi-random numbers.  NLopt uses the Sobol LDS, which
+is implemented for up to 1111 dimensions.
 .SH BUGS
 Currently the NLopt library is in pre-alpha stage.  Most algorithms
 currently do not support all termination conditions: the only

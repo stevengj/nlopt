@@ -52,6 +52,11 @@ typedef enum {
 
      NLOPT_GN_CRS2_LM,
 
+     NLOPT_GN_MLSL,
+     NLOPT_GD_MLSL,
+     NLOPT_GN_MLSL_LDS,
+     NLOPT_GD_MLSL_LDS,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

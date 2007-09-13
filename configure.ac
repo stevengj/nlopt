@@ -182,6 +182,7 @@ AC_CONFIG_FILES([
    praxis/Makefile
    luksan/Makefile
    crs/Makefile
+   mlsl/Makefile
    test/Makefile
 ])
 

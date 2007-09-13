@@ -62,8 +62,10 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Preconditioned truncated Newton (local, derivative-based)",
      "Preconditioned truncated Newton with restarting (local, derivative-based)",
      "Controlled random search (CRS2) with local mutation (global, no-derivative)",
-     "Controlled quasi-random search (CRS2) with local mutation (global, no-derivative), using Sobol' LDS",
-     
+     "Multi-level single-linkage (MLSL), random (global, no-derivative)",
+     "Multi-level single-linkage (MLSL), random (global, derivative)",
+     "Multi-level single-linkage (MLSL), quasi-random (global, no-derivative)",
+     "Multi-level single-linkage (MLSL), quasi-random (global, derivative)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -330,6 +332,18 @@ static nlopt_result nlopt_minimize_(
 
 	 case NLOPT_GN_CRS2_LM:
 	      return crs_minimize(n, f, f_data, lb, ub, x, minf, &stop, 0);
+
+	 case NLOPT_GN_MLSL:
+	 case NLOPT_GD_MLSL:
+	 case NLOPT_GN_MLSL_LDS:
+	 case NLOPT_GD_MLSL_LDS:
+	      return mlsl_minimize(n, f, f_data, lb, ub, x, minf, &stop,
+				   (algorithm == NLOPT_GN_MLSL ||
+				    algorithm == NLOPT_GN_MLSL_LDS)
+				   ? local_search_alg_nonderiv
+				   : local_search_alg_deriv,
+				   local_search_maxeval,
+				   algorithm >= NLOPT_GN_MLSL_LDS);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;
