@@ -5,7 +5,7 @@
    of pseudorandom numbers.  See:
 
    A. H. G. Rinnooy Kan and G. T. Timmer, "Stochastic global optimization
-   methods," Mathematical Programming, vol. 39, p. 27-78 (1978).
+   methods," Mathematical Programming, vol. 39, p. 27-78 (1987).
        [ actually 2 papers -- part I: clustering methods (p. 27), then 
                               part II: multilevel methods (p. 57) ]
 
