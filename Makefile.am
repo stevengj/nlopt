@@ -3,7 +3,7 @@ lib_LTLIBRARIES = libnlopt.la
 
 ACLOCAL_AMFLAGS=-I ./m4
 
-SUBDIRS= util subplex direct cdirect stogo praxis luksan crs mlsl api octave . test
+SUBDIRS= util subplex direct cdirect stogo praxis luksan crs mlsl api . octave test
 EXTRA_DIST=COPYRIGHT autogen.sh nlopt.pc.in m4
 
 libnlopt_la_SOURCES = 
