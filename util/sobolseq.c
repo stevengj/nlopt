@@ -75,7 +75,7 @@ typedef struct nlopt_soboldata_s {
      uint32_t n; /* number of x's generated so far */
 } soboldata;
 
-/* Return position (0, 1, ...) of rightmost zero bit in n.
+/* Return position (0, 1, ...) of rightmost (least-significant) zero bit in n.
  *
  * This code uses a 32-bit version of algorithm to find the rightmost
  * one bit in Knuth, _The Art of Computer Programming_, volume 4A
@@ -90,7 +90,8 @@ static unsigned rightzero32(uint32_t n)
      const uint32_t a = 0x05f66a47; /* magic number, found by brute force */
      static const unsigned decode[32] = {0,1,2,26,23,3,15,27,24,21,19,4,12,16,28,6,31,25,22,14,20,18,11,5,30,13,17,10,29,9,8,7};
      n = ~n; /* change to rightmost-one problem */
-     return decode[(a * (n & (-n))) >> 27];
+     n = a * (n & (-n)); /* store in n to make sure mult. is 32 bits */
+     return decode[n >> 27];
 }
 
 /* generate the next term x_{n+1} in the Sobol sequence, as an array
