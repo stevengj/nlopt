@@ -2185,7 +2185,7 @@ L120:
             = 20 : ftol reached
             = -200 : out of memory
 */
-int subplex(subplex_func f, double *minf, double *x, int n, void *fdata,
+int nlopt_subplex(subplex_func f, double *minf, double *x, int n, void *fdata,
 	    nlopt_stopping *stop,
 	    const double *scale)
 {

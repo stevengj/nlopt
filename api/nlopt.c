@@ -293,7 +293,7 @@ static nlopt_result nlopt_minimize_(
 		   else
 			scale[i] = 0.01 * x[i] + 0.0001;
 	      }
-	      iret = subplex(f_subplex, minf, x, n, &d, &stop, scale);
+	      iret = nlopt_subplex(f_subplex, minf, x, n, &d, &stop, scale);
 	      free(scale);
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;

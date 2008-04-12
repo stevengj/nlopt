@@ -10,7 +10,7 @@ extern "C"
 
 typedef double (*subplex_func)(int n, const double *x, void *func_data);
 
-extern int subplex(subplex_func f, double *minf, double *x, int n, void *fdata,
+extern int nlopt_subplex(subplex_func f, double *minf, double *x, int n, void *fdata,
 		   nlopt_stopping *stop,
 		   const double *scale);
 
