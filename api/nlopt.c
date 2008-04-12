@@ -51,8 +51,13 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Original DIRECT version (global, no-derivative)",
      "Original DIRECT-L version (global, no-derivative)",
      "Subplex (local, no-derivative)",
+#ifdef WITH_CXX
      "StoGO (global, derivative-based)",
      "StoGO with randomized search (global, derivative-based)",
+#else
+     "StoGO (NOT COMPILED)",
+     "StoGO randomized (NOT COMPILED)",
+#endif
      "Low-storage BFGS (LBFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
      "Limited-memory variable-metric, rank 1 (local, derivative-based)",
@@ -124,7 +129,9 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
      return f;
 }
 
-#include "stogo.h"
+#ifdef WITH_CXX
+#  include "stogo.h"
+#endif
 
 #include "cdirect.h"
 
@@ -262,11 +269,15 @@ static nlopt_result nlopt_minimize_(
 
 	 case NLOPT_GD_STOGO:
 	 case NLOPT_GD_STOGO_RAND:
+#ifdef WITH_CXX
 	      if (!stogo_minimize(n, f, f_data, x, minf, lb, ub, &stop,
 				  algorithm == NLOPT_GD_STOGO
 				  ? 0 : 2*n))
 		   return NLOPT_FAILURE;
 	      break;
+#else
+	      return NLOPT_FAILURE;
+#endif
 
 	 case NLOPT_LN_SUBPLEX: {
 	      int iret;

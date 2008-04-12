@@ -11,13 +11,21 @@ AC_DISABLE_SHARED dnl to hell with shared libraries
 
 dnl Checks for programs.
 AC_PROG_CC
-AC_PROG_CXX
 AC_PROG_CC_STDC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
+
+AC_ARG_WITH(cxx,
+	[AC_HELP_STRING([--with-cxx], [include C++-based routines])],
+        with_cxx=$withval,with_cxx=no)
+AM_CONDITIONAL(WITH_CXX, test "x$with_cxx" = xyes)
+if test "x$with_cxx" = xyes; then
+   AC_PROG_CXX
+   AC_DEFINE([WITH_CXX], 1, [Define if compiled including C++-based routines])
+fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDC
