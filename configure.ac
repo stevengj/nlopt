@@ -200,6 +200,7 @@ AC_CONFIG_FILES([
    luksan/Makefile
    crs/Makefile
    mlsl/Makefile
+   mma/Makefile
    test/Makefile
 ])
 

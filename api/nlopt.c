@@ -59,9 +59,9 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "StoGO randomized (NOT COMPILED)",
 #endif
 #ifdef WITH_NOCEDAL_LBFGS
-     "original NON-FREE L-BFGS implementation by Nocedal et al. (local, deriv.-based)"
+     "original NON-FREE L-BFGS code by Nocedal et al. (local, deriv.-based)",
 #else
-     "original NON-FREE L-BFGS implementation by Nocedal et al. (NOT COMPILED)"
+     "original NON-FREE L-BFGS code by Nocedal et al. (NOT COMPILED)",
 #endif
      "Low-storage BFGS (LBFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
@@ -75,7 +75,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Multi-level single-linkage (MLSL), random (global, no-derivative)",
      "Multi-level single-linkage (MLSL), random (global, derivative)",
      "Multi-level single-linkage (MLSL), quasi-random (global, no-derivative)",
-     "Multi-level single-linkage (MLSL), quasi-random (global, derivative)"
+     "Multi-level single-linkage (MLSL), quasi-random (global, derivative)",
+     "Method of Moving Asymptotes (MMA) (local, derivative)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -147,6 +148,9 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "luksan.h"
 
 #include "crs.h"
+
+#include "mlsl.h"
+#include "mma.h"
 
 /*************************************************************************/
 
@@ -397,6 +401,9 @@ static nlopt_result nlopt_minimize_(
 				   : local_search_alg_deriv,
 				   local_search_maxeval,
 				   algorithm >= NLOPT_GN_MLSL_LDS);
+
+	 case NLOPT_LD_MMA:
+	      return mma_minimize(n, f, f_data, lb, ub, x, minf, &stop);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;
