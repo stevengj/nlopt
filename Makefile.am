@@ -1,5 +1,5 @@
 OPTIONS_AUTOMAKE=gnu
-lib_LTLIBRARIES = libnlopt.la
+lib_LTLIBRARIES = libnlopt@NLOPT_SUFFIX@.la
 
 ACLOCAL_AMFLAGS=-I ./m4
 
@@ -15,13 +15,13 @@ if WITH_NOCEDAL
 NOCEDAL_LBFGS=lbfgs/liblbfgs.la
 endif
 
-libnlopt_la_SOURCES = 
-libnlopt_la_LIBADD = subplex/libsubplex.la direct/libdirect.la		\
-cdirect/libcdirect.la $(CXX_LIBS) praxis/libpraxis.la $(NOCEDAL_LBFGS)	\
-luksan/libluksan.la crs/libcrs.la mlsl/libmlsl.la mma/libmma.la		\
-api/libapi.la util/libutil.la
+libnlopt@NLOPT_SUFFIX@_la_SOURCES = 
+libnlopt@NLOPT_SUFFIX@_la_LIBADD = subplex/libsubplex.la		\
+direct/libdirect.la cdirect/libcdirect.la $(CXX_LIBS)			\
+praxis/libpraxis.la $(NOCEDAL_LBFGS) luksan/libluksan.la crs/libcrs.la	\
+mlsl/libmlsl.la mma/libmma.la api/libapi.la util/libutil.la
 
-libnlopt_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
+libnlopt@NLOPT_SUFFIX@_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = nlopt.pc

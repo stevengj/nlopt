@@ -18,6 +18,7 @@ AC_PROG_MAKE_SET
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
+NLOPT_SUFFIX=""
 AC_ARG_WITH(cxx,
 	[AC_HELP_STRING([--with-cxx], [include C++-based routines])],
         with_cxx=$withval,with_cxx=no)
@@ -25,7 +26,9 @@ AM_CONDITIONAL(WITH_CXX, test "x$with_cxx" = xyes)
 if test "x$with_cxx" = xyes; then
    AC_PROG_CXX
    AC_DEFINE([WITH_CXX], 1, [Define if compiled including C++-based routines])
+   NLOPT_SUFFIX="_cxx"
 fi
+AC_SUBST(NLOPT_SUFFIX)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDC
@@ -64,7 +67,9 @@ AC_MSG_RESULT(${ok})
 
 dnl -----------------------------------------------------------------------
 
-test -r $srcdir/lbfgs/ap.cpp && test -r $srcdir/lbfgs/ap.h && test -r $srcdir/lbfgs/l-bfgs-b.cpp && test -r $srcdir/lbfgs/l-bfgs-b.h && have_lbfgs=yes
+if test "x$with_cxx" = xyes; then
+  test -r $srcdir/lbfgs/ap.cpp && test -r $srcdir/lbfgs/ap.h && test -r $srcdir/lbfgs/l-bfgs-b.cpp && test -r $srcdir/lbfgs/l-bfgs-b.h && have_lbfgs=yes
+fi
 AM_CONDITIONAL(WITH_NOCEDAL, test -n "$have_lbfgs")
 if test -n "$have_lbfgs"; then
    AC_DEFINE(WITH_NOCEDAL, [1], [Define if we have the non-free Nocedal LBFGS code])

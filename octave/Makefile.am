@@ -11,7 +11,7 @@ m_DATA = $(MFILES) nlopt_minimize.m
 endif
 
 nlopt_minimize.oct: nlopt_minimize-oct.cc nlopt_minimize_usage.h
-	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
+	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
 nlopt_minimize_usage.h: $(srcdir)/nlopt_minimize.m
 	echo "#define NLOPT_MINIMIZE_USAGE \\" > $@
@@ -25,7 +25,7 @@ mex_DATA = nlopt_minimize.$(MEXSUFF) $(MFILES) nlopt_minimize.m
 endif
 
 nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c
-	$(MEX) -output nlopt_minimize -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt
+	$(MEX) -output nlopt_minimize -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
 #######################################################################
 
