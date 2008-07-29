@@ -63,7 +63,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
 #else
      "original NON-FREE L-BFGS code by Nocedal et al. (NOT COMPILED)",
 #endif
-     "Low-storage BFGS (LBFGS) (local, derivative-based)",
+     "Limited-memory BFGS (L-BFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
      "Limited-memory variable-metric, rank 1 (local, derivative-based)",
      "Limited-memory variable-metric, rank 2 (local, derivative-based)",
