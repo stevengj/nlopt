@@ -58,6 +58,11 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "StoGO (NOT COMPILED)",
      "StoGO randomized (NOT COMPILED)",
 #endif
+#ifdef WITH_NOCEDAL_LBFGS
+     "original NON-FREE L-BFGS implementation by Nocedal et al. (local, deriv.-based)"
+#else
+     "original NON-FREE L-BFGS implementation by Nocedal et al. (NOT COMPILED)"
+#endif
      "Low-storage BFGS (LBFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
      "Limited-memory variable-metric, rank 1 (local, derivative-based)",
@@ -134,6 +139,10 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #endif
 
 #include "cdirect.h"
+
+#ifdef WITH_NOCEDAL
+#  include "l-bfgs-b.h"
+#endif
 
 #include "luksan.h"
 
@@ -324,6 +333,39 @@ static nlopt_result nlopt_minimize_(
 	      return praxis_(0.0, DBL_EPSILON, h0, n, x, f_subplex, &d,
 			     &stop, minf);
 	 }
+
+#ifdef WITH_NOCEDAL
+	 case NLOPT_LD_LBFGS_NOCEDAL: {
+	      int iret, *nbd = (int *) malloc(sizeof(int) * n);
+	      if (!nbd) return NLOPT_OUT_OF_MEMORY;
+	      for (i = 0; i < n; ++i) {
+		   int linf = my_isinf(lb[i]) && lb[i] < 0;
+		   int uinf = my_isinf(ub[i]) && ub[i] > 0;
+		   nbd[i] = linf && uinf ? 0 : (uinf ? 1 : (linf ? 3 : 2));
+	      }
+	      iret = lbfgsb_minimize(n, f, f_data, x, nbd, lb, ub,
+				     MIN(n, 5), 0.0, ftol_rel, 
+				     xtol_abs ? *xtol_abs : xtol_rel,
+				     maxeval);
+	      free(nbd);
+	      if (iret <= 0) {
+		   switch (iret) {
+		       case -1: return NLOPT_INVALID_ARGS;
+		       case -2: default: return NLOPT_FAILURE;
+		   }
+	      }
+	      else {
+		   *minf = f(n, x, NULL, f_data);
+		   switch (iret) {
+		       case 5: return NLOPT_MAXEVAL_REACHED;
+		       case 2: return NLOPT_XTOL_REACHED;
+		       case 1: return NLOPT_FTOL_REACHED;
+		       default: return NLOPT_SUCCESS;
+		   }
+	      }
+	      break;
+	 }
+#endif
 
 	 case NLOPT_LD_LBFGS: 
 	      return luksan_plis(n, f, f_data, lb, ub, x, minf, &stop);
