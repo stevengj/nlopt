@@ -3,14 +3,15 @@
 names=`egrep NLOPT_[LG][ND] ../api/nlopt.h |sed 's/ //g' |tr = , |cut -d, -f1`
 i=0
 
-desc_start=`grep -n nlopt_algorithm_names ../api/nlopt.c |cut -d: -f1 |head -1`
+gcc -E ../api/nlopt.c | perl -pe 's/^ *\n//' > foo.c
+desc_start=`grep -n nlopt_algorithm_names foo.c |cut -d: -f1 |head -1`
 
 for n in $names; do
 #    if test -r $n.m; then
 #	perl -pi -e "s/val = [0-9]+;/val = $i;/" $n.m
 #    else
         descline=`expr $i + $desc_start + 1`
-	desc=`tail -n +$descline ../api/nlopt.c |head -1 |cut -d\" -f2`
+	desc=`tail -n +$descline foo.c |head -1 |cut -d\" -f2`
 	cat > $n.m <<EOF
 % $n: $desc
 %

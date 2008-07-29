@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_LN_PRAXIS
-  val = 12;
+  val = 13;
