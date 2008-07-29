@@ -23,9 +23,9 @@ int nlopt_stop_x(const nlopt_stopping *s, const double *x, const double *oldx)
 {
      int i;
      for (i = 0; i < s->n; ++i)
-	  if (relstop(oldx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
-	       return 1;
-     return 0;
+	  if (!relstop(oldx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
+	       return 0;
+     return 1;
 }
 
 static double sc(double x, double smin, double smax)
