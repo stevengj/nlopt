@@ -9,6 +9,8 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+extern int mma_verbose;
+
 nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 			  const double *lb, const double *ub, /* bounds */
 			  double *x, /* in: initial guess, out: minimizer */

@@ -1,8 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "mma.h"
+
+int mma_verbose = 0; /* > 0 for verbose output */
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -81,6 +84,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
 	       if (gcur >= fcur) break;
 	       rho = MIN(10*rho, 1.1 * (rho + (fcur - gcur) / w));
+	       if (mma_verbose)
+		    printf("MMA inner iteration: rho -> %g\n", rho);
 	  }
 
 	  if (nlopt_stop_ftol(stop, fcur, fprev))
@@ -91,6 +96,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       
 	  /* update rho and sigma for iteration k+1 */
 	  rho = MAX(0.1 * rho, MMA_RHOMIN);
+	  if (mma_verbose)
+	       printf("MMA outer iteration: rho -> %g\n", rho);
 	  if (k > 1)
 	       for (j = 0; j < n; ++j) {
 		    double dx2 = (xcur[j]-xprev[j]) * (xprev[j]-xprevprev[j]);
