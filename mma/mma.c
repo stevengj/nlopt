@@ -18,7 +18,7 @@ int mma_verbose = 0; /* > 0 for verbose output */
 #define MMA_RHOMIN 1e-5
 
 /***********************************************************************/
-/* function for MMA's dual optimization of the approximant function */
+/* function for MMA's dual solution of the approximate problem */
 
 typedef struct {
      int n; /* must be set on input to dimension of x */
@@ -137,13 +137,14 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 {
      nlopt_result ret = NLOPT_SUCCESS;
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
-     double *dfcdx, *dfcdx_cur, *fcval, *rhoc, *gcval, *y, *dual_lb, *dual_ub;
+     double *dfcdx, *dfcdx_cur;
+     double *fcval, *fcval_cur, *rhoc, *gcval, *y, *dual_lb, *dual_ub;
      int i, j, k = 0;
      char *fc_data = (char *) fc_data_;
      dual_data dd;
      int feasible;
      
-     sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*6));
+     sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*7));
      if (!sigma) return NLOPT_OUT_OF_MEMORY;
      dfdx = sigma + n;
      dfdx_cur = dfdx + n;
@@ -151,7 +152,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
      xprev = xcur + n;
      xprevprev = xprev + n;
      fcval = xprevprev + n;
-     rhoc = fcval + m;
+     fcval_cur = fcval + m;
+     rhoc = fcval_cur + m;
      gcval = rhoc + m;
      dual_lb = gcval + m;
      dual_ub = dual_lb + m;
@@ -212,7 +214,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       dd.rho = rho;
 	       nlopt_minimize(dual_alg, m, dual_func, &dd,
 			      dual_lb, dual_ub, y, &min_dual,
-			      -HUGE_VAL, dual_tolrel, 0, 0, NULL, dual_maxeval,
+			      -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
 			      stop->maxtime - (nlopt_seconds() - stop->start));
 	       dual_func(m, y, NULL, &dd); /* evaluate final xcur etc. */
 
