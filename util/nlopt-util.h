@@ -6,6 +6,8 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+int nlopt_isinf(double x);
+
 /* seconds timer */
 extern double nlopt_seconds(void);
 extern unsigned long nlopt_time_seed(void);

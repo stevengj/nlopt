@@ -17,7 +17,7 @@
 #  define MY_INF HUGE_VAL
 #endif
 
-static int my_isinf(double x) {
+int nlopt_isinf(double x) {
      return fabs(x) >= HUGE_VAL * 0.99
 #ifdef HAVE_ISINF
 	  || isinf(x)
@@ -131,7 +131,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
      nlopt_data *data = (nlopt_data *) data_;
      double f;
      f = data->f(n, x, NULL, data->f_data);
-     *undefined = isnan(f) || my_isinf(f);
+     *undefined = isnan(f) || nlopt_isinf(f);
      return f;
 }
 
@@ -202,7 +202,12 @@ static nlopt_result nlopt_minimize_(
      nlopt_stopping stop;
 
      /* some basic argument checks */
-     if (n <= 0 || !f || !lb || !ub || !x || !minf)
+     if (!minf || !f) return NLOPT_INVALID_ARGS;
+     if (n == 0) { /* trivial case: no degrees of freedom */
+	  *minf = f(n, x, NULL, f_data);
+	  return NLOPT_SUCCESS;
+     }
+     else if (n < 0 || !lb || !ub || !x)
 	  return NLOPT_INVALID_ARGS;
 
      d.f = f;
@@ -220,7 +225,8 @@ static nlopt_result nlopt_minimize_(
 	       return NLOPT_INVALID_ARGS;
 
      stop.n = n;
-     stop.minf_max = (isnan(minf_max) || (my_isinf(minf_max) && minf_max < 0))
+     stop.minf_max = (isnan(minf_max) 
+		      || (nlopt_isinf(minf_max) && minf_max < 0))
 	  ? -MY_INF : minf_max;
      stop.ftol_rel = ftol_rel;
      stop.ftol_abs = ftol_abs;
@@ -297,11 +303,11 @@ static nlopt_result nlopt_minimize_(
 	      double *scale = (double *) malloc(sizeof(double) * n);
 	      if (!scale) return NLOPT_OUT_OF_MEMORY;
 	      for (i = 0; i < n; ++i) {
-		   if (!my_isinf(ub[i]) && !my_isinf(lb[i]))
+		   if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i]))
 			scale[i] = (ub[i] - lb[i]) * 0.01;
-		   else if (!my_isinf(lb[i]) && x[i] > lb[i])
+		   else if (!nlopt_isinf(lb[i]) && x[i] > lb[i])
 			scale[i] = (x[i] - lb[i]) * 0.01;
-		   else if (!my_isinf(ub[i]) && x[i] < ub[i])
+		   else if (!nlopt_isinf(ub[i]) && x[i] < ub[i])
 			scale[i] = (ub[i] - x[i]) * 0.01;
 		   else
 			scale[i] = 0.01 * x[i] + 0.0001;
@@ -325,11 +331,11 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_LN_PRAXIS: {
 	      double h0 = HUGE_VAL;
 	      for (i = 0; i < n; ++i) {
-		   if (!my_isinf(ub[i]) && !my_isinf(lb[i]))
+		   if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i]))
 			h0 = MIN(h0, (ub[i] - lb[i]) * 0.01);
-		   else if (!my_isinf(lb[i]) && x[i] > lb[i])
+		   else if (!nlopt_isinf(lb[i]) && x[i] > lb[i])
 			h0 = MIN(h0, (x[i] - lb[i]) * 0.01);
-		   else if (!my_isinf(ub[i]) && x[i] < ub[i])
+		   else if (!nlopt_isinf(ub[i]) && x[i] < ub[i])
 			h0 = MIN(h0, (ub[i] - x[i]) * 0.01);
 		   else
 			h0 = MIN(h0, 0.01 * x[i] + 0.0001);
@@ -343,8 +349,8 @@ static nlopt_result nlopt_minimize_(
 	      int iret, *nbd = (int *) malloc(sizeof(int) * n);
 	      if (!nbd) return NLOPT_OUT_OF_MEMORY;
 	      for (i = 0; i < n; ++i) {
-		   int linf = my_isinf(lb[i]) && lb[i] < 0;
-		   int uinf = my_isinf(ub[i]) && ub[i] > 0;
+		   int linf = nlopt_isinf(lb[i]) && lb[i] < 0;
+		   int uinf = nlopt_isinf(ub[i]) && ub[i] > 0;
 		   nbd[i] = linf && uinf ? 0 : (uinf ? 1 : (linf ? 3 : 2));
 	      }
 	      iret = lbfgsb_minimize(n, f, f_data, x, nbd, lb, ub,
