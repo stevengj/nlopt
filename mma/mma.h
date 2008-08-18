@@ -4,8 +4,6 @@
 #include "nlopt.h"
 #include "nlopt-util.h"
 
-#include <stddef.h> /* for ptrdiff_t */
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -15,7 +13,7 @@ extern int mma_verbose;
 
 nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 			  int m, nlopt_func fc,
-			  void *fc_data_, ptrdiff_t fc_data_size,
+			  void *fc_data_, ptrdiff_t fc_datum_size,
 			  const double *lb, const double *ub, /* bounds */
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,

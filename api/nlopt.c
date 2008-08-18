@@ -190,6 +190,7 @@ void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 static nlopt_result nlopt_minimize_(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
+     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
@@ -209,6 +210,9 @@ static nlopt_result nlopt_minimize_(
      }
      else if (n < 0 || !lb || !ub || !x)
 	  return NLOPT_INVALID_ARGS;
+
+     /* nonlinear constraints are only supported with MMA */
+     if (m != 0 && algorithm != NLOPT_LD_MMA) return NLOPT_INVALID_ARGS;
 
      d.f = f;
      d.f_data = f_data;
@@ -409,7 +413,7 @@ static nlopt_result nlopt_minimize_(
 				   algorithm >= NLOPT_GN_MLSL_LDS);
 
 	 case NLOPT_LD_MMA:
-	      return mma_minimize(n, f, f_data, 0, NULL, NULL, 0,
+	      return mma_minimize(n, f, f_data, m, fc, fc_data, fc_datum_size,
 				  lb, ub, x, minf, &stop,
 				  local_search_alg_deriv, 1e-8, 100000);
 
@@ -418,6 +422,37 @@ static nlopt_result nlopt_minimize_(
      }
 
      return NLOPT_SUCCESS;
+}
+
+nlopt_result nlopt_minimize_c(
+     nlopt_algorithm algorithm,
+     int n, nlopt_func f, void *f_data,
+     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
+     const double *lb, const double *ub, /* bounds */
+     double *x, /* in: initial guess, out: minimizer */
+     double *minf, /* out: minimum */
+     double minf_max, double ftol_rel, double ftol_abs,
+     double xtol_rel, const double *xtol_abs,
+     int maxeval, double maxtime)
+{
+     nlopt_result ret;
+     if (xtol_abs)
+	  ret = nlopt_minimize_(algorithm, n, f, f_data,
+				m, fc, fc_data, fc_datum_size, lb, ub,
+				x, minf, minf_max, ftol_rel, ftol_abs,
+				xtol_rel, xtol_abs, maxeval, maxtime);
+     else {
+	  int i;
+	  double *xtol = (double *) malloc(sizeof(double) * n);
+	  if (!xtol) return NLOPT_OUT_OF_MEMORY;
+	  for (i = 0; i < n; ++i) xtol[i] = -1;
+	  ret = nlopt_minimize_(algorithm, n, f, f_data, 
+				m, fc, fc_data, fc_datum_size, lb, ub,
+				x, minf, minf_max, ftol_rel, ftol_abs,
+				xtol_rel, xtol, maxeval, maxtime);
+	  free(xtol);
+     }
+     return ret;
 }
 
 nlopt_result nlopt_minimize(
@@ -430,20 +465,7 @@ nlopt_result nlopt_minimize(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
-     nlopt_result ret;
-     if (xtol_abs)
-	  ret = nlopt_minimize_(algorithm, n, f, f_data, lb, ub,
-				x, minf, minf_max, ftol_rel, ftol_abs,
-				xtol_rel, xtol_abs, maxeval, maxtime);
-     else {
-	  int i;
-	  double *xtol = (double *) malloc(sizeof(double) * n);
-	  if (!xtol) return NLOPT_OUT_OF_MEMORY;
-	  for (i = 0; i < n; ++i) xtol[i] = -1;
-	  ret = nlopt_minimize_(algorithm, n, f, f_data, lb, ub,
-				x, minf, minf_max, ftol_rel, ftol_abs,
-				xtol_rel, xtol, maxeval, maxtime);
-	  free(xtol);
-     }
-     return ret;
+     return nlopt_minimize_c(algorithm, n, f, f_data, 0, NULL, NULL, 0,
+			     lb, ub, x, minf, minf_max, ftol_rel, ftol_abs,
+			     xtol_rel, xtol_abs, maxeval, maxtime);
 }

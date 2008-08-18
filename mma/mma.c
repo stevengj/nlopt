@@ -30,6 +30,8 @@ typedef struct {
      double gval, wval, *gcval; /* output each time (array length m) */
 } dual_data;
 
+static double sqr(double x) { return x * x; }
+
 static double dual_func(int m, const double *y, double *grad, void *d_)
 {
      dual_data *d = (dual_data *) d_;
@@ -47,79 +49,56 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
      val = d->gval = fval;
      d->wval = 0;
      for (i = 0; i < m; ++i) val += y[i] * (gcval[i] = fcval[i]);
-     if (grad) { for (i = 0; i < m; ++i) grad[i] = fcval[i]; }
 
      for (j = 0; j < n; ++j) {
-	  int x_pinned;
-	  double a, b, dx, denom, denominv, ca, cb, sigma2;
+	  double u, v, dx, denominv, c, sigma2, dx2;
 
-	  /* first, compute xcur[j] for y */
-	  a = dfdx[j];
-	  b = fabs(dfdx[j]) * sigma[j] + 0.5 * rho;
+	  /* first, compute xcur[j] for y.  Because this objective is
+	     separable, we can minimize over x analytically, and the minimum
+	     dx is given by the solution of a quadratic equation:
+	             u dx^2 + 2 v sigma^2 dx + u sigma^2 = 0
+	     where u and v are defined by the sums below.  Because of
+	     the definitions, it is guaranteed that |u/v| <= sigma,
+	     and it follows that the only dx solution with |dx| <= sigma
+	     is given by:
+	             (v/u) sigma^2 (-1 + sqrt(1 - (u / v sigma)^2))
+             (which goes to zero as u -> 0). */
+
+	  u = dfdx[j];
+	  v = fabs(dfdx[j]) * sigma[j] + 0.5 * rho;
 	  for (i = 0; i < m; ++i) {
-	       a += dfcdx[i*n + j] * y[i];
-	       b += (fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i]) * y[i];
+	       u += dfcdx[i*n + j] * y[i];
+	       v += (fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i]) * y[i];
 	  }
-	  sigma2 = sigma[j] * sigma[j];
-	  dx = -a * sigma2 / b;
+	  u *= (sigma2 = sqr(sigma[j]));
+	  dx = u==0 ? 0 : (v/u)*sigma2 * (-1 + sqrt(1 - sqr(u/(v*sigma[j]))));
 	  xcur[j] = x[j] + dx;
 	  if (xcur[j] > ub[j]) xcur[j] = ub[j];
-	  if (xcur[j] < lb[j]) xcur[j] = lb[j];
-	  if (xcur[j] > x[j] + 0.9*sigma[j]) xcur[j] = x[j] + 0.9*sigma[j];
-	  if (xcur[j] < x[j] - 0.9*sigma[j]) xcur[j] = x[j] - 0.9*sigma[j];
-	  x_pinned = xcur[j] != x[j] + dx;
+	  else if (xcur[j] < lb[j]) xcur[j] = lb[j];
+	  if (xcur[j] > x[j]+0.9*sigma[j]) xcur[j] = x[j]+0.9*sigma[j];
+	  else if (xcur[j] < x[j]-0.9*sigma[j]) xcur[j] = x[j]-0.9*sigma[j];
 	  dx = xcur[j] - x[j];
 	  
 	  /* function value: */
-	  denom = sigma2 - dx*dx;
-	  denominv = 1.0 / denom;
-	  ca = sigma2 * dx;
-	  cb = dx*dx;
-	  val += (a*ca + b*cb) * denominv;
+	  dx2 = dx * dx;
+	  denominv = 1.0 / (sigma2 - dx2);
+	  val += (u * dx + v * dx2) * denominv;
 
-	  /* update gval, wval, gcval */
-	  d->gval += (dfdx[j] * ca + (fabs(dfdx[j])*sigma[j] + 0.5*rho) * cb)
+	  /* update gval, wval, gcval (approximant functions) */
+	  c = sigma2 * dx;
+	  d->gval += (dfdx[j] * c + (fabs(dfdx[j])*sigma[j] + 0.5*rho) * dx2)
 	       * denominv;
-	  d->wval += 0.5 * cb * denominv;
+	  d->wval += 0.5 * dx2 * denominv;
 	  for (i = 0; i < m; ++i)
-	       gcval[i] += (dfcdx[i*n+j] * ca 
-			    + (fabs(dfcdx[i*n+j])*sigma[j] + 0.5*rhoc[j]) * cb)
+	       gcval[i] += (dfcdx[i*n+j] * c + (fabs(dfcdx[i*n+j])*sigma[j] 
+						+ 0.5*rhoc[j]) * dx2)
 		    * denominv;
-
-	  /* gradient */
-	  if (grad)
-	       for (i = 0; i < m; ++i) {
-		    double dady, dbdy;
-		    dady = dfcdx[i*n + j];
-		    dbdy = fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i];
-		    grad[i] += (dady*ca + dbdy*cb) * denominv;
-		    if (!x_pinned) { /* dx/dy nonzero */
-			 int k;
-			 double dxdy;
-			 dxdy = (a*dbdy - dady*b) * (sigma2 / (b*b));
-			 grad[i] += 
-			      ((sigma2 * dfdx[j] + 2 * (fabs(dfdx[j])*sigma[j]
-							+ 0.5*rho) * dx) 
-			       * denom
-			       + 2*dx * (dfdx[j]*ca + (fabs(dfdx[j])*sigma[j] 
-						       + 0.5*rho) * cb))
-			      * (denominv*denominv * dxdy);
-			 for (k = 0; k < m; ++k)
-			      grad[i] += 
-				   ((sigma2 * dfcdx[k*n + j]
-				     + 2 * (fabs(dfcdx[k*n + j])*sigma[j]
-					    + 0.5*rhoc[k]) * dx) 
-				    * denom
-				    + 2*dx * (dfcdx[k*n + j]*ca 
-					      + (fabs(dfcdx[k*n + j])*sigma[j] 
-						 + 0.5*rhoc[k]) * cb))
-				   * (denominv*denominv * dxdy) * y[k];
-		    }
-	       }
      }
 
-     /* negate because we are maximizing */
-     if (grad) { for (i = 0; i < m; ++i) grad[i] = -grad[i]; }
+     /* gradient is easy to compute: since we are at a minimum x (dval/dx=0),
+	we only need the partial derivative with respect to y, and
+	we negate because we are maximizing: */
+     if (grad) for (i = 0; i < m; ++i) grad[i] = -gcval[i];
      return -val;
 }
 
@@ -127,7 +106,7 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 
 nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 			  int m, nlopt_func fc,
-			  void *fc_data_, ptrdiff_t fc_data_size,
+			  void *fc_data_, ptrdiff_t fc_datum_size,
 			  const double *lb, const double *ub, /* bounds */
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
@@ -188,13 +167,13 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
      dd.fval = fcur = *minf = f(n, x, dfdx, f_data);
      stop->nevals++;
-     feasible = 1;
-     for (i = 0; i < m; ++i) {
-	  fcval[i] = fc(n, x, dfcdx + i*n, fc_data + fc_data_size * i);
-	  feasible = feasible && (fcval[i] <= 0);
-     }
      memcpy(xcur, x, sizeof(double) * n);
 
+     feasible = 1;
+     for (i = 0; i < m; ++i) {
+	  fcval[i] = fc(n, x, dfcdx + i*n, fc_data + fc_datum_size * i);
+	  feasible = feasible && (fcval[i] <= 0);
+     }
      if (!feasible) { ret = NLOPT_FAILURE; goto done; } /* TODO: handle this */
 
      while (1) { /* outer iterations */
@@ -209,13 +188,21 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	  while (1) { /* inner iterations */
 	       double min_dual;
 	       int feasible_cur, inner_done;
+	       nlopt_result reti;
 
 	       /* solve dual problem */
 	       dd.rho = rho;
-	       nlopt_minimize(dual_alg, m, dual_func, &dd,
-			      dual_lb, dual_ub, y, &min_dual,
-			      -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
-			      stop->maxtime - (nlopt_seconds() - stop->start));
+	       reti = nlopt_minimize(
+		    dual_alg, m, dual_func, &dd,
+		    dual_lb, dual_ub, y, &min_dual,
+		    -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
+		    stop->maxtime - (nlopt_seconds() - stop->start));
+	       if (reti == NLOPT_FAILURE) reti = NLOPT_SUCCESS; /* hack */
+	       if (reti < 0 || reti == NLOPT_MAXTIME_REACHED) {
+		    ret = reti;
+		    goto done;
+	       }
+
 	       dual_func(m, y, NULL, &dd); /* evaluate final xcur etc. */
 
 	       fcur = f(n, xcur, dfdx_cur, f_data);
@@ -224,7 +211,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       feasible_cur = 1;
 	       for (i = 0; i < m; ++i) {
 		    fcval_cur[i] = fc(n, xcur, dfcdx_cur + i*n, 
-				      fc_data + fc_data_size * i);
+				      fc_data + fc_datum_size * i);
 		    feasible_cur = feasible_cur && (fcval_cur[i] <= 0);
 		    inner_done = inner_done && (dd.gcval[i] >= fcval_cur[i]);
 	       }
@@ -255,6 +242,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       
 	       if (mma_verbose)
 		    printf("MMA inner iteration: rho -> %g\n", rho);
+	       for (i = 0; i < mma_verbose; ++i)
+		    printf("                     rhoc[%d] -> %g\n", i,rhoc[i]);
 	  }
 
 	  if (nlopt_stop_ftol(stop, fcur, fprev))
@@ -269,14 +258,22 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       printf("MMA outer iteration: rho -> %g\n", rho);
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], MMA_RHOMIN);
-	  if (k > 1)
+	  for (i = 0; i < mma_verbose; ++i)
+	       printf("                     rhoc[%d] -> %g\n", i, rhoc[i]);
+	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
 		    double dx2 = (xcur[j]-xprev[j]) * (xprev[j]-xprevprev[j]);
 		    double gam = dx2 < 0 ? 0.7 : (dx2 > 0 ? 1.2 : 1);
 		    sigma[j] *= gam;
-		    sigma[j] = MIN(sigma[j], 10*(ub[j]-lb[j]));
-		    sigma[j] = MAX(sigma[j], 0.01*(ub[j]-lb[j]));
+		    if (!nlopt_isinf(ub[j]) && !nlopt_isinf(lb[j])) {
+			 sigma[j] = MIN(sigma[j], 10*(ub[j]-lb[j]));
+			 sigma[j] = MAX(sigma[j], 0.01*(ub[j]-lb[j]));
+		    }
 	       }
+	       for (j = 0; j < mma_verbose; ++j)
+		    printf("                     sigma[%d] -> %g\n", 
+			   j, sigma[j]);
+	  }
      }
 
  done:
