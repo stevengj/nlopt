@@ -415,7 +415,7 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_LD_MMA:
 	      return mma_minimize(n, f, f_data, m, fc, fc_data, fc_datum_size,
 				  lb, ub, x, minf, &stop,
-				  local_search_alg_deriv, 1e-8, 100000);
+				  local_search_alg_deriv, 1e-12, 100000);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

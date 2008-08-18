@@ -21,6 +21,7 @@ int mma_verbose = 0; /* > 0 for verbose output */
 /* function for MMA's dual solution of the approximate problem */
 
 typedef struct {
+     int count; /* evaluation count, incremented each call */
      int n; /* must be set on input to dimension of x */
      const double *x, *lb, *ub, *sigma, *dfdx; /* arrays of length n */
      const double *dfcdx; /* m-by-n array of fc gradients */
@@ -45,6 +46,8 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
      double *gcval = d->gcval;
      int i, j;
      double val;
+
+     d->count++;
 
      val = d->gval = fval;
      d->wval = 0;
@@ -191,7 +194,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       nlopt_result reti;
 
 	       /* solve dual problem */
-	       dd.rho = rho;
+	       dd.rho = rho; dd.count = 0;
 	       reti = nlopt_minimize(
 		    dual_alg, m, dual_func, &dd,
 		    dual_lb, dual_ub, y, &min_dual,
@@ -203,20 +206,33 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       }
 
 	       dual_func(m, y, NULL, &dd); /* evaluate final xcur etc. */
+	       if (mma_verbose) {
+		    printf("MMA dual converged in %d iterations to g=%g:\n",
+			   dd.count, dd.gval);
+		    for (i = 0; i < mma_verbose; ++i)
+			 printf("    MMA y[%d]=%g, gc[%d]=%g\n",
+				i, y[i], i, dd.gcval[i]);
+	       }
 
 	       fcur = f(n, xcur, dfdx_cur, f_data);
 	       stop->nevals++;
-	       inner_done = dd.gval >= fcur;
 	       feasible_cur = 1;
+	       inner_done = dd.gval >= fcur;
 	       for (i = 0; i < m; ++i) {
 		    fcval_cur[i] = fc(n, xcur, dfcdx_cur + i*n, 
 				      fc_data + fc_datum_size * i);
-		    feasible_cur = feasible_cur && (fcval_cur[i] <= 0);
+		    feasible_cur = feasible_cur && (fcval[i] <= 0);
 		    inner_done = inner_done && (dd.gcval[i] >= fcval_cur[i]);
 	       }
 
-	       if (fcur < *minf && (feasible_cur || !feasible)) {
-		    feasible = feasible_cur;
+	       /* once we have reached a feasible solution, the
+		  algorithm should never make the solution infeasible
+		  again, although the constraints may be violated
+		  slightly by rounding errors etc. so we must be a
+		  little careful about checking feasibility */
+	       if (feasible_cur) feasible = 1;
+
+	       if (fcur < *minf) {
 		    dd.fval = *minf = fcur;
 		    memcpy(fcval, fcval_cur, sizeof(double)*m);
 		    memcpy(x, xcur, sizeof(double)*n);
