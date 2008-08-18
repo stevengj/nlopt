@@ -197,7 +197,6 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 		    dual_lb, dual_ub, y, &min_dual,
 		    -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
 		    stop->maxtime - (nlopt_seconds() - stop->start));
-	       if (reti == NLOPT_FAILURE) reti = NLOPT_SUCCESS; /* hack */
 	       if (reti < 0 || reti == NLOPT_MAXTIME_REACHED) {
 		    ret = reti;
 		    goto done;
