@@ -99,7 +99,7 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 	  d->wval += 0.5 * dx2 * denominv;
 	  for (i = 0; i < m; ++i)
 	       gcval[i] += (dfcdx[i*n+j] * c + (fabs(dfcdx[i*n+j])*sigma[j] 
-						+ 0.5*rhoc[j]) * dx2)
+						+ 0.5*rhoc[i]) * dx2)
 		    * denominv;
      }
 
