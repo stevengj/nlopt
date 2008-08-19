@@ -214,7 +214,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       if (mma_verbose) {
 		    printf("MMA dual converged in %d iterations to g=%g:\n",
 			   dd.count, dd.gval);
-		    for (i = 0; i < mma_verbose; ++i)
+		    for (i = 0; i < MIN(mma_verbose, m); ++i)
 			 printf("    MMA y[%d]=%g, gc[%d]=%g\n",
 				i, y[i], i, dd.gcval[i]);
 	       }
@@ -262,7 +262,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       
 	       if (mma_verbose)
 		    printf("MMA inner iteration: rho -> %g\n", rho);
-	       for (i = 0; i < mma_verbose; ++i)
+	       for (i = 0; i < MIN(mma_verbose, m); ++i)
 		    printf("                     rhoc[%d] -> %g\n", i,rhoc[i]);
 	  }
 
@@ -278,7 +278,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       printf("MMA outer iteration: rho -> %g\n", rho);
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], MMA_RHOMIN);
-	  for (i = 0; i < mma_verbose; ++i)
+	  for (i = 0; i < MIN(mma_verbose, m); ++i)
 	       printf("                     rhoc[%d] -> %g\n", i, rhoc[i]);
 	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
@@ -290,7 +290,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 			 sigma[j] = MAX(sigma[j], 0.01*(ub[j]-lb[j]));
 		    }
 	       }
-	       for (j = 0; j < mma_verbose; ++j)
+	       for (j = 0; j < MIN(mma_verbose, n); ++j)
 		    printf("                     sigma[%d] -> %g\n", 
 			   j, sigma[j]);
 	  }
