@@ -74,7 +74,12 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 	       v += (fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i]) * y[i];
 	  }
 	  u *= (sigma2 = sqr(sigma[j]));
-	  dx = u==0 ? 0 : (v/u)*sigma2 * (-1 + sqrt(1 - sqr(u/(v*sigma[j]))));
+	  if (fabs(u) < 1e-3 * (v*sigma[j])) { /* Taylor exp. for small u */
+	       double a = u / (v*sigma[j]);
+	       dx = -sigma[j] * (0.5 * a + 0.125 * a*a*a);
+	  }
+	  else
+	       dx = (v/u)*sigma2 * (-1 + sqrt(1 - sqr(u/(v*sigma[j]))));
 	  xcur[j] = x[j] + dx;
 	  if (xcur[j] > ub[j]) xcur[j] = ub[j];
 	  else if (xcur[j] < lb[j]) xcur[j] = lb[j];
