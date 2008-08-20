@@ -226,18 +226,20 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       for (i = 0; i < m; ++i) {
 		    fcval_cur[i] = fc(n, xcur, dfcdx_cur + i*n, 
 				      fc_data + fc_datum_size * i);
-		    feasible_cur = feasible_cur && (fcval[i] <= 0);
+		    feasible_cur = feasible_cur && (fcval_cur[i] <= 0);
 		    inner_done = inner_done && (dd.gcval[i] >= fcval_cur[i]);
 	       }
 
 	       /* once we have reached a feasible solution, the
 		  algorithm should never make the solution infeasible
-		  again, although the constraints may be violated
-		  slightly by rounding errors etc. so we must be a
-		  little careful about checking feasibility */
+		  again (if inner_done), although the constraints may
+		  be violated slightly by rounding errors etc. so we
+		  must be a little careful about checking feasibility */
 	       if (feasible_cur) feasible = 1;
 
-	       if (fcur < *minf) {
+	       if (fcur < *minf && (inner_done || feasible_cur || !feasible)) {
+		    if (mma_verbose && !feasible_cur)
+			 printf("MMA - using infeasible point?\n");
 		    dd.fval = *minf = fcur;
 		    memcpy(fcval, fcval_cur, sizeof(double)*m);
 		    memcpy(x, xcur, sizeof(double)*n);
