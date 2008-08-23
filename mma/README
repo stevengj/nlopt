@@ -5,13 +5,11 @@ algorithm for gradient-based local optimization, as described in:
 	methods based on conservative convex separable approximations,"
 	SIAM J. Optim. 12 (2), p. 555-573 (2002).
 
-However, in the case of NLopt, because we have no constraints other
-than the bound constraints on the input variables, MMA reduces to an
-extremely simple algorithm.  This doesn't mean it's a bad algorithm --
-it may be especially suited to topology optimization problems where
-the optimal design variables are almost always slammed against their
-constraints -- just that this implementation doesn't really do justice
-to the power of MMA for nonlinearly constrained problems.
+In fact, this algorithm is much more general than most of the other
+algorithms in NLopt, in that it handles an arbitrary set of nonlinear
+(differentiable) constraints as well, in a very efficient manner.
+I've implemented the full nonlinear-constrained MMA algorithm, and it
+is exported under the nlopt_minimize_constrained API.
 
 It is under the same MIT license as the rest of my code in NLopt (see
 ../COPYRIGHT).

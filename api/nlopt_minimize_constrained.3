@@ -5,18 +5,22 @@
 .\" are permitted in any medium without royalty provided the copyright
 .\" notice and this notice are preserved.
 .\"
-.TH NLOPT_MINIMIZE 3  2007-08-23 "MIT" "NLopt programming manual"
+.TH NLOPT_MINIMIZE_CONSTRAINED 3  2007-08-23 "MIT" "NLopt programming manual"
 .SH NAME
-nlopt_minimize \- Minimize a multivariate nonlinear function
+nlopt_minimize_constrained \- Minimize a multivariate nonlinear function subject to nonlinear constraints
 .SH SYNOPSIS
 .nf
 .B #include <nlopt.h>
 .sp
-.BI "nlopt_result nlopt_minimize(nlopt_algorithm " "algorithm" ,
+.BI "nlopt_result nlopt_minimize_constrained(nlopt_algorithm " "algorithm" ,
 .br
 .BI "                            int " "n" ,
 .BI "                            nlopt_func " "f" ,
 .BI "                            void* " "f_data" ,
+.BI "                            int " "m" ,
+.BI "                            nlopt_func " "c" ,
+.BI "                            void* " "fc_data" ,
+.BI "                            ptrdiff_t " "fc_datum_size" ,
 .BI "                            const double* " "lb" ,
 .BI "                            const double* " "ub" ,
 .BI "                            double* " "x" ,
@@ -33,12 +37,16 @@ You should link the resulting program with the linker flags
 -lnlopt -lm on Unix.
 .fi
 .SH DESCRIPTION
-.BR nlopt_minimize ()
+.BR nlopt_minimize_constrained ()
 attempts to minimize a nonlinear function
 .I f
 of
 .I n
-design variables using the specified
+design variables, subject to 
+.I m
+nonlinear constraints described by the function
+.I fc
+(see below), using the specified
 .IR algorithm .
 The minimum function value found is returned in
 .IR minf ,
@@ -70,23 +78,27 @@ require the gradient (derivatives) of the function to be supplied via
 .IR f ,
 and other algorithms do not require derivatives.  Some of the
 algorithms attempt to find a global minimum within the given bounds,
-and others find only a local minimum.
+and others find only a local minimum.  Some of the algorithms can handle
+nonlinear constraints, but most of the algorithms only handle the
+case where
+.I m
+is zero (no explicit nonlinear constraints).
 .PP
 The
-.B nlopt_minimize
-function is a wrapper around several free/open-source minimization packages.
+.B nlopt_minimize_constrained
+function is a wrapper around several free/open-source minimization packages,
 as well as some new implementations of published optimization algorithms.
 You could, of course, compile and call these packages separately, and in
 some cases this will provide greater flexibility than is available via the
-.B nlopt_minimize
+.B nlopt_minimize_constrained
 interface.  However, depending upon the specific function being minimized,
 the different algorithms will vary in effectiveness.  The intent of
-.B nlopt_minimize
+.B nlopt_minimize_constrained
 is to allow you to quickly switch between algorithms in order to experiment
 with them for your problem, by providing a simple unified interface to
 these subroutines.
 .SH OBJECTIVE FUNCTION
-.BR nlopt_minimize ()
+.BR nlopt_minimize_constrained ()
 minimizes an objective function
 .I f
 of the form:
@@ -108,7 +120,7 @@ points to an array of length
 of the design variables.  The dimension
 .I n
 is identical to the one passed to
-.BR nlopt_minimize ().
+.BR nlopt_minimize_constrained ().
 .sp
 In addition, if the argument
 .I grad
@@ -136,13 +148,13 @@ may still be NULL for some calls.)
 The 
 .I f_data
 argument is the same as the one passed to 
-.BR nlopt_minimize (),
+.BR nlopt_minimize_constrained (),
 and may be used to pass any additional data through to the function.
 (That is, it may be a pointer to some caller-defined data
 structure/type containing information your function needs, which you
 convert from void* by a typecast.)
 .sp
-.SH CONSTRAINTS
+.SH BOUND CONSTRAINTS
 Most of the algorithms in NLopt are designed for minimization of functions
 with simple bound constraints on the inputs.  That is, the input vectors
 x[i] are constrainted to lie in a hyperrectangle lb[i] <= x[i] <= ub[i] for
@@ -151,7 +163,7 @@ x[i] are constrainted to lie in a hyperrectangle lb[i] <= x[i] <= ub[i] for
 and
 .I ub
 are the two arrays passed to
-.BR nlopt_minimize ().
+.BR nlopt_minimize_constrained ().
 .sp
 However, a few of the algorithms support partially or totally
 unconstrained optimization, as noted below, where a (totally or
@@ -169,10 +181,93 @@ above) whenever the constraints are violated by a given input
 More generally, there are various ways to implement constraints
 by adding "penalty terms" to your objective function, which are
 described in the optimization literature.
-A much more efficient way to specify nonlinear constraints is 
-provided by the
-.BR nlopt_minimize_constrained ()
-function (described in its own manual page).
+A much more efficient way to specify nonlinear constraints is described
+below, but is only supported by a small subset of the algorithms.
+.SH NONLINEAR CONSTRAINTS
+The
+.B nlopt_minimize_constrained
+function also allows you to specify
+.I m
+nonlinear constraints via the function
+.IR fc ,
+where
+.I m
+is any nonnegative integer.  However, nonzero
+.I m
+is currently only supported by the
+.B NLOPT_LD_MMA
+algorithm below.
+.sp
+In particular, the nonlinear constraints are of the form 
+\fIfc\fR(\fIx\fR) <= 0, where the function
+.I fc
+is of the same form as the objective function described above:
+.sp
+.BI "      double fc(int " "n" , 
+.br
+.BI "                const double* " "x" , 
+.br
+.BI "                double* " "grad" , 
+.br
+.BI "                void* " "fc_datum" );
+.sp
+The return value should be the value of the constraint at the point
+.IR x ,
+where
+the dimension
+.I n
+is identical to the one passed to
+.BR nlopt_minimize_constrained ().
+As for the objective function, if the argument
+.I grad
+is not NULL, then
+.I grad
+points to an array of length
+.I n
+which should (upon return) be set to the gradient of the function with
+respect to 
+.IR x .
+(For any algorithm listed as "derivative-free" below, the
+.I grad
+argument will always be NULL and need never be computed.)
+.sp
+The 
+.I fc_datum
+argument is based on the
+.I fc_data
+argument passed to
+.BR nlopt_minimize_constrained (),
+and may be used to pass any additional data through to the function,
+and is used to distinguish between different constraints.
+.sp
+In particular, the constraint function
+.I fc
+will be called
+.I m
+times for each
+.IR x ,
+and the i-th constraint (0 <= i <= 
+.IR m )
+will be passed an
+.I fc_datum
+argument equal to
+.I fc_data
+offset by i * 
+.IR fc_datum_size .
+For example, suppose that you have a data structure of type "foo"
+that describes the data needed by each constraint, and you store
+the information for the constraints in an array "foo data[m]".  In
+this case, you would pass "data" as the
+.I fc_data
+parameter to
+.BR nlopt_minimize_constrained ,
+and "sizeof(foo)" as the 
+.I fc_datum_size
+parameter.  Then, your 
+.I fc
+function would be called 
+.I m
+times for each point, and be passed data[0] through data[m-1] in sequence.
 .SH ALGORITHMS
 The 
 .I algorithm
@@ -319,18 +414,20 @@ implementation of Svanberg's algorithm.)  The
 .B NLOPT_LD_MMA
 algorithm supports both bound-constrained and unconstrained optimization,
 and also supports an arbitrary number (\fIm\fR) of nonlinear constraints
-via the
-.BR nlopt_minimize_constrained ()
-function.
+as described above.
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the following arguments to
-.BR nlopt_minimize ().
+.BR nlopt_minimize_constrained ().
 The optimization halts whenever any one of these criteria is
 satisfied.  In some cases, the precise interpretation of the stopping
 criterion depends on the optimization algorithm above (although we
 have tried to make them as consistent as reasonably possible), and
 some algorithms do not support all of the stopping criteria.
+.sp
+Important: you do not need to use all of the stopping criteria!  In most
+cases, you only need one or two, and can set the remainder to values where
+they do nothing (as described below).
 .TP
 .B minf_max
 Stop when a function value less than or equal to
@@ -461,6 +558,6 @@ termination condition that is consistently supported right now is
 .SH AUTHORS
 Written by Steven G. Johnson.
 .PP
-Copyright (c) 2007 Massachusetts Institute of Technology.
+Copyright (c) 2007-2008 Massachusetts Institute of Technology.
 .SH "SEE ALSO"
-nlopt_minimize_constrained(3)
+nlopt_minimize(3)

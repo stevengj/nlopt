@@ -91,7 +91,7 @@ extern nlopt_result nlopt_minimize(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 
-extern nlopt_result nlopt_minimize_c(
+extern nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,

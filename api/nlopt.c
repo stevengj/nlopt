@@ -203,7 +203,8 @@ static nlopt_result nlopt_minimize_(
      nlopt_stopping stop;
 
      /* some basic argument checks */
-     if (!minf || !f) return NLOPT_INVALID_ARGS;
+     if (!minf || !f || n < 0 || m < 0
+	  || (m > 0 && !fc)) return NLOPT_INVALID_ARGS;
      if (n == 0) { /* trivial case: no degrees of freedom */
 	  *minf = f(n, x, NULL, f_data);
 	  return NLOPT_SUCCESS;
@@ -424,7 +425,7 @@ static nlopt_result nlopt_minimize_(
      return NLOPT_SUCCESS;
 }
 
-nlopt_result nlopt_minimize_c(
+nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
@@ -465,7 +466,8 @@ nlopt_result nlopt_minimize(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
-     return nlopt_minimize_c(algorithm, n, f, f_data, 0, NULL, NULL, 0,
-			     lb, ub, x, minf, minf_max, ftol_rel, ftol_abs,
-			     xtol_rel, xtol_abs, maxeval, maxtime);
+     return nlopt_minimize_constrained(
+	  algorithm, n, f, f_data, 0, NULL, NULL, 0,
+	  lb, ub, x, minf, minf_max, ftol_rel, ftol_abs,
+	  xtol_rel, xtol_abs, maxeval, maxtime);
 }
