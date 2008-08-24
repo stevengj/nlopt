@@ -200,11 +200,22 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
 	       /* solve dual problem */
 	       dd.rho = rho; dd.count = 0;
+	  dual_solution:
 	       reti = nlopt_minimize(
 		    dual_alg, m, dual_func, &dd,
 		    dual_lb, dual_ub, y, &min_dual,
 		    -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
 		    stop->maxtime - (nlopt_seconds() - stop->start));
+	       if (reti == NLOPT_FAILURE && dual_alg != NLOPT_LD_MMA) {
+		    /* LBFGS etc. converge quickly but are sometimes
+		       very finicky if there are any rounding errors in
+		       the gradient, etcetera; if it fails, try again
+		       with MMA called recursively for the dual */
+		    dual_alg = NLOPT_LD_MMA;
+		    if (mma_verbose)
+			 printf("MMA: switching to recursive MMA for dual\n");
+		    goto dual_solution;
+	       }
 	       if (reti < 0 || reti == NLOPT_MAXTIME_REACHED) {
 		    ret = reti;
 		    goto done;
