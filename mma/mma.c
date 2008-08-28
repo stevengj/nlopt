@@ -101,7 +101,7 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 	       dx = -sigma[j] * (0.5 * a + 0.125 * a*a*a);
 	  }
 	  else
-	       dx = (v/u)*sigma2 * (-1 + sqrt(1 - sqr(u/(v*sigma[j]))));
+	       dx = (v/u)*sigma2 * (-1 + sqrt(fabs(1 - sqr(u/(v*sigma[j])))));
 	  xcur[j] = x[j] + dx;
 	  if (xcur[j] > ub[j]) xcur[j] = ub[j];
 	  else if (xcur[j] < lb[j]) xcur[j] = lb[j];
