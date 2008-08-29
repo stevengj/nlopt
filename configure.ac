@@ -30,6 +30,11 @@ if test "x$with_cxx" = xyes; then
 fi
 AC_SUBST(NLOPT_SUFFIX)
 
+AC_ARG_WITH(windows-f77-mangling, [AC_HELP_STRING([--with-windows-f77-mangling],[use common Win32 Fortran interface styles])], with_windows_f77_mangling=$withval, with_windows_f77_mangling=no)
+if test "$with_windows_f77_mangling" = "yes"; then
+	AC_DEFINE(WINDOWS_F77_MANGLING,1,[Use common Windows Fortran mangling styles for the Fortran interfaces.])
+fi
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDC
 AC_HEADER_TIME
