@@ -8,7 +8,7 @@ CXX_DIRS = stogo
 CXX_LIBS = stogo/libstogo.la
 endif
 
-SUBDIRS= util subplex direct cdirect $(CXX_DIRS) praxis luksan crs mlsl mma lbfgs api . octave test
+SUBDIRS= util subplex direct cdirect $(CXX_DIRS) praxis luksan crs mlsl mma cobyla lbfgs api . octave test
 EXTRA_DIST=COPYRIGHT autogen.sh nlopt.pc.in m4
 
 if WITH_NOCEDAL
@@ -19,7 +19,7 @@ libnlopt@NLOPT_SUFFIX@_la_SOURCES =
 libnlopt@NLOPT_SUFFIX@_la_LIBADD = subplex/libsubplex.la		\
 direct/libdirect.la cdirect/libcdirect.la $(CXX_LIBS)			\
 praxis/libpraxis.la $(NOCEDAL_LBFGS) luksan/libluksan.la crs/libcrs.la	\
-mlsl/libmlsl.la mma/libmma.la api/libapi.la util/libutil.la
+mlsl/libmlsl.la mma/libmma.la cobyla/libcobyla.la api/libapi.la util/libutil.la
 
 libnlopt@NLOPT_SUFFIX@_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
 

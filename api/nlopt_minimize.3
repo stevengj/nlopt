@@ -322,6 +322,17 @@ and also supports an arbitrary number (\fIm\fR) of nonlinear constraints
 via the
 .BR nlopt_minimize_constrained ()
 function.
+.TP
+.B NLOPT_LN_COBYLA
+Local (L) derivative-free (N) optimization using the COBYLA algorithm
+of Powell (Constrained Optimization BY Linear Approximations).
+The
+.B NLOPT_LD_COBYLA
+algorithm supports both bound-constrained and unconstrained optimization,
+and also supports an arbitrary number (\fIm\fR) of nonlinear constraints
+via the
+.BR nlopt_minimize_constrained ()
+function.
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the following arguments to

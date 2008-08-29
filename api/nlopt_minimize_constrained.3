@@ -196,7 +196,9 @@ is any nonnegative integer.  However, nonzero
 .I m
 is currently only supported by the
 .B NLOPT_LD_MMA
-algorithm below.
+and
+.B NLOPT_LN_COBYLA
+algorithms below.
 .sp
 In particular, the nonlinear constraints are of the form 
 \fIfc\fR(\fIx\fR) <= 0, where the function
@@ -412,6 +414,15 @@ asymptotes (MMA), or rather a refined version of the algorithm as
 published by Svanberg (2002).  (NLopt uses an independent free
 implementation of Svanberg's algorithm.)  The
 .B NLOPT_LD_MMA
+algorithm supports both bound-constrained and unconstrained optimization,
+and also supports an arbitrary number (\fIm\fR) of nonlinear constraints
+as described above.
+.TP
+.B NLOPT_LN_COBYLA
+Local (L) derivative-free (N) optimization using the COBYLA algorithm
+of Powell (Constrained Optimization BY Linear Approximations).
+The
+.B NLOPT_LD_COBYLA
 algorithm supports both bound-constrained and unconstrained optimization,
 and also supports an arbitrary number (\fIm\fR) of nonlinear constraints
 as described above.

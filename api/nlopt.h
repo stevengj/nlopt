@@ -85,6 +85,8 @@ typedef enum {
 
      NLOPT_LD_MMA,
 
+     NLOPT_LN_COBYLA,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

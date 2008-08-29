@@ -98,7 +98,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Multi-level single-linkage (MLSL), random (global, derivative)",
      "Multi-level single-linkage (MLSL), quasi-random (global, no-derivative)",
      "Multi-level single-linkage (MLSL), quasi-random (global, derivative)",
-     "Method of Moving Asymptotes (MMA) (local, derivative)"
+     "Method of Moving Asymptotes (MMA) (local, derivative)",
+     "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -173,6 +174,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 
 #include "mlsl.h"
 #include "mma.h"
+#include "cobyla.h"
 
 /*************************************************************************/
 
@@ -234,8 +236,9 @@ static nlopt_result nlopt_minimize_(
      else if (n < 0 || !lb || !ub || !x)
 	  return NLOPT_INVALID_ARGS;
 
-     /* nonlinear constraints are only supported with MMA */
-     if (m != 0 && algorithm != NLOPT_LD_MMA) return NLOPT_INVALID_ARGS;
+     /* nonlinear constraints are only supported with MMA or COBYLA */
+     if (m != 0 && algorithm != NLOPT_LD_MMA && algorithm != NLOPT_LN_COBYLA) 
+	  return NLOPT_INVALID_ARGS;
 
      d.f = f;
      d.f_data = f_data;
@@ -439,6 +442,28 @@ static nlopt_result nlopt_minimize_(
 	      return mma_minimize(n, f, f_data, m, fc, fc_data, fc_datum_size,
 				  lb, ub, x, minf, &stop,
 				  local_search_alg_deriv, 1e-12, 100000);
+
+	 case NLOPT_LN_COBYLA: {
+	      /* crude heuristics for initial step */
+	      double rhobegin = HUGE_VAL;
+	      for (i = 0; i < n; ++i) {
+		   if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i])
+			&& (ub[i] - lb[i]) * 0.25 < rhobegin && ub[i] != lb[i])
+			rhobegin = (ub[i] - lb[i]) * 0.25;
+	      }
+	      if (nlopt_isinf(rhobegin)) {
+		   rhobegin = 0;
+		   for (i = 0; i < n; ++i)
+			if (fabs(x[i]) * 0.25 > rhobegin)
+			     rhobegin = fabs(x[i]) * 0.25;
+		   if (rhobegin == 0)
+			rhobegin = 1;
+	      }
+	      
+	      return cobyla_minimize(n, f, f_data, 
+				     m, fc, fc_data, fc_datum_size,
+				     lb, ub, x, minf, &stop, rhobegin);
+	 }
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

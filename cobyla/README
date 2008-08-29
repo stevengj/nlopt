@@ -1,0 +1,31 @@
+This code implements COBYLA (Constrained Optimization BY Linear
+Approximations) algorithm derivative free optimization with nonlinear
+inequality constraints by M. J. D. Powell, described by:
+
+	M. J. D. Powell, "A direct search optimization method that
+	models the objective and constraint functions by linear
+	interpolation," in Advances in Optimization and Numerical
+	Analysis, eds. S. Gomez and J.-P. Hennart (Kluwer Academic:
+	Dordrecht, 1994), p. 51-67.
+
+and reviewed in:
+
+	M. J. D. Powell, "Direct search algorithms for optimization
+	calculations," Acta Numerica 7, 287-336 (1998).
+
+It constructs successive linear approximations of the objective
+function and constraints via a simplex of n+1 points (in n
+dimensions), and optimizes these approximations in a trust region at
+each step.
+
+The original code itself was written in Fortran by Powell, and
+apparently released without restrictions (like several of his other
+programs), and was converted to C in 2004 by Jean-Sebastien Roy
+(js@jeannot.org) for the SciPy project.  The C version was released
+under the attached license (basically the MIT license) at:
+	http://www.jeannot.org/~js/code/index.en.html#COBYLA
+
+It was incorporated into NLopt in 2008 by S. G. Johnson, and kept under
+the same MIT license.  In incorporating it into NLopt, SGJ adapted it
+to include the NLopt stopping conditions (the original code provided
+an x tolerance and a maximum number of function evaluations only).

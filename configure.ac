@@ -206,6 +206,7 @@ AC_CONFIG_FILES([
    crs/Makefile
    mlsl/Makefile
    mma/Makefile
+   cobyla/Makefile
    test/Makefile
 ])
 
