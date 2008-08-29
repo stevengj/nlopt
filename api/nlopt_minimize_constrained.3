@@ -78,11 +78,16 @@ require the gradient (derivatives) of the function to be supplied via
 .IR f ,
 and other algorithms do not require derivatives.  Some of the
 algorithms attempt to find a global minimum within the given bounds,
-and others find only a local minimum.  Some of the algorithms can handle
-nonlinear constraints, but most of the algorithms only handle the
+and others find only a local minimum.  Most of the algorithms only handle the
 case where
 .I m
-is zero (no explicit nonlinear constraints).
+is zero (no explicit nonlinear constraints); the only algorithms that
+currently support positive
+.I m
+are 
+.B NLOPT_LD_MMA
+and
+.BR NLOPT_LN_COBYLA .
 .PP
 The
 .B nlopt_minimize_constrained
@@ -244,11 +249,11 @@ and is used to distinguish between different constraints.
 .sp
 In particular, the constraint function
 .I fc
-will be called
+will be called (at most)
 .I m
 times for each
 .IR x ,
-and the i-th constraint (0 <= i <= 
+and the i-th constraint (0 <= i <
 .IR m )
 will be passed an
 .I fc_datum
@@ -269,7 +274,7 @@ parameter.  Then, your
 .I fc
 function would be called 
 .I m
-times for each point, and be passed data[0] through data[m-1] in sequence.
+times for each point, and be passed &data[0] through &data[m-1] in sequence.
 .SH ALGORITHMS
 The 
 .I algorithm
@@ -350,13 +355,14 @@ works (both for simple bound constraints via
 .I lb
 and
 .I ub
-as well as nonlinear constraints as described above).
+as well as nonlinear constraints via the crude technique of returning
++Inf when the constraints are violated, as explained above).
 .TP
 .B NLOPT_LN_PRAXIS
 Local (L) derivative-free (N) optimization using the principal-axis
 method, based on code by Richard Brent.  Designed for unconstrained
-optimization, although bound constraints are supported too (via a
-potentially inefficient method).
+optimization, although bound constraints are supported too (via the
+inefficient method of returning +Inf when the constraints are violated).
 .TP
 .B NLOPT_LD_LBFGS
 Local (L) gradient-based (D) optimization using the limited-memory BFGS
@@ -388,7 +394,7 @@ other variants of this algorithm:
 (same without restarting or preconditioning).
 .TP
 .B NLOPT_GN_CRS2_LM
-Global (G) derivative-free (N) optimization using controlled random
+Global (G) derivative-free (N) optimization using the controlled random
 search (CRS2) algorithm of Price, with the "local mutation" (LM)
 modification suggested by Kaelo and Ali.
 .TP
@@ -411,7 +417,7 @@ pseudo-random numbers (instead of an LDS) as in the original MLSL algorithm.
 .B NLOPT_LD_MMA
 Local (L) gradient-based (D) optimization using the method of moving
 asymptotes (MMA), or rather a refined version of the algorithm as
-published by Svanberg (2002).  (NLopt uses an independent free
+published by Svanberg (2002).  (NLopt uses an independent free-software/open-source
 implementation of Svanberg's algorithm.)  The
 .B NLOPT_LD_MMA
 algorithm supports both bound-constrained and unconstrained optimization,

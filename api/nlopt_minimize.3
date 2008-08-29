@@ -253,13 +253,14 @@ works (both for simple bound constraints via
 .I lb
 and
 .I ub
-as well as nonlinear constraints as described above).
+as well as nonlinear constraints via the crude technique of returning
++Inf when the constraints are violated, as explained above).
 .TP
 .B NLOPT_LN_PRAXIS
 Local (L) derivative-free (N) optimization using the principal-axis
 method, based on code by Richard Brent.  Designed for unconstrained
-optimization, although bound constraints are supported too (via a
-potentially inefficient method).
+optimization, although bound constraints are supported too (via the
+inefficient method of returning +Inf when the constraints are violated).
 .TP
 .B NLOPT_LD_LBFGS
 Local (L) gradient-based (D) optimization using the limited-memory BFGS
@@ -291,7 +292,7 @@ other variants of this algorithm:
 (same without restarting or preconditioning).
 .TP
 .B NLOPT_GN_CRS2_LM
-Global (G) derivative-free (N) optimization using controlled random
+Global (G) derivative-free (N) optimization using the controlled random
 search (CRS2) algorithm of Price, with the "local mutation" (LM)
 modification suggested by Kaelo and Ali.
 .TP
@@ -314,7 +315,7 @@ pseudo-random numbers (instead of an LDS) as in the original MLSL algorithm.
 .B NLOPT_LD_MMA
 Local (L) gradient-based (D) optimization using the method of moving
 asymptotes (MMA), or rather a refined version of the algorithm as
-published by Svanberg (2002).  (NLopt uses an independent free
+published by Svanberg (2002).  (NLopt uses an independent free-software/open-source
 implementation of Svanberg's algorithm.)  The
 .B NLOPT_LD_MMA
 algorithm supports both bound-constrained and unconstrained optimization,
