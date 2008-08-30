@@ -99,7 +99,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Multi-level single-linkage (MLSL), quasi-random (global, no-derivative)",
      "Multi-level single-linkage (MLSL), quasi-random (global, derivative)",
      "Method of Moving Asymptotes (MMA) (local, derivative)",
-     "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)"
+     "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)",
+     "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -120,6 +121,45 @@ void nlopt_srand_time() {
      nlopt_srand(nlopt_time_seed());
 }
 
+/*************************************************************************/
+
+/* crude heuristics for initial step size of nonderivative algorithms */
+static double initial_step(int n, 
+			   const double *lb, const double *ub, const double *x)
+{
+     int i;
+     double step = HUGE_VAL;
+     for (i = 0; i < n; ++i) {
+	  if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i])
+	      && (ub[i] - lb[i]) * 0.25 < step && ub[i] > lb[i])
+	       step = (ub[i] - lb[i]) * 0.25;
+	  if (!nlopt_isinf(ub[i]) 
+	      && ub[i] - x[i] < step && ub[i] > x[i])
+	       step = ub[i] - x[i];
+	  if (!nlopt_isinf(lb[i]) 
+	      && x[i] - lb[i] < step && x[i] > lb[i])
+	       step = x[i] - lb[i];
+     }
+     if (nlopt_isinf(step))
+	  for (i = 0; i < n; ++i) {
+	       if (!nlopt_isinf(ub[i]) 
+		   && ub[i] - x[i] < step && ub[i] > x[i] + 1e-4)
+		    step = ub[i] - x[i];
+	       if (!nlopt_isinf(lb[i]) 
+		   && x[i] - lb[i] < step && x[i] > lb[i] + 1e-4)
+		    step = x[i] - lb[i];
+	  }
+     if (nlopt_isinf(step)) {
+	  step = 0;
+	  for (i = 0; i < n; ++i)
+	       if (fabs(x[i]) * 0.25 > step)
+		    step = fabs(x[i]) * 0.25;
+	  if (step == 0)
+	       step = 1;
+     }
+     return step;
+}
+	      
 /*************************************************************************/
 
 typedef struct {
@@ -144,7 +184,7 @@ static double f_subplex(int n, const double *x, void *data_)
 	       return MY_INF;
 
      f = data->f(n, x, NULL, data->f_data);
-     return (isnan(f) ? MY_INF : f);
+     return (isnan(f) || nlopt_isinf(f) ? MY_INF : f);
 }
 
 #include "direct.h"
@@ -175,6 +215,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "mlsl.h"
 #include "mma.h"
 #include "cobyla.h"
+#include "newuoa.h"
 
 /*************************************************************************/
 
@@ -332,16 +373,8 @@ static nlopt_result nlopt_minimize_(
 	      int iret;
 	      double *scale = (double *) malloc(sizeof(double) * n);
 	      if (!scale) return NLOPT_OUT_OF_MEMORY;
-	      for (i = 0; i < n; ++i) {
-		   if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i]))
-			scale[i] = (ub[i] - lb[i]) * 0.01;
-		   else if (!nlopt_isinf(lb[i]) && x[i] > lb[i])
-			scale[i] = (x[i] - lb[i]) * 0.01;
-		   else if (!nlopt_isinf(ub[i]) && x[i] < ub[i])
-			scale[i] = (ub[i] - x[i]) * 0.01;
-		   else
-			scale[i] = 0.01 * x[i] + 0.0001;
-	      }
+	      for (i = 0; i < n; ++i)
+		   scale[i] = initial_step(1, lb+i, ub+i, x+i);
 	      iret = nlopt_subplex(f_subplex, minf, x, n, &d, &stop, scale);
 	      free(scale);
 	      switch (iret) {
@@ -358,21 +391,10 @@ static nlopt_result nlopt_minimize_(
 	      break;
 	 }
 
-	 case NLOPT_LN_PRAXIS: {
-	      double h0 = HUGE_VAL;
-	      for (i = 0; i < n; ++i) {
-		   if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i]))
-			h0 = MIN(h0, (ub[i] - lb[i]) * 0.01);
-		   else if (!nlopt_isinf(lb[i]) && x[i] > lb[i])
-			h0 = MIN(h0, (x[i] - lb[i]) * 0.01);
-		   else if (!nlopt_isinf(ub[i]) && x[i] < ub[i])
-			h0 = MIN(h0, (ub[i] - x[i]) * 0.01);
-		   else
-			h0 = MIN(h0, 0.01 * x[i] + 0.0001);
-	      }
-	      return praxis_(0.0, DBL_EPSILON, h0, n, x, f_subplex, &d,
+	 case NLOPT_LN_PRAXIS:
+	      return praxis_(0.0, DBL_EPSILON, 
+			     initial_step(n, lb, ub, x), n, x, f_subplex, &d,
 			     &stop, minf);
-	 }
 
 #ifdef WITH_NOCEDAL
 	 case NLOPT_LD_LBFGS_NOCEDAL: {
@@ -443,27 +465,16 @@ static nlopt_result nlopt_minimize_(
 				  lb, ub, x, minf, &stop,
 				  local_search_alg_deriv, 1e-12, 100000);
 
-	 case NLOPT_LN_COBYLA: {
-	      /* crude heuristics for initial step */
-	      double rhobegin = HUGE_VAL;
-	      for (i = 0; i < n; ++i) {
-		   if (!nlopt_isinf(ub[i]) && !nlopt_isinf(lb[i])
-			&& (ub[i] - lb[i]) * 0.25 < rhobegin && ub[i] != lb[i])
-			rhobegin = (ub[i] - lb[i]) * 0.25;
-	      }
-	      if (nlopt_isinf(rhobegin)) {
-		   rhobegin = 0;
-		   for (i = 0; i < n; ++i)
-			if (fabs(x[i]) * 0.25 > rhobegin)
-			     rhobegin = fabs(x[i]) * 0.25;
-		   if (rhobegin == 0)
-			rhobegin = 1;
-	      }
-	      
+	 case NLOPT_LN_COBYLA:
 	      return cobyla_minimize(n, f, f_data, 
 				     m, fc, fc_data, fc_datum_size,
-				     lb, ub, x, minf, &stop, rhobegin);
-	 }
+				     lb, ub, x, minf, &stop,
+				     initial_step(n, lb, ub, x));
+				     
+	 case NLOPT_LN_NEWUOA:
+	      return newuoa(n, 2*n+1, x, initial_step(n, lb, ub, x),
+			    &stop, minf, f_subplex, &d);
+				     
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

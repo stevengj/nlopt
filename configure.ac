@@ -212,6 +212,7 @@ AC_CONFIG_FILES([
    mlsl/Makefile
    mma/Makefile
    cobyla/Makefile
+   newuoa/Makefile
    test/Makefile
 ])
 
