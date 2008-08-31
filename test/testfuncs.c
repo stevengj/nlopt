@@ -371,6 +371,26 @@ static const double osc1d_ub[1] = {5};
 static const double osc1d_xmin[1] = {1.23456789};
 
 /****************************************************************************/
+static double corner4d_f(int n, const double *x, double *grad, void *data)
+{
+     UNUSED(data);
+     UNUSED(n);
+     double u = x[0] + x[1] * x[2] * sin(2 * x[3]);
+     double v = x[0] + 2*sin(u);
+     if (grad) {
+	  grad[0] = 2*v * (1 + 2*cos(u));
+	  grad[1] = 2*v * 2*cos(u) * x[2] * sin(2*x[3]) + 0.1;
+	  grad[2] = 2*v * 2*cos(u) * x[1] * sin(2*x[3]) + 0.1;
+	  grad[3] = 2*v * 2*cos(u) * x[1]*x[2] * cos(2*x[3]) * 2 + 0.1;
+     }
+     RETURN(1 + v*v + 0.1*(x[1]+x[2]+x[3]));
+}
+
+static const double corner4d_lb[4] = {0,0,0,0};
+static const double corner4d_ub[4] = {1,1,1,1};
+static const double corner4d_xmin[4] = {0,0,0,0};
+
+/****************************************************************************/
 /****************************************************************************/
 
 const testfunc testfuncs[NTESTFUNCS] = {
@@ -433,5 +453,8 @@ const testfunc testfuncs[NTESTFUNCS] = {
        -176.541793, "Hansen function" },
      { osc1d_f, NULL, 1, 1,
        osc1d_lb, osc1d_ub, osc1d_xmin,
-       -1.0, "1d oscillating function with a single minimum" }
+       -1.0, "1d oscillating function with a single minimum" },
+     { corner4d_f, NULL, 1, 4,
+       corner4d_lb, corner4d_ub, corner4d_xmin,
+       1.0, "4d function with minimum at corner" }
 };

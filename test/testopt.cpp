@@ -46,6 +46,8 @@ static int test_function(int ifunc)
   double *x, minf, minf_max, f0, *xtabs, *lb, *ub;
   nlopt_result ret;
   double start = nlopt_seconds();
+  int total_count = 0;
+  double total_err = 0, max_err = 0;
   
   if (ifunc < 0 || ifunc >= NTESTFUNCS) {
     fprintf(stderr, "testopt: invalid function %d\n", ifunc);
@@ -89,42 +91,43 @@ static int test_function(int ifunc)
     printf("]\n");
   }
 
-
-  printf("Starting guess x = [");
-  for (i = 0; i < func.n; ++i) {
-    if (center_start)
-      x[i] = (ub[i] + lb[i]) * 0.5;
-    else if (xinit_tol < 0) { /* random starting point near center of box */
-      double dx = (ub[i] - lb[i]) * 0.25;
-      double xm = 0.5 * (ub[i] + lb[i]);
-      x[i] = nlopt_urand(xm - dx, xm + dx);
-    }
-    else {
-      x[i] = nlopt_urand(-xinit_tol, xinit_tol)
-	+ (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
-      if (x[i] > ub[i]) x[i] = ub[i];
-      else if (x[i] < lb[i]) x[i] = lb[i];
-    }
-    printf(" %g", x[i]);
-  }
-  printf("]\n");
-  f0 = func.f(func.n, x, x + func.n, func.f_data);
-  printf("Starting function value = %g\n", f0);
-
-  if (testfuncs_verbose && func.has_gradient) {
-    printf("checking gradient:\n");
-    for (i = 0; i < func.n; ++i) {
-      double f;
-      x[i] *= 1 + 1e-6;
-      f = func.f(func.n, x, NULL, func.f_data);
-      x[i] /= 1 + 1e-6;
-      printf("  grad[%d] = %g vs. numerical derivative %g\n",
-	     i, x[i + func.n], (f - f0) / (x[i] * 1e-6));
-    }
-  }
-
   for (iter = 0; iter < iterations; ++iter) {
+    double val;
     testfuncs_counter = 0;
+
+    printf("Starting guess x = [");
+    for (i = 0; i < func.n; ++i) {
+      if (center_start)
+	x[i] = (ub[i] + lb[i]) * 0.5;
+      else if (xinit_tol < 0) { /* random starting point near center of box */
+	double dx = (ub[i] - lb[i]) * 0.25;
+	double xm = 0.5 * (ub[i] + lb[i]);
+	x[i] = nlopt_urand(xm - dx, xm + dx);
+      }
+      else {
+	x[i] = nlopt_urand(-xinit_tol, xinit_tol)
+	  + (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
+	if (x[i] > ub[i]) x[i] = ub[i];
+	else if (x[i] < lb[i]) x[i] = lb[i];
+      }
+      printf(" %g", x[i]);
+    }
+    printf("]\n");
+    f0 = func.f(func.n, x, x + func.n, func.f_data);
+    printf("Starting function value = %g\n", f0);
+    
+    if (iter > 0 && testfuncs_verbose && func.has_gradient) {
+      printf("checking gradient:\n");
+      for (i = 0; i < func.n; ++i) {
+	double f;
+	x[i] *= 1 + 1e-6;
+	f = func.f(func.n, x, NULL, func.f_data);
+	x[i] /= 1 + 1e-6;
+	printf("  grad[%d] = %g vs. numerical derivative %g\n",
+	       i, x[i + func.n], (f - f0) / (x[i] * 1e-6));
+      }
+    }
+    
     ret = nlopt_minimize(algorithm,
 			 func.n, func.f, func.f_data,
 			 lb, ub,
@@ -139,16 +142,28 @@ static int test_function(int ifunc)
     }
     printf("Found minimum f = %g after %d evaluations.\n", 
 	   minf, testfuncs_counter);
+    total_count += testfuncs_counter;
     printf("Minimum at x = [");
     for (i = 0; i < func.n; ++i) printf(" %g", x[i]);
     printf("]\n");
     printf("|f - minf| = %g, |f - minf| / |minf| = %e\n",
 	   fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));
+    total_err += fabs(minf - func.minf);
+    if (fabs(minf - func.minf) > max_err)
+      max_err = fabs(minf - func.minf);
+    printf("vs. global minimum f = %g at x = [", func.minf);
+    for (i = 0; i < func.n; ++i) printf(" %g", func.xmin[i]);
+    printf("]\n");
+
+    val = func.f(func.n, x, NULL, func.f_data);
+    if (val != minf) {
+      fprintf(stderr, "Mismatch %g between returned minf=%g and f(x) = %g\n", 
+	      minf - val, minf, val);
+      return 0;
+    }
   }
-  printf("vs. global minimum f = %g at x = [", func.minf);
-  for (i = 0; i < func.n; ++i) printf(" %g", func.xmin[i]);
-  printf("]\n");
-  
+  printf("average #evaluations = %g\naverage |f-minf| = %g, max |f-minf| = %g\n", total_count * 1.0 / iterations, total_err / iterations, max_err);
+
   free(x);
   return 1;
 }
