@@ -195,7 +195,8 @@ static int test_function(int ifunc)
       return 0;
     }
   }
-  printf("average #evaluations = %g\naverage |f-minf| = %g, max |f-minf| = %g\n", total_count * 1.0 / iterations, total_err / iterations, max_err);
+  if (iterations > 1)
+    printf("average #evaluations = %g\naverage |f-minf| = %g, max |f-minf| = %g\n", total_count * 1.0 / iterations, total_err / iterations, max_err);
 
   free(x);
   return 1;
