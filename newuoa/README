@@ -24,5 +24,6 @@ I just truncated its result to the bounds (which probably gives suboptimal
 convergence, but BIGDEN is called only very rarely in practice).
 
 The original Fortran code was released by Powell with "no restrictions
-or charges", and the C translation by S. G. Johnson is released under
-the MIT License (see the COPYRIGHT file in this directory).
+or charges", and the C translation by S. G. Johnson is released in a
+similar spirit under the MIT License (see the COPYRIGHT file in this
+directory).
