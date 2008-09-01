@@ -114,6 +114,16 @@ static int test_function(int ifunc)
     printf("]\n");
   }
 
+  if (fabs(func.f(func.n, func.xmin, 0, func.f_data) - func.minf) > 1e-8) {
+    fprintf(stderr, "BUG: function does not achieve given lower bound!\n");
+    fprintf(stderr, "f(%g", func.xmin[0]);
+    for (i = 1; i < func.n; ++i) fprintf(stderr, ", %g", func.xmin[i]);
+    fprintf(stderr, ") = %0.16g instead of %0.16g, |diff| = %g\n", 
+	    func.f(func.n, func.xmin, 0, func.f_data), func.minf,
+	    fabs(func.f(func.n, func.xmin, 0, func.f_data) - func.minf));
+    return 0;
+  }
+
   for (iter = 0; iter < iterations; ++iter) {
     double val;
     testfuncs_counter = 0;

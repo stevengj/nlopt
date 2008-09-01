@@ -59,7 +59,7 @@ static double mccormic_f(int n, const double *x, double *grad, void *data)
 
 static const double mccormic_lb[2] = {-1.5, -3};
 static const double mccormic_ub[2] = {4, 4};
-static const double mccormic_xmin[2] = {-0.54719, 1.54719};
+static const double mccormic_xmin[2] = {-0.547197553, -1.54719756};
 
 /****************************************************************************/
 static double boxbetts_f(int n, const double *x, double *grad, void *data)
@@ -112,7 +112,7 @@ static double paviani_f(int n, const double *x, double *grad, void *data)
 
 static const double paviani_lb[10] = {2.001,2.001,2.001,2.001,2.001,2.001,2.001,2.001,2.001,2.001};
 static const double paviani_ub[10] = {9.999,9.999,9.999,9.999,9.999,9.999,9.999,9.999,9.999,9.999};
-static const double paviani_xmin[10] = {9.350266,9.350266,9.350266,9.350266,9.350266,9.350266,9.350266,9.350266,9.350266,9.350266};
+static const double paviani_xmin[10] = {9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583};
 
 /****************************************************************************/
 static double grosenbrock_f(int n, const double *x, double *grad, void *data)
@@ -199,9 +199,9 @@ static double shekel_f(int n, const double *x, double *grad, void *data)
 static int shekel_m[3] = {5,7,10};
 static const double shekel_lb[4] = {0,0,0,0};
 static const double shekel_ub[4] = {10,10,10,10};
-static const double shekel0_xmin[4] = {4.00004,4.00013,4.00004,4.00013};
-static const double shekel1_xmin[4] = {4.00057,4.00069,3.99949,3.99961};
-static const double shekel2_xmin[4] = {4.00075,4.00059,3.99966,3.99951};
+static const double shekel0_xmin[4] = {4.000037154,4.000133276,4.000037154,4.000133276};
+static const double shekel1_xmin[4] = {4.000572917,4.000689366,3.999489709,3.999606158};
+static const double shekel2_xmin[4] = {4.000746531,4.000592935,3.999663399,3.999509801};
 
 /****************************************************************************/
 static double levy_f(int n, const double *x, double *grad, void *data)
@@ -229,10 +229,10 @@ static double levy_f(int n, const double *x, double *grad, void *data)
 
 static const double levy_lb[7] = {-5,-5,-5,-5,-5,-5,-5};
 static const double levy_ub[7] = {5,5,5,5,5,5,5};
-static const double levy_xmin[7] = {1,1,1,1,1,1,-4.754402};
+static const double levy_xmin[7] = {1,1,1,1,1,1,-4.75440246};
 static const double levy4_lb[4] = {-10,-10,-10,-10};
 static const double levy4_ub[4] = {10,10,10,10};
-static const double levy4_xmin[4] = {1,1,1,-9.752356};
+static const double levy4_xmin[4] = {1,1,1,-9.75235596};
 
 /****************************************************************************/
 static double griewank_f(int n, const double *x, double *grad, void *data)
@@ -270,7 +270,7 @@ static double sixhumpcamel_f(int n, const double *x, double *grad, void *data)
 
 static const double sixhumpcamel_lb[2] = {-5,-5};
 static const double sixhumpcamel_ub[2] = {5,5};
-static const double sixhumpcamel_xmin[2] = {0.08984, -0.71266};
+static const double sixhumpcamel_xmin[2] = {0.08984201317, -0.7126564032};
 
 /****************************************************************************/
 static double convexcosh_f(int n, const double *x, double *grad, void *data)
@@ -328,7 +328,7 @@ static double shubert_f(int n, const double *x, double *grad, void *data)
 
 static const double shubert_lb[2] = {-10,-10};
 static const double shubert_ub[2] = {10,10};
-static const double shubert_xmin[2] = {-6.774576, -6.774576};
+static const double shubert_xmin[2] = {-6.774576143, -6.774576143};
 
 /****************************************************************************/
 static double hansen_f(int n, const double *x, double *grad, void *data)
@@ -355,7 +355,7 @@ static double hansen_f(int n, const double *x, double *grad, void *data)
 
 static const double hansen_lb[2] = {-10,-10};
 static const double hansen_ub[2] = {10,10};
-static const double hansen_xmin[2] = {-1.306708,-1.425128};
+static const double hansen_xmin[2] = {-1.306707704,-1.425128429};
 
 /****************************************************************************/
 static double osc1d_f(int n, const double *x, double *grad, void *data)
@@ -399,13 +399,13 @@ const testfunc testfuncs[NTESTFUNCS] = {
        0.0, "Rosenbrock function" },
      { mccormic_f, NULL, 1, 2,
        mccormic_lb, mccormic_ub, mccormic_xmin,
-       -1.9133, "McCormic function" },
+       -1.91322295, "McCormic function" },
      { boxbetts_f, NULL, 1, 3,
        boxbetts_lb, boxbetts_ub, boxbetts_xmin,
        0.0, "Box and Betts exponential quadratic sum" },
      { paviani_f, NULL, 1, 10,
        paviani_lb, paviani_ub, paviani_xmin,
-       -45.778470, "Paviani function" },
+       -45.7784697, "Paviani function" },
      { grosenbrock_f, NULL, 1, 30,
        grosenbrock_lb, grosenbrock_ub, grosenbrock_xmin,
        0.0, "Generalized Rosenbrock function" },
@@ -414,31 +414,31 @@ const testfunc testfuncs[NTESTFUNCS] = {
        3.0, "Goldstein and Price function" },
      { shekel_f, shekel_m + 0, 1, 4,
        shekel_lb, shekel_ub, shekel0_xmin,
-       -10.1532, "Shekel m=5 function" },
+       -10.15319968, "Shekel m=5 function" },
      { shekel_f, shekel_m + 1, 1, 4,
        shekel_lb, shekel_ub, shekel1_xmin,
-       -10.4029, "Shekel m=7 function" },
+       -10.40294057, "Shekel m=7 function" },
      { shekel_f, shekel_m + 2, 1, 4,
        shekel_lb, shekel_ub, shekel2_xmin,
-       -10.5364, "Shekel m=10 function" },
+       -10.53640982, "Shekel m=10 function" },
      { levy_f, NULL, 1, 4,
        levy4_lb, levy4_ub, levy4_xmin,
-       -21.502356, "Levy n=4 function" },
+       -21.50235596, "Levy n=4 function" },
      { levy_f, NULL, 1, 5,
        levy_lb, levy_ub, levy_xmin+2,
-       -11.504403, "Levy n=5 function" },
+       -11.50440302, "Levy n=5 function" },
      { levy_f, NULL, 1, 6,
        levy_lb, levy_ub, levy_xmin+1,
-       -11.504403, "Levy n=6 function" },
+       -11.50440302, "Levy n=6 function" },
      { levy_f, NULL, 1, 7,
        levy_lb, levy_ub, levy_xmin,
-       -11.504403, "Levy n=7 function" },
+       -11.50440302, "Levy n=7 function" },
      { griewank_f, NULL, 1, 10,
        griewank_lb, griewank_ub, griewank_xmin,
        0.0, "Griewank function" },
      { sixhumpcamel_f, NULL, 1, 2,
        sixhumpcamel_lb, sixhumpcamel_ub, sixhumpcamel_xmin,
-       -1.03163, "Six-hump camel back function" },
+       -1.031628453, "Six-hump camel back function" },
      { convexcosh_f, NULL, 1, 10,
        convexcosh_lb, convexcosh_ub, convexcosh_xmin,
        1.0, "Convex product of cosh functions" },
@@ -447,10 +447,10 @@ const testfunc testfuncs[NTESTFUNCS] = {
        -.0, "Branin function" },
      { shubert_f, NULL, 1, 2,
        shubert_lb, shubert_ub, shubert_xmin,
-       -24.062499, "Shubert function" },
+       -24.06249888, "Shubert function" },
      { hansen_f, NULL, 1, 2,
        hansen_lb, hansen_ub, hansen_xmin,
-       -176.541793, "Hansen function" },
+       -176.5417931367, "Hansen function" },
      { osc1d_f, NULL, 1, 1,
        osc1d_lb, osc1d_ub, osc1d_xmin,
        -1.0, "1d oscillating function with a single minimum" },
