@@ -1,0 +1,15 @@
+This is the NEWUOA software by M. J. D. Powell, which performs
+derivative-free unconstrained optimization using an iteratively
+constructred quadratic approximation for the objective function.  See:
+
+	M. J. D. Powell, "The NEWUOA software for unconstrained
+	optimization without derivatives," Proc. 40th Workshop
+	on Large Scale Nonlinear Optimization (Erice, Italy, 2004).
+
+The C translation by S. G. Johnson (2008) includes a few minor
+modifications, mainly to use the NLopt stopping criteria (and to
+take the objective function as an argument rather than a global).
+
+The original Fortran code was released by Powell with "no restrictions
+or charges", and the C translation by S. G. Johnson is released under
+the MIT License (see the COPYRIGHT file in this directory).
