@@ -1744,6 +1744,12 @@ L50:
 /* L60: */
 	x[j] = xpt[nf + j * xpt_dim1] + xbase[j];
     }
+    if (lb && ub) { /* SGJ, 2008: make sure we are within bounds */
+	 for (j = 1; j <= i__1; ++j) {
+	      if (x[j] < lb[j-1]) x[j] = lb[j-1];
+	      else if (x[j] > ub[j-1]) x[j] = ub[j-1];
+	 }
+    }
     goto L310;
 L70:
     fval[nf] = f;

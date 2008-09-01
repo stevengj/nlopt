@@ -39,6 +39,24 @@ static void listfuncs(FILE *f)
     fprintf(f, "  %2d: %s (%d dims)\n", i, testfuncs[i].name, testfuncs[i].n);
 }
 
+typedef struct {
+  const double *lb, *ub;
+  nlopt_func f;
+  void *f_data;
+} bounds_wrap_data;
+
+static double bounds_wrap_func(int n, const double *x, double *grad, void *d_)
+{
+  bounds_wrap_data *d = (bounds_wrap_data *) d_;
+  int i;
+  for (i = 0; i < n; ++i)
+    if (x[i] < d->lb[i] || x[i] > d->ub[i])
+      break;
+  if (i < n)
+    fprintf(stderr, "WARNING: bounds violated by x[%d] = %g\n", i, x[i]);
+  return d->f(n, x, grad, d->f_data);
+}
+
 static int test_function(int ifunc)
 {
   testfunc func;
@@ -48,6 +66,7 @@ static int test_function(int ifunc)
   double start = nlopt_seconds();
   int total_count = 0;
   double total_err = 0, max_err = 0;
+  bounds_wrap_data bw;
   
   if (ifunc < 0 || ifunc >= NTESTFUNCS) {
     fprintf(stderr, "testopt: invalid function %d\n", ifunc);
@@ -61,6 +80,10 @@ static int test_function(int ifunc)
   lb = x + func.n * 3;
   ub = lb + func.n;
   xtabs = x + func.n * 2;
+  bw.lb = lb;
+  bw.ub = ub;
+  bw.f = func.f;
+  bw.f_data = func.f_data;
 
   for (i = 0; i < func.n; ++i) xtabs[i] = xtol_abs;
   minf_max = minf_max_delta > (-HUGE_VAL) ? minf_max_delta + func.minf : (-HUGE_VAL);
@@ -129,7 +152,7 @@ static int test_function(int ifunc)
     }
     
     ret = nlopt_minimize(algorithm,
-			 func.n, func.f, func.f_data,
+			 func.n, bounds_wrap_func, &bw,
 			 lb, ub,
 			 x, &minf,
 			 minf_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
