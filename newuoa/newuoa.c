@@ -28,6 +28,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "newuoa.h"
 
@@ -36,6 +37,64 @@
 
 /*************************************************************************/
 /* trsapp.f */
+
+typedef struct {
+     int npt;
+     double *xpt, *pq, *hq, *gq, *xopt;
+     double *hd;
+     int iter;
+} quad_model_data;
+
+static double quad_model(int n, const double *x, double *grad, void *data)
+{
+     quad_model_data *d = (quad_model_data *) data;
+     const double *xpt = d->xpt, *pq = d->pq, *hq = d->hq, *gq = d->gq, *xopt = d->xopt;
+     double *hd = d->hd;
+     int npt = d->npt;
+     int i, j, k;
+     double val = 0;
+
+     /* first, set hd to be Hessian matrix times x */
+     memset(hd, 0, sizeof(double) * n);
+     /* implicit Hessian terms (a sum of outer products of xpt vectors) */
+     for (k = 0; k < npt; ++k) {
+	  double temp = 0;
+	  for (j = 0; j < n; ++j)
+	       temp += xpt[k + j * npt] * (xopt[j] + x[j]);
+	  temp *= pq[k];
+	  for (i = 0; i < n; ++i)
+	       hd[i] += temp * xpt[k + i * npt];
+     }
+     /* explicit Hessian terms (stored as compressed lower triangle hq) */
+     k = 0;
+     for (j = 0; j < n; ++j) {
+	  for (i = 0; i < j; ++i) {
+	       hd[j] += hq[k] * (xopt[i] + x[i]);
+	       hd[i] += hq[k] * (xopt[j] + x[j]);
+	       ++k;
+	  }
+	  hd[j] += hq[k++] * (xopt[j] + x[j]);
+     }
+
+     for (i = 0; i < n; ++i) {
+	  val += (gq[i] + 0.5 * hd[i]) * (xopt[i] + x[i]);
+	  if (grad) grad[i] = gq[i] + hd[i];
+     }
+     d->iter++;
+     return val;
+}
+
+/* constraint function to enforce |x|^2 <= rho*rho */
+static double rho_constraint(int n, const double *x, double *grad, void *data)
+{
+     double rho = *((double *) data);
+     double val = - rho*rho;
+     int i;
+     for (i = 0; i < n; ++i)
+	  val += x[i] * x[i];
+     if (grad) for (i = 0; i < n; ++i) grad[i] = 2*x[i];
+     return val;
+}
 
 static void trsapp_(int *n, int *npt, double *xopt, 
 	double *xpt, double *gq, double *hq, double *pq, 
@@ -323,6 +382,46 @@ L120:
 	goto L90;
     }
 L160:
+    if (0) {
+	 double *lb, *ub, minf, crv;
+	 quad_model_data qmd;
+	 qmd.npt = *npt;
+	 qmd.xpt = &xpt[1 + 1 * xpt_dim1];
+	 qmd.pq = &pq[1];
+	 qmd.hq = &hq[1];
+	 qmd.gq = &gq[1];
+	 qmd.xopt = &xopt[1];
+	 qmd.hd = &hd[1];
+	 qmd.iter = 0;
+	 lb = &g[1];
+	 ub = &hs[1];
+	 for (j = 0; j < *n; ++j) lb[j] = -(ub[j] = *delta);
+	 memset(&d__[1], 0, sizeof(double) * *n);
+	 nlopt_minimize_constrained(NLOPT_LD_MMA, *n, quad_model, &qmd,
+				    1, rho_constraint, delta, sizeof(double),
+				    lb, ub, &d__[1], &minf, -HUGE_VAL,
+				    0., 0., 1e-8, 0, 1000, 0.);
+	 printf("trsapp = %g vs. nlopt (%d iters) = %g (delta = %g):\n", 
+		quad_model(*n, &step[1], 0, &qmd), qmd.iter,minf,*delta);
+	 for (j = 1; j <= *n; ++j)
+	      printf("  xopt[%d] = %g, step[%d] = %g vs. %g\n", j, xopt[j], j, step[j], d__[j]);
+	 printf("|d|^2 - delta^2 = %g, |step|^2 - delta^2 = %g\n",
+		rho_constraint(*n, &d__[1], 0, delta),
+		rho_constraint(*n, &step[1], 0, delta));
+	 if (rho_constraint(*n, &d__[1], 0, delta) > -1e-6 * (*delta)*(*delta))
+	      crv = 0;
+	 else {
+	      for (j = 1; j <= *n; ++j) d__[j] = step[j] - xopt[j];
+	      quad_model(*n, &d__[1], &g[1], &qmd);
+	      crv = gg = 0; 
+	      for (j = 1; j <= *n; ++j) { 
+		   crv += step[j] * (g[j] - gq[j]);
+		   gg += step[j] * step[j];
+	      }
+	      crv = crv / gg;
+	 }
+	 printf("crvmin = %g, crv = %g\n", *crvmin, crv);
+    }
     return;
 
 /* The following instructions act as a subroutine for setting the vector */
@@ -890,6 +989,40 @@ L340:
 /*************************************************************************/
 /* biglag.f */
 
+typedef struct {
+     int npt, ndim, iter;
+     double *hcol, *xpt, *bmat, *xopt;
+     int flipsign;
+} lag_data;
+
+/* the Lagrange function, whose absolute value biglag maximizes */
+static double lag(int n, const double *dx, double *grad, void *data)
+{
+     lag_data *d = (lag_data *) data;
+     int i, j, npt = d->npt, ndim = d->ndim;
+     const double *hcol = d->hcol, *xpt = d->xpt, *bmat = d->bmat, *xopt = d->xopt;
+     double val = 0;
+     for (j = 0; j < n; ++j) {
+	  val += bmat[j * ndim] * (xopt[j] + dx[j]);
+	  if (grad) grad[j] = bmat[j * ndim];
+     }
+     for (i = 0; i < npt; ++i) {
+	  double dot = 0;
+	  for (j = 0; j < n; ++j)
+	       dot += xpt[i + j * npt] * (xopt[j] + dx[j]);
+	  val += 0.5 * hcol[i] * (dot * dot);
+	  dot *= hcol[i];
+	  if (grad) for (j = 0; j < n; ++j)
+			 grad[j] += dot * xpt[i + j * npt];
+     }
+     if (d->flipsign) {
+	  val = -val;
+	  if (grad) for (j = 0; j < n; ++j) grad[j] = -grad[j];
+     }
+     d->iter++;
+     return val;
+}
+
 static void biglag_(int *n, int *npt, double *xopt, 
 	double *xpt, double *bmat, double *zmat, int *idz, 
 	int *ndim, int *knew, double *delta, double *d__, 
@@ -1048,6 +1181,32 @@ static void biglag_(int *n, int *npt, double *xopt,
 	gd[i__] = scale * gd[i__];
 /* L70: */
 	s[i__] = gc[i__] + temp * gd[i__];
+    }
+
+    if (0) {
+	 double minf, *lb, *ub;
+	 lag_data ld;
+	 ld.npt = *npt;
+	 ld.ndim = *ndim;
+	 ld.iter = 0;
+	 ld.hcol = &hcol[1];
+	 ld.xpt = &xpt[1 + 1 * xpt_dim1];
+	 ld.bmat = &bmat[*knew + 1 * bmat_dim1];
+	 ld.xopt = &xopt[1];
+	 ld.flipsign = 0;
+	 lb = &gc[1]; ub = &gd[1];
+	 for (j = 0; j < *n; ++j)
+	      lb[j] = -(ub[j] = *delta);
+	 ld.flipsign = lag(*n, &d__[1], 0, &ld) > 0; /* maximize if > 0 */
+	 nlopt_minimize_constrained(NLOPT_LD_MMA, *n, lag, &ld,
+				    1, rho_constraint, delta, sizeof(double),
+				    lb, ub, &d__[1], &minf, -HUGE_VAL,
+				    0., 0., 1e-5, 0, 1000, 0.);
+	 minf = -minf;
+	 printf("biglag nlopt converged to %g in %d iters\n", minf, ld.iter);
+	 for (j = 1; j <= *n; ++j)
+	      printf("   d[%d] = %g\n", j, d__[j]);
+	 return;
     }
 
 /* Begin the iteration by overwriting S with a vector that has the */
