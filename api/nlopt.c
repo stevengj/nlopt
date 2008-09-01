@@ -100,7 +100,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Multi-level single-linkage (MLSL), quasi-random (global, derivative)",
      "Method of Moving Asymptotes (MMA) (local, derivative)",
      "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)",
-     "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)"
+     "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)",
+     "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -187,6 +188,12 @@ static double f_subplex(int n, const double *x, void *data_)
      return (isnan(f) || nlopt_isinf(f) ? MY_INF : f);
 }
 
+static double f_noderiv(int n, const double *x, void *data_)
+{
+     nlopt_data *data = (nlopt_data *) data_;
+     return data->f(n, x, NULL, data->f_data);
+}
+
 #include "direct.h"
 
 static double f_direct(int n, const double *x, int *undefined, void *data_)
@@ -226,7 +233,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
    can call nlopt_{set/get}_hybrid_local_algorithm to get/set the defaults. */
 
 /* default local-search algorithms */
-static nlopt_algorithm local_search_alg_deriv = NLOPT_LD_LBFGS;
+static nlopt_algorithm local_search_alg_deriv = NLOPT_LD_MMA;
 static nlopt_algorithm local_search_alg_nonderiv = NLOPT_LN_SUBPLEX;
 
 static int local_search_maxeval = -1; /* no maximum by default */
@@ -472,9 +479,13 @@ static nlopt_result nlopt_minimize_(
 				     initial_step(n, lb, ub, x));
 				     
 	 case NLOPT_LN_NEWUOA:
-	      return newuoa(n, 2*n+1, x, initial_step(n, lb, ub, x),
-			    &stop, minf, f_subplex, &d);
+	      return newuoa(n, 2*n+1, x, 0, 0, initial_step(n, lb, ub, x),
+			    &stop, minf, f_noderiv, &d);
 				     
+	 case NLOPT_LN_NEWUOA_BOUND:
+	      return newuoa(n, 2*n+1, x, lb, ub, initial_step(n, lb, ub, x),
+			    &stop, minf, f_noderiv, &d);
+
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

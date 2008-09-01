@@ -335,13 +335,18 @@ via the
 .BR nlopt_minimize_constrained ()
 function.
 .TP
-.B NLOPT_LN_NEWUOA
-Local (L) derivative-free (N) optimization using the NEWUOA algorithm
-of Powell, based on successive quadratic approximations of the objective
-function. The
-.B NLOPT_LN_NEWUOA
-algorithm was originally designed only for unconstrained optimization,
-and we only support bound constraints by an inefficient algorithm.
+.B NLOPT_LN_NEWUOA_BOUND
+Local (L) derivative-free (N) optimization using a variant of the the
+NEWUOA algorithm of Powell, based on successive quadratic
+approximations of the objective function. We have modified the
+algorithm to support bound constraints.  The original NEWUOA algorithm
+is also available, as
+.BR NLOPT_LN_NEWUOA ,
+but this algorithm ignores the bound constraints
+.I lb
+and 
+.IR ub ,
+and so it should only be used for unconstrained problems.
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the following arguments to

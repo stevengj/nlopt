@@ -7,9 +7,9 @@ gcc -I.. -E ../api/nlopt.c | perl -pe 's/^ *\n//' > foo.c
 desc_start=`grep -n nlopt_algorithm_names foo.c |cut -d: -f1 |head -1`
 
 for n in $names; do
-#    if test -r $n.m; then
-#	perl -pi -e "s/val = [0-9]+;/val = $i;/" $n.m
-#    else
+    if test -r $n.m; then
+	perl -pi -e "s/val = [0-9]+;/val = $i;/" $n.m
+    else
         descline=`expr $i + $desc_start + 1`
 	desc=`tail -n +$descline foo.c |head -1 |cut -d\" -f2`
 	cat > $n.m <<EOF
@@ -19,7 +19,7 @@ for n in $names; do
 function val = $n
   val = $i;
 EOF
-#    fi  
+    fi  
     i=`expr $i + 1`
 done
 

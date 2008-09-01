@@ -88,6 +88,7 @@ typedef enum {
      NLOPT_LN_COBYLA,
 
      NLOPT_LN_NEWUOA,
+     NLOPT_LN_NEWUOA_BOUND,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;

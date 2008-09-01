@@ -96,10 +96,11 @@ static double rho_constraint(int n, const double *x, double *grad, void *data)
      return val;
 }
 
-static void trsapp_(int *n, int *npt, double *xopt, 
+static nlopt_result trsapp_(int *n, int *npt, double *xopt, 
 	double *xpt, double *gq, double *hq, double *pq, 
 	double *delta, double *step, double *d__, double *g, 
-	double *hd, double *hs, double *crvmin)
+	double *hd, double *hs, double *crvmin,
+		    const double *xbase, const double *lb, const double *ub)
 {
     /* System generated locals */
     int xpt_dim1, xpt_offset, i__1, i__2;
@@ -154,6 +155,55 @@ static void trsapp_(int *n, int *npt, double *xopt,
     --hd;
     --hs;
 
+    if (lb && ub) {
+	 double *slb, *sub, *xtol, minf, crv;
+	 nlopt_result ret;
+	 quad_model_data qmd;
+	 qmd.npt = *npt;
+	 qmd.xpt = &xpt[1 + 1 * xpt_dim1];
+	 qmd.pq = &pq[1];
+	 qmd.hq = &hq[1];
+	 qmd.gq = &gq[1];
+	 qmd.xopt = &xopt[1];
+	 qmd.hd = &hd[1];
+	 qmd.iter = 0;
+	 slb = &g[1];
+	 sub = &hs[1];
+	 xtol = &d__[1];
+	 for (j = 0; j < *n; ++j) {
+	      slb[j] = -(sub[j] = *delta);
+	      if (slb[j] < lb[j] - xbase[j] - xopt[j+1])
+		   slb[j] = lb[j] - xbase[j] - xopt[j+1];
+	      if (sub[j] > ub[j] - xbase[j] - xopt[j+1])
+		   sub[j] = ub[j] - xbase[j] - xopt[j+1];
+	      if (slb[j] > 0) slb[j] = 0;
+	      if (sub[j] < 0) sub[j] = 0;
+	      xtol[j] = 1e-7 * *delta; /* absolute x tolerance */
+	 }
+	 memset(&step[1], 0, sizeof(double) * *n);
+	 ret = nlopt_minimize_constrained(NLOPT_LD_MMA, *n, quad_model, &qmd,
+				    1, rho_constraint, delta, sizeof(double),
+				    slb, sub, &step[1], &minf, -HUGE_VAL,
+				    0., 0., 0., xtol, 1000, 0.);
+	 if (rho_constraint(*n, &step[1], 0, delta) > -1e-6*(*delta)*(*delta))
+	      crv = 0;
+	 else {
+	      for (j = 1; j <= *n; ++j) d__[j] = step[j] - xopt[j];
+	      quad_model(*n, &d__[1], &g[1], &qmd);
+	      crv = gg = 0; 
+	      for (j = 1; j <= *n; ++j) { 
+		   crv += step[j] * (g[j] - gq[j]);
+		   gg += step[j] * step[j];
+	      }
+	      if (gg <= 1e-16 * crv)
+		   crv = 1e16;
+	      else
+		   crv = crv / gg;
+	 }
+	 *crvmin = crv;
+	 return ret;
+    }
+    
     /* Function Body */
     half = .5;
     zero = 0.;
@@ -382,47 +432,7 @@ L120:
 	goto L90;
     }
 L160:
-    if (0) {
-	 double *lb, *ub, minf, crv;
-	 quad_model_data qmd;
-	 qmd.npt = *npt;
-	 qmd.xpt = &xpt[1 + 1 * xpt_dim1];
-	 qmd.pq = &pq[1];
-	 qmd.hq = &hq[1];
-	 qmd.gq = &gq[1];
-	 qmd.xopt = &xopt[1];
-	 qmd.hd = &hd[1];
-	 qmd.iter = 0;
-	 lb = &g[1];
-	 ub = &hs[1];
-	 for (j = 0; j < *n; ++j) lb[j] = -(ub[j] = *delta);
-	 memset(&d__[1], 0, sizeof(double) * *n);
-	 nlopt_minimize_constrained(NLOPT_LD_MMA, *n, quad_model, &qmd,
-				    1, rho_constraint, delta, sizeof(double),
-				    lb, ub, &d__[1], &minf, -HUGE_VAL,
-				    0., 0., 1e-8, 0, 1000, 0.);
-	 printf("trsapp = %g vs. nlopt (%d iters) = %g (delta = %g):\n", 
-		quad_model(*n, &step[1], 0, &qmd), qmd.iter,minf,*delta);
-	 for (j = 1; j <= *n; ++j)
-	      printf("  xopt[%d] = %g, step[%d] = %g vs. %g\n", j, xopt[j], j, step[j], d__[j]);
-	 printf("|d|^2 - delta^2 = %g, |step|^2 - delta^2 = %g\n",
-		rho_constraint(*n, &d__[1], 0, delta),
-		rho_constraint(*n, &step[1], 0, delta));
-	 if (rho_constraint(*n, &d__[1], 0, delta) > -1e-6 * (*delta)*(*delta))
-	      crv = 0;
-	 else {
-	      for (j = 1; j <= *n; ++j) d__[j] = step[j] - xopt[j];
-	      quad_model(*n, &d__[1], &g[1], &qmd);
-	      crv = gg = 0; 
-	      for (j = 1; j <= *n; ++j) { 
-		   crv += step[j] * (g[j] - gq[j]);
-		   gg += step[j] * step[j];
-	      }
-	      crv = crv / gg;
-	 }
-	 printf("crvmin = %g, crv = %g\n", *crvmin, crv);
-    }
-    return;
+    return NLOPT_SUCCESS;
 
 /* The following instructions act as a subroutine for setting the vector */
 /* HD to the vector D multiplied by the second derivative matrix of Q. */
@@ -477,10 +487,11 @@ L170:
 /* bigden.f */
 
 static void bigden_(int *n, int *npt, double *xopt, 
-	double *xpt, double *bmat, double *zmat, int *idz, 
-	int *ndim, int *kopt, int *knew, double *d__, 
-	double *w, double *vlag, double *beta, double *s, 
-	double *wvec, double *prod)
+		    double *xpt, double *bmat, double *zmat, int *idz, 
+		    int *ndim, int *kopt, int *knew, double *d__, 
+		    double *w, double *vlag, double *beta, double *s, 
+		    double *wvec, double *prod,
+		    const double *xbase, const double *lb, const double *ub)
 {
     /* System generated locals */
     int xpt_dim1, xpt_offset, bmat_dim1, bmat_offset, zmat_dim1, 
@@ -974,6 +985,16 @@ L70:
 /* Set the vector W before the RETURN from the subroutine. */
 
 L340:
+    /* SGJ, 2008: crude hack: truncate d to [lb,ub] bounds if given */
+    if (lb && ub) {
+	 for (k = 1; k <= *n; ++k) {
+	      if (d__[k] > ub[k-1] - xbase[k-1] - xopt[k])
+		   d__[k] = ub[k-1] - xbase[k-1] - xopt[k];
+	      else if (d__[k] < lb[k-1] - xbase[k-1] - xopt[k])
+		   d__[k] = lb[k-1] - xbase[k-1] - xopt[k];
+	 }
+    }
+
     i__2 = *ndim;
     for (k = 1; k <= i__2; ++k) {
 	w[k] = zero;
@@ -1023,11 +1044,12 @@ static double lag(int n, const double *dx, double *grad, void *data)
      return val;
 }
 
-static void biglag_(int *n, int *npt, double *xopt, 
-	double *xpt, double *bmat, double *zmat, int *idz, 
-	int *ndim, int *knew, double *delta, double *d__, 
-	double *alpha, double *hcol, double *gc, double *gd, 
-	double *s, double *w)
+static nlopt_result biglag_(int *n, int *npt, double *xopt, 
+		    double *xpt, double *bmat, double *zmat, int *idz, 
+		    int *ndim, int *knew, double *delta, double *d__, 
+		    double *alpha, double *hcol, double *gc, double *gd, 
+		    double *s, double *w,
+		    const double *xbase, const double *lb, const double *ub)
 {
     /* System generated locals */
     int xpt_dim1, xpt_offset, bmat_dim1, bmat_offset, zmat_dim1, 
@@ -1183,8 +1205,8 @@ static void biglag_(int *n, int *npt, double *xopt,
 	s[i__] = gc[i__] + temp * gd[i__];
     }
 
-    if (0) {
-	 double minf, *lb, *ub;
+    if (lb && ub) {
+	 double minf, *dlb, *dub, *xtol;
 	 lag_data ld;
 	 ld.npt = *npt;
 	 ld.ndim = *ndim;
@@ -1194,19 +1216,26 @@ static void biglag_(int *n, int *npt, double *xopt,
 	 ld.bmat = &bmat[*knew + 1 * bmat_dim1];
 	 ld.xopt = &xopt[1];
 	 ld.flipsign = 0;
-	 lb = &gc[1]; ub = &gd[1];
-	 for (j = 0; j < *n; ++j)
-	      lb[j] = -(ub[j] = *delta);
+	 dlb = &gc[1]; dub = &gd[1]; xtol = &s[1];
+	 /* make sure rounding errors don't push initial |d| > delta */
+	 for (j = 1; j <= *n; ++j) d__[j] *= 0.99999;
+	 for (j = 0; j < *n; ++j) {
+	      dlb[j] = -(dub[j] = *delta);
+	      if (dlb[j] < lb[j] - xbase[j] - xopt[j+1])
+		   dlb[j] = lb[j] - xbase[j] - xopt[j+1];
+	      if (dub[j] > ub[j] - xbase[j] - xopt[j+1])
+		   dub[j] = ub[j] - xbase[j] - xopt[j+1];
+	      if (dlb[j] > 0) dlb[j] = 0;
+	      if (dub[j] < 0) dub[j] = 0;
+	      if (d__[j+1] < dlb[j]) d__[j+1] = dlb[j];
+	      else if (d__[j+1] > dub[j]) d__[j+1] = dub[j];
+	      xtol[j] = 1e-5 * *delta;
+	 }
 	 ld.flipsign = lag(*n, &d__[1], 0, &ld) > 0; /* maximize if > 0 */
-	 nlopt_minimize_constrained(NLOPT_LD_MMA, *n, lag, &ld,
+	 return nlopt_minimize_constrained(NLOPT_LD_MMA, *n, lag, &ld,
 				    1, rho_constraint, delta, sizeof(double),
-				    lb, ub, &d__[1], &minf, -HUGE_VAL,
-				    0., 0., 1e-5, 0, 1000, 0.);
-	 minf = -minf;
-	 printf("biglag nlopt converged to %g in %d iters\n", minf, ld.iter);
-	 for (j = 1; j <= *n; ++j)
-	      printf("   d[%d] = %g\n", j, d__[j]);
-	 return;
+				    dlb, dub, &d__[1], &minf, -HUGE_VAL,
+				    0., 0., 0., xtol, 1000, 0.);
     }
 
 /* Begin the iteration by overwriting S with a vector that has the */
@@ -1333,7 +1362,7 @@ L80:
 	goto L80;
     }
 L160:
-    return;
+    return NLOPT_SUCCESS;
 } /* biglag_ */
 
 
@@ -1530,6 +1559,7 @@ static void update_(int *n, int *npt, double *bmat,
 
 static nlopt_result newuob_(int *n, int *npt, double *x, 
 			    double *rhobeg, 
+			    const double *lb, const double *ub,
 			    nlopt_stopping *stop, double *minf,
 			    newuoa_func calfun, void *calfun_data,
 		    double *xbase, double *xopt, double *xnew, 
@@ -1569,7 +1599,7 @@ static nlopt_result newuob_(int *n, int *npt, double *x,
     double distsq;
     double xoptsq;
     double rhoend;
-    nlopt_result rc = NLOPT_SUCCESS;
+    nlopt_result rc = NLOPT_SUCCESS, rc2;
 
 /* SGJ, 2008: compute rhoend from NLopt stop info */
     rhoend = stop->xtol_rel * (*rhobeg);
@@ -1795,9 +1825,10 @@ L90:
 
 L100:
     knew = 0;
-    trsapp_(n, npt, &xopt[1], &xpt[xpt_offset], &gq[1], &hq[1], &pq[1], &
+    rc2 = trsapp_(n, npt, &xopt[1], &xpt[xpt_offset], &gq[1], &hq[1], &pq[1], &
 	    delta, &d__[1], &w[1], &w[np], &w[np + *n], &w[np + (*n << 1)], &
-	    crvmin);
+	    crvmin, &xbase[1], lb, ub);
+    if (rc2 < 0) { rc = rc2; goto L530; }
     dsq = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
@@ -1946,9 +1977,12 @@ L120:
 /* cancellation in DENOM. */
 
     if (knew > 0) {
-	biglag_(n, npt, &xopt[1], &xpt[xpt_offset], &bmat[bmat_offset], &zmat[
+       rc2 = 
+	 biglag_(n, npt, &xopt[1], &xpt[xpt_offset], &bmat[bmat_offset], &zmat[
 		zmat_offset], &idz, ndim, &knew, &dstep, &d__[1], &alpha, &
-		vlag[1], &vlag[*npt + 1], &w[1], &w[np], &w[np + *n]);
+		vlag[1], &vlag[*npt + 1], &w[1], &w[np], &w[np + *n], 
+		&xbase[1], lb, ub);
+       if (rc2 < 0) { rc = rc2; goto L530; }
     }
 
 /* Calculate VLAG and BETA for the current choice of D. The first NPT */
@@ -2028,7 +2062,7 @@ L120:
 	    bigden_(n, npt, &xopt[1], &xpt[xpt_offset], &bmat[bmat_offset], &
 		    zmat[zmat_offset], &idz, ndim, &kopt, &knew, &d__[1], &w[
 		    1], &vlag[1], &beta, &xnew[1], &w[*ndim + 1], &w[*ndim * 
-		    6 + 1]);
+		    6 + 1], &xbase[1], lb, ub);
 	}
     }
 
@@ -2410,7 +2444,8 @@ L530:
 /*************************************************************************/
 /* newuoa.f */
 
-nlopt_result newuoa(int n, int npt, double *x, 
+nlopt_result newuoa(int n, int npt, double *x,
+		    const double *lb, const double *ub,
 		    double rhobeg, nlopt_stopping *stop, double *minf,
 		    newuoa_func calfun, void *calfun_data)
 {
@@ -2485,7 +2520,8 @@ nlopt_result newuoa(int n, int npt, double *x,
 /* The partition requires the first NPT*(NPT+N)+5*N*(N+3)/2 elements of */
 /* W plus the space that is needed by the last array of NEWUOB. */
 
-    ret = newuob_(&n, &npt, &x[1], &rhobeg, stop, minf, calfun, calfun_data, 
+    ret = newuob_(&n, &npt, &x[1], &rhobeg, 
+		  lb, ub, stop, minf, calfun, calfun_data, 
 		  &w[ixb], &w[ixo], &w[ixn], &w[ixp], &w[ifv],
 		  &w[igq], &w[ihq], &w[ipq], &w[ibmat], &w[izmat],
 		  &ndim, &w[id], &w[ivl], &w[iw]);
