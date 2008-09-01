@@ -305,9 +305,9 @@ avoid multiple local searches for the same local minimum.  The local
 search uses the derivative/nonderivative algorithm set by
 .I nlopt_set_local_search_algorithm
 (currently defaulting to
-.I NLOPT_LD_LBFGS
+.I NLOPT_LD_MMA
 and
-.I NLOPT_LN_SUBPLEX
+.I NLOPT_LN_COBYLA
 for derivative/nonderivative searches, respectively).  There are also
 two other variants, \fBNLOPT_GD_MLSL\fR and \fBNLOPT_GN_MLSL\fR, which use
 pseudo-random numbers (instead of an LDS) as in the original MLSL algorithm.

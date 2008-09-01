@@ -234,7 +234,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 
 /* default local-search algorithms */
 static nlopt_algorithm local_search_alg_deriv = NLOPT_LD_MMA;
-static nlopt_algorithm local_search_alg_nonderiv = NLOPT_LN_SUBPLEX;
+static nlopt_algorithm local_search_alg_nonderiv = NLOPT_LN_COBYLA;
 
 static int local_search_maxeval = -1; /* no maximum by default */
 
