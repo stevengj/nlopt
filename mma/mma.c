@@ -217,17 +217,20 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
 	  while (1) { /* inner iterations */
 	       double min_dual;
-	       int feasible_cur, inner_done;
+	       int feasible_cur, inner_done, save_verbose;
 	       nlopt_result reti;
 
 	       /* solve dual problem */
 	       dd.rho = rho; dd.count = 0;
 	  dual_solution:
+	       save_verbose = mma_verbose;
+	       mma_verbose = 0;
 	       reti = nlopt_minimize(
 		    dual_alg, m, dual_func, &dd,
 		    dual_lb, dual_ub, y, &min_dual,
 		    -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
 		    stop->maxtime - (nlopt_seconds() - stop->start));
+	       mma_verbose = save_verbose;
 	       if (reti == NLOPT_FAILURE && dual_alg != NLOPT_LD_MMA) {
 		    /* LBFGS etc. converge quickly but are sometimes
 		       very finicky if there are any rounding errors in
