@@ -26,11 +26,17 @@
 #include <stdio.h>
 
 #include "mma.h"
+#include "config.h"
 
 int mma_verbose = 0; /* > 0 for verbose output */
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+
+#ifndef HAVE_ISNAN
+static int my_isnan(double x) { return x != x; }
+#  define isnan my_isnan
+#endif
 
 /* magic minimum value for rho in MMA ... the 2002 paper says it should
    be a "fixed, strictly positive `small' number, e.g. 1e-5"
@@ -73,7 +79,8 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 
      val = d->gval = fval;
      d->wval = 0;
-     for (i = 0; i < m; ++i) val += y[i] * (gcval[i] = fcval[i]);
+     for (i = 0; i < m; ++i) 
+	  val += y[i] * (gcval[i] = isnan(fcval[i]) ? 0 : fcval[i]);
 
      for (j = 0; j < n; ++j) {
 	  double u, v, dx, denominv, c, sigma2, dx2;
@@ -91,7 +98,7 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 
 	  u = dfdx[j];
 	  v = fabs(dfdx[j]) * sigma[j] + 0.5 * rho;
-	  for (i = 0; i < m; ++i) {
+	  for (i = 0; i < m; ++i) if (!isnan(fcval[i])) {
 	       u += dfcdx[i*n + j] * y[i];
 	       v += (fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i]) * y[i];
 	  }
@@ -119,7 +126,7 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 	  d->gval += (dfdx[j] * c + (fabs(dfdx[j])*sigma[j] + 0.5*rho) * dx2)
 	       * denominv;
 	  d->wval += 0.5 * dx2 * denominv;
-	  for (i = 0; i < m; ++i)
+	  for (i = 0; i < m; ++i) if (!isnan(fcval[i]))
 	       gcval[i] += (dfcdx[i*n+j] * c + (fabs(dfcdx[i*n+j])*sigma[j] 
 						+ 0.5*rhoc[i]) * dx2)
 		    * denominv;
@@ -133,6 +140,10 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
 }
 
 /***********************************************************************/
+
+/* note that we implement a hidden feature not in the standard
+   nlopt_minimize_constrained interface: whenever the constraint
+   function returns NaN, that constraint becomes inactive. */
 
 nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 			  int m, nlopt_func fc,
@@ -202,7 +213,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
      feasible = 1;
      for (i = 0; i < m; ++i) {
 	  fcval[i] = fc(n, x, dfcdx + i*n, fc_data + fc_datum_size * i);
-	  feasible = feasible && (fcval[i] <= 0);
+	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
      }
      if (!feasible) { ret = NLOPT_FAILURE; goto done; } /* TODO: handle this */
 
@@ -218,6 +229,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	  while (1) { /* inner iterations */
 	       double min_dual;
 	       int feasible_cur, inner_done, save_verbose;
+	       int new_infeasible_constraint;
 	       nlopt_result reti;
 
 	       /* solve dual problem */
@@ -258,20 +270,20 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       fcur = f(n, xcur, dfdx_cur, f_data);
 	       stop->nevals++;
 	       feasible_cur = 1;
+	       new_infeasible_constraint = 0;
 	       inner_done = dd.gval >= fcur;
 	       for (i = 0; i < m; ++i) {
 		    fcval_cur[i] = fc(n, xcur, dfcdx_cur + i*n, 
 				      fc_data + fc_datum_size * i);
-		    feasible_cur = feasible_cur && (fcval_cur[i] <= 0);
-		    inner_done = inner_done && (dd.gcval[i] >= fcval_cur[i]);
+		    if (!isnan(fcval_cur[i])) {
+			 feasible_cur = feasible_cur && (fcval_cur[i] <= 0);
+			 if (!isnan(fcval[i]))
+			      inner_done = inner_done && 
+				   (dd.gcval[i] >= fcval_cur[i]);
+			 else if (fcval_cur[i] > 0)
+			      new_infeasible_constraint = 1;
+		    }
 	       }
-
-	       /* once we have reached a feasible solution, the
-		  algorithm should never make the solution infeasible
-		  again (if inner_done), although the constraints may
-		  be violated slightly by rounding errors etc. so we
-		  must be a little careful about checking feasibility */
-	       if (feasible_cur) feasible = 1;
 
 	       if (fcur < *minf && (inner_done || feasible_cur || !feasible)) {
 		    if (mma_verbose && !feasible_cur)
@@ -281,6 +293,15 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 		    memcpy(x, xcur, sizeof(double)*n);
 		    memcpy(dfdx, dfdx_cur, sizeof(double)*n);
 		    memcpy(dfcdx, dfcdx_cur, sizeof(double)*n*m);
+		    
+		    /* once we have reached a feasible solution, the
+		       algorithm should never make the solution infeasible
+		       again (if inner_done), although the constraints may
+		       be violated slightly by rounding errors etc. so we
+		       must be a little careful about checking feasibility */
+		    if (feasible_cur) feasible = 1;
+		    else if (new_infeasible_constraint) feasible = 0;
+
 	       }
 	       if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
@@ -292,7 +313,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       if (fcur > dd.gval)
 		    rho = MIN(10*rho, 1.1 * (rho + (fcur-dd.gval) / dd.wval));
 	       for (i = 0; i < m; ++i)
-		    if (fcval_cur[i] > dd.gcval[i])
+		    if (!isnan(fcval_cur[i]) && fcval_cur[i] > dd.gcval[i])
 			 rhoc[i] = 
 			      MIN(10*rhoc[i], 
 				  1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i]) 
