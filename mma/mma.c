@@ -215,7 +215,19 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	  fcval[i] = fc(n, x, dfcdx + i*n, fc_data + fc_datum_size * i);
 	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
      }
-     if (!feasible) { ret = NLOPT_FAILURE; goto done; } /* TODO: handle this */
+     /* For non-feasible initial points, set a finite (large)
+	upper-bound on the dual variables.  What this means is that,
+	if no feasible solution is found from the dual problem, it
+	will minimize the dual objective with the unfeasible
+	constraint weighted by 1e40 -- basically, minimizing the
+	unfeasible constraint until it becomes feasible or until we at
+	least obtain a step towards a feasible point.
+	
+	Svanberg suggested a different approach in his 1987 paper, basically
+	introducing additional penalty variables for unfeasible constraints,
+	but this is easier to implement and at least as efficient. */
+     if (!feasible)
+	  for (i = 0; i < m; ++i) dual_ub[i] = 1e40;
 
      while (1) { /* outer iterations */
 	  double fprev = fcur;
@@ -299,7 +311,11 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 		       again (if inner_done), although the constraints may
 		       be violated slightly by rounding errors etc. so we
 		       must be a little careful about checking feasibility */
-		    if (feasible_cur) feasible = 1;
+		    if (feasible_cur) {
+			 if (!feasible) /* reset upper bounds to infinity */
+			      for (i = 0; i < m; ++i) dual_ub[i] = HUGE_VAL;
+			 feasible = 1;
+		    }
 		    else if (new_infeasible_constraint) feasible = 0;
 
 	       }
