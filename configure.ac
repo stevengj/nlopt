@@ -5,6 +5,7 @@ SHARED_VERSION_INFO="0:0:0" # CURRENT:REVISION:AGE
 
 AM_INIT_AUTOMAKE(1.7)
 AM_CONFIG_HEADER(config.h)
+AC_CONFIG_MACRO_DIR([m4])
 AM_MAINTAINER_MODE
 AC_SUBST(SHARED_VERSION_INFO)
 AC_DISABLE_SHARED dnl to hell with shared libraries
@@ -23,8 +24,8 @@ AC_ARG_WITH(cxx,
 	[AC_HELP_STRING([--with-cxx], [include C++-based routines])],
         with_cxx=$withval,with_cxx=no)
 AM_CONDITIONAL(WITH_CXX, test "x$with_cxx" = xyes)
+AC_PROG_CXX
 if test "x$with_cxx" = xyes; then
-   AC_PROG_CXX
    AC_DEFINE([WITH_CXX], 1, [Define if compiled including C++-based routines])
    NLOPT_SUFFIX="_cxx"
 fi
