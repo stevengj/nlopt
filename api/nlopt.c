@@ -101,7 +101,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Method of Moving Asymptotes (MMA) (local, derivative)",
      "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)",
      "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)",
-     "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)"
+     "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)",
+     "Nelder-Mead simplex algorithm"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -223,6 +224,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "mma.h"
 #include "cobyla.h"
 #include "newuoa.h"
+#include "neldermead.h"
 
 /*************************************************************************/
 
@@ -486,6 +488,16 @@ static nlopt_result nlopt_minimize_(
 	      return newuoa(n, 2*n+1, x, lb, ub, initial_step(n, lb, ub, x),
 			    &stop, minf, f_noderiv, &d);
 
+	 case NLOPT_LN_NELDERMEAD: {
+	      nlopt_result ret;
+              double *scale = (double *) malloc(sizeof(double) * n);
+              if (!scale) return NLOPT_OUT_OF_MEMORY;
+              for (i = 0; i < n; ++i)
+		   scale[i] = initial_step(1, lb+i, ub+i, x+i);
+              ret = nldrmd_minimize(n, f,f_data, lb,ub, x, minf, scale, &stop);
+	      free(scale);
+	      return ret;
+	 }
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

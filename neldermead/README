@@ -1,0 +1,49 @@
+Nelder-Mead and variations thereof.  Possibly the algorithms:
+
+-----------------
+
+First, the original Nelder-Mead algorithm.
+
+-----------------
+
+Second, the provably convergent variant of Nelder-Mead described in:
+
+	C. J. Price, I. D. Coope, and D. Byatt, "A convergent variant
+	of the Nelder-Mead algorithm," J. Optim. Theory Appl. 113 (1),
+	p. 5-19 (2002).
+
+And/or possibly the (claimed superior) one in:
+	
+	A. Burmen, J. Puhan, and T. Tuma, "Grid restrained Nelder-Mead
+	algorithm," Computational Optim. Appl. 34(3), 359-375 (2006).
+
+-----------------
+
+My own independent implemention of Tom Rowan's Subplex algorithm (a
+more-efficient variant of Nelder-Mead simplex), which was described at:
+
+     http://www.netlib.org/opt/subplex.tgz
+
+     T. Rowan, "Functional Stability Analysis of Numerical Algorithms",
+     Ph.D. thesis, Department of Computer Sciences, University of Texas
+     at Austin, 1990.
+
+I would have liked to use Rowan's original implementation, but its
+legal status is unfortunately unclear.  Rowan didn't include any
+license statement at all with the original code, which makes it
+technically illegal to redistribute.  I contacted Rowan about getting
+a clear open-source/free-software license for it, and he was very
+agreeable, but he said he had to think about the specific license
+choice and would get back to me.  Unfortunately, a year later I still
+haven't heard from him, and his old email address no longer seems to
+work, so I don't know how to contact him for permission.
+
+Although I now have other derivative-free optimization routines in
+NLopt, the subplex algorithm is nice to have because it is somewhat
+tolerant of discontinuous and/or noisy objectives, which may make it a
+good choice for some problems.
+
+Tom Rowan expressed a preference that modified versions of his code
+use a different name from "subplex".  Since this is a complete
+from-scratch re-implementation, I figured that he would want a
+different name too, so I am calling it "sbplx".

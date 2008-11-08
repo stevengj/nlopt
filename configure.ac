@@ -214,6 +214,7 @@ AC_CONFIG_FILES([
    mma/Makefile
    cobyla/Makefile
    newuoa/Makefile
+   neldermead/Makefile
    test/Makefile
 ])
 
