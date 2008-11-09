@@ -65,12 +65,17 @@ static void pin(int n, double *x, const double *lb, const double *ub) {
  if (nlopt_stop_evals(stop)) { ret=NLOPT_MAXEVAL_REACHED; goto done; }	  \
  if (nlopt_stop_time(stop)) { ret=NLOPT_MAXTIME_REACHED; goto done; }
 
+/* if psi > 0, then it *replaces* xtol and ftol in stop with the condition
+   that the simplex diameter |xl - xh| must be reduced by a factor of psi 
+   ... this is for when nldrmd is used within the subplex method; for
+   ordinary termination tests, set psi = 0. */
 nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
 			     const double *xstep, /* initial step sizes */
-			     nlopt_stopping *stop)
+			     nlopt_stopping *stop,
+			     double psi)
 {
      double *pts; /* (n+1) x (n+1) array of n+1 points plus function val [0] */
      double *c; /* centroid * n */
@@ -79,6 +84,7 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
      int i, j;
      double ninv = 1.0 / n;
      nlopt_result ret = NLOPT_SUCCESS;
+     double init_diam = 0;
 
      pts = (double*) malloc(sizeof(double) * (n+1) * (n+1));
      if (!pts) return NLOPT_OUT_OF_MEMORY;
@@ -120,7 +126,13 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
 	  double fh = high->k[0], *xh = high->k + 1;
 	  double fr;
 
-	  if (nlopt_stop_f(stop, fl, fh)) ret = NLOPT_FTOL_REACHED;
+	  if (init_diam == 0) /* initialize diam. for psi convergence test */
+	       for (i = 0; i < n; ++i) init_diam = fabs(xl[i] - xh[i]);
+
+	  if (psi <= 0 && nlopt_stop_f(stop, fl, fh)) {
+	       ret = NLOPT_FTOL_REACHED;
+	       goto done;
+	  }
 
 	  /* compute centroid ... if we cared about the perfomance of this,
 	     we could do it iteratively by updating the centroid on
@@ -146,7 +158,18 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
 	       }
 	  }
 	  for (i = 0; i < n; ++i) xcur[i] += c[i];
-	  if (nlopt_stop_x(stop, c, xcur)) ret = NLOPT_XTOL_REACHED;
+	  if (psi > 0) {
+	       double diam = 0;
+	       for (i = 0; i < n; ++i) diam += fabs(xl[i] - xh[i]);
+	       if (diam < psi * init_diam) {
+		    ret = NLOPT_XTOL_REACHED;
+		    goto done;
+	       }
+	  }
+	  else if (nlopt_stop_x(stop, c, xcur)) {
+	       ret = NLOPT_XTOL_REACHED;
+	       goto done;
+	  }
 
 	  /* reflection */
 	  for (i = 0; i < n; ++i) xcur[i] = c[i] + alpha * (c[i] - xh[i]);
