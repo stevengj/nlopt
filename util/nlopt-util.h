@@ -23,12 +23,18 @@
 #ifndef NLOPT_UTIL_H
 #define NLOPT_UTIL_H
 
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif /* __cplusplus */
 
 int nlopt_isinf(double x);
+
+/* re-entrant qsort */
+extern void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk,
+			  int (*compar)(void *, const void *, const void *));
 
 /* seconds timer */
 extern double nlopt_seconds(void);

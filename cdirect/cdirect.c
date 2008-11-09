@@ -114,12 +114,12 @@ static double rect_diameter(int n, const double *w, const params *p)
 
 #define ALLOC_RECT(rect, L) if (!(rect = (double*) malloc(sizeof(double)*(L)))) return NLOPT_OUT_OF_MEMORY
 
-static double *fv_qsort = 0;
-static int sort_fv_compare(const void *a_, const void *b_)
+static int sort_fv_compare(void *fv_, const void *a_, const void *b_)
 {
+     const double *fv = (const double *) fv_;
      int a = *((const int *) a_), b = *((const int *) b_);
-     double fa = MIN(fv_qsort[2*a], fv_qsort[2*a+1]);
-     double fb = MIN(fv_qsort[2*b], fv_qsort[2*b+1]);
+     double fa = MIN(fv[2*a], fv[2*a+1]);
+     double fb = MIN(fv[2*b], fv[2*b+1]);
      if (fa < fb)
 	  return -1;
      else if (fa > fb)
@@ -131,9 +131,7 @@ static void sort_fv(int n, double *fv, int *isort)
 {
      int i;
      for (i = 0; i < n; ++i) isort[i] = i;
-     fv_qsort = fv; /* not re-entrant, sigh... */
-     qsort(isort, (unsigned) n, sizeof(int), sort_fv_compare);
-     fv_qsort = 0;
+     nlopt_qsort_r(isort, (unsigned) n, sizeof(int), fv, sort_fv_compare);
 }
 
 static double function_eval(const double *x, params *p) {

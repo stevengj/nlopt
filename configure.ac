@@ -53,7 +53,7 @@ AC_CHECK_TYPES(uint32_t, [], [], [$ac_includes_default
 
 dnl Checks for libraries and functions
 AC_CHECK_LIB(m, sin)
-AC_CHECK_FUNCS([BSDgettimeofday gettimeofday time])
+AC_CHECK_FUNCS([BSDgettimeofday gettimeofday time qsort_r])
 
 AC_MSG_CHECKING([for isnan])
 AC_TRY_LINK([#include <math.h>
