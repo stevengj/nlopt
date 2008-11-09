@@ -494,7 +494,7 @@ static nlopt_result nlopt_minimize_(
               if (!scale) return NLOPT_OUT_OF_MEMORY;
               for (i = 0; i < n; ++i)
 		   scale[i] = initial_step(1, lb+i, ub+i, x+i);
-              ret = nldrmd_minimize(n, f,f_data, lb,ub,x, minf,scale,&stop,0.);
+              ret = nldrmd_minimize(n, f,f_data, lb,ub,x, minf,scale,&stop);
 	      free(scale);
 	      return ret;
 	 }

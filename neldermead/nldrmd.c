@@ -65,17 +65,27 @@ static void pin(int n, double *x, const double *lb, const double *ub) {
  if (nlopt_stop_evals(stop)) { ret=NLOPT_MAXEVAL_REACHED; goto done; }	  \
  if (nlopt_stop_time(stop)) { ret=NLOPT_MAXTIME_REACHED; goto done; }
 
-/* if psi > 0, then it *replaces* xtol and ftol in stop with the condition
+/* Internal version of nldrmd_minimize, intended to be used as
+   a subroutine for the subplex method.  Three differences compared
+   to nldrmd_minimize:
+
+   *minf should contain the value of f(x)  (so that we don't have to
+   re-evaluate f at the starting x).
+
+   if psi > 0, then it *replaces* xtol and ftol in stop with the condition
    that the simplex diameter |xl - xh| must be reduced by a factor of psi 
    ... this is for when nldrmd is used within the subplex method; for
-   ordinary termination tests, set psi = 0. */
-nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
+   ordinary termination tests, set psi = 0. 
+
+   scratch should contain an array of length >= (n+1)*(n+1) + 2*n,
+   used as scratch workspace. */
+nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
 			     const double *xstep, /* initial step sizes */
 			     nlopt_stopping *stop,
-			     double psi)
+			     double psi, double *scratch)
 {
      double *pts; /* (n+1) x (n+1) array of n+1 points plus function val [0] */
      double *c; /* centroid * n */
@@ -86,16 +96,14 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
      nlopt_result ret = NLOPT_SUCCESS;
      double init_diam = 0;
 
-     pts = (double*) malloc(sizeof(double) * (n+1) * (n+1));
-     if (!pts) return NLOPT_OUT_OF_MEMORY;
-     c = (double*) malloc(sizeof(double) * n * 2);
-     if (!c) { free(pts); return NLOPT_OUT_OF_MEMORY; }
+     pts = scratch;
+     c = scratch + (n+1)*(n+1);
      xcur = c + n;
 
      /* initialize the simplex based on the starting xstep */
      memcpy(pts+1, x, sizeof(double)*n);
-     *minf = pts[0] = f(n, pts+1, NULL, f_data);
-     CHECK_EVAL(pts+1, pts[0]);
+     pts[0] = *minf;
+     if (*minf < stop->minf_max) { ret=NLOPT_MINF_MAX_REACHED; goto done; }
      for (i = 0; i < n; ++i) {
 	  double *pt = pts + (i+1)*(n+1);
 	  memcpy(pt+1, x, sizeof(double)*n);
@@ -226,7 +234,29 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
      
 done:
      rb_tree_destroy(&t);
-     free(c);
-     free(pts);
+     return ret;
+}
+
+nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
+			     const double *lb, const double *ub, /* bounds */
+			     double *x, /* in: initial guess, out: minimizer */
+			     double *minf,
+			     const double *xstep, /* initial step sizes */
+			     nlopt_stopping *stop)
+{
+     nlopt_result ret;
+     double *scratch = (double*) malloc(sizeof(double) * ((n+1)*(n+1) + 2*n));
+     if (!scratch) return NLOPT_OUT_OF_MEMORY;
+
+     *minf = f(n, x, NULL, f_data);
+     if (*minf < stop->minf_max) { ret=NLOPT_MINF_MAX_REACHED; goto done; }
+     stop->nevals++;
+     if (nlopt_stop_evals(stop)) { ret=NLOPT_MAXEVAL_REACHED; goto done; }
+     if (nlopt_stop_time(stop)) { ret=NLOPT_MAXTIME_REACHED; goto done; }
+
+     ret = nldrmd_minimize_(n, f, f_data, lb, ub, x, minf, xstep, stop,
+			    0.0, scratch);
+ done:
+     free(scratch);
      return ret;
 }
