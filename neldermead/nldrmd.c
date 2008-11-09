@@ -57,11 +57,11 @@ static void pin(int n, double *x, const double *lb, const double *ub) {
 
 
 #define CHECK_EVAL(xc,fc) 						  \
+ stop->nevals++;							  \
  if ((fc) <= *minf) {							  \
    *minf = (fc); memcpy(x, (xc), n * sizeof(double));			  \
    if (*minf < stop->minf_max) { ret=NLOPT_MINF_MAX_REACHED; goto done; } \
  }									  \
- stop->nevals++;							  \
  if (nlopt_stop_evals(stop)) { ret=NLOPT_MAXEVAL_REACHED; goto done; }	  \
  if (nlopt_stop_time(stop)) { ret=NLOPT_MAXTIME_REACHED; goto done; }
 
@@ -100,6 +100,8 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
      c = scratch + (n+1)*(n+1);
      xcur = c + n;
 
+     rb_tree_init(&t, simplex_compare);
+
      /* initialize the simplex based on the starting xstep */
      memcpy(pts+1, x, sizeof(double)*n);
      pts[0] = *minf;
@@ -119,7 +121,6 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  CHECK_EVAL(pt+1, pt[0]);
      }
 
-     rb_tree_init(&t, simplex_compare);
  restart:
      for (i = 0; i < n + 1; ++i)
 	  if (!rb_tree_insert(&t, pts + i*(n+1))) {
@@ -245,18 +246,19 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
 			     nlopt_stopping *stop)
 {
      nlopt_result ret;
-     double *scratch = (double*) malloc(sizeof(double) * ((n+1)*(n+1) + 2*n));
-     if (!scratch) return NLOPT_OUT_OF_MEMORY;
+     double *scratch;
 
      *minf = f(n, x, NULL, f_data);
-     if (*minf < stop->minf_max) { ret=NLOPT_MINF_MAX_REACHED; goto done; }
      stop->nevals++;
-     if (nlopt_stop_evals(stop)) { ret=NLOPT_MAXEVAL_REACHED; goto done; }
-     if (nlopt_stop_time(stop)) { ret=NLOPT_MAXTIME_REACHED; goto done; }
+     if (*minf < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
+     if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
+     if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
+
+     scratch = (double*) malloc(sizeof(double) * ((n+1)*(n+1) + 2*n));
+     if (!scratch) return NLOPT_OUT_OF_MEMORY;
 
      ret = nldrmd_minimize_(n, f, f_data, lb, ub, x, minf, xstep, stop,
 			    0.0, scratch);
- done:
      free(scratch);
      return ret;
 }
