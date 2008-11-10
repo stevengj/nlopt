@@ -42,6 +42,13 @@ static int simplex_compare(double *k1, double *k2)
      return k1 - k2; /* tie-breaker */
 }
 
+/* return 1 if a and b are approximately equal relative to floating-point
+   precision, 0 otherwise */
+static int close(double a, double b)
+{
+     return (fabs(a - b) <= 1e-13 * (fabs(a) + fabs(b)));
+}
+
 /* Perform the reflection xnew = c + scale * (c - xold),
    returning 0 if xnew == c or xnew == xold (coincident points), 1 otherwise.
 
@@ -62,8 +69,8 @@ static int reflectpt(int n, double *xnew,
 	  double newx = c[i] + scale * (c[i] - xold[i]);
 	  if (newx < lb[i]) newx = lb[i];
 	  if (newx > ub[i]) newx = ub[i];
-	  equalc = equalc && (newx == c[i]);
-	  equalold = equalold && (newx == xold[i]);
+	  equalc = equalc && close(newx, c[i]);
+	  equalold = equalold && close(newx, xold[i]);
 	  xnew[i] = newx;
      }
      return !(equalc || equalold);
@@ -122,15 +129,24 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
      for (i = 0; i < n; ++i) {
 	  double *pt = pts + (i+1)*(n+1);
 	  memcpy(pt+1, x, sizeof(double)*n);
-	  if (x[i] + xstep[i] <= ub[i])
-	       pt[1+i] += xstep[i];
-	  else if (x[i] - xstep[i] >= lb[i])
-	       pt[1+i] -= xstep[i];
-	  else if (ub[i] - x[i] > x[i] - lb[i])
-	       pt[1+i] += 0.5 * (ub[i] - x[i]);
-	  else
-	       pt[1+i] -= 0.5 * (x[i] - lb[i]);
-	  if (pt[1+i] == x[i]) { ret=NLOPT_FAILURE; goto done; }
+	  pt[1+i] += xstep[i];
+	  if (pt[1+i] > ub[i]) {
+	       if (ub[i] - x[i] > fabs(xstep[i]) * 0.1)
+		    pt[1+i] = ub[i];
+	       else /* ub is too close to pt, go in other direction */
+		    pt[1+i] = x[i] - fabs(xstep[i]);
+	  }
+	  if (pt[1+i] < lb[i]) {
+	       if (x[i] - lb[i] > fabs(xstep[i]) * 0.1)
+		    pt[1+i] = lb[i];
+	       else {/* lb is too close to pt, go in other direction */
+		    pt[1+i] = x[i] + fabs(xstep[i]);
+		    if (pt[1+i] > ub[i]) /* go towards further of lb, ub */
+			 pt[1+i] = 0.5 * ((ub[i] - x[i] > x[i] - lb[i] ?
+					   ub[i] : lb[i]) + x[i]);
+	       }
+	  }
+	  if (close(pt[1+i], x[i])) { ret=NLOPT_FAILURE; goto done; }
 	  pt[0] = f(n, pt+1, NULL, f_data);
 	  CHECK_EVAL(pt+1, pt[0]);
      }
