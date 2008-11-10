@@ -42,19 +42,32 @@ static int simplex_compare(double *k1, double *k2)
      return k1 - k2; /* tie-breaker */
 }
 
-/* pin x to lie within the given lower and upper bounds; this is
-   probably a suboptimal way to handle bound constraints, but I don't
-   know a better way and it is the method suggested by J. A. Richardson
-   and J. L. Kuester, "The complex method for constrained optimization,"
-   Commun. ACM 16(8), 487-489 (1973). */
-static void pin(int n, double *x, const double *lb, const double *ub) {
-     int i;
-     for (i = 0; i < n; ++i) {
-	  if (x[i] < lb[i]) x[i] = lb[i];
-	  else if (x[i] > ub[i]) x[i] = ub[i];
-     }
-}
+/* Perform the reflection xnew = c + scale * (c - xold),
+   returning 0 if xnew == c or xnew == xold (coincident points), 1 otherwise.
 
+   The reflected point xnew is "pinned" to the lower and upper bounds
+   (lb and ub), as suggested by J. A. Richardson and J. L. Kuester,
+   "The complex method for constrained optimization," Commun. ACM
+   16(8), 487-489 (1973).  This is probably a suboptimal way to handle
+   bound constraints, but I don't know a better way.  The main danger
+   with this is that the simplex might collapse into a
+   lower-dimensional hyperplane; this danger can be ameliorated by
+   restarting (as in subplex), however. */
+static int reflectpt(int n, double *xnew, 
+		     const double *c, double scale, const double *xold,
+		     const double *lb, const double *ub)
+{
+     int equalc = 1, equalold = 1, i;
+     for (i = 0; i < n; ++i) {
+	  double newx = c[i] + scale * (c[i] - xold[i]);
+	  if (newx < lb[i]) newx = lb[i];
+	  if (newx > ub[i]) newx = ub[i];
+	  equalc = equalc && (newx == c[i]);
+	  equalold = equalold && (newx == xold[i]);
+	  xnew[i] = newx;
+     }
+     return !(equalc || equalold);
+}
 
 #define CHECK_EVAL(xc,fc) 						  \
  stop->nevals++;							  \
@@ -117,6 +130,7 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	       pt[1+i] += 0.5 * (ub[i] - x[i]);
 	  else
 	       pt[1+i] -= 0.5 * (x[i] - lb[i]);
+	  if (pt[1+i] == x[i]) { ret=NLOPT_FAILURE; goto done; }
 	  pt[0] = f(n, pt+1, NULL, f_data);
 	  CHECK_EVAL(pt+1, pt[0]);
      }
@@ -181,14 +195,16 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  }
 
 	  /* reflection */
-	  for (i = 0; i < n; ++i) xcur[i] = c[i] + alpha * (c[i] - xh[i]);
-	  pin(n, xcur, lb, ub);
+	  if (!reflectpt(n, xcur, c, alpha, xh, lb, ub)) { 
+	       ret=NLOPT_XTOL_REACHED; goto done; 
+	  }
 	  fr = f(n, xcur, NULL, f_data);
 	  CHECK_EVAL(xcur, fr);
 
 	  if (fr < fl) { /* new best point, expand simplex */
-	       for (i = 0; i < n; ++i) xh[i] = c[i] + gamm * (c[i] - xh[i]);
-	       pin(n, xh, lb, ub);
+	       if (!reflectpt(n, xh, c, gamm, xh, lb, ub)) {
+		    ret=NLOPT_XTOL_REACHED; goto done; 
+	       }
 	       fh = f(n, xh, NULL, f_data);
 	       CHECK_EVAL(xh, fh);
 	       if (fh >= fr) { /* expanding didn't improve */
@@ -202,11 +218,9 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  }
 	  else { /* new worst point, contract */
 	       double fc;
-	       if (fh <= fr)
-		    for (i = 0; i < n; ++i) xcur[i] = c[i] - beta*(c[i]-xh[i]);
-	       else
-		    for (i = 0; i < n; ++i) xcur[i] = c[i] + beta*(c[i]-xh[i]);
-	       pin(n, xcur, lb, ub);
+	       if (!reflectpt(n,xcur,c, fh <= fr ? -beta : beta, xh, lb,ub)) {
+		    ret=NLOPT_XTOL_REACHED; goto done; 
+	       }
 	       fc = f(n, xcur, NULL, f_data);
 	       CHECK_EVAL(xcur, fc);
 	       if (fc < fr && fc < fh) { /* successful contraction */
@@ -219,8 +233,10 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 		    for (i = 0; i < n+1; ++i) {
 			 double *pt = pts + i * (n+1);
 			 if (pt+1 != xl) {
-			      for (j = 0; j < n; ++j)
-				   pt[1+j] = xl[j] + delta * (pt[1+j] - xl[j]);
+			      if (!reflectpt(n,pt+1, xl,-delta,pt+1, lb,ub)) {
+				   ret = NLOPT_XTOL_REACHED;
+				   goto done;
+			      }
 			      pt[0] = f(n, pt+1, NULL, f_data);
 			      CHECK_EVAL(pt+1, pt[0]);
 			 }
