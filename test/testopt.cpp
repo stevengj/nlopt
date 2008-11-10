@@ -64,7 +64,7 @@ static int test_function(int ifunc)
   double *x, minf, minf_max, f0, *xtabs, *lb, *ub;
   nlopt_result ret;
   double start = nlopt_seconds();
-  int total_count = 0;
+  int total_count = 0, max_count = 0, min_count = 1<<30;
   double total_err = 0, max_err = 0;
   bounds_wrap_data bw;
   
@@ -176,6 +176,8 @@ static int test_function(int ifunc)
     printf("Found minimum f = %g after %d evaluations.\n", 
 	   minf, testfuncs_counter);
     total_count += testfuncs_counter;
+    if (testfuncs_counter > max_count) max_count = testfuncs_counter;
+    if (testfuncs_counter < min_count) min_count = testfuncs_counter;
     printf("Minimum at x = [");
     for (i = 0; i < func.n; ++i) printf(" %g", x[i]);
     printf("]\n");
@@ -196,7 +198,7 @@ static int test_function(int ifunc)
     }
   }
   if (iterations > 1)
-    printf("average #evaluations = %g\naverage |f-minf| = %g, max |f-minf| = %g\n", total_count * 1.0 / iterations, total_err / iterations, max_err);
+    printf("average #evaluations = %g (%d-%d)\naverage |f-minf| = %g, max |f-minf| = %g\n", total_count * 1.0 / iterations, min_count, max_count, total_err / iterations, max_err);
 
   free(x);
   return 1;
