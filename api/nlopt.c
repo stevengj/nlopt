@@ -102,7 +102,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)",
      "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)",
      "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)",
-     "Nelder-Mead simplex algorithm"
+     "Nelder-Mead simplex algorithm (local, no-derivative)",
+     "Sbplx variant of Nelder-Mead (re-implementation of Rowan's Subplex) (local, no-derivative)"
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -488,13 +489,18 @@ static nlopt_result nlopt_minimize_(
 	      return newuoa(n, 2*n+1, x, lb, ub, initial_step(n, lb, ub, x),
 			    &stop, minf, f_noderiv, &d);
 
-	 case NLOPT_LN_NELDERMEAD: {
+	 case NLOPT_LN_NELDERMEAD: 
+	 case NLOPT_LN_SBPLX: 
+	 {
 	      nlopt_result ret;
               double *scale = (double *) malloc(sizeof(double) * n);
               if (!scale) return NLOPT_OUT_OF_MEMORY;
               for (i = 0; i < n; ++i)
 		   scale[i] = initial_step(1, lb+i, ub+i, x+i);
-              ret = nldrmd_minimize(n, f,f_data, lb,ub,x, minf,scale,&stop);
+	      if (algorithm == NLOPT_LN_NELDERMEAD)
+		   ret = nldrmd_minimize(n,f,f_data,lb,ub,x,minf,scale,&stop);
+	      else
+		   ret = sbplx_minimize(n,f,f_data,lb,ub,x,minf,scale,&stop);
 	      free(scale);
 	      return ret;
 	 }

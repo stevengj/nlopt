@@ -46,6 +46,13 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 			      nlopt_stopping *stop,
 			      double psi, double *scratch);
 
+nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
+			    const double *lb, const double *ub, /* bounds */
+			    double *x, /* in: initial guess, out: minimizer */
+			    double *minf,
+			    const double *xstep0, /* initial step sizes */
+			    nlopt_stopping *stop);
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

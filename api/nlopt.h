@@ -91,6 +91,7 @@ typedef enum {
      NLOPT_LN_NEWUOA_BOUND,
 
      NLOPT_LN_NELDERMEAD,
+     NLOPT_LN_SBPLX,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
