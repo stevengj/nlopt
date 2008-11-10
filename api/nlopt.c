@@ -72,7 +72,6 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Unscaled Randomized DIRECT-L (global, no-derivative)",
      "Original DIRECT version (global, no-derivative)",
      "Original DIRECT-L version (global, no-derivative)",
-     "Subplex (local, no-derivative)",
 #ifdef WITH_CXX
      "StoGO (global, derivative-based)",
      "StoGO with randomized search (global, derivative-based)",
@@ -171,16 +170,15 @@ typedef struct {
      const double *lb, *ub;
 } nlopt_data;
 
-#include "subplex.h"
 #include "praxis.h"
 
-static double f_subplex(int n, const double *x, void *data_)
+static double f_bound(int n, const double *x, void *data_)
 {
      int i;
      nlopt_data *data = (nlopt_data *) data_;
      double f;
 
-     /* subplex does not support bound constraints, but it supports
+     /* some methods do not support bound constraints, but support
 	discontinuous objectives so we can just return Inf for invalid x */
      for (i = 0; i < n; ++i)
 	  if (x[i] < data->lb[i] || x[i] > data->ub[i])
@@ -379,13 +377,16 @@ static nlopt_result nlopt_minimize_(
 	      return NLOPT_FAILURE;
 #endif
 
+#if 0
+	      /* lacking a free/open-source license, we no longer use
+		 Rowan's code, and instead use by "sbplx" re-implementation */
 	 case NLOPT_LN_SUBPLEX: {
 	      int iret;
 	      double *scale = (double *) malloc(sizeof(double) * n);
 	      if (!scale) return NLOPT_OUT_OF_MEMORY;
 	      for (i = 0; i < n; ++i)
 		   scale[i] = initial_step(1, lb+i, ub+i, x+i);
-	      iret = nlopt_subplex(f_subplex, minf, x, n, &d, &stop, scale);
+	      iret = nlopt_subplex(f_bound, minf, x, n, &d, &stop, scale);
 	      free(scale);
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;
@@ -400,10 +401,11 @@ static nlopt_result nlopt_minimize_(
 	      }
 	      break;
 	 }
+#endif
 
 	 case NLOPT_LN_PRAXIS:
 	      return praxis_(0.0, DBL_EPSILON, 
-			     initial_step(n, lb, ub, x), n, x, f_subplex, &d,
+			     initial_step(n, lb, ub, x), n, x, f_bound, &d,
 			     &stop, minf);
 
 #ifdef WITH_NOCEDAL

@@ -57,8 +57,6 @@ typedef enum {
      NLOPT_GN_ORIG_DIRECT,
      NLOPT_GN_ORIG_DIRECT_L,
 
-     NLOPT_LN_SUBPLEX,
-
      NLOPT_GD_STOGO,
      NLOPT_GD_STOGO_RAND,
 

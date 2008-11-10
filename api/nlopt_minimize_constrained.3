@@ -343,20 +343,28 @@ algorithms are only available if NLopt is compiled with C++ enabled,
 and should be linked via -lnlopt_cxx (via a C++ compiler, in order
 to link the C++ standard libraries).
 .TP 
-.B NLOPT_LN_SUBPLEX
+.B NLOPT_LN_NELDERMEAD
 Perform a local (L) derivative-free (N) optimization, starting at
 .IR x ,
-using the Subplex algorithm of Rowan et al., which is an improved
-variant of Nelder-Mead simplex algorithm.  (Like Nelder-Mead, Subplex
-often works well in practice, even for discontinuous objectives, but
-there is no rigorous guarantee that it will converge.)  Subplex is
-best for unconstrained optimization, but constrained optimization also
-works (both for simple bound constraints via
-.I lb
-and
-.I ub
-as well as nonlinear constraints via the crude technique of returning
-+Inf when the constraints are violated, as explained above).
+using the Nelder-Mead simplex algorithm, modified to support bound
+constraints.  Nelder-Mead, while popular, is known to occasionally
+fail to converge for some objective functions, so it should be
+used with caution.  Anecdotal evidence, on the other hand, suggests
+that it works fairly well for discontinuous objectives.  See also
+.B NLOPT_LN_SBPLX
+below.
+.TP 
+.B NLOPT_LN_SBPLX
+Perform a local (L) derivative-free (N) optimization, starting at
+.IR x ,
+using an algorithm based on the Subplex algorithm of Rowan et al.,
+which is an improved variant of Nelder-Mead (above).  Our
+implementation does not use Rowan's original code, and has some minor
+modifications such as explicit support for bound constraints.  (Like
+Nelder-Mead, Subplex often works well in practice, even for
+discontinuous objectives, but there is no rigorous guarantee that it
+will converge.)  Nonlinear constraints can be crudely supported
+by returning +Inf when the constraints are violated, as explained above.
 .TP
 .B NLOPT_LN_PRAXIS
 Local (L) derivative-free (N) optimization using the principal-axis
