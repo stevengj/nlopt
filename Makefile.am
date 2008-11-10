@@ -8,8 +8,8 @@ CXX_DIRS = stogo
 CXX_LIBS = stogo/libstogo.la
 endif
 
-SUBDIRS= util direct cdirect $(CXX_DIRS) praxis luksan crs mlsl mma cobyla newuoa lbfgs neldermead api . octave test
-EXTRA_DIST=COPYRIGHT autogen.sh nlopt.pc.in m4
+SUBDIRS = util direct cdirect $(CXX_DIRS) praxis luksan crs mlsl mma cobyla newuoa lbfgs neldermead api . octave test
+EXTRA_DIST = autogen.sh nlopt.pc.in m4
 
 if WITH_NOCEDAL
 NOCEDAL_LBFGS=lbfgs/liblbfgs.la
