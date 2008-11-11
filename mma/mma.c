@@ -163,6 +163,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
      char *fc_data = (char *) fc_data_;
      dual_data dd;
      int feasible;
+     double infeasibility;
      
      sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*7));
      if (!sigma) return NLOPT_OUT_OF_MEMORY;
@@ -210,10 +211,11 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
      stop->nevals++;
      memcpy(xcur, x, sizeof(double) * n);
 
-     feasible = 1;
+     feasible = 1; infeasibility = 0;
      for (i = 0; i < m; ++i) {
 	  fcval[i] = fc(n, x, dfcdx + i*n, fc_data + fc_datum_size * i);
 	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
+	  if (fcval[i] > infeasibility) infeasibility = fcval[i];
      }
      /* For non-feasible initial points, set a finite (large)
 	upper-bound on the dual variables.  What this means is that,
@@ -239,7 +241,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	  memcpy(xprev, xcur, sizeof(double) * n);
 
 	  while (1) { /* inner iterations */
-	       double min_dual;
+	       double min_dual, infeasibility_cur;
 	       int feasible_cur, inner_done, save_verbose;
 	       int new_infeasible_constraint;
 	       nlopt_result reti;
@@ -281,7 +283,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
 	       fcur = f(n, xcur, dfdx_cur, f_data);
 	       stop->nevals++;
-	       feasible_cur = 1;
+	       feasible_cur = 1; infeasibility_cur = 0;
 	       new_infeasible_constraint = 0;
 	       inner_done = dd.gval >= fcur;
 	       for (i = 0; i < m; ++i) {
@@ -294,14 +296,17 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 				   (dd.gcval[i] >= fcval_cur[i]);
 			 else if (fcval_cur[i] > 0)
 			      new_infeasible_constraint = 1;
+			 if (fcval_cur[i] > infeasibility_cur)
+			      infeasibility_cur = fcval_cur[i];
 		    }
 	       }
 
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
-		    || (!feasible && feasible_cur)) {
+		    || (!feasible && infeasibility_cur < infeasibility)) {
 		    if (mma_verbose && !feasible_cur)
 			 printf("MMA - using infeasible point?\n");
 		    dd.fval = *minf = fcur;
+		    infeasibility = infeasibility_cur;
 		    memcpy(fcval, fcval_cur, sizeof(double)*m);
 		    memcpy(x, xcur, sizeof(double)*n);
 		    memcpy(dfdx, dfdx_cur, sizeof(double)*n);
