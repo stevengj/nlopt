@@ -98,14 +98,18 @@ static int reflectpt(int n, double *xnew,
    ordinary termination tests, set psi = 0. 
 
    scratch should contain an array of length >= (n+1)*(n+1) + 2*n,
-   used as scratch workspace. */
+   used as scratch workspace. 
+
+   On output, *fdiff will contain the difference between the high
+   and low function values of the last simplex. */
 nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
 			     const double *xstep, /* initial step sizes */
 			     nlopt_stopping *stop,
-			     double psi, double *scratch)
+			     double psi, double *scratch,
+			     double *fdiff)
 {
      double *pts; /* (n+1) x (n+1) array of n+1 points plus function val [0] */
      double *c; /* centroid * n */
@@ -121,6 +125,8 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
      xcur = c + n;
 
      rb_tree_init(&t, simplex_compare);
+
+     *fdiff = HUGE_VAL;
 
      /* initialize the simplex based on the starting xstep */
      memcpy(pts+1, x, sizeof(double)*n);
@@ -164,6 +170,8 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  double fl = low->k[0], *xl = low->k + 1;
 	  double fh = high->k[0], *xh = high->k + 1;
 	  double fr;
+
+	  *fdiff = fh - fl;
 
 	  if (init_diam == 0) /* initialize diam. for psi convergence test */
 	       for (i = 0; i < n; ++i) init_diam = fabs(xl[i] - xh[i]);
@@ -278,7 +286,7 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
 			     nlopt_stopping *stop)
 {
      nlopt_result ret;
-     double *scratch;
+     double *scratch, fdiff;
 
      *minf = f(n, x, NULL, f_data);
      stop->nevals++;
@@ -290,7 +298,7 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
      if (!scratch) return NLOPT_OUT_OF_MEMORY;
 
      ret = nldrmd_minimize_(n, f, f_data, lb, ub, x, minf, xstep, stop,
-			    0.0, scratch);
+			    0.0, scratch, &fdiff);
      free(scratch);
      return ret;
 }

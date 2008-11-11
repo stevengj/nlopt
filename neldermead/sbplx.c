@@ -107,6 +107,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  double normdx = 0;
 	  int ns, nsubs = 0;
 	  int nevals = stop->nevals;
+	  double fdiff, fdiff_max = 0;
 
 	  memcpy(xprev, x, n * sizeof(double));
 	  fprev = *minf;
@@ -153,7 +154,8 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	       ++nsubs;
 	       nevals = stop->nevals;
 	       ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
-				      xsstep, stop, psi, scratch);
+				      xsstep, stop, psi, scratch, &fdiff);
+	       if (fdiff > fdiff_max) fdiff_max = fdiff;
 	       if (sbplx_verbose)
 		    printf("%d NM iterations for (%d,%d) subspace\n",
 			   stop->nevals - nevals, sd.is, ns);
@@ -173,16 +175,17 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  ++nsubs;
 	  nevals = stop->nevals;
 	  ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
-				 xsstep, stop, psi, scratch);
+				 xsstep, stop, psi, scratch, &fdiff);
+	  if (fdiff > fdiff_max) fdiff_max = fdiff;
 	  if (sbplx_verbose)
-	       printf("%d NM iterations for (%d,%d) subspace\n",
+	       printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
 		      stop->nevals - nevals, sd.is, ns);
 	  for (i = sd.is; i < n; ++i) x[p[i]] = xs[i-sd.is];
 	  if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
 	  if (ret != NLOPT_XTOL_REACHED) goto done;
 
 	  /* termination tests: */
-	  if (nlopt_stop_ftol(stop, *minf, fprev)) {
+	  if (nlopt_stop_ftol(stop, *minf, *minf + fdiff_max)) {
                ret = NLOPT_FTOL_REACHED;
                goto done;
 	  }
@@ -220,6 +223,8 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 		    if (scale < omega) scale = omega;
 		    if (scale > 1/omega) scale = 1/omega;
 	       }
+	       if (sbplx_verbose)
+		    printf("sbplx: stepsize scale factor = %g\n", scale);
 	       for (i = 0; i < n; ++i) 
 		    xstep[i] = (dx[i] == 0) ? -(xstep[i] * scale)
                          : copysign(xstep[i] * scale, dx[i]);
