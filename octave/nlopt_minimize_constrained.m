@@ -1,7 +1,10 @@
-% Usage: [xopt, fmin, retcode] = nlopt_minimize(algorithm, f, f_data, lb, ub,
-%                                               xinit, stop)
+% Usage: [xopt, fmin, retcode] = nlopt_minimize_constrained
+%                                          (algorithm, f, f_data,
+%                                           fc, fc_data, lb, ub,
+%                                           xinit, stop)
 %
-% Minimizes a nonlinear multivariable function f(x, f_data{:}), where
+% Minimizes a nonlinear multivariable function f(x, f_data{:}), subject
+% to nonlinear constraints described by fc and fc_data (see below), where
 % x is a row vector, returning the optimal x found (xopt) along with
 % the minimum function value (fmin = f(xopt)) and a return code (retcode).
 % A variety of local and global optimization algorithms can be used,
@@ -10,11 +13,12 @@
 % a row vector giving the initial guess for x, and stop is a struct
 % containing termination conditions (see below).
 %
-% This function is a front-end for the external routine nlopt_minimize
-% in the free NLopt nonlinear-optimization library, which is a wrapper
-% around a number of free/open-source optimization subroutines.  More
-% details can be found on the NLopt web page (ab-initio.mit.edu/nlopt)
-% and also under 'man nlopt_minimize' on Unix.
+% This function is a front-end for the external routine
+% nlopt_minimize_constrained in the free NLopt nonlinear-optimization
+% library, which is a wrapper around a number of free/open-source
+% optimization subroutines.  More details can be found on the NLopt
+% web page (ab-initio.mit.edu/nlopt) and also under
+% 'man nlopt_minimize_constrained' on Unix.
 %
 % f should be a handle (@) to a function of the form:
 %
@@ -29,6 +33,23 @@
 % of the additional arguments to pass to f.  (Recall that cell arrays
 % are specified by curly brackets { ... }.  For example, pass f_data={}
 % for functions that require no additional arguments.)
+%
+% A few of the algorithms (below) support nonlinear constraints,
+% in particular NLOPT_LD_MMA and NLOPT_LN_COBYLA.  These (if any)
+% are specified by fc and fc_data.  fc is a cell array of
+% function handles, and fc_data is a cell array of cell arrays of the
+% corresponding arguments.  Both must have the same length m, the
+% number of nonlinear constraints.  That is, fc{i} is a handle
+% to a function of the form:
+%
+%   [val, gradient] = fc(x, ...)
+%
+% (where the gradient is only used for gradient-based algorithms),
+% and the ... arguments are given by fc_data{i}{:}.
+%
+% If you have no nonlinear constraints, i.e. fc = fc_data = {}, then
+% it is equivalent to calling the the nlopt_minimize() function, 
+% which omits the fc and fc_data arguments.
 %
 % stop describes the termination criteria, and is a struct with a
 % number of optional fields:
@@ -64,7 +85,3 @@
 %
 % For more information on individual functions, see their individual
 % help pages (e.g. "help NLOPT_LN_SUBPLEX").
-[xopt, fmin, retcode] = nlopt_minimize(algorithm, f, f_data, lb, ub, xinit, stop)
-
-  [xopt, fmin, retcode] = nlopt_minimize_constrained(algorithm, f, f_data, {}, {}, lb, ub, xinit, stop);
-

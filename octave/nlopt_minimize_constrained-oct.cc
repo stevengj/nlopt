@@ -27,7 +27,7 @@
 #include <stdio.h>
 
 #include "nlopt.h"
-#include "nlopt_minimize_usage.h"
+#include "nlopt_minimize_constrained_usage.h"
 
 static double struct_val_default(Octave_map &m, const std::string& k,
 				 double dflt)
@@ -73,11 +73,11 @@ static double user_function(int n, const double *x,
     args(1 + i) = data->f_data(i);
   octave_value_list res = data->f->do_multi_index_op(gradient ? 2 : 1, args); 
   if (res.length() < (gradient ? 2 : 1))
-    gripe_user_supplied_eval("nlopt_minimize");
+    gripe_user_supplied_eval("nlopt_minimize_constrained");
   else if (!res(0).is_real_scalar()
 	   || (gradient && !res(1).is_real_matrix()
 	       && !(n == 1 && res(1).is_real_scalar())))
-    gripe_user_returned_invalid("nlopt_minimize");
+    gripe_user_returned_invalid("nlopt_minimize_constrained");
   else {
     if (gradient) {
       if (n == 1 && res(1).is_real_scalar())
@@ -89,52 +89,69 @@ static double user_function(int n, const double *x,
       }
     }
     data->neval++;
-    if (data->verbose) printf("nlopt_minimize eval #%d: %g\n", 
+    if (data->verbose) printf("nlopt_minimize_constrained eval #%d: %g\n", 
 			      data->neval, res(0).double_value());
     return res(0).double_value();
   }
   return 0;
 }				 
 
-#define CHECK(cond, msg) if (!(cond)) { fprintf(stderr, msg "\n\n"); print_usage("nlopt_minimize"); return retval; }
+#define CHECK(cond, msg) if (!(cond)) { fprintf(stderr, msg "\n\n"); print_usage("nlopt_minimize_constrained"); return retval; }
 
-DEFUN_DLD(nlopt_minimize, args, nargout, NLOPT_MINIMIZE_USAGE)
+DEFUN_DLD(nlopt_minimize_constrained, args, nargout, NLOPT_MINIMIZE_CONSTRAINED_USAGE)
 {
   octave_value_list retval;
   double A;
 
-  CHECK(args.length() == 7 && nargout <= 3, "wrong number of args");
+  CHECK(args.length() == 9 && nargout <= 3, "wrong number of args");
 
   CHECK(args(0).is_real_scalar(), "n must be real scalar");
   nlopt_algorithm algorithm = nlopt_algorithm(args(0).int_value());
 
   user_function_data d;
   CHECK(args(1).is_function() || args(1).is_function_handle(), 
-	"f must be function");
+	"f must be a function handle");
   d.f = args(1).function_value();
   CHECK(args(2).is_cell(), "f_data must be cell array");
   d.f_data = args(2).cell_value();
 
-  CHECK(args(3).is_real_matrix() || args(3).is_real_scalar(),
-	"lb must be real vector");
-  Matrix lb = args(3).is_real_scalar() ?
-    Matrix(1, 1, args(3).double_value()) : args(3).matrix_value();
-  int n = lb.length();
-  
-  CHECK(args(4).is_real_matrix() || args(4).is_real_scalar(),
-	"ub must be real vector");
-  Matrix ub = args(4).is_real_scalar() ?
-    Matrix(1, 1, args(4).double_value()) : args(4).matrix_value();
-  CHECK(n == ub.length(), "lb and ub must have same length");
+  CHECK(args(3).is_cell(), "fc must be cell array");
+  CHECK(args(4).is_cell(), "fc_data must be cell array");
+  int m = args(3).length();
+  CHECK(m == args(4).length(), "fc and fc_data must have the same length");
+  user_function_data *dc = new user_function_data[m];
+  {
+    Cell fc = args(3).cell_value();
+    Cell fc_data = args(4).cell_value();
+    for (int i; i < m; ++i) {
+      CHECK(fc(i).is_function() || fc(i).is_function_handle(),
+	    "fc must be a cell array of function handles");
+      dc[i].f = fc(i).function_value();
+      CHECK(fc_data(i).is_cell(), "fc_data must be cell array of cell arrays");
+      dc[i].f_data = fc_data(i).cell_value();
+    }
+  }
 
   CHECK(args(5).is_real_matrix() || args(5).is_real_scalar(),
-	"x must be real vector");
-  Matrix x = args(5).is_real_scalar() ?
+	"lb must be real vector");
+  Matrix lb = args(5).is_real_scalar() ?
     Matrix(1, 1, args(5).double_value()) : args(5).matrix_value();
+  int n = lb.length();
+  
+  CHECK(args(6).is_real_matrix() || args(6).is_real_scalar(),
+	"ub must be real vector");
+  Matrix ub = args(6).is_real_scalar() ?
+    Matrix(1, 1, args(6).double_value()) : args(6).matrix_value();
+  CHECK(n == ub.length(), "lb and ub must have same length");
+
+  CHECK(args(7).is_real_matrix() || args(7).is_real_scalar(),
+	"x must be real vector");
+  Matrix x = args(7).is_real_scalar() ?
+    Matrix(1, 1, args(7).double_value()) : args(7).matrix_value();
   CHECK(n == x.length(), "x and lb/ub must have same length");
 
-  CHECK(args(6).is_map(), "stop must be structure");
-  Octave_map stop = args(6).map_value();
+  CHECK(args(8).is_map(), "stop must be structure");
+  Octave_map stop = args(8).map_value();
   double minf_max = struct_val_default(stop, "minf_max", -HUGE_VAL);
   double ftol_rel = struct_val_default(stop, "ftol_rel", 0);
   double ftol_abs = struct_val_default(stop, "ftol_abs", 0);
@@ -146,20 +163,23 @@ DEFUN_DLD(nlopt_minimize, args, nargout, NLOPT_MINIMIZE_USAGE)
   double maxtime = struct_val_default(stop, "maxtime", -1);
   
   double minf = HUGE_VAL;
-  nlopt_result ret = nlopt_minimize(algorithm,
-				    n,
-				    user_function, &d,
-				    lb.data(), ub.data(),
-				    x.fortran_vec(), &minf,
-				    minf_max, ftol_rel, ftol_abs,
-				    xtol_rel, xtol_abs.data(),
-				    maxeval, maxtime);
+  nlopt_result ret = nlopt_minimize_constrained(algorithm,
+						n, user_function, &d,
+						m, user_function, dc, 
+						sizeof(user_function_data),
+						lb.data(), ub.data(),
+						x.fortran_vec(), &minf,
+						minf_max, ftol_rel, ftol_abs,
+						xtol_rel, xtol_abs.data(),
+						maxeval, maxtime);
 				    
   retval(0) = x;
   if (nargout > 1)
     retval(1) = minf;
   if (nargout > 2)
     retval(2) = int(ret);
+
+  delete[] dc;
 
   return retval;
 }

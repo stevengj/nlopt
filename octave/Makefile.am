@@ -6,29 +6,29 @@ MFILES = NLOPT_GN_DIRECT.m NLOPT_GN_DIRECT_L.m NLOPT_GN_DIRECT_L_RAND.m NLOPT_GN
 octdir = $(OCT_INSTALL_DIR)
 mdir = $(M_INSTALL_DIR)
 if WITH_OCTAVE
-oct_DATA = nlopt_minimize.oct
-m_DATA = $(MFILES) nlopt_minimize.m
+oct_DATA = nlopt_minimize_constrained.oct
+m_DATA = $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
 endif
 
-nlopt_minimize.oct: nlopt_minimize-oct.cc nlopt_minimize_usage.h
-	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
+nlopt_minimize_constrained.oct: nlopt_minimize_constrained-oct.cc nlopt_minimize_constrained_usage.h
+	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize_constrained-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
-nlopt_minimize_usage.h: $(srcdir)/nlopt_minimize.m
-	echo "#define NLOPT_MINIMIZE_USAGE \\" > $@
-	sed 's/\"/\\"/g' $(srcdir)/nlopt_minimize.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
+nlopt_minimize_constrained_usage.h: $(srcdir)/nlopt_minimize_constrained.m
+	echo "#define NLOPT_MINIMIZE_CONSTRAINED_USAGE \\" > $@
+	sed 's/\"/\\"/g' $(srcdir)/nlopt_minimize_constrained.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
 	echo "" >> $@
 
 #######################################################################
 mexdir = $(MEX_INSTALL_DIR)
 if WITH_MATLAB
-mex_DATA = nlopt_minimize.$(MEXSUFF) $(MFILES) nlopt_minimize.m
+mex_DATA = nlopt_minimize_constrained.$(MEXSUFF) $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
 endif
 
-nlopt_minimize.$(MEXSUFF): nlopt_minimize-mex.c
-	$(MEX) -output nlopt_minimize -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
+nlopt_minimize_constrained.$(MEXSUFF): nlopt_minimize_constrained-mex.c
+	$(MEX) -output nlopt_minimize_constrained -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize_constrained-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
 #######################################################################
 
-EXTRA_DIST = nlopt_minimize-oct.cc nlopt_minimize-mex.c $(MFILES) nlopt_minimize.m
+EXTRA_DIST = nlopt_minimize_constrained-oct.cc nlopt_minimize_constrained-mex.c $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
 
-CLEANFILES = nlopt_minimize.oct nlopt_minimize_usage.h nlopt_minimize.$(MEXSUFF) nlopt_minimize-oct.o
+CLEANFILES = nlopt_minimize_constrained.oct nlopt_minimize_constrained_usage.h nlopt_minimize_constrained.$(MEXSUFF) nlopt_minimize_constrained-oct.o
