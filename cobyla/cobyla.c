@@ -533,7 +533,7 @@ L140:
         temp += -1.;
       }
       i__3 = *n;
-      for (k = 1; k <= i__3; ++k) {
+      for (k = 1; k <= i__3; ++k) if (sim[k + j * sim_dim1] != 0) {
         temp += simi[i__ + k * simi_dim1] * sim[k + j * sim_dim1];
       }
       d__1 = error, d__2 = abs(temp);
