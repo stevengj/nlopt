@@ -1,6 +1,12 @@
 This directory contains Nelder-Mead and variations thereof.  
 
-Currently, we implement two algorithms.
+Currently, I have implemented two algorithms, described below.
+
+The code in this directory is under the same MIT license as the rest
+of my code in NLopt (see ../COPYRIGHT).
+
+Steven G. Johnson
+November 2008
 
 -----------------------------------------------------------------------
 
