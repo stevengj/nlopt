@@ -187,8 +187,19 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
                goto done;
 	  }
 	  if (nlopt_stop_x(stop, x, xprev)) {
-	       ret = NLOPT_XTOL_REACHED;
-	       goto done;
+	       int j;
+	       /* as explained in Rowan's thesis, it is important
+		  to check |xstep| as well as |x-xprev|, since if
+		  the step size is too large (in early iterations),
+		  the inner Nelder-Mead may not make much progress */
+	       for (j = 0; j < n; ++j)
+		    if (fabs(xstep[j]) * psi > stop->xtol_abs[j]
+			&& fabs(xstep[j]) * psi > stop->xtol_rel * fabs(x[j]))
+			 break;
+	       if (j == n) {
+		    ret = NLOPT_XTOL_REACHED;
+		    goto done;
+	       }
 	  }
 
 	  /* compute change in optimal point */
