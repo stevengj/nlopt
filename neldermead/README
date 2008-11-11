@@ -22,17 +22,21 @@ constraints, using essentially the method described in:
 	J. A. Richardson and J. L. Kuester, "The complex method for
 	constrained optimization," Commun. ACM 16(8), 487-489 (1973).
 
-Whenever a new point would lie outside the bound constraints,
-Richardson and Kuester advocate moving it "just inside" the
-constraints.  I couldn't see any advantage to using a fixed distance
-inside the constraints, especially if the optimum is on the
-constraint, so instead I move the point exactly onto the constraint in
-that case.
+	implementing the method described by:
+
+	M. J. Box, "A new method of constrained optimization and a
+	comparison with other methods," Computer J. 8 (1), 42-52 (1965).
+
+Whenever a new point would lie outside the bound constraints, Box
+advocates moving it "just inside" the constraints.  I couldn't see any
+advantage to using a fixed distance inside the constraints, especially
+if the optimum is on the constraint, so instead I move the point
+exactly onto the constraint in that case.
 
 The danger with implementing bound constraints in this way (or by
-Richardson and Kuester's method) is that you may collapse the simplex
-into a lower-dimensional subspace.  I'm not aware of a better way,
-however.  In any case, this collapse of the simplex is ameliorated by
+Box's method) is that you may collapse the simplex into a
+lower-dimensional subspace.  I'm not aware of a better way, however.
+In any case, this collapse of the simplex is ameliorated by
 restarting, such as when Nelder-Mead is used within the Subplex
 algorithm below.
 
@@ -78,9 +82,9 @@ be quite close (within 10% for most problems).
 
 The only major difference between my implementation and Rowan's, as
 far as I can tell, is that I implemented explicit support for bound
-constraints (via the method in the Richardson and Kuester paper cited
-above).  This seems to be a big improvement in the case where the
-optimum lies against one of the constraints.
+constraints (via the method in the Box paper as described above).
+This seems to be a big improvement in the case where the optimum lies
+against one of the constraints.
 
 -----------------------------------------------------------------------
 
