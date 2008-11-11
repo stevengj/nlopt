@@ -182,7 +182,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  if (ret != NLOPT_XTOL_REACHED) goto done;
 
 	  /* termination tests: */
-	  if (nlopt_stop_f(stop, *minf, fprev)) {
+	  if (nlopt_stop_ftol(stop, *minf, fprev)) {
                ret = NLOPT_FTOL_REACHED;
                goto done;
 	  }
