@@ -10,7 +10,7 @@ oct_DATA = nlopt_minimize_constrained.oct
 m_DATA = $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
 endif
 
-nlopt_minimize_constrained.oct: nlopt_minimize_constrained-oct.cc nlopt_minimize_constrained_usage.h
+nlopt_minimize_constrained.oct: nlopt_minimize_constrained-oct.cc nlopt_minimize_constrained_usage.h $(top_builddir)/.libs/libnlopt@NLOPT_SUFFIX@.la
 	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize_constrained-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
 nlopt_minimize_constrained_usage.h: $(srcdir)/nlopt_minimize_constrained.m
@@ -24,7 +24,7 @@ if WITH_MATLAB
 mex_DATA = nlopt_minimize_constrained.$(MEXSUFF) $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
 endif
 
-nlopt_minimize_constrained.$(MEXSUFF): nlopt_minimize_constrained-mex.c
+nlopt_minimize_constrained.$(MEXSUFF): nlopt_minimize_constrained-mex.c $(top_builddir)/.libs/libnlopt@NLOPT_SUFFIX@.la
 	$(MEX) -output nlopt_minimize_constrained -O $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_minimize_constrained-mex.c $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
 #######################################################################
