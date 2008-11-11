@@ -119,17 +119,15 @@ DEFUN_DLD(nlopt_minimize_constrained, args, nargout, NLOPT_MINIMIZE_CONSTRAINED_
   CHECK(args(4).is_cell(), "fc_data must be cell array");
   int m = args(3).length();
   CHECK(m == args(4).length(), "fc and fc_data must have the same length");
-  user_function_data *dc = new user_function_data[m];
-  {
-    Cell fc = args(3).cell_value();
-    Cell fc_data = args(4).cell_value();
-    for (int i; i < m; ++i) {
-      CHECK(fc(i).is_function() || fc(i).is_function_handle(),
-	    "fc must be a cell array of function handles");
-      dc[i].f = fc(i).function_value();
-      CHECK(fc_data(i).is_cell(), "fc_data must be cell array of cell arrays");
-      dc[i].f_data = fc_data(i).cell_value();
-    }
+  user_function_data *dc = new user_function_data[m+1];
+  Cell fc = args(3).cell_value();
+  Cell fc_data = args(4).cell_value();
+  for (int i = 0; i < m; ++i) {
+    CHECK(fc(i).is_function() || fc(i).is_function_handle(),
+	  "fc must be a cell array of function handles");
+    dc[i].f = fc(i).function_value();
+    CHECK(fc_data(i).is_cell(), "fc_data must be cell array of cell arrays");
+    dc[i].f_data = fc_data(i).cell_value();
   }
 
   CHECK(args(5).is_real_matrix() || args(5).is_real_scalar(),
@@ -161,6 +159,13 @@ DEFUN_DLD(nlopt_minimize_constrained, args, nargout, NLOPT_MINIMIZE_CONSTRAINED_
   CHECK(n == xtol_abs.length(), "stop.xtol_abs must have same length as x");
   int maxeval = int(struct_val_default(stop, "maxeval", -1));
   double maxtime = struct_val_default(stop, "maxtime", -1);
+
+  d.neval = 0;
+  d.verbose = (int) struct_val_default(stop, "verbose", 0);
+  for (int i = 0; i < m; ++i) {
+    dc[i].neval = 0;
+    dc[i].verbose = d.verbose > 1;
+  }
   
   double minf = HUGE_VAL;
   nlopt_result ret = nlopt_minimize_constrained(algorithm,

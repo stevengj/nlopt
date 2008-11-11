@@ -64,7 +64,7 @@
 %
 % For more information on individual functions, see their individual
 % help pages (e.g. "help NLOPT_LN_SUBPLEX").
-[xopt, fmin, retcode] = nlopt_minimize(algorithm, f, f_data, lb, ub, xinit, stop)
-
+function [xopt, fmin, retcode] = nlopt_minimize(algorithm, f, f_data, lb, ub, xinit, stop)
+  
   [xopt, fmin, retcode] = nlopt_minimize_constrained(algorithm, f, f_data, {}, {}, lb, ub, xinit, stop);
-
+  
