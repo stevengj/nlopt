@@ -297,7 +297,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 		    }
 	       }
 
-	       if (fcur < *minf && (inner_done || feasible_cur || !feasible)) {
+	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
+		    || (!feasible && feasible_cur)) {
 		    if (mma_verbose && !feasible_cur)
 			 printf("MMA - using infeasible point?\n");
 		    dd.fval = *minf = fcur;
