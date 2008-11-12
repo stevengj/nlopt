@@ -205,7 +205,6 @@ AC_CONFIG_FILES([
    direct/Makefile
    cdirect/Makefile
    stogo/Makefile
-   subplex/Makefile
    praxis/Makefile
    lbfgs/Makefile
    luksan/Makefile
