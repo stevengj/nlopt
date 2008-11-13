@@ -127,7 +127,7 @@ AC_ARG_VAR(MEX, [name of mex program to compile Matlab plug-ins])
 AC_CHECK_PROGS(MEX, mex, echo)
 if test "$MEX" = "echo"; then
 	AC_MSG_WARN([can't find mex: won't be able to compile Matlab plugin])
-elif test x"$MEX_INSTALL_DIR" = "x"; then
+else
      AC_MSG_CHECKING([for extension of compiled mex files])
      rm -f conftest*
      cat > conftest.c <<EOF
@@ -144,16 +144,18 @@ EOF
 	MATLAB=echo
      fi
 
-     # try to find installation directory
-     if test x"$MATLAB" = xecho; then
-        AC_MSG_WARN([can't fine Matlab; won't compile Matlab plugin])
-     else
-        AC_MSG_CHECKING(for MATLAB mex installation dir)
-	matlabpath_line=`matlab -n | grep -n MATLABPATH |head -1 |cut -d: -f1`
-	matlabpath_line=`expr $matlabpath_line + 1`
-	MEX_INSTALL_DIR=`matlab -n | tail -n +$matlabpath_line | head -1 | tr -d ' '`
-	AC_MSG_RESULT($MEX_INSTALL_DIR)
-      fi
+     if test x"$MEX_INSTALL_DIR" = "x"; then
+       # try to find installation directory
+       if test x"$MATLAB" = xecho; then
+          AC_MSG_WARN([can't fine Matlab; won't compile Matlab plugin])
+       else
+          AC_MSG_CHECKING(for MATLAB mex installation dir)
+  	  matlabpath_line=`matlab -n | grep -n MATLABPATH |head -1 |cut -d: -f1`
+	  matlabpath_line=`expr $matlabpath_line + 1`
+	  MEX_INSTALL_DIR=`matlab -n | tail -n +$matlabpath_line | head -1 | tr -d ' '`
+	  AC_MSG_RESULT($MEX_INSTALL_DIR)
+        fi
+     fi
 fi
 AM_CONDITIONAL(WITH_MATLAB, test x"$MEX_INSTALL_DIR" != "x")
 AC_SUBST(MEX_INSTALL_DIR)
