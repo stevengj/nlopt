@@ -464,6 +464,14 @@ static nlopt_result nlopt_minimize_(
 	 case NLOPT_GD_MLSL:
 	 case NLOPT_GN_MLSL_LDS:
 	 case NLOPT_GD_MLSL_LDS:
+	      for (i = 0; i < n && stop.xtol_abs[i] <= 0; ++i) ;
+	      if (stop.ftol_rel <= 0 && stop.ftol_abs <= 0 &&
+		  stop.xtol_rel <= 0 && i == n) {
+		   /* it is not sensible to call MLSL without *some*
+		      nonzero tolerance for the local search */
+		   stop.ftol_rel = 1e-15;
+		   stop.xtol_rel = 1e-7;
+	      }
 	      return mlsl_minimize(n, f, f_data, lb, ub, x, minf, &stop,
 				   (algorithm == NLOPT_GN_MLSL ||
 				    algorithm == NLOPT_GN_MLSL_LDS)
