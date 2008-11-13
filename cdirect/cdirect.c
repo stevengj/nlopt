@@ -371,7 +371,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 	  do { /* include any duplicate points at (xmax,ymaxmin) */
 	       hull[nhull++] = nmax->k;
 	       nmax = rb_tree_succ(nmax);
-	  } while (nmax && nmax->k[0] == xmax && n->k[1] == ymaxmin);
+	  } while (nmax && nmax->k[0] == xmax && nmax->k[1] == ymaxmin);
      else
 	  hull[nhull++] = nmax->k;
 
