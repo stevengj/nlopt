@@ -91,6 +91,7 @@ AC_ARG_VAR(MKOCTFILE, [name of mkoctfile program to compile Octave plug-ins])
 AC_CHECK_PROGS(MKOCTFILE, mkoctfile, echo)
 if test "$MKOCTFILE" = "echo"; then
 	AC_MSG_WARN([can't find mkoctfile: won't be able to compile GNU Octave plugin])
+	OCT_INSTALL_DIR=""
 elif test x"$OCT_INSTALL_DIR" = "x"; then
 	# try to find installation directory
 	AC_CHECK_PROGS(OCTAVE, octave, echo)
