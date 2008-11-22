@@ -147,15 +147,17 @@ EOF
 
      if test x"$MEX_INSTALL_DIR" = "x"; then
        # try to find installation directory
-       if test x"$MATLAB" = xecho; then
-          AC_MSG_WARN([can't fine Matlab; won't compile Matlab plugin])
-       else
+       if test x"$MATLAB" != xecho; then
           AC_MSG_CHECKING(for MATLAB mex installation dir)
-  	  matlabpath_line=`matlab -n | grep -n MATLABPATH |head -1 |cut -d: -f1`
-	  matlabpath_line=`expr $matlabpath_line + 1`
-	  MEX_INSTALL_DIR=`matlab -n | tail -n +$matlabpath_line | head -1 | tr -d ' '`
+	  MEX_INSTALL_DIR=`matlab -nodisplay -nodesktop -nojvm -r 'path;quit' | grep toolbox/local |sed 's,^[[^/]]*,,g' |sort |head -1`
 	  AC_MSG_RESULT($MEX_INSTALL_DIR)
+	  if test x`basename "$MEX_INSTALL_DIR"` != xlocal; then
+	     MEX_INSTALL_DIR=""
+	  fi
         fi
+     fi
+     if test x"$MEX_INSTALL_DIR" = "x"; then
+         AC_MSG_WARN([can't find reasonable Matlab installation directory; Matlab plugins will not be compiled unless you manually specify MEX_INSTALL_DIR])
      fi
 fi
 AM_CONDITIONAL(WITH_MATLAB, test x"$MEX_INSTALL_DIR" != "x")
