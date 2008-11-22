@@ -24,6 +24,14 @@
 #define NLOPT_UTIL_H
 
 #include <stdlib.h>
+#include <math.h>
+#include "config.h"
+
+/* workaround for Solaris + gcc 3.4.x bug (see configure.ac) */
+#if defined(__GNUC__) && defined(REPLACEMENT_HUGE_VAL)
+#  undef HUGE_VAL
+#  define HUGE_VAL REPLACEMENT_HUGE_VAL
+#endif
 
 #ifdef __cplusplus
 extern "C"

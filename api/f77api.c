@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #include "nlopt.h"
-#include "config.h"
+#include "nlopt-util.h"
 
 /*-----------------------------------------------------------------------*/
 /* wrappers around f77 procedures */

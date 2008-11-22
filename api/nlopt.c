@@ -27,17 +27,10 @@
 
 #include "nlopt.h"
 #include "nlopt-util.h"
-#include "config.h"
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 /*************************************************************************/
-
-#ifdef INFINITY
-#  define MY_INF INFINITY
-#else
-#  define MY_INF HUGE_VAL
-#endif
 
 int nlopt_isinf(double x) {
      return fabs(x) >= HUGE_VAL * 0.99
@@ -182,10 +175,10 @@ static double f_bound(int n, const double *x, void *data_)
 	discontinuous objectives so we can just return Inf for invalid x */
      for (i = 0; i < n; ++i)
 	  if (x[i] < data->lb[i] || x[i] > data->ub[i])
-	       return MY_INF;
+	       return HUGE_VAL;
 
      f = data->f(n, x, NULL, data->f_data);
-     return (isnan(f) || nlopt_isinf(f) ? MY_INF : f);
+     return (isnan(f) || nlopt_isinf(f) ? HUGE_VAL : f);
 }
 
 static double f_noderiv(int n, const double *x, void *data_)
@@ -306,7 +299,7 @@ static nlopt_result nlopt_minimize_(
      stop.n = n;
      stop.minf_max = (isnan(minf_max) 
 		      || (nlopt_isinf(minf_max) && minf_max < 0))
-	  ? -MY_INF : minf_max;
+	  ? -HUGE_VAL : minf_max;
      stop.ftol_rel = ftol_rel;
      stop.ftol_abs = ftol_abs;
      stop.xtol_rel = xtol_rel;

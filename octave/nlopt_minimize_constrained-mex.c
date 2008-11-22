@@ -29,6 +29,7 @@
 #include <mex.h>
 
 #include "nlopt.h"
+#include "nlopt-util.h"
 
 #define xSTRIZE(x) #x
 #define STRIZE(x) xSTRIZE(x)

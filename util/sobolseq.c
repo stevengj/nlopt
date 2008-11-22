@@ -47,10 +47,9 @@
    a free/open-source implementation. */
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "nlopt-util.h"
-
-#include "config.h"
 
 #if defined(HAVE_STDINT_H)
 #  include <stdint.h>
@@ -250,7 +249,6 @@ void nlopt_sobol_skip(nlopt_sobol s, unsigned n, double *x)
 /* compile with -DSOBOLSEQ_TEST for test program */
 #ifdef SOBOLSEQ_TEST
 #include <stdio.h>
-#include <math.h>
 #include <time.h>
 
 /* test integrand from Joe and Kuo paper ... integrates to 1 */

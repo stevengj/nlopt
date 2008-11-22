@@ -1,3 +1,8 @@
+* Workaround for gcc 3.4.x conflict with HUGE_VAL definition in Solaris
+  (gcc bug 19933).
+
+* Better identification of Matlab-plugin installation directory.
+
 NLopt 1.0.1 (13 Nov. 2008)
 
 * Allow user to override Matlab-plugin installation directory with

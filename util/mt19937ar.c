@@ -46,7 +46,6 @@
 */
 
 #include "nlopt-util.h"
-#include "config.h"
 
 #if defined(HAVE_STDINT_H)
 #  include <stdint.h>

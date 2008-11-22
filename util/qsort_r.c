@@ -20,8 +20,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
  */
 
-#include <nlopt-util.h>
-#include "config.h"
+#include "nlopt-util.h"
 
 /* Simple replacement for the BSD qsort_r function (re-entrant sorting),
    if it is not available.  (It looks like glibc 2.8 will include qsort_r

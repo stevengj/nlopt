@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(nlopt, 1.0.1, stevenj@alum.mit.edu)
+AC_INIT(nlopt, 1.0.2, stevenj@alum.mit.edu)
 AC_CONFIG_SRCDIR(api/nlopt.h)
-SHARED_VERSION_INFO="0:1:0" # CURRENT:REVISION:AGE
+SHARED_VERSION_INFO="0:2:0" # CURRENT:REVISION:AGE
 
 AM_INIT_AUTOMAKE(1.7)
 AM_CONFIG_HEADER(config.h)
@@ -164,6 +164,23 @@ AM_CONDITIONAL(WITH_MATLAB, test x"$MEX_INSTALL_DIR" != "x")
 AC_SUBST(MEX_INSTALL_DIR)
 AC_SUBST(MEX)
 AC_SUBST(MEXSUFF)
+
+dnl -----------------------------------------------------------------------
+dnl Check for broken Solaris HUGE_VAL macro under gcc 3.4.x and similar
+
+AC_MSG_CHECKING([for working HUGE_VAL])
+AC_TRY_COMPILE([#include <math.h>], [double x = -HUGE_VAL;], 
+[AC_MSG_RESULT([ok])],
+[AC_TRY_COMPILE([#include <math.h>
+#ifdef __GNUC__
+#undef HUGE_VAL
+#define HUGE_VAL __builtin_huge_val()
+#endif], [double x = -HUGE_VAL;], 
+[AC_MSG_RESULT([__builtin_huge_val()])
+AC_DEFINE(REPLACEMENT_HUGE_VAL,[__builtin_huge_val()],
+          [replacement for broken HUGE_VAL macro, if needed])],
+[AC_MSG_RESULT([unknown])
+AC_MSG_ERROR([broken HUGE_VAL macro with this compiler, unknown workaround])])])
 
 dnl -----------------------------------------------------------------------
 dnl Debugging

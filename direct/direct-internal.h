@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "direct.h"
+#include "nlopt-util.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -28,7 +28,6 @@
 #include "nlopt.h"
 #include "cdirect.h"
 #include "redblack.h"
-#include "config.h"
 
 /* Hybrid algorithm, inspired by DIRECT, that uses another local
  * optimization algorithm within each rectangle, and then looks

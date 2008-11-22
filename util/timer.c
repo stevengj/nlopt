@@ -21,7 +21,6 @@
  */
 
 #include "nlopt-util.h"
-#include "config.h"
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

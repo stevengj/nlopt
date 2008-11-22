@@ -26,6 +26,13 @@
 #include <time.h>
 #include "redblack.h"
 
+#include "config.h"
+/* workaround for Solaris + gcc 3.4.x bug (see configure.ac) */
+#if defined(__GNUC__) && defined(REPLACEMENT_HUGE_VAL)
+#  undef HUGE_VAL
+#  define HUGE_VAL REPLACEMENT_HUGE_VAL
+#endif
+
 static int comp(rb_key k1, rb_key k2)
 {
      if (*k1 < *k2) return -1;
