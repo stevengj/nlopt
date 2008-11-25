@@ -252,11 +252,13 @@ void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 
 /*************************************************************************/
 
-/* same as nlopt_minimize, but xtol_abs is required to be non-NULL */
+/* same as nlopt_minimize_econstrained, 
+   but xtol_abs is required to be non-NULL */
 static nlopt_result nlopt_minimize_(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
+     int p, nlopt_func h, void *h_data, ptrdiff_t h_datum_size,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
@@ -269,7 +271,7 @@ static nlopt_result nlopt_minimize_(
      nlopt_stopping stop;
 
      /* some basic argument checks */
-     if (!minf || !f || n < 0 || m < 0
+     if (!minf || !f || n < 0 || m < 0 || p < 0 || (p > 0 && !h)
 	  || (m > 0 && !fc)) return NLOPT_INVALID_ARGS;
      if (n == 0) { /* trivial case: no degrees of freedom */
 	  *minf = f(n, x, NULL, f_data);
@@ -280,6 +282,10 @@ static nlopt_result nlopt_minimize_(
 
      /* nonlinear constraints are only supported with MMA or COBYLA */
      if (m != 0 && algorithm != NLOPT_LD_MMA && algorithm != NLOPT_LN_COBYLA) 
+	  return NLOPT_INVALID_ARGS;
+
+     /* nonlinear equality constraints (h(x) = 0) not yet supported */
+     if (p != 0)
 	  return NLOPT_INVALID_ARGS;
 
      d.f = f;
@@ -515,6 +521,42 @@ static nlopt_result nlopt_minimize_(
      return NLOPT_SUCCESS;
 }
 
+nlopt_result nlopt_minimize_econstrained(
+     nlopt_algorithm algorithm,
+     int n, nlopt_func f, void *f_data,
+     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
+     int p, nlopt_func h, void *h_data, ptrdiff_t h_datum_size,
+     const double *lb, const double *ub, /* bounds */
+     double *x, /* in: initial guess, out: minimizer */
+     double *minf, /* out: minimum */
+     double minf_max, double ftol_rel, double ftol_abs,
+     double xtol_rel, const double *xtol_abs,
+     int maxeval, double maxtime)
+{
+     nlopt_result ret;
+     if (xtol_abs)
+	  ret = nlopt_minimize_(algorithm, n, f, f_data,
+				m, fc, fc_data, fc_datum_size, 
+				p, h, h_data, h_datum_size,
+				lb, ub,
+				x, minf, minf_max, ftol_rel, ftol_abs,
+				xtol_rel, xtol_abs, maxeval, maxtime);
+     else {
+	  int i;
+	  double *xtol = (double *) malloc(sizeof(double) * n);
+	  if (!xtol) return NLOPT_OUT_OF_MEMORY;
+	  for (i = 0; i < n; ++i) xtol[i] = -1;
+	  ret = nlopt_minimize_(algorithm, n, f, f_data, 
+				m, fc, fc_data, fc_datum_size,
+				p, h, h_data, h_datum_size,
+				lb, ub,
+				x, minf, minf_max, ftol_rel, ftol_abs,
+				xtol_rel, xtol, maxeval, maxtime);
+	  free(xtol);
+     }
+     return ret;
+}
+
 nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
@@ -526,24 +568,11 @@ nlopt_result nlopt_minimize_constrained(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime)
 {
-     nlopt_result ret;
-     if (xtol_abs)
-	  ret = nlopt_minimize_(algorithm, n, f, f_data,
-				m, fc, fc_data, fc_datum_size, lb, ub,
-				x, minf, minf_max, ftol_rel, ftol_abs,
-				xtol_rel, xtol_abs, maxeval, maxtime);
-     else {
-	  int i;
-	  double *xtol = (double *) malloc(sizeof(double) * n);
-	  if (!xtol) return NLOPT_OUT_OF_MEMORY;
-	  for (i = 0; i < n; ++i) xtol[i] = -1;
-	  ret = nlopt_minimize_(algorithm, n, f, f_data, 
-				m, fc, fc_data, fc_datum_size, lb, ub,
-				x, minf, minf_max, ftol_rel, ftol_abs,
-				xtol_rel, xtol, maxeval, maxtime);
-	  free(xtol);
-     }
-     return ret;
+     return nlopt_minimize_econstrained(
+	  algorithm, n, f, f_data, 
+	  m, fc, fc_data, fc_datum_size, 0, NULL, NULL, 0,
+	  lb, ub, x, minf, minf_max, ftol_rel, ftol_abs,
+	  xtol_rel, xtol_abs, maxeval, maxtime);
 }
 
 nlopt_result nlopt_minimize(

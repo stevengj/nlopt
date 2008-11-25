@@ -130,6 +130,18 @@ extern nlopt_result nlopt_minimize_constrained(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 
+extern nlopt_result nlopt_minimize_econstrained(
+     nlopt_algorithm algorithm,
+     int n, nlopt_func f, void *f_data,
+     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
+     int p, nlopt_func h, void *h_data, ptrdiff_t h_datum_size,
+     const double *lb, const double *ub, /* bounds */
+     double *x, /* in: initial guess, out: minimizer */
+     double *minf, /* out: minimum */
+     double minf_max, double ftol_rel, double ftol_abs,
+     double xtol_rel, const double *xtol_abs,
+     int maxeval, double maxtime);
+
 extern void nlopt_srand(unsigned long seed);
 extern void nlopt_srand_time(void);
 
