@@ -25,6 +25,17 @@
 
 #include <stddef.h> /* for ptrdiff_t */
 
+/* for Windows compilers, you should add a line
+           #define NLOPT_DLL
+   when using NLopt from a DLL, in order to do the proper
+   Windows importing nonsense. */
+#if defined(NLOPT_DLL) && (defined(_WIN32) || defined(__WIN32__))
+/* annoying Windows syntax for calling functions in a DLL */
+#  define NLOPT_EXTERN extern __declspec(dllimport)
+#else
+#  define NLOPT_EXTERN extern
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -114,7 +125,7 @@ typedef enum {
      NLOPT_MAXTIME_REACHED = 6
 } nlopt_result;
 
-extern nlopt_result nlopt_minimize(
+NLOPT_EXTERN nlopt_result nlopt_minimize(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      const double *lb, const double *ub, /* bounds */
@@ -124,7 +135,7 @@ extern nlopt_result nlopt_minimize(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 
-extern nlopt_result nlopt_minimize_constrained(
+NLOPT_EXTERN nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
@@ -135,7 +146,7 @@ extern nlopt_result nlopt_minimize_constrained(
      double xtol_rel, const double *xtol_abs,
      int maxeval, double maxtime);
 
-extern nlopt_result nlopt_minimize_econstrained(
+NLOPT_EXTERN nlopt_result nlopt_minimize_econstrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
      int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
@@ -148,15 +159,15 @@ extern nlopt_result nlopt_minimize_econstrained(
      double htol_rel, double htol_abs,
      int maxeval, double maxtime);
 
-extern void nlopt_srand(unsigned long seed);
-extern void nlopt_srand_time(void);
+NLOPT_EXTERN void nlopt_srand(unsigned long seed);
+NLOPT_EXTERN void nlopt_srand_time(void);
 
-extern void nlopt_version(int *major, int *minor, int *bugfix);
+NLOPT_EXTERN void nlopt_version(int *major, int *minor, int *bugfix);
 
-extern void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
+NLOPT_EXTERN void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
 					     nlopt_algorithm *nonderiv,
 					     int *maxeval);
-extern void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
+NLOPT_EXTERN void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 					     nlopt_algorithm nonderiv,
 					     int maxeval);
 
