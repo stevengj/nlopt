@@ -88,8 +88,15 @@ AC_ARG_VAR(OCT_INSTALL_DIR, [where to install GNU Octave .oct plug-ins])
 AC_ARG_VAR(M_INSTALL_DIR, [where to install GNU Octave .m plug-ins])
 AC_ARG_VAR(MKOCTFILE, [name of mkoctfile program to compile Octave plug-ins])
 
+AC_ARG_WITH(octave,
+	[AC_HELP_STRING([--without-octave], [don't compile Octave plugin])],
+        with_octave=$withval,with_octave=yes)
+
 AC_CHECK_PROGS(MKOCTFILE, mkoctfile, echo)
-if test "$MKOCTFILE" = "echo"; then
+
+if test x"$with_octave" = xno; then
+	OCT_INSTALL_DIR=""
+elif test "$MKOCTFILE" = "echo"; then
 	AC_MSG_WARN([can't find mkoctfile: won't be able to compile GNU Octave plugin])
 	OCT_INSTALL_DIR=""
 elif test x"$OCT_INSTALL_DIR" = "x"; then
@@ -123,11 +130,18 @@ AC_SUBST(MKOCTFILE)
 dnl -----------------------------------------------------------------------
 dnl Compiling Matlab plug-in
 
+AC_ARG_WITH(matlab,
+	[AC_HELP_STRING([--without-matlab], [don't compile Matlab plugin])],
+        with_matlab=$withval,with_matlab=yes)
+
 AC_ARG_VAR(MEX_INSTALL_DIR, [where to install Matlab .mex plug-ins])
 AC_ARG_VAR(MEX, [name of mex program to compile Matlab plug-ins])
 AC_CHECK_PROGS(MEX, mex, echo)
-if test "$MEX" = "echo"; then
-	AC_MSG_WARN([can't find mex: won't be able to compile Matlab plugin])
+if test x"$with_matlab" = xno; then
+     MEX_INSTALL_DIR=""
+elif test "$MEX" = "echo"; then
+     AC_MSG_WARN([can't find mex: won't be able to compile Matlab plugin])
+     MEX_INSTALL_DIR=""
 else
      AC_MSG_CHECKING([for extension of compiled mex files])
      rm -f conftest*
