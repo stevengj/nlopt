@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/cdirect -I$(top_srcdir)/direct -I$(top_srcdir)/stogo -I$(top_srcdir)/praxis -I$(top_srcdir)/lbfgs -I$(top_srcdir)/luksan -I$(top_srcdir)/crs -I$(top_srcdir)/mlsl -I$(top_srcdir)/mma -I$(top_srcdir)/cobyla -I$(top_srcdir)/newuoa -I$(top_srcdir)/neldermead -I$(top_srcdir)/util
+AM_CPPFLAGS = -I$(top_srcdir)/cdirect -I$(top_srcdir)/direct -I$(top_srcdir)/stogo -I$(top_srcdir)/praxis -I$(top_srcdir)/lbfgs -I$(top_srcdir)/luksan -I$(top_srcdir)/crs -I$(top_srcdir)/mlsl -I$(top_srcdir)/mma -I$(top_srcdir)/cobyla -I$(top_srcdir)/newuoa -I$(top_srcdir)/neldermead -I$(top_srcdir)/auglag -I$(top_srcdir)/util
 
 include_HEADERS = nlopt.h nlopt.f
 noinst_LTLIBRARIES = libapi.la

@@ -70,6 +70,7 @@ typedef struct {
      double ftol_abs;
      double xtol_rel;
      const double *xtol_abs;
+     double htol_rel, htol_abs;
      int nevals, maxeval;
      double maxtime, start;
 } nlopt_stopping;

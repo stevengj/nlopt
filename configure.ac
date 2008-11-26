@@ -236,6 +236,7 @@ AC_CONFIG_FILES([
    cobyla/Makefile
    newuoa/Makefile
    neldermead/Makefile
+   auglag/Makefile
    test/Makefile
 ])
 

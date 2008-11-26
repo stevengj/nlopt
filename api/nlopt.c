@@ -95,7 +95,11 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)",
      "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)",
      "Nelder-Mead simplex algorithm (local, no-derivative)",
-     "Sbplx variant of Nelder-Mead (re-implementation of Rowan's Subplex) (local, no-derivative)"
+     "Sbplx variant of Nelder-Mead (re-implementation of Rowan's Subplex) (local, no-derivative)",
+     "Augmented Lagrangian method (local, no-derivative)",
+     "Augmented Lagrangian method (local, derivative)",
+     "Augmented Lagrangian method for equality constraints (local, no-derivative)",
+     "Augmented Lagrangian method for equality constraints (local, derivative)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -217,6 +221,12 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "cobyla.h"
 #include "newuoa.h"
 #include "neldermead.h"
+#include "auglag.h"
+
+#define AUGLAG_ALG(a) ((a) == NLOPT_LN_AUGLAG ||	\
+		       (a) == NLOPT_LN_AUGLAG_EQ ||	\
+		       (a) == NLOPT_LD_AUGLAG ||	\
+		       (a) == NLOPT_LD_AUGLAG_EQ)
 
 /*************************************************************************/
 
@@ -264,6 +274,7 @@ static nlopt_result nlopt_minimize_(
      double *minf, /* out: minimum */
      double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
+     double htol_rel, double htol_abs,
      int maxeval, double maxtime)
 {
      int i;
@@ -280,12 +291,13 @@ static nlopt_result nlopt_minimize_(
      else if (n < 0 || !lb || !ub || !x)
 	  return NLOPT_INVALID_ARGS;
 
-     /* nonlinear constraints are only supported with MMA or COBYLA */
-     if (m != 0 && algorithm != NLOPT_LD_MMA && algorithm != NLOPT_LN_COBYLA) 
+     /* nonlinear constraints are only supported with some algorithms */
+     if (m != 0 && algorithm != NLOPT_LD_MMA && algorithm != NLOPT_LN_COBYLA
+	  && !AUGLAG_ALG(algorithm)) 
 	  return NLOPT_INVALID_ARGS;
 
-     /* nonlinear equality constraints (h(x) = 0) not yet supported */
-     if (p != 0)
+     /* nonlinear equality constraints (h(x) = 0) only via some algorithms */
+     if (p != 0 && !AUGLAG_ALG(algorithm))
 	  return NLOPT_INVALID_ARGS;
 
      d.f = f;
@@ -310,6 +322,8 @@ static nlopt_result nlopt_minimize_(
      stop.ftol_abs = ftol_abs;
      stop.xtol_rel = xtol_rel;
      stop.xtol_abs = xtol_abs;
+     stop.htol_rel = htol_rel;
+     stop.htol_abs = htol_abs;
      stop.nevals = 0;
      stop.maxeval = maxeval;
      stop.maxtime = maxtime;
@@ -514,6 +528,24 @@ static nlopt_result nlopt_minimize_(
 	      return ret;
 	 }
 
+	 case NLOPT_LN_AUGLAG:
+	 case NLOPT_LN_AUGLAG_EQ:
+	      return auglag_minimize(n, f, f_data, 
+				     m, fc, fc_data, fc_datum_size,
+				     p, h, h_data, h_datum_size,
+				     lb, ub, x, minf, &stop,
+				     local_search_alg_nonderiv,
+				     algorithm == NLOPT_LN_AUGLAG_EQ);
+
+	 case NLOPT_LD_AUGLAG:
+	 case NLOPT_LD_AUGLAG_EQ:
+	      return auglag_minimize(n, f, f_data, 
+				     m, fc, fc_data, fc_datum_size,
+				     p, h, h_data, h_datum_size,
+				     lb, ub, x, minf, &stop,
+				     local_search_alg_deriv,
+				     algorithm == NLOPT_LD_AUGLAG_EQ);
+
 	 default:
 	      return NLOPT_INVALID_ARGS;
      }
@@ -531,6 +563,7 @@ nlopt_result nlopt_minimize_econstrained(
      double *minf, /* out: minimum */
      double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
+     double htol_rel, double htol_abs,
      int maxeval, double maxtime)
 {
      nlopt_result ret;
@@ -540,7 +573,8 @@ nlopt_result nlopt_minimize_econstrained(
 				p, h, h_data, h_datum_size,
 				lb, ub,
 				x, minf, minf_max, ftol_rel, ftol_abs,
-				xtol_rel, xtol_abs, maxeval, maxtime);
+				xtol_rel, xtol_abs, htol_rel, htol_abs,
+				maxeval, maxtime);
      else {
 	  int i;
 	  double *xtol = (double *) malloc(sizeof(double) * n);
@@ -551,7 +585,8 @@ nlopt_result nlopt_minimize_econstrained(
 				p, h, h_data, h_datum_size,
 				lb, ub,
 				x, minf, minf_max, ftol_rel, ftol_abs,
-				xtol_rel, xtol, maxeval, maxtime);
+				xtol_rel, xtol, htol_rel, htol_abs,
+				maxeval, maxtime);
 	  free(xtol);
      }
      return ret;
@@ -572,7 +607,7 @@ nlopt_result nlopt_minimize_constrained(
 	  algorithm, n, f, f_data, 
 	  m, fc, fc_data, fc_datum_size, 0, NULL, NULL, 0,
 	  lb, ub, x, minf, minf_max, ftol_rel, ftol_abs,
-	  xtol_rel, xtol_abs, maxeval, maxtime);
+	  xtol_rel, xtol_abs, ftol_rel, ftol_abs, maxeval, maxtime);
 }
 
 nlopt_result nlopt_minimize(

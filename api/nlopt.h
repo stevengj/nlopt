@@ -91,6 +91,11 @@ typedef enum {
      NLOPT_LN_NELDERMEAD,
      NLOPT_LN_SBPLX,
 
+     NLOPT_LN_AUGLAG,
+     NLOPT_LD_AUGLAG,
+     NLOPT_LN_AUGLAG_EQ,
+     NLOPT_LD_AUGLAG_EQ,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 
@@ -140,6 +145,7 @@ extern nlopt_result nlopt_minimize_econstrained(
      double *minf, /* out: minimum */
      double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
+     double htol_rel, double htol_abs,
      int maxeval, double maxtime);
 
 extern void nlopt_srand(unsigned long seed);
