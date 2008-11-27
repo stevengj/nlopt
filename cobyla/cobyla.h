@@ -80,6 +80,7 @@ typedef int cobyla_function(int n, int m, double *x, double *f, double *con,
  * minf      : on output, minimum objective function
  * rhobeg    : a reasonable initial change to the variables
  * stop      : the NLopt stopping criteria
+ * lb, ub    : lower and upper bounds on x
  * message   : see the cobyla_message enum
  * calcfc    : the function to minimize (see cobyla_function)
  * state     : used by function (see cobyla_function)
@@ -87,7 +88,7 @@ typedef int cobyla_function(int n, int m, double *x, double *f, double *con,
  * The cobyla function returns the usual nlopt_result codes.
  *
  */
-extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop,
+extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub,
   int message, cobyla_function *calcfc, void *state);
 
 /* NLopt-style interface function */

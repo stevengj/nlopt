@@ -41,6 +41,19 @@ static char const rcsid[] =
 
 #include "cobyla.h"
 
+/* SGJ, 2008: modified COBYLA code to take explicit account of bound
+   constraints.  Since bound constraints are linear, these should
+   already be handled exactly when COBYLA optimizes it linear model.
+   However, they were not handled properly when COBYLA created its
+   initial simplex, or when COBYLA updated unacceptable simplices.
+   Since NLopt guarantees that the objective will not be evaluated
+   outside the bound constraints, this required us to handle such
+   points by putting a slope discontinuity into the objective &
+   constraints (below), which slows convergence considerably for
+   smooth functions.  Instead, handling them explicitly prevents this
+   problem */
+#define ENFORCE_BOUNDS 1
+
 #define min(a,b) ((a) <= (b) ? (a) : (b))
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 #define abs(x) ((x) >= 0 ? (x) : -(x))
@@ -68,7 +81,10 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
      const double *lb = s->lb, *ub = s->ub;
 
      /* in nlopt, we guarante that the function is never evaluated outside
-	the lb and ub bounds, so we need force this with xtmp */
+	the lb and ub bounds, so we need force this with xtmp ... note
+	that this leads to discontinuity in the first derivative, which
+        slows convergence if we don't enable the ENFORCE_BOUNDS feature
+	above. */
      for (j = 0; j < n; ++j) {
 	  if (x[j] < lb[j]) xtmp[j] = lb[j];
 	  else if (x[j] > ub[j]) xtmp[j] = ub[j];
@@ -116,8 +132,14 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 	       ++m;
      }
 
-     ret = cobyla(n, m, x, minf, rhobegin, stop, COBYLA_MSG_NONE, 
+     ret = cobyla(n, m, x, minf, rhobegin, stop, lb, ub, COBYLA_MSG_NONE, 
 		  func_wrap, &s);
+
+     /* make sure e.g. rounding errors didn't push us slightly out of bounds */
+     for (j = 0; j < n; ++j) {
+	  if (x[j] < lb[j]) x[j] = lb[j];
+	  if (x[j] > ub[j]) x[j] = ub[j];
+     }
 
      free(s.xtmp);
      return ret;
@@ -126,7 +148,7 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 /**************************************************************************/
 
 static nlopt_result cobylb(int *n, int *m, int *mpp, double *x, double *minf, double *rhobeg,
-  nlopt_stopping *stop, int *iprint, double *con, double *sim,
+  nlopt_stopping *stop, const double *lb, const double *ub, int *iprint, double *con, double *sim,
   double *simi, double *datmat, double *a, double *vsig, double *veta,
   double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
   void *state);
@@ -136,7 +158,7 @@ static void trstlp(int *n, int *m, double *a, double *b, double *rho,
 
 /* ------------------------------------------------------------------------ */
 
-nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, int iprint,
+nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub, int iprint,
   cobyla_function *calcfc, void *state)
 {
   int icon, isim, isigb, idatm, iveta, isimi, ivsig, iwork, ia, idx, mpp;
@@ -234,6 +256,7 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
   --iact;
   --w;
   --x;
+  --lb; --ub;
 
   /* Function Body */
   mpp = m + 2;
@@ -247,7 +270,7 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
   isigb = iveta + n;
   idx = isigb + n;
   iwork = idx + n;
-  rc = cobylb(&n, &m, &mpp, &x[1], minf, &rhobeg, stop, &iprint,
+  rc = cobylb(&n, &m, &mpp, &x[1], minf, &rhobeg, stop, &lb[1], &ub[1], &iprint,
       &w[icon], &w[isim], &w[isimi], &w[idatm], &w[ia], &w[ivsig], &w[iveta],
       &w[isigb], &w[idx], &w[iwork], &iact[1], calcfc, state);
 
@@ -262,9 +285,10 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
 } /* cobyla */
 
 /* ------------------------------------------------------------------------- */
-static nlopt_result cobylb(int *n, int *m, int *mpp, double 
-    *x, double *minf, double *rhobeg, nlopt_stopping *stop, int *iprint,
-    double *con, double *sim, double *simi, 
+static nlopt_result cobylb(int *n, int *m, int *mpp,
+    double *x, double *minf, double *rhobeg, 
+    nlopt_stopping *stop, const double *lb, const double *ub,
+    int *iprint, double *con, double *sim, double *simi, 
     double *datmat, double *a, double *vsig, double *veta,
      double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
      void *state)
@@ -334,6 +358,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp, double
   --dx;
   --w;
   --iact;
+  --lb; --ub;
 
   /* Function Body */
   iptem = min(*n,4);
@@ -354,14 +379,27 @@ static nlopt_result cobylb(int *n, int *m, int *mpp, double
   temp = 1. / rho;
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
+    double rhocur;
     sim[i__ + np * sim_dim1] = x[i__];
     i__2 = *n;
     for (j = 1; j <= i__2; ++j) {
       sim[i__ + j * sim_dim1] = 0.;
       simi[i__ + j * simi_dim1] = 0.;
     }
-    sim[i__ + i__ * sim_dim1] = rho;
-    simi[i__ + i__ * simi_dim1] = temp;
+    rhocur = rho;
+#if ENFORCE_BOUNDS
+    /* SGJ: make sure step rhocur stays inside [lb,ub] */
+    if (x[i__] + rhocur > ub[i__]) {
+	 if (x[i__] - rhocur >= lb[i__])
+	      rhocur = -rhocur;
+	 else if (ub[i__] - x[i__] > x[i__] - lb[i__])
+	      rhocur = 0.5 * (ub[i__] - x[i__]);
+	 else
+	      rhocur = 0.5 * (x[i__] - lb[i__]);
+    }
+#endif
+    sim[i__ + i__ * sim_dim1] = rhocur;
+    simi[i__ + i__ * simi_dim1] = 1.0 / rhocur;
   }
   jdrop = np;
   ibrnch = 0;
@@ -369,6 +407,9 @@ static nlopt_result cobylb(int *n, int *m, int *mpp, double
 /* Make the next call of the user-supplied subroutine CALCFC. These */
 /* instructions are also used for calling CALCFC during the iterations of */
 /* the algorithm. */
+
+  /* SGJ comment: why the hell couldn't he just use a damn subroutine?
+     #*&!%*@ Fortran-66 spaghetti code */
 
 L40:
   if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
@@ -446,6 +487,10 @@ L40:
     if (datmat[mp + np * datmat_dim1] <= f) {
       x[jdrop] = sim[jdrop + np * sim_dim1];
     } else { /* improvement in function val */
+      double rhocur = x[jdrop] - sim[jdrop + np * sim_dim1];
+      /* SGJ: use rhocur instead of rho.  In original code, rhocur == rho
+              always, but I want to change this to ensure that simplex points
+              fall within [lb,ub]. */
       sim[jdrop + np * sim_dim1] = x[jdrop];
       i__1 = *mpp;
       for (k = 1; k <= i__1; ++k) {
@@ -455,7 +500,7 @@ L40:
       }
       i__1 = jdrop;
       for (k = 1; k <= i__1; ++k) {
-        sim[jdrop + k * sim_dim1] = -rho;
+        sim[jdrop + k * sim_dim1] = -rhocur;
         temp = 0.f;
         i__2 = jdrop;
         for (i__ = k; i__ <= i__2; ++i__) {
@@ -465,9 +510,11 @@ L40:
       }
     }
   }
-  if (stop->nevals <= *n) {
+  if (stop->nevals <= *n) { /* evaluating initial simplex */
     jdrop = stop->nevals;
-    x[jdrop] += rho;
+    /* SGJ: was += rho, but using sim[jdrop,jdrop] enforces consistency
+            if we change the stepsize above to stay in [lb,ub]. */
+    x[jdrop] += sim[jdrop + jdrop * sim_dim1];
     goto L40;
   }
 L130:
@@ -658,6 +705,23 @@ L140:
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
     dx[i__] = dxsign * dx[i__];
+    /* SGJ: make sure dx step says in [lb,ub] */
+#if ENFORCE_BOUNDS
+    {
+	 double xi = sim[i__ + np * sim_dim1];
+    fixdx:
+	 if (xi + dx[i__] > ub[i__])
+	      dx[i__] = -dx[i__];
+	 if (xi + dx[i__] < lb[i__]) {
+	      if (xi - dx[i__] <= ub[i__])
+		   dx[i__] = -dx[i__];
+	      else { /* try again with halved step */
+		   dx[i__] *= 0.5;
+		   goto fixdx;
+	      }
+	 }
+    }
+#endif
     sim[i__ + jdrop * sim_dim1] = dx[i__];
     temp += simi[jdrop + i__ * simi_dim1] * dx[i__];
   }
@@ -694,6 +758,17 @@ L370:
   ivmd = idxnew + *n;
   trstlp(n, m, &a[a_offset], &con[1], &rho, &dx[1], &ifull, &iact[1], &w[
       iz], &w[izdota], &w[ivmc], &w[isdirn], &w[idxnew], &w[ivmd]);
+#if ENFORCE_BOUNDS
+  /* SGJ: since the bound constraints are linear, we should never get
+     a dx that lies outside the [lb,ub] constraints here, but we'll
+     enforce this anyway just to be paranoid */
+  i__1 = *n;
+  for (i__ = 1; i__ <= i__1; ++i__) {
+       double xi = sim[i__ + np * sim_dim1];
+       if (xi + dx[i__] > ub[i__]) dx[i__] = ub[i__] - xi;
+       if (xi + dx[i__] < lb[i__]) dx[i__] = xi - lb[i__];
+  }
+#endif
   if (ifull == 0) {
     temp = 0.;
     i__1 = *n;
@@ -877,7 +952,7 @@ L550:
 
   /* SGJ, 2008: convergence tests for function vals; note that current
      best val is stored in datmat[mp + np * datmat_dim1], or in f if
-     ifull == 1, and prev.  best is in *minf.  This seems like a
+     ifull == 1, and previous best is in *minf.  This seems like a
      sensible place to put the convergence test, as it is the same
      place that Powell checks the x tolerance (rho > rhoend). */
   {

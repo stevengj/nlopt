@@ -29,3 +29,14 @@ It was incorporated into NLopt in 2008 by S. G. Johnson, and kept under
 the same MIT license.  In incorporating it into NLopt, SGJ adapted it
 to include the NLopt stopping conditions (the original code provided
 an x tolerance and a maximum number of function evaluations only).
+
+The original COBYLA did not have explicit support for bound
+constraints; these are included as linear constraints along with any
+other nonlinear constraints.  This is mostly fine---linear constraints
+are handled exactly by COBYLA's linear approximations.  However,
+occasionally COBYLA takes a "simplex" step, either to create the
+initial simplex or to fix a degenerate simplex, and these steps could
+violate the bound constraints.  SGJ modified COBYLA to explicitly
+honor the bound constraints in these cases, so that the
+objective/constraints are never evaluated outside of the bound
+constraints, without slowing convergence.
