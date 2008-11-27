@@ -18,7 +18,7 @@ typedef struct {
      const char *name;
 } testfunc;
 
-#define NTESTFUNCS 21
+#define NTESTFUNCS 22
 extern const testfunc testfuncs[NTESTFUNCS];
 
 extern int testfuncs_verbose;

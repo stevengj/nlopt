@@ -391,6 +391,48 @@ static const double corner4d_ub[4] = {1,1,1,1};
 static const double corner4d_xmin[4] = {0,0,0,0};
 
 /****************************************************************************/
+static double side4d_f(int n, const double *x, double *grad, void *data)
+{
+     UNUSED(data);
+     UNUSED(n);
+     double x0, x1, x2, x3, d0,d1,d2,d3;
+     const double w0 = 0.1, w1 = 0.2, w2 = 0.3, w3 = 0.4;
+     x0 = +0.4977 * x[0] - 0.3153 * x[1] - 0.5066 * x[2] - 0.4391 * x[3];
+     x1 = -0.3153 * x[0] + 0.3248 * x[1] - 0.4382 * x[2] - 0.4096 * x[3];
+     x2 = -0.5066 * x[0] - 0.4382 * x[1] + 0.3807 * x[2] - 0.4543 * x[3];
+     x3 = -0.4391 * x[0] - 0.4096 * x[1] - 0.4543 * x[2] + 0.5667 * x[3];
+
+     d0 = -1. / (x0*x0 + w0*w0);
+     d1 = -1. / (x1*x1 + w1*w1);
+     d2 = -1. / (x2*x2 + w2*w2);
+     d3 = -1. / (x3*x3 + w3*w3);
+
+     if (grad) {
+	  grad[0] = 2 * (x0*d0*d0 * +0.4977 +
+			 x1*d1*d1 * -0.3153 +
+			 x2*d2*d2 * -0.5066 +
+			 x3*d3*d3 * -0.4391);
+	  grad[1] = 2 * (x0*d0*d0 * -0.3153 +
+			 x1*d1*d1 * +0.3248 +
+			 x2*d2*d2 * -0.4382 +
+			 x3*d3*d3 * -0.4096);
+	  grad[2] = 2 * (x0*d0*d0 * -0.5066 +
+			 x1*d1*d1 * -0.4382 +
+			 x2*d2*d2 * +0.3807 +
+			 x3*d3*d3 * -0.4543);
+	  grad[3] = 2 * (x0*d0*d0 * -0.4391 +
+			 x1*d1*d1 * -0.4096 +
+			 x2*d2*d2 * -0.4543 +
+			 x3*d3*d3 * +0.5667);
+     }
+     RETURN(d0 + d1 + d2 + d3);
+}
+
+static const double side4d_lb[4] = {0.1,-1,-1,-1};
+static const double side4d_ub[4] = {1,1,1,1};
+static const double side4d_xmin[4] = {0.1,0.102971169,0.0760520641,-0.0497098571};
+
+/****************************************************************************/
 /****************************************************************************/
 
 const testfunc testfuncs[NTESTFUNCS] = {
@@ -456,5 +498,8 @@ const testfunc testfuncs[NTESTFUNCS] = {
        -1.0, "1d oscillating function with a single minimum" },
      { corner4d_f, NULL, 1, 4,
        corner4d_lb, corner4d_ub, corner4d_xmin,
-       1.0, "4d function with minimum at corner" }
+       1.0, "4d function with minimum at corner" },
+     { side4d_f, NULL, 1, 4,
+       side4d_lb, side4d_ub, side4d_xmin,
+       -141.285020472, "4d function with minimum at side" }
 };

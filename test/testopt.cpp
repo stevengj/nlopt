@@ -149,7 +149,7 @@ static int test_function(int ifunc)
     f0 = func.f(func.n, x, x + func.n, func.f_data);
     printf("Starting function value = %g\n", f0);
     
-    if (iter > 0 && testfuncs_verbose && func.has_gradient) {
+    if (iter == 0 && testfuncs_verbose && func.has_gradient) {
       printf("checking gradient:\n");
       for (i = 0; i < func.n; ++i) {
 	double f;
