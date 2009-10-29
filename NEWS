@@ -1,3 +1,9 @@
+NLopt 1.1
+
+* Workaround for incompatible qsort_r functions in BSD and GNU libc
+  by always using my own version; thanks to Wendy Vandoolaeghe
+  and Philippe Preux for the bug report and explanation.
+
 * Workaround for gcc 3.4.x conflict with HUGE_VAL definition in Solaris
   (gcc bug 19933).
 

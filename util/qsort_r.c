@@ -23,15 +23,19 @@
 #include "nlopt-util.h"
 
 /* Simple replacement for the BSD qsort_r function (re-entrant sorting),
-   if it is not available.  (It looks like glibc 2.8 will include qsort_r
-   as well.) 
+   if it is not available.
+
+   (glibc 2.8 included a qsort_r function as well, but totally
+   *%&$#-ed things up by gratuitously changing the argument order, in
+   such a way as to allow code using the BSD ordering to compile but
+   die a flaming death at runtime.  Damn them all to Hell, I'll just
+   use my own implementation.)
 
    (Actually, with glibc 2.3.6 on my Intel Core Duo, my implementation
-   below seems to be significantly faster than qsort.  Go figure.
-   Even so, I'd rather use the libc version of qsort_r if it is available,
-   on general principles, and to reduce code bloat.) */
+   below seems to be significantly faster than qsort.  Go figure.)
+*/
 
-#ifndef HAVE_QSORT_R
+#ifndef HAVE_QSORT_R_damn_it_use_my_own
 /* swap size bytes between a_ and b_ */
 static void swap(void *a_, void *b_, size_t size)
 {
@@ -63,7 +67,11 @@ static void swap(void *a_, void *b_, size_t size)
 void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk,
 		   int (*compar)(void *, const void *, const void *))
 {
-#ifdef HAVE_QSORT_R
+#ifdef HAVE_QSORT_R_damn_it_use_my_own
+     /* Even if we could detect glibc vs. BSD by appropriate
+	macrology, there is no way to make the calls compatible
+	without writing a wrapper for the compar function...screw
+	this. */
      qsort_r(base_, nmemb, size, thunk, compar);
 #else
      char *base = (char *) base_;
