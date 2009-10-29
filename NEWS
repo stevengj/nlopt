@@ -1,4 +1,4 @@
-NLopt 1.1
+NLopt 1.1 (28 October 2009)
 
 * Added --without-octave and --without-matlab configure options to
   disable Octave and Matlab plugins, respectively.
@@ -21,6 +21,9 @@ NLopt 1.1
   (gcc bug 19933).
 
 * Better identification of Matlab-plugin installation directory.
+
+* Fixed identification of Octave-plugin installation directory for
+  recent Octave versions.
 
 NLopt 1.0.1 (13 Nov. 2008)
 
