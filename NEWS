@@ -1,5 +1,10 @@
 NLopt 1.1 (28 October 2009)
 
+* configure script detects whether --enable-shared is required
+  in order to compile Matlab and Octave plugins (as is the case
+  on x86_64), and disables compilation of those plugins if
+  --enable-shared is not used.
+
 * Added --without-octave and --without-matlab configure options to
   disable Octave and Matlab plugins, respectively.
 

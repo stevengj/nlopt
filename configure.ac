@@ -141,6 +141,28 @@ elif test x"$OCT_INSTALL_DIR" = "x"; then
 		OCT_INSTALL_DIR=""
 	fi
 fi
+
+if test x"$OCT_INSTALL_DIR" != "x"; then
+if test "$enable_shared" = no; then
+     AC_MSG_CHECKING([whether mkoctfile can link with static objects])
+     rm -f conftest*
+     echo 'void foo(void) {};' > conftestfoo.c
+     $CC -c conftestfoo.c >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD
+     cat > conftest.cc <<EOF
+#include <octave/oct.h>
+extern "C" void foo(void);
+DEFUN_DLD(foobar, args, nargout, "foo bar") { foo(); }
+EOF
+     if $MKOCTFILE conftest.cc conftestfoo.o >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
+	AC_MSG_RESULT(yes)
+     else
+	AC_MSG_RESULT(no)
+        AC_MSG_WARN([mkoctfile requires --enable-shared; won't compile Octave plugin])
+	OCT_INSTALL_DIR=""
+     fi
+fi
+fi
+
 AM_CONDITIONAL(WITH_OCTAVE, test x"$OCT_INSTALL_DIR" != "x")
 AC_SUBST(OCT_INSTALL_DIR)
 AC_SUBST(M_INSTALL_DIR)
@@ -169,28 +191,54 @@ else
 void mexFunction(int nlhs, mxArray *plhs[[]],
                  int nrhs, const mxArray *prhs[[]]) { }
 EOF
-     if $MEX conftest.c; then
+     if $MEX conftest.c >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
         MEXSUFF=`ls conftest.m* | head -1 | cut -d'.' -f2`
 	AC_MSG_RESULT($MEXSUFF)
 	AC_CHECK_PROGS(MATLAB, matlab, echo)
      else
-           AC_MSG_WARN([$MEX failed to compile a simple file; won't compile Matlab plugin])
+        AC_MSG_WARN([$MEX failed to compile a simple file; won't compile Matlab plugin])
+	MEX_INSTALL_DIR=""
 	MATLAB=echo
      fi
 
-     if test x"$MEX_INSTALL_DIR" = "x"; then
+     if test x"$MATLAB" != xecho; then
+     if test "$enable_shared" = no; then
+     AC_MSG_CHECKING([whether mex can link with static objects])
+     rm -f conftest*
+     echo 'void foo(void) {};' > conftestfoo.c
+     $CC -c conftestfoo.c >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD
+     cat > conftest.c <<EOF
+#include <mex.h>
+extern void foo(void);
+void mexFunction(int nlhs, mxArray *plhs[[]],
+                 int nrhs, const mxArray *prhs[[]]) { foo(); }
+EOF
+     if $MEX conftest.c conftestfoo.o >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD; then
+	AC_MSG_RESULT(yes)
+     else
+	AC_MSG_RESULT(no)
+        AC_MSG_WARN([mex requires --enable-shared; won't compile Matlab plugin])
+	MEX_INSTALL_DIR=""
+	MATLAB=echo
+     fi
+     fi
+     fi
+
+     if test x"$MATLAB" != xecho; then
        # try to find installation directory
-       if test x"$MATLAB" != xecho; then
+       if test x"$MEX_INSTALL_DIR" = "x"; then
           AC_MSG_CHECKING(for MATLAB mex installation dir)
 	  MEX_INSTALL_DIR=`matlab -nodisplay -nodesktop -nojvm -r 'path;quit' | grep toolbox/local |sed 's,^[[^/]]*,,g' |sort |head -1`
 	  AC_MSG_RESULT($MEX_INSTALL_DIR)
 	  if test x`basename "$MEX_INSTALL_DIR"` != xlocal; then
 	     MEX_INSTALL_DIR=""
 	  fi
-        fi
-     fi
-     if test x"$MEX_INSTALL_DIR" = "x"; then
-         AC_MSG_WARN([can't find reasonable Matlab installation directory; Matlab plugins will not be compiled unless you manually specify MEX_INSTALL_DIR])
+          if test x"$MEX_INSTALL_DIR" = "x"; then
+            AC_MSG_WARN([can't find reasonable Matlab installation directory; Matlab plugins will not be compiled unless you manually specify MEX_INSTALL_DIR])
+          fi
+       else
+	  MEX_INSTALL_DIR=""
+       fi
      fi
 fi
 AM_CONDITIONAL(WITH_MATLAB, test x"$MEX_INSTALL_DIR" != "x")
