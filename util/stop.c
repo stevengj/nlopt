@@ -29,7 +29,8 @@ static int relstop(double old, double new, double reltol, double abstol)
 {
      if (nlopt_isinf(old)) return 0;
      return(fabs(new - old) < abstol 
-	    || fabs(new - old) < reltol * (fabs(new) + fabs(old)) * 0.5);
+	    || fabs(new - old) < reltol * (fabs(new) + fabs(old)) * 0.5
+	    || (reltol > 0 && new == old)); /* catch new == old == 0 case */
 }
 
 int nlopt_stop_ftol(const nlopt_stopping *s, const double f, double oldf)
