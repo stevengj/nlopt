@@ -169,7 +169,7 @@ static int test_function(int ifunc)
 			 maxeval, maxtime);
     printf("finished after %g seconds.\n", nlopt_seconds() - start);
     printf("return code %d from nlopt_minimize\n", ret);
-    if (ret < 0) {
+    if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED) {
       fprintf(stderr, "testopt: error in nlopt_minimize\n");
       return 0;
     }

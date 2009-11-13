@@ -116,6 +116,7 @@ typedef enum {
      NLOPT_FAILURE = -1, /* generic failure code */
      NLOPT_INVALID_ARGS = -2,
      NLOPT_OUT_OF_MEMORY = -3,
+     NLOPT_ROUNDOFF_LIMITED = -4,
 
      NLOPT_SUCCESS = 1, /* generic success code */
      NLOPT_MINF_MAX_REACHED = 2,

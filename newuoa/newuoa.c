@@ -486,7 +486,7 @@ L170:
 /*************************************************************************/
 /* bigden.f */
 
-static void bigden_(int *n, int *npt, double *xopt, 
+static nlopt_result bigden_(int *n, int *npt, double *xopt, 
 		    double *xpt, double *bmat, double *zmat, int *idz, 
 		    int *ndim, int *kopt, int *knew, double *d__, 
 		    double *w, double *vlag, double *beta, double *s, 
@@ -634,6 +634,7 @@ static void bigden_(int *n, int *npt, double *xopt,
 /* L40: */
 		    sstemp += diff * diff;
 		}
+		if (sstemp == 0) return NLOPT_ROUNDOFF_LIMITED;
 		if (dstemp * dstemp / sstemp < dtest) {
 		    ksav = k;
 		    dtest = dstemp * dstemp / sstemp;
@@ -658,6 +659,7 @@ static void bigden_(int *n, int *npt, double *xopt,
 
 L70:
     ++iterc;
+    if (ssden < 0) return NLOPT_ROUNDOFF_LIMITED;
     temp = one / sqrt(ssden);
     xoptd = zero;
     xopts = zero;
@@ -666,6 +668,7 @@ L70:
 	s[i__] = temp * (dd * s[i__] - ds * d__[i__]);
 	xoptd += xopt[i__] * d__[i__];
 /* L80: */
+	if (nlopt_isinf(s[i__])) return NLOPT_ROUNDOFF_LIMITED;
 	xopts += xopt[i__] * s[i__];
     }
 
@@ -960,6 +963,8 @@ L70:
 /* L310: */
 	    sum += xpt[k + j * xpt_dim1] * w[j];
 	}
+	if (nlopt_isinf(tau * w[*n + k]) ||
+	    nlopt_isinf(alpha * vlag[k])) return NLOPT_ROUNDOFF_LIMITED;
 	temp = (tau * w[*n + k] - alpha * vlag[k]) * sum;
 	i__2 = *n;
 	for (i__ = 1; i__ <= i__2; ++i__) {
@@ -1004,7 +1009,7 @@ L340:
 	}
     }
     vlag[*kopt] += one;
-    return;
+    return NLOPT_SUCCESS;
 } /* bigden_ */
 
 /*************************************************************************/
@@ -1132,6 +1137,7 @@ static nlopt_result biglag_(int *n, int *npt, double *xopt,
 	for (k = 1; k <= i__2; ++k) {
 /* L20: */
 	    hcol[k] += temp * zmat[k + j * zmat_dim1];
+	    if (nlopt_isinf(hcol[k])) return NLOPT_ROUNDOFF_LIMITED;
 	}
     }
     *alpha = hcol[*knew];
@@ -2063,12 +2069,15 @@ L120:
     if (knew > 0) {
 /* Computing 2nd power */
 	d__1 = vlag[knew];
+	if (d__1 == 0) { rc = NLOPT_ROUNDOFF_LIMITED; goto L530; }
 	temp = one + alpha * beta / (d__1 * d__1);
 	if (fabs(temp) <= .8) {
+	  rc2 = 
 	    bigden_(n, npt, &xopt[1], &xpt[xpt_offset], &bmat[bmat_offset], &
 		    zmat[zmat_offset], &idz, ndim, &kopt, &knew, &d__[1], &w[
 		    1], &vlag[1], &beta, &xnew[1], &w[*ndim + 1], &w[*ndim * 
 		    6 + 1], &xbase[1], lb, ub);
+	  if (rc2 < 0) { rc = rc2; goto L530; }
 	}
     }
 
@@ -2080,6 +2089,13 @@ L290:
 	xnew[i__] = xopt[i__] + d__[i__];
 /* L300: */
 	x[i__] = xbase[i__] + xnew[i__];
+    }
+    if (lb && ub) { /* SGJ, 2008: make sure we are within bounds,
+		       since roundoff errors can push us slightly outside */
+	 for (j = 1; j <= i__1; ++j) {
+	      if (x[j] < lb[j-1]) x[j] = lb[j-1];
+	      else if (x[j] > ub[j-1]) x[j] = ub[j-1];
+	 }
     }
     ++nf;
 L310:
