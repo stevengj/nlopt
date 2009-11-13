@@ -1,4 +1,4 @@
-NLopt 1.1 (28 October 2009)
+NLopt 1.1 (12 November 2009)
 
 * configure script detects whether --enable-shared is required
   in order to compile Matlab and Octave plugins (as is the case
@@ -11,12 +11,21 @@ NLopt 1.1 (28 October 2009)
 * Modified COBYLA algorithm to have better support for bound
   constraints.
 
+* Added new NLOPT_ROUNDOFF_LIMITED failure code to indicate
+  cases in which optimization breaks down due to roundoff errors,
+  in which case it is possible that useful results were obtained.
+
 * Experimental support for nonlinear equality constraints via
   augmented-Lagrangian method.
 
 * Support for compiling under Windows (ideally with MinGW) as a 
   DLL, although you have to manually add #define NLOPT_DLL
   to nlopt.h *after* installing (after compiling NLopt).
+
+* Added several checks for roundoff-related breakdown to NEWUOA code.
+
+* When only a relative error tolerance is specified, no longer
+  fails to halt when exact convergence to zero is obtained.
 
 * Workaround for incompatible qsort_r functions in BSD and GNU libc
   by always using my own version; thanks to Wendy Vandoolaeghe
