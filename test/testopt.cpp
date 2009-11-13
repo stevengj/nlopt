@@ -12,6 +12,13 @@
 #  include <getopt.h>
 #endif
 
+#define USE_FEENABLEEXCEPT 0
+#if USE_FEENABLEEXCEPT
+#  include <fenv.h>
+extern "C" int feenableexcept (int EXCEPTS);
+#endif
+
+
 #include "nlopt.h"
 #include "nlopt-util.h"
 #include "testfuncs.h"
@@ -237,6 +244,10 @@ int main(int argc, char **argv)
   
   if (argc <= 1)
     usage(stdout);
+
+#if USE_FEENABLEEXCEPT
+  feenableexcept(FE_INVALID);
+#endif
   
   while ((c = getopt(argc, argv, "hLvCc0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
     switch (c) {
