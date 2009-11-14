@@ -13,6 +13,6 @@ if MAINTAINER_MODE
 
 nlopt.f: nlopt.h
 	rm -f $@
-	(i=0; egrep 'NLOPT_[LG][DN]' $(srcdir)/nlopt.h | tr -d ' =0,' | while read n; do echo "      integer $$n"; echo "      parameter ($$n=$$i)"; i=`expr $$i + 1`; done; tail -n +`grep -n enum $(srcdir)/nlopt.h |cut -d: -f1 |tail -n 1` $(srcdir)/nlopt.h  | grep NLOPT | cut -d, -f1 | tr -d ' ' | perl -pe 's/([A-Za-z0-9_]+)=([-+0-9]+)/      integer \1\n      parameter (\1=\2)/') > $@
+	(i=0; egrep 'NLOPT_[LG][DN]' $(srcdir)/nlopt.h | tr -d ' =0,' | while read n; do echo "      integer $$n"; echo "      parameter ($$n=$$i)"; i=`expr $$i + 1`; done; tail -n +`grep -n enum $(srcdir)/nlopt.h |cut -d: -f1 |tail -n 1` $(srcdir)/nlopt.h  | grep NLOPT | grep -v NLOPT_EXTERN | cut -d, -f1 | tr -d ' ' | perl -pe 's/([A-Za-z0-9_]+)=([-+0-9]+)/      integer \1\n      parameter (\1=\2)/') > $@
 
 endif
