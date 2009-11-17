@@ -2578,10 +2578,12 @@ L360:
     if (ntrits == -1) {
 	fsave = f;
 	rc = NLOPT_XTOL_REACHED;
+	if (fsave < fval[kopt]) { *minf = f; return rc; }
 	goto L720;
     }
 
     if (f < stop->minf_max) {
+      *minf = f;
       return NLOPT_MINF_MAX_REACHED;
     }
 
@@ -2809,6 +2811,10 @@ L360:
 		gopt[i__] += temp * xpt[k + i__ * xpt_dim1];
 	    }
 	}
+	if (nlopt_stop_ftol(stop, f, fopt)) {
+             rc = NLOPT_FTOL_REACHED;
+	     goto L720;
+        }
     }
 
 /*     Calculate the parameters of the least Frobenius norm interpolant to */
