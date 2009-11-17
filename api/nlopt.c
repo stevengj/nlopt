@@ -100,6 +100,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Augmented Lagrangian method (local, derivative)",
      "Augmented Lagrangian method for equality constraints (local, no-derivative)",
      "Augmented Lagrangian method for equality constraints (local, derivative)",
+     "BOBYQA bound-constrained optimization via quadratic models (local, no-derivative)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -222,6 +223,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "newuoa.h"
 #include "neldermead.h"
 #include "auglag.h"
+#include "bobyqa.h"
 
 #define AUGLAG_ALG(a) ((a) == NLOPT_LN_AUGLAG ||	\
 		       (a) == NLOPT_LN_AUGLAG_EQ ||	\
@@ -510,6 +512,10 @@ static nlopt_result nlopt_minimize_(
 				     
 	 case NLOPT_LN_NEWUOA_BOUND:
 	      return newuoa(n, 2*n+1, x, lb, ub, initial_step(n, lb, ub, x),
+			    &stop, minf, f_noderiv, &d);
+
+	 case NLOPT_LN_BOBYQA:
+	      return bobyqa(n, 2*n+1, x, lb, ub, initial_step(n, lb, ub, x),
 			    &stop, minf, f_noderiv, &d);
 
 	 case NLOPT_LN_NELDERMEAD: 

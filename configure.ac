@@ -318,6 +318,7 @@ AC_CONFIG_FILES([
    newuoa/Makefile
    neldermead/Makefile
    auglag/Makefile
+   bobyqa/Makefile
    test/Makefile
 ])
 
