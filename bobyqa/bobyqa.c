@@ -2747,6 +2747,12 @@ L360:
 /* L500: */
 	    suma += zmat[knew + jj * zmat_dim1] * zmat[k + jj * zmat_dim1];
 	}
+	if (nlopt_isinf(suma)) {
+	  /* SGJ: detect singularity here (happend if we run
+	     for too many iterations) ... is there another way to recover? */
+	  rc = NLOPT_ROUNDOFF_LIMITED;
+	  goto L720;
+	}
 	sumb = zero;
 	i__2 = *n;
 	for (j = 1; j <= i__2; ++j) {

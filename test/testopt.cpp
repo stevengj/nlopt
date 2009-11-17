@@ -210,8 +210,11 @@ static int test_function(int ifunc)
     printf("Minimum at x = [");
     for (i = 0; i < func.n; ++i) printf(" %g", x[i]);
     printf("]\n");
-    printf("|f - minf| = %g, |f - minf| / |minf| = %e\n",
-	   fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));
+    if (func.minf == 0)
+      printf("|f - minf| = %g\n", fabs(minf - func.minf));
+    else
+      printf("|f - minf| = %g, |f - minf| / |minf| = %e\n",
+	     fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));
     total_err += fabs(minf - func.minf);
     if (fabs(minf - func.minf) > max_err)
       max_err = fabs(minf - func.minf);
