@@ -3,6 +3,11 @@ functions with and without gradient information.  It is designed as
 as simple, unified interface and packaging of several free/open-source
 nonlinear optimization libraries.
 
+The latest version and a complete manual may be found at the NLopt
+home page:
+
+     http://ab-initio.mit.edu/nlopt
+
 It is compiled and installed with the standard GNU autoconf/automake
 commands:
 	./configure
