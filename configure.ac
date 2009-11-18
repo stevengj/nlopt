@@ -236,9 +236,9 @@ EOF
           if test x"$MEX_INSTALL_DIR" = "x"; then
             AC_MSG_WARN([can't find reasonable Matlab installation directory; Matlab plugins will not be compiled unless you manually specify MEX_INSTALL_DIR])
           fi
-       else
-	  MEX_INSTALL_DIR=""
        fi
+     else
+	MEX_INSTALL_DIR=""
      fi
 fi
 AM_CONDITIONAL(WITH_MATLAB, test x"$MEX_INSTALL_DIR" != "x")
