@@ -52,6 +52,7 @@ extern unsigned long nlopt_time_seed(void);
 extern void nlopt_init_genrand(unsigned long s);
 extern double nlopt_urand(double a, double b);
 extern int nlopt_iurand(int n);
+extern double nlopt_nrand(double mean, double stddev);
 
 /* Sobol' low-discrepancy-sequence generation */
 typedef struct nlopt_soboldata_s *nlopt_sobol;

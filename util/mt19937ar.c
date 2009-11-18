@@ -10,7 +10,8 @@
 
    Modified 2007 by Steven G. Johnson for use with NLopt (to avoid
    namespace pollution, use uint32_t instead of unsigned long,
-   and add the urand function).
+   and add the urand function).  Modified 2009 to add normal-distributed
+   random numbers.
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
@@ -29,15 +30,16 @@
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+   FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
+   COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+   HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+   STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+   OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
    Any feedback is very welcome.
@@ -204,6 +206,26 @@ double nlopt_urand(double a, double b)
 int nlopt_iurand(int n)
 {
      return(nlopt_genrand_int32() % n);
+}
+
+/* normal-distributed random numbers with the given mean and std. deviation,
+   added by SGJ */
+double nlopt_nrand(double mean, double stddev)
+{
+  // Box-Muller algorithm to generate Gaussian from uniform
+  // see Knuth vol II algorithm P, sec. 3.4.1
+  double v1, v2, s;
+  do {
+    v1 = nlopt_urand(-1, 1);
+    v2 = nlopt_urand(-1, 1);
+    s = v1*v1 + v2*v2;
+  } while (s >= 1.0);
+  if (s == 0) {
+    return mean;
+  }
+  else {
+    return mean + v1 * sqrt(-2 * log(s) / s) * stddev;
+  }
 }
 
 #if 0

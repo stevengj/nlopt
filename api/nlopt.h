@@ -109,6 +109,8 @@ typedef enum {
 
      NLOPT_LN_BOBYQA,
 
+     NLOPT_GN_ISRES,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

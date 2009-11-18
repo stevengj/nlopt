@@ -319,6 +319,7 @@ AC_CONFIG_FILES([
    neldermead/Makefile
    auglag/Makefile
    bobyqa/Makefile
+   isres/Makefile
    test/Makefile
 ])
 

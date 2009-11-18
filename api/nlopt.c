@@ -101,6 +101,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Augmented Lagrangian method for equality constraints (local, no-derivative)",
      "Augmented Lagrangian method for equality constraints (local, derivative)",
      "BOBYQA bound-constrained optimization via quadratic models (local, no-derivative)",
+     "ISRES evolutionary constrained optimization (global, no-derivative)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
@@ -224,6 +225,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 #include "neldermead.h"
 #include "auglag.h"
 #include "bobyqa.h"
+#include "isres.h"
 
 #define AUGLAG_ALG(a) ((a) == NLOPT_LN_AUGLAG ||	\
 		       (a) == NLOPT_LN_AUGLAG_EQ ||	\
@@ -295,11 +297,11 @@ static nlopt_result nlopt_minimize_(
 
      /* nonlinear constraints are only supported with some algorithms */
      if (m != 0 && algorithm != NLOPT_LD_MMA && algorithm != NLOPT_LN_COBYLA
-	  && !AUGLAG_ALG(algorithm)) 
+	  && !AUGLAG_ALG(algorithm) && algorithm != NLOPT_GN_ISRES) 
 	  return NLOPT_INVALID_ARGS;
 
      /* nonlinear equality constraints (h(x) = 0) only via some algorithms */
-     if (p != 0 && !AUGLAG_ALG(algorithm))
+     if (p != 0 && !AUGLAG_ALG(algorithm) && algorithm != NLOPT_GN_ISRES)
 	  return NLOPT_INVALID_ARGS;
 
      d.f = f;
@@ -551,6 +553,13 @@ static nlopt_result nlopt_minimize_(
 				     lb, ub, x, minf, &stop,
 				     local_search_alg_deriv,
 				     algorithm == NLOPT_LD_AUGLAG_EQ);
+
+	 case NLOPT_GN_ISRES:
+	      return isres_minimize(n, f, f_data, 
+				    m, fc, fc_data, fc_datum_size,
+				    p, h, h_data, h_datum_size,
+				    lb, ub, x, minf, &stop,
+				    0);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;
