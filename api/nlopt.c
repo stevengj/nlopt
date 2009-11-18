@@ -304,6 +304,8 @@ static nlopt_result nlopt_minimize_(
      if (p != 0 && !AUGLAG_ALG(algorithm) && algorithm != NLOPT_GN_ISRES)
 	  return NLOPT_INVALID_ARGS;
 
+     *minf = HUGE_VAL;
+
      d.f = f;
      d.f_data = f_data;
      d.lb = lb;
