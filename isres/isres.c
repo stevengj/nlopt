@@ -212,29 +212,31 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 	       }
 	  }
 	  memcpy(x0, xs, n * sizeof(double));
-	  for (k = 0; k+1 < survivors; ++k) { /* differential variation */
-	       int rk = irank[k];
-	       for (j = 0; j < n; ++j)
-		    xs[rk*n+j] += GAMMA * (x0[j] - xs[(k+1)*n+j]);
-	  }
-	  /* standard mutation for last survivor and for any
-	     survivor components that are now outside the bounds */
-	  for (k = 0; k < survivors; ++k) {
+	  for (k = 0; k < survivors; ++k) { /* differential variation */
 	       double taup_rand = taup * nlopt_nrand(0,1);
 	       int rk = irank[k];
-	       for (j = 0; j < n; ++j) if (k == survivors - 1
-					   || xs[rk*n+j] < lb[j]
-					   || xs[rk*n+j] > ub[j]) {
-		    double sigmamax = (ub[j] - lb[j]) / sqrt(n);
+	       for (j = 0; j < n; ++j) {
 		    double xi = xs[rk*n+j];
-		    double sigi = sigmas[rk*n+j];
-		    sigmas[rk*n+j] *= exp(taup_rand + tau*nlopt_nrand(0,1));
-		    if (sigmas[rk*n+j] > sigmamax)
-			 sigmas[rk*n+j] = sigmamax;
-		    do {
-			 xs[rk*n+j] = xi + sigmas[rk*n+j] * nlopt_nrand(0,1);
-		    } while (xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]);
-		    sigmas[rk*n+j] = sigi + ALPHA * (sigmas[rk*n+j] - sigi);
+		    if (k+1 < survivors)
+			 xs[rk*n+j] += GAMMA * (x0[j] - xs[(k+1)*n+j]);
+		    if (k+1 == survivors
+			|| xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]) {
+			 /* standard mutation for last survivor and
+			    for any survivor components that are now
+			    outside the bounds */
+			 double sigmamax = (ub[j] - lb[j]) / sqrt(n);
+			 double sigi = sigmas[rk*n+j];
+			 sigmas[rk*n+j] *= exp(taup_rand 
+					       + tau*nlopt_nrand(0,1));
+			 if (sigmas[rk*n+j] > sigmamax)
+			      sigmas[rk*n+j] = sigmamax;
+			 do {
+			      xs[rk*n+j] = xi 
+				   + sigmas[rk*n+j] * nlopt_nrand(0,1);
+			 } while (xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]);
+			 sigmas[rk*n+j] = sigi 
+			      + ALPHA * (sigmas[rk*n+j] - sigi);
+		    }
 	       }
 	  }
      }
