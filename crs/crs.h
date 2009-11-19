@@ -36,6 +36,7 @@ nlopt_result crs_minimize(int n, nlopt_func f, void *f_data,
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
 			  nlopt_stopping *stop,
+			  int population, /* initial population (0=default) */
 			  int random); /* random or low-discrepancy seq. */
 
 #ifdef __cplusplus

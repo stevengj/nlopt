@@ -176,6 +176,9 @@ NLOPT_EXTERN void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 					     nlopt_algorithm nonderiv,
 					     int maxeval);
 
+NLOPT_EXTERN int nlopt_get_stochastic_population(void);
+NLOPT_EXTERN void nlopt_set_stochastic_population(int pop);
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

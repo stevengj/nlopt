@@ -283,12 +283,19 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 			   nlopt_stopping *stop,
 			   nlopt_algorithm local_alg,
 			   int local_maxeval,
+			   int Nsamples, /* #samples/iteration (0=default) */
 			   int lds) /* random or low-discrepancy seq. (lds) */
 {
      nlopt_result ret = NLOPT_SUCCESS;
      mlsl_data d;
      int i;
      pt *p;
+
+     if (!Nsamples)
+	  d.N = 4; /* FIXME: what is good number of samples per iteration? */
+     else
+	  d.N = Nsamples;
+     if (d.N < 1) return NLOPT_INVALID_ARGS;
 
      d.n = n;
      d.lb = lb; d.ub = ub;
@@ -300,7 +307,6 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
      d.local_alg = local_alg; d.local_maxeval = local_maxeval;
 
      d.gamma = MLSL_GAMMA;
-     d.N = 4; /* FIXME: what is good number of samples per iteration? */
 
      d.R_prefactor = sqrt(2./K2PI) * pow(gam(n) * MLSL_SIGMA, 1.0/n);
      for (i = 0; i < n; ++i)
@@ -319,7 +325,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
      if (!p) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 
      /* FIXME: how many sobol points to skip, if any? */
-     nlopt_sobol_skip(d.s, (unsigned) (10*n+1), p->x);
+     nlopt_sobol_skip(d.s, (unsigned) (10*n+d.N), p->x);
 
      memcpy(p->x, x, n * sizeof(double));
      p->f = f(n, x, NULL, f_data);

@@ -266,6 +266,19 @@ void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 
 /*************************************************************************/
 
+/* For stochastic algorithms, there is often an initial "population"
+   size to seed the search.  Like above, we let the user
+   call nlopt_{set/get}_stochastic_population in order to get/set the
+   defaults.  The special stochastic population size of "0" means
+   that the optimization algorithm should pick its default population. */
+
+static int stochastic_population = 0;
+
+int nlopt_get_stochastic_population(void) { return stochastic_population; }
+void nlopt_set_stochastic_population(int pop) { stochastic_population = pop; }
+
+/*************************************************************************/
+
 /* same as nlopt_minimize_econstrained, 
    but xtol_abs is required to be non-NULL */
 static nlopt_result nlopt_minimize_(
@@ -477,7 +490,8 @@ static nlopt_result nlopt_minimize_(
 				 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
 
 	 case NLOPT_GN_CRS2_LM:
-	      return crs_minimize(n, f, f_data, lb, ub, x, minf, &stop, 0);
+	      return crs_minimize(n, f, f_data, lb, ub, x, minf, &stop, 
+				  stochastic_population, 0);
 
 	 case NLOPT_GN_MLSL:
 	 case NLOPT_GD_MLSL:
@@ -497,6 +511,7 @@ static nlopt_result nlopt_minimize_(
 				   ? local_search_alg_nonderiv
 				   : local_search_alg_deriv,
 				   local_search_maxeval,
+				   stochastic_population,
 				   algorithm >= NLOPT_GN_MLSL_LDS);
 
 	 case NLOPT_LD_MMA:
@@ -561,7 +576,7 @@ static nlopt_result nlopt_minimize_(
 				    m, fc, fc_data, fc_datum_size,
 				    p, h, h_data, h_datum_size,
 				    lb, ub, x, minf, &stop,
-				    0);
+				    stochastic_population);
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

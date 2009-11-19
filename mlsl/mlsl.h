@@ -38,6 +38,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 			   nlopt_stopping *stop,
                            nlopt_algorithm local_alg,
                            int local_maxeval,
+			   int Nsamples, /* #samples/iteration (0=default) */
                            int lds);
 
 #ifdef __cplusplus

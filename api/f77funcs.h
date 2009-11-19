@@ -103,3 +103,12 @@ void F77(nlosls,NLOSLS)(int *ideriv, int *inonderiv, int *maxeval)
      nlopt_algorithm nonderiv = (nlopt_algorithm) *inonderiv;
      nlopt_set_local_search_algorithm(deriv, nonderiv, *maxeval);
 }
+
+void F77(nlogsp,NLOGSP)(int *pop)
+{
+     *pop = nlopt_get_stochastic_population();
+}
+void F77(nlossp,NLOSSP)(const int *pop)
+{
+     nlopt_set_stochastic_population(*pop);
+}

@@ -164,14 +164,20 @@ static void crs_destroy(crs_data *d)
 static nlopt_result crs_init(crs_data *d, int n, const double *x,
 			     const double *lb, const double *ub,
 			     nlopt_stopping *stop, nlopt_func f, void *f_data,
-			     int lds)
+			     int population, int lds)
 {
      int i;
 
-     /* TODO: how should we set the initial population size? 
-	the Kaelo and Ali paper suggests 10*(n+1), but should
-	we add more random points if maxeval is large, or... ? */
-     d->N = 10 * (n + 1); /* heuristic initial population size */
+     if (!population) {
+	  /* TODO: how should we set the default population size? 
+	     the Kaelo and Ali paper suggests 10*(n+1), but should
+	     we add more random points if maxeval is large, or... ? */
+	  d->N = 10 * (n + 1); /* heuristic initial population size */
+     }
+     else
+	  d->N = population;
+     if (d->N < n + 1) /* population must be big enough for a simplex */
+	  return NLOPT_INVALID_ARGS;
 
      d->n = n;
      d->stop = stop;
@@ -223,13 +229,14 @@ nlopt_result crs_minimize(int n, nlopt_func f, void *f_data,
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
 			  nlopt_stopping *stop,
+			  int population, /* initial population (0=default) */
 			  int lds) /* random or low-discrepancy seq. (lds) */
 {
      nlopt_result ret;
      crs_data d;
      rb_node *best;
 
-     ret = crs_init(&d, n, x, lb, ub, stop, f, f_data, lds);
+     ret = crs_init(&d, n, x, lb, ub, stop, f, f_data, population, lds);
      if (ret < 0) return ret;
      
      best = rb_tree_min(&d.t);
