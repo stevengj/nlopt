@@ -83,6 +83,8 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
      double minf_penalty = HUGE_VAL, minf_gpenalty = HUGE_VAL;
      double taup, tau;
 
+     *minf = HUGE_VAL;
+
      if (!population) population = 20 * (n + 1);
      if (population < 1) return NLOPT_INVALID_ARGS;
      survivors = ceil(population * SURVIVOR);
@@ -149,11 +151,13 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 		   && (penalty[k] != minf_penalty || fval[k] != *minf)) {
 		    if (fval[k] < stop->minf_max && penalty[k] == 0) 
 			 ret = NLOPT_MINF_MAX_REACHED;
-		    else if (nlopt_stop_f(stop, fval[k], *minf)
+		    else if (!nlopt_isinf(*minf)) {
+			 if (nlopt_stop_f(stop, fval[k], *minf)
 			     && nlopt_stop_f(stop, penalty[k], minf_penalty))
-                         ret = NLOPT_FTOL_REACHED;
-                    else if (nlopt_stop_x(stop, xs+k*n, x))
-			 ret = NLOPT_XTOL_REACHED;
+			      ret = NLOPT_FTOL_REACHED;
+			 else if (nlopt_stop_x(stop, xs+k*n, x))
+			      ret = NLOPT_XTOL_REACHED;
+		    }
 		    memcpy(x, xs+k*n, sizeof(double)*n);
 		    *minf = fval[k];
 		    minf_penalty = penalty[k];
