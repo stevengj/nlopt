@@ -1,3 +1,21 @@
+NLopt 1.2 (18 November 2009)
+
+* Added Powell's BOBYQA algorithm for box-constrained optimization
+  without derivatives, an improvement on NEWUOA.
+
+* Added ISRES genetic algorithm, supporting nonlinearly constrained
+  global optimization.
+
+* New functions nlopt_{set/get}_stochastic_population to provide
+  optional greater control over the random "population" sizes in
+  stochastic algorithms (although it still has a sensible default).
+
+* Bug fix: remove extraneous text accidentally included in nlopt.f Fortran
+  include file.
+
+* Bug fix: configure script now correctly handles Matlab installation
+  when MEX_INSTALL_DIR is specified manually by the user.
+
 NLopt 1.1 (12 November 2009)
 
 * configure script detects whether --enable-shared is required
