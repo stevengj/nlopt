@@ -80,7 +80,7 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
      int *irank = 0;
      int k, i, j, c;
      int mp = m + p;
-     double minf_penalty = HUGE_VAL;
+     double minf_penalty = HUGE_VAL, minf_gpenalty = HUGE_VAL;
      double taup, tau;
 
      if (!population) population = 20 * (n + 1);
@@ -120,26 +120,32 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 
 	  /* evaluate f and constraint violations for whole population */
 	  for (k = 0; k < population; ++k) {
-	       double gval;
+	       double gpenalty;
 	       stop->nevals++;
 	       fval[k] = f(n, xs + k*n, NULL, f_data);
 	       penalty[k] = 0;
 	       for (c = 0; c < m; ++c) { /* inequality constraints */
-		    gval = fc(n, xs + k*n, NULL, 
-			      fc_data + c * fc_datum_size);
+		    double gval = fc(n, xs + k*n, NULL, 
+				     fc_data + c * fc_datum_size);
 		    if (gval < 0) gval = 0;
 		    penalty[k] += gval*gval;
 	       }
+	       gpenalty = penalty[k];
 	       for (c = m; c < mp; ++c) { /* equality constraints */
-		    gval = h(n, xs + k*n, NULL, 
-			     h_data + (c-m) * h_datum_size);
-		    penalty[k] += gval*gval;
+		    double hval = h(n, xs + k*n, NULL, 
+				    h_data + (c-m) * h_datum_size);
+		    penalty[k] += hval*hval;
 	       }
 	       if (penalty[k] > 0) all_feasible = 0;
 
 	       /* convergence criteria (FIXME: improve?) */
 
-	       if (penalty[k] <= minf_penalty && fval[k] <= *minf
+	       /* FIXME: with equality constraints, how do
+		  we decide which solution is the "best" so far?
+		  ... need some total order on the solutions? */
+
+	       if (penalty[k] <= minf_penalty
+		   && (fval[k] <= *minf || minf_gpenalty > 0)
 		   && (penalty[k] != minf_penalty || fval[k] != *minf)) {
 		    if (fval[k] < stop->minf_max && penalty[k] == 0) 
 			 ret = NLOPT_MINF_MAX_REACHED;
@@ -151,6 +157,7 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 		    memcpy(x, xs+k*n, sizeof(double)*n);
 		    *minf = fval[k];
 		    minf_penalty = penalty[k];
+		    minf_gpenalty = gpenalty;
 		    if (ret != NLOPT_SUCCESS) goto done;
 	       }
 
