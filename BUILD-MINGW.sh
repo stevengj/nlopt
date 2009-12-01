@@ -32,5 +32,5 @@ i586-mingw32msvc-gcc --version |head -1 >> README-WINDOWS
 nlopt_vers=`grep PACKAGE_VERSION config.h |cut -d" " -f3 |tr -d \"`
 zip=nlopt-${nlopt_vers}-dll.zip
 rm -f $zip
-zip -vj $zip mingw/bin/*.dll mingw/bin/*.exe octave/*.m mingw/nlopt_minimize_constrained.c
-zip -vjgl $zip mingw/bin/*.def mingw/include/* README COPYING COPYRIGHT NEWS README-WINDOWS
+zip -vj $zip mingw/bin/*.dll mingw/bin/*.exe
+zip -vjgl $zip mingw/bin/*.def mingw/include/* README COPYING COPYRIGHT NEWS README-WINDOWS  # octave/*.m mingw/nlopt_minimize_constrained.c
