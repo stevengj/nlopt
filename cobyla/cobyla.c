@@ -238,13 +238,13 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
   }
 
   /* workspace allocation */
-  w = malloc((n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
+  w = (double*) malloc((n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
   if (w == NULL)
   {
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
     return NLOPT_OUT_OF_MEMORY;
   }
-  iact = malloc((m+1)*sizeof(*iact));
+  iact = (int*)malloc((m+1)*sizeof(*iact));
   if (iact == NULL)
   {
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");

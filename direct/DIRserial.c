@@ -19,7 +19,7 @@
 	FILE *logfile, doublereal *f, integer *free, integer *maxi, 
 	integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
 	minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
-	integer *maxdeep, integer *oops, doublereal *fmax, integer *
+	const integer *maxdeep, integer *oops, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfesiblef, void *fcn_data)
 {
     /* System generated locals */

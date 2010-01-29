@@ -152,7 +152,7 @@ static double function_eval(const double *x, params *p) {
 static nlopt_result divide_rect(double *rdiv, params *p)
 {
      int i;
-     const const int n = p->n;
+     const int n = p->n;
      const int L = p->L;
      double *c = rdiv + 3; /* center of rect to divide */
      double *w = c + n; /* widths of rect to divide */

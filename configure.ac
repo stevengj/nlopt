@@ -28,6 +28,8 @@ AC_PROG_CXX
 if test "x$with_cxx" = xyes; then
    AC_DEFINE([WITH_CXX], 1, [Define if compiled including C++-based routines])
    NLOPT_SUFFIX="_cxx"
+   CC=$CXX
+   CFLAGS=$CXXFLAGS
 fi
 AC_SUBST(NLOPT_SUFFIX)
 
@@ -286,6 +288,9 @@ if test $ac_cv_prog_gcc = yes; then
    fi
    if test "$ac_test_CXXFLAGS" != "set"; then
       CXXFLAGS="$CXXFLAGS -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -pedantic -Wshadow -Wwrite-strings -Wredundant-decls -Wundef -Wconversion"
+   fi
+   if test "x$with_cxx" = xyes; then
+      CFLAGS=$CXXFLAGS
    fi
 fi
 fi

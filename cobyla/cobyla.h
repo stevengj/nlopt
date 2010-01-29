@@ -40,6 +40,11 @@
 #include "nlopt.h"
 #include "nlopt-util.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
 /*
  * Verbosity level
  */

@@ -99,8 +99,8 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ void direct_dirchoose_(integer *anchor, integer *s, integer *actdeep,
 	 doublereal *f, doublereal *minf, doublereal epsrel, doublereal epsabs, doublereal *thirds,
-	 integer *maxpos, integer *length, integer *maxfunc, integer *maxdeep,
-	 integer *maxdiv, integer *n, FILE *logfile,
+	 integer *maxpos, integer *length, integer *maxfunc, const integer *maxdeep,
+	 const integer *maxdiv, integer *n, FILE *logfile,
 	integer *cheat, doublereal *kmax, integer *ifeasiblef, integer jones)
 {
     /* System generated locals */
@@ -274,8 +274,8 @@ L40:
 /* |             return to the main program with an error.                 | */
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ void direct_dirdoubleinsert_(integer *anchor, integer *s, integer *
-	maxpos, integer *point, doublereal *f, integer *maxdeep, integer *
-	maxfunc, integer *maxdiv, integer *ierror)
+	maxpos, integer *point, doublereal *f, const integer *maxdeep, integer *
+	maxfunc, const integer *maxdiv, integer *ierror)
 {
     /* System generated locals */
     integer s_dim1, s_offset, i__1;
@@ -410,7 +410,7 @@ L1010:
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ static void dirresortlist_(integer *replace, integer *anchor, 
 	doublereal *f, integer *point, integer *length, integer *n, integer *
-	maxfunc, integer *maxdim, integer *maxdeep, FILE *logfile,
+	maxfunc, integer *maxdim, const integer *maxdeep, FILE *logfile,
 					    integer jones)
 {
     /* System generated locals */
@@ -522,7 +522,7 @@ L40:
 /* Subroutine */ void direct_dirreplaceinf_(integer *free, integer *freeold, 
 	doublereal *f, doublereal *c__, doublereal *thirds, integer *length, 
 	integer *anchor, integer *point, doublereal *c1, doublereal *c2, 
-	integer *maxfunc, integer *maxdeep, integer *maxdim, integer *n, 
+	integer *maxfunc, const integer *maxdeep, integer *maxdim, integer *n, 
 	FILE *logfile, doublereal *fmax, integer jones)
 {
     /* System generated locals */
@@ -699,7 +699,7 @@ L40:
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ void direct_dirinsertlist_(integer *new__, integer *anchor, integer *
 	point, doublereal *f, integer *maxi, integer *length, integer *
-	maxfunc, integer *maxdeep, integer *n, integer *samp,
+	maxfunc, const integer *maxdeep, integer *n, integer *samp,
 					    integer jones)
 {
     /* System generated locals */
@@ -867,7 +867,7 @@ L50:
 	FILE *logfile, doublereal *f, integer *free, 
 	integer *maxi, integer *point, doublereal *x, doublereal *l,
 	 doublereal *minf, integer *minpos, doublereal *u, integer *n, 
-	integer *maxfunc, integer *maxdeep, integer *oops)
+	integer *maxfunc, const integer *maxdeep, integer *oops)
 {
     /* System generated locals */
     integer length_dim1, length_offset, c_dim1, c_offset, i__1, i__2;
@@ -938,7 +938,7 @@ L50:
 /* Subroutine */ void direct_dirdivide_(integer *new__, integer *currentlength, 
 	integer *length, integer *point, integer *arrayi, integer *sample, 
 	integer *list2, doublereal *w, integer *maxi, doublereal *f, integer *
-	maxfunc, integer *maxdeep, integer *n)
+	maxfunc, const integer *maxdeep, integer *n)
 {
     /* System generated locals */
     integer length_dim1, length_offset, list2_dim1, list2_offset, i__1, i__2;
@@ -1145,7 +1145,7 @@ L50:
 	integer *free, FILE *logfile, integer *arrayi, 
 	integer *maxi, integer *list2, doublereal *w, doublereal *x, 
 	doublereal *l, doublereal *u, doublereal *minf, integer *minpos, 
-	doublereal *thirds, doublereal *levels, integer *maxfunc, integer *
+	doublereal *thirds, doublereal *levels, integer *maxfunc, const integer *
 	maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfeasible, integer *ierror, void *fcndata,
 				      integer jones)
@@ -1302,7 +1302,7 @@ L50:
 /* |    Initialise the list.                                               | */
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ void direct_dirinitlist_(integer *anchor, integer *free, integer *
-	point, doublereal *f, integer *maxfunc, integer *maxdeep)
+	point, doublereal *f, integer *maxfunc, const integer *maxdeep)
 {
     /* System generated locals */
     integer i__1;
@@ -1421,7 +1421,7 @@ L50:
 /* Subroutine */ void direct_dirheader_(FILE *logfile, integer *version, 
 	doublereal *x, integer *n, doublereal *eps, integer *maxf, integer *
 	maxt, doublereal *l, doublereal *u, integer *algmethod, integer *
-	maxfunc, integer *maxdeep, doublereal *fglobal, doublereal *fglper, 
+	maxfunc, const integer *maxdeep, doublereal *fglobal, doublereal *fglper, 
 	integer *ierror, doublereal *epsfix, integer *iepschange, doublereal *
 	volper, doublereal *sigmaper)
 {

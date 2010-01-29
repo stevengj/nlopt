@@ -25,12 +25,12 @@
 
 /* utility routines to implement the various stopping criteria */
 
-static int relstop(double old, double new, double reltol, double abstol)
+static int relstop(double vold, double vnew, double reltol, double abstol)
 {
-     if (nlopt_isinf(old)) return 0;
-     return(fabs(new - old) < abstol 
-	    || fabs(new - old) < reltol * (fabs(new) + fabs(old)) * 0.5
-	    || (reltol > 0 && new == old)); /* catch new == old == 0 case */
+     if (nlopt_isinf(vold)) return 0;
+     return(fabs(vnew - vold) < abstol 
+	    || fabs(vnew - vold) < reltol * (fabs(vnew) + fabs(vold)) * 0.5
+	    || (reltol > 0 && vnew == vold)); /* catch vnew == vold == 0 */
 }
 
 int nlopt_stop_ftol(const nlopt_stopping *s, const double f, double oldf)
