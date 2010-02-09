@@ -98,10 +98,10 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
 void luksan_pyadc0__(int *nf, int *n, double *x, 
 		     int *ix, double *xl, double *xu, int *inew);
 void luksan_pyfut1__(int *n, double *f, double *
-		     fo, double *umax, double *gmax, double *dmax__, 
-		     double *tolx, double *tolf, double *tolb, double *
-		     tolg, int *kd, int *nit, int *kit, int *mit, int *
-		     nfv, int *mfv, int *nfg, int *mfg, int *ntesx, 
+		     fo, double *umax, double *gmax,
+		     int xstop, const nlopt_stopping *stop,
+		     double *tolg, int *kd, int *nit, int *kit, int *mit,
+		     int *nfg, int *mfg, int *ntesx, 
 		     int *mtesx, int *ntesf, int *mtesf, int *ites, 
 		     int *ires1, int *ires2, int *irest, int *iters, 
 		     int *iterm);

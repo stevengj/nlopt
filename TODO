@@ -1,6 +1,3 @@
-Modify luksan code (e.g. luksan/plis.c) to use full NLopt stopping
-criteria, and in particular the absolute tolerances and maxtime.
-
 Python interface.
 
 SLSQP routine from scipy.

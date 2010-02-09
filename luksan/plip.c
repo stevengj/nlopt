@@ -141,6 +141,7 @@ static void plip_(int *nf, int *nb, double *x, int *
     double eps8, eps9;
     int meta, mred, nred, iold;
     double maxf, dmax__;
+    int xstop = 0;
     int inew;
     double told;
     int ites;
@@ -282,8 +283,8 @@ static void plip_(int *nf, int *nb, double *x, int *
     ++stat_1->nfg;
 L11120:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
-    luksan_pyfut1__(nf, f, &fo, &umax, gmax, &dmax__, tolx, tolf, tolb, tolg, 
-	    &kd, &stat_1->nit, &kit, mit, &stop->nevals, mfv, &stat_1->nfg, &mfg, 
+    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg, 
+	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, &mfg, 
 	    &ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
 	    iters, iterm);
     if (*iterm != 0) {
@@ -399,6 +400,7 @@ L11174:
     luksan_mxuneg__(nf, &go[1], &s[1], &ix[1], &kbf);
     luksan_pytrcd__(nf, &x[1], &ix[1], &xo[1], &gf[1], &go[1], &r__, f, &fo, &
 	    p, &po, &dmax__, &kbf, &kd, &ld, &iters);
+    xstop = nlopt_stop_dx(stop, &x[1], &xo[1]);
     luksan_mxucop__(nf, &gf[1], &so[1], &ix[1], &kbf);
     if (nn < *mf) {
 	luksan_pulsp3__(nf, &nn, mf, &xm[1], &gr[1], &xo[1], &go[1], &r__, &

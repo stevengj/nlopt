@@ -79,6 +79,8 @@ extern int nlopt_stop_f(const nlopt_stopping *stop, double f, double oldf);
 extern int nlopt_stop_ftol(const nlopt_stopping *stop, double f, double oldf);
 extern int nlopt_stop_x(const nlopt_stopping *stop, 
 			const double *x, const double *oldx);
+extern int nlopt_stop_dx(const nlopt_stopping *stop, 
+			 const double *x, const double *dx);
 extern int nlopt_stop_xs(const nlopt_stopping *stop, 
 			 const double *xs, const double *oldxs,
 			 const double *scale_min, const double *scale_max);

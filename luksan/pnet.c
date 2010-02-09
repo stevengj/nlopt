@@ -160,6 +160,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
     double rho1, rho2, eps8, eps9;
     int mred, iold, nred;
     double maxf, dmax__;
+    int xstop = 0;
     int inew;
     double told;
     int ites;
@@ -304,8 +305,8 @@ static void pnet_(int *nf, int *nb, double *x, int *
 L11020:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
     luksan_mxvcop__(nf, &gf[1], &gn[1]);
-    luksan_pyfut1__(nf, f, &fo, &umax, gmax, &dmax__, tolx, tolf, tolb, tolg, 
-	    &kd, &stat_1->nit, &kit, mit, &stop->nevals, mfv, &stat_1->nfg, mfg, &
+    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg, 
+	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, mfg, &
 	    ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
 	    iters, iterm);
     if (*iterm != 0) {
@@ -540,6 +541,7 @@ L11064:
     }
     luksan_pytrcd__(nf, &x[1], &ix[1], &xo[1], &gf[1], &go[1], &r__, f, &fo, &
 	    p, &po, &dmax__, &kbf, &kd, &ld, &iters);
+    xstop = nlopt_stop_dx(stop, &x[1], &xo[1]);
     if (*mos2 > 1) {
 /* Computing MIN */
 	i__1 = mx + 1;

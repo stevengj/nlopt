@@ -866,11 +866,11 @@ void luksan_pyadc0__(int *nf, int *n, double *x,
 *         ITERATIONS. ITERM=12-TERMINATION AFTER MAXIMUM NUMBER OF
 *         COMPUTED FUNCTION VALUES.
 */
-void luksan_pyfut1__(int *n, double *f, double *
-	fo, double *umax, double *gmax, double *dmax__, 
-	double *tolx, double *tolf, double *tolb, double *
-	tolg, int *kd, int *nit, int *kit, int *mit, int *
-	nfv, int *mfv, int *nfg, int *mfg, int *ntesx, 
+void luksan_pyfut1__(int *n, double *f, double *fo, double *umax, 
+		     double *gmax, int xstop, /* double *dmax__,  */
+		     const nlopt_stopping *stop,
+		     double *tolg, int *kd, int *nit, int *kit, int *mit, 
+		     int *nfg, int *mfg, int *ntesx, 
 	int *mtesx, int *ntesf, int *mtesf, int *ites, 
 	int *ires1, int *ires2, int *irest, int *iters, 
 	int *iterm)
@@ -879,9 +879,6 @@ void luksan_pyfut1__(int *n, double *f, double *
     double d__1, d__2;
 
     /* Builtin functions */
-
-    /* Local variables */
-    double temp;
 
     if (*iterm < 0) {
 	return;
@@ -897,7 +894,7 @@ void luksan_pyfut1__(int *n, double *f, double *
 	d__1 = sqrt((fabs(*f))), d__2 = fabs(*f) / 10.;
 	*fo = *f + min(d__1,d__2);
     }
-    if (*f <= *tolb) {
+    if (*f <= stop->minf_max /* *tolb */) {
 	*iterm = 3;
 	return;
     }
@@ -911,7 +908,7 @@ void luksan_pyfut1__(int *n, double *f, double *
 	*ntesx = 0;
 	*ntesf = 0;
     }
-    if (*dmax__ <= *tolx) {
+    if (xstop) /* (*dmax__ <= *tolx) */ {
 	*iterm = 1;
 	++(*ntesx);
 	if (*ntesx >= *mtesx) {
@@ -920,10 +917,7 @@ void luksan_pyfut1__(int *n, double *f, double *
     } else {
 	*ntesx = 0;
     }
-/* Computing MAX */
-    d__2 = fabs(*f);
-    temp = (d__1 = *fo - *f, fabs(d__1)) / max(d__2,1.);
-    if (temp <= *tolf) {
+    if (nlopt_stop_ftol(stop, *f, *fo)) {
 	*iterm = 2;
 	++(*ntesf);
 	if (*ntesf >= *mtesf) {
@@ -937,7 +931,7 @@ L1:
 	*iterm = 11;
 	return;
     }
-    if (*nfv >= *mfv) {
+    if (nlopt_stop_evals(stop)) /* (*nfv >= *mfv) */ {
 	*iterm = 12;
 	return;
     }
