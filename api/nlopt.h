@@ -25,15 +25,29 @@
 
 #include <stddef.h> /* for ptrdiff_t */
 
+/* use stdcall convention under Windows, since this seems to
+   be more standard there and is important for calling from .NET */
+#if defined(_WIN32) || defined(__WIN32__)
+#  if defined(__GNUC__)
+#    define NLOPT_STDCALL __attribute__((stdcall))
+#  elif defined(_MSC_VER) || defined(_ICC) || defined(_STDCALL_SUPPORTED)
+#    define NLOPT_STDCALL __stdcall
+#  else
+#    define NLOPT_STDCALL
+#  endif
+#else
+#  define NLOPT_STDCALL
+#endif
+
 /* for Windows compilers, you should add a line
            #define NLOPT_DLL
    when using NLopt from a DLL, in order to do the proper
    Windows importing nonsense. */
 #if defined(NLOPT_DLL) && (defined(_WIN32) || defined(__WIN32__))
 /* annoying Windows syntax for calling functions in a DLL */
-#  define NLOPT_EXTERN extern __declspec(dllimport)
+#  define NLOPT_EXTERN extern __declspec(dllimport) NLOPT_STDCALL
 #else
-#  define NLOPT_EXTERN extern
+#  define NLOPT_EXTERN extern NLOPT_STDCALL
 #endif
 
 #ifdef __cplusplus
