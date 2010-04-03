@@ -54,10 +54,8 @@ static int key_compare(void *keys_, const void *a_, const void *b_)
 }
 
 nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
-			    int m, nlopt_func fc, /* fc <= 0 constraints */
-			    void *fc_data_, ptrdiff_t fc_datum_size,
-			    int p, nlopt_func h, /* h == 0 constraints */
-			    void *h_data_, ptrdiff_t h_datum_size,
+			    int m, nlopt_constraint *fc, /* fc <= 0 */
+			    int p, nlopt_constraint *h, /* h == 0 */
 			    const double *lb, const double *ub, /* bounds */
 			    double *x, /* in: initial guess, out: minimizer */
 			    double *minf,
@@ -71,8 +69,6 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
      const double SURVIVOR = 1.0/7.0; /* survivor fraction, from paper */
      int survivors;
      nlopt_result ret = NLOPT_SUCCESS;
-     char *fc_data = (char *) fc_data_;
-     char *h_data = (char *) h_data_;
      double *sigmas = 0, *xs; /* population-by-n arrays (row-major) */
      double *fval; /* population array of function vals */
      double *penalty; /* population array of penalty vals */
@@ -122,20 +118,21 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 
 	  /* evaluate f and constraint violations for whole population */
 	  for (k = 0; k < population; ++k) {
+	       int feasible = 1;
 	       double gpenalty;
 	       stop->nevals++;
 	       fval[k] = f(n, xs + k*n, NULL, f_data);
 	       penalty[k] = 0;
 	       for (c = 0; c < m; ++c) { /* inequality constraints */
-		    double gval = fc(n, xs + k*n, NULL, 
-				     fc_data + c * fc_datum_size);
+		    double gval = fc[c].f(n, xs + k*n, NULL, fc[c].f_data);
+		    if (gval > fc[c].tol) feasible = 0;
 		    if (gval < 0) gval = 0;
 		    penalty[k] += gval*gval;
 	       }
 	       gpenalty = penalty[k];
 	       for (c = m; c < mp; ++c) { /* equality constraints */
-		    double hval = h(n, xs + k*n, NULL, 
-				    h_data + (c-m) * h_datum_size);
+		    double hval = h[c-m].f(n, xs + k*n, NULL, h[c-m].f_data);
+		    if (fabs(hval) > h[c-m].tol) feasible = 0;
 		    penalty[k] += hval*hval;
 	       }
 	       if (penalty[k] > 0) all_feasible = 0;
@@ -146,22 +143,24 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 		  we decide which solution is the "best" so far?
 		  ... need some total order on the solutions? */
 
-	       if (penalty[k] <= minf_penalty
+	       if ((penalty[k] <= minf_penalty || feasible)
 		   && (fval[k] <= *minf || minf_gpenalty > 0)
-		   && (penalty[k] != minf_penalty || fval[k] != *minf)) {
-		    if (fval[k] < stop->minf_max && penalty[k] == 0) 
+		   && ((feasible ? 0 : penalty[k]) != minf_penalty
+		       || fval[k] != *minf)) {
+		    if (fval[k] < stop->minf_max && feasible) 
 			 ret = NLOPT_MINF_MAX_REACHED;
 		    else if (!nlopt_isinf(*minf)) {
 			 if (nlopt_stop_f(stop, fval[k], *minf)
-			     && nlopt_stop_f(stop, penalty[k], minf_penalty))
+			     && nlopt_stop_f(stop, feasible ? 0 : penalty[k], 
+					     minf_penalty))
 			      ret = NLOPT_FTOL_REACHED;
 			 else if (nlopt_stop_x(stop, xs+k*n, x))
 			      ret = NLOPT_XTOL_REACHED;
 		    }
 		    memcpy(x, xs+k*n, sizeof(double)*n);
 		    *minf = fval[k];
-		    minf_penalty = penalty[k];
-		    minf_gpenalty = gpenalty;
+		    minf_penalty = feasible ? 0 : penalty[k];
+		    minf_gpenalty = feasible ? 0 : gpenalty;
 		    if (ret != NLOPT_SUCCESS) goto done;
 	       }
 

@@ -1,0 +1,82 @@
+/* Copyright (c) 2007-2009 Massachusetts Institute of Technology
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ */
+
+#ifndef NLOPT_INTERNAL_H
+#define NLOPT_INTERNAL_H
+
+#include "nlopt.h"
+#include "nlopt-util.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+/*********************************************************************/
+
+struct nlopt_opt_s {
+     nlopt_algorithm algorithm; /* the optimization algorithm (immutable) */
+     int n; /* the dimension of the problem (immutable) */
+
+     nlopt_func f; void *f_data; /* objective function to minimize */
+
+     double *lb, *ub; /* lower and upper bounds (length n) */
+
+     int m; /* number of inequality constraints */
+     int m_alloc; /* number of inequality constraints allocated */
+     nlopt_constraint *fc; /* inequality constraints, length m_alloc */
+
+     int p; /* number of equality constraints */
+     int p_alloc; /* number of inequality constraints allocated */
+     nlopt_constraint *h; /* equality constraints, length p_alloc */
+
+     /* stopping criteria */
+     double minf_max; /* stop when f < minf_max */
+     double ftol_rel, ftol_abs; /* relative/absolute f tolerances */
+     double xtol_rel, *xtol_abs; /* rel/abs x tolerances */
+     int maxeval; /* max # evaluations */
+     double maxtime; /* max time (seconds) */
+
+     /* algorithm-specific parameters */
+     nlopt_opt local_opt; /* local optimizer */
+     int stochastic_population; /* population size for stochastic algs */
+     double *dx; /* initial step sizes (length n) for nonderivative algs */
+};
+
+/*********************************************************************/
+extern int nlopt_srand_called; /* whether the random seed is initialized */
+
+/*********************************************************************/
+/* global defaults set by deprecated API: */
+
+extern nlopt_algorithm nlopt_local_search_alg_deriv;
+extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
+extern int nlopt_local_search_maxeval;
+extern int nlopt_stochastic_population;
+
+/*********************************************************************/
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif /* __cplusplus */
+
+#endif /* NLOPT_INTERNAL_H */

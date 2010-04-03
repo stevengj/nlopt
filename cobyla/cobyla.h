@@ -98,8 +98,7 @@ extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg,
 
 /* NLopt-style interface function */
 nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
-                             int m, nlopt_func fc,
-                             void *fc_data_, ptrdiff_t fc_datum_size,
+                             int m, nlopt_constraint *fc,
                              const double *lb, const double *ub, /* bounds */
                              double *x, /* in: initial guess, out: minimizer */
                              double *minf,

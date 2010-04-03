@@ -34,15 +34,13 @@ extern "C"
 extern int auglag_verbose;
 
 nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
-			     int m, nlopt_func fc,
-			     void *fc_data, ptrdiff_t fc_datum_size,
-			     int p, nlopt_func h,
-			     void *h_data, ptrdiff_t h_datum_size,
+			     int m, nlopt_constraint *fc,
+			     int p, nlopt_constraint *h,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
 			     nlopt_stopping *stop,
-			     nlopt_algorithm sub_alg, int sub_has_fc);
+			     nlopt_opt sub_opt, int sub_has_fc);
 
 #ifdef __cplusplus
 }  /* extern "C" */

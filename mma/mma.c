@@ -146,21 +146,18 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
    function returns NaN, that constraint becomes inactive. */
 
 nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
-			  int m, nlopt_func fc,
-			  void *fc_data_, ptrdiff_t fc_datum_size,
+			  int m, nlopt_constraint *fc,
 			  const double *lb, const double *ub, /* bounds */
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
 			  nlopt_stopping *stop,
-			  nlopt_algorithm dual_alg, 
-			  double dual_tolrel, int dual_maxeval)
+			  nlopt_opt dual_opt)
 {
      nlopt_result ret = NLOPT_SUCCESS;
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
      double *dfcdx, *dfcdx_cur;
      double *fcval, *fcval_cur, *rhoc, *gcval, *y, *dual_lb, *dual_ub;
      int i, j, k = 0;
-     char *fc_data = (char *) fc_data_;
      dual_data dd;
      int feasible;
      double infeasibility;
@@ -213,7 +210,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
      feasible = 1; infeasibility = 0;
      for (i = 0; i < m; ++i) {
-	  fcval[i] = fc(n, x, dfcdx + i*n, fc_data + fc_datum_size * i);
+	  fcval[i] = fc[i].f(n, x, dfcdx + i*n, fc[i].f_data);
 	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
 	  if (fcval[i] > infeasibility) infeasibility = fcval[i];
      }
@@ -230,6 +227,10 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	but this is easier to implement and at least as efficient. */
      if (!feasible)
 	  for (i = 0; i < m; ++i) dual_ub[i] = 1e40;
+
+     nlopt_set_min_objective(dual_opt, dual_func, &dd);
+     nlopt_set_lower_bounds(dual_opt, dual_lb);
+     nlopt_set_upper_bounds(dual_opt, dual_ub);
 
      while (1) { /* outer iterations */
 	  double fprev = fcur;
@@ -248,25 +249,13 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
 	       /* solve dual problem */
 	       dd.rho = rho; dd.count = 0;
-	  dual_solution:
 	       save_verbose = mma_verbose;
-	       mma_verbose = 0;
-	       reti = nlopt_minimize(
-		    dual_alg, m, dual_func, &dd,
-		    dual_lb, dual_ub, y, &min_dual,
-		    -HUGE_VAL, dual_tolrel,0., 0.,NULL, dual_maxeval,
-		    stop->maxtime - (nlopt_seconds() - stop->start));
+	       mma_verbose = 0; /* no recursive verbosity */
+	       reti = nlopt_optimize_limited(dual_opt, y, &min_dual,
+					     0,
+					     stop->maxtime - (nlopt_seconds() 
+							      - stop->start));
 	       mma_verbose = save_verbose;
-	       if (reti == NLOPT_FAILURE && dual_alg != NLOPT_LD_MMA) {
-		    /* LBFGS etc. converge quickly but are sometimes
-		       very finicky if there are any rounding errors in
-		       the gradient, etcetera; if it fails, try again
-		       with MMA called recursively for the dual */
-		    dual_alg = NLOPT_LD_MMA;
-		    if (mma_verbose)
-			 printf("MMA: switching to recursive MMA for dual\n");
-		    goto dual_solution;
-	       }
 	       if (reti < 0 || reti == NLOPT_MAXTIME_REACHED) {
 		    ret = reti;
 		    goto done;
@@ -287,10 +276,11 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       new_infeasible_constraint = 0;
 	       inner_done = dd.gval >= fcur;
 	       for (i = 0; i < m; ++i) {
-		    fcval_cur[i] = fc(n, xcur, dfcdx_cur + i*n, 
-				      fc_data + fc_datum_size * i);
+		    fcval_cur[i] = fc[i].f(n, xcur, dfcdx_cur + i*n, 
+					   fc[i].f_data);
 		    if (!isnan(fcval_cur[i])) {
-			 feasible_cur = feasible_cur && (fcval_cur[i] <= 0);
+			 feasible_cur = feasible_cur 
+			      && (fcval_cur[i] <= fc[i].tol);
 			 if (!isnan(fcval[i]))
 			      inner_done = inner_done && 
 				   (dd.gcval[i] >= fcval_cur[i]);
@@ -317,7 +307,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 		       again (if inner_done), although the constraints may
 		       be violated slightly by rounding errors etc. so we
 		       must be a little careful about checking feasibility */
-		    if (feasible_cur) {
+		    if (infeasibility_cur == 0) {
 			 if (!feasible) /* reset upper bounds to infinity */
 			      for (i = 0; i < m; ++i) dual_ub[i] = HUGE_VAL;
 			 feasible = 1;

@@ -36,8 +36,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 			   double *x, /* in: initial guess, out: minimizer */
 			   double *minf,
 			   nlopt_stopping *stop,
-                           nlopt_algorithm local_alg,
-                           int local_maxeval,
+                           nlopt_opt local_opt,
 			   int Nsamples, /* #samples/iteration (0=default) */
                            int lds);
 

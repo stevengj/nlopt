@@ -27,6 +27,8 @@
 #include <math.h>
 #include "config.h"
 
+#include "nlopt.h"
+
 /* workaround for Solaris + gcc 3.4.x bug (see configure.ac) */
 #if defined(__GNUC__) && defined(REPLACEMENT_HUGE_VAL)
 #  undef HUGE_VAL
@@ -71,7 +73,6 @@ typedef struct {
      double ftol_abs;
      double xtol_rel;
      const double *xtol_abs;
-     double htol_rel, htol_abs;
      int nevals, maxeval;
      double maxtime, start;
 } nlopt_stopping;
@@ -87,6 +88,22 @@ extern int nlopt_stop_xs(const nlopt_stopping *stop,
 extern int nlopt_stop_evals(const nlopt_stopping *stop);
 extern int nlopt_stop_time(const nlopt_stopping *stop);
 extern int nlopt_stop_evalstime(const nlopt_stopping *stop);
+
+/* for local optimizations, temporarily setting eval/time limits */
+extern nlopt_result nlopt_optimize_limited(nlopt_opt opt, 
+					   double *x, double *minf,
+					   int maxevals, double maxtime);
+
+/* data structure for nonlinear inequality or equality constraint
+   (f <= 0 or f = 0, respectively).  tol (>= 0) is a tolerance
+   that is used for stopping criteria -- the point is considered
+   "feasible" for purposes of stopping of the constraint is violated
+   by at most tol. */
+typedef struct {
+     nlopt_func f;
+     void *f_data;
+     double tol;
+} nlopt_constraint;
 
 #ifdef __cplusplus
 }  /* extern "C" */

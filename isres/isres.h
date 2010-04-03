@@ -32,10 +32,8 @@ extern "C"
 #endif /* __cplusplus */
 
 nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
-			    int m, nlopt_func fc, /* fc <= 0 constraints */
-			    void *fc_data_, ptrdiff_t fc_datum_size,
-			    int p, nlopt_func h, /* h == 0 constraints */
-			    void *h_data_, ptrdiff_t h_datum_size,
+			    int m, nlopt_constraint *fc, /* fc <= 0  */
+			    int p, nlopt_constraint *h, /* h == 0 */
 			    const double *lb, const double *ub, /* bounds */
 			    double *x, /* in: initial guess, out: minimizer */
 			    double *minf,

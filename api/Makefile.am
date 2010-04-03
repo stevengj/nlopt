@@ -4,7 +4,8 @@ include_HEADERS = nlopt.h nlopt.f
 noinst_LTLIBRARIES = libapi.la
 dist_man_MANS = nlopt_minimize.3 nlopt_minimize_constrained.3
 
-libapi_la_SOURCES = nlopt.c nlopt.h f77api.c f77funcs.h
+libapi_la_SOURCES = general.c options.c optimize.c deprecated.c	\
+nlopt-internal.h nlopt.h f77api.c f77funcs.h
 
 BUILT_SOURCES = nlopt.f
 

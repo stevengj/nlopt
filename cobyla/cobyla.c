@@ -65,9 +65,7 @@ typedef struct {
      nlopt_func f;
      void *f_data;
      int m_orig;
-     nlopt_func fc;
-     char *fc_data;
-     ptrdiff_t fc_datum_size;
+     nlopt_constraint *fc;
      double *xtmp;
      const double *lb, *ub;
 } func_wrap_state;
@@ -93,7 +91,7 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
 
      *f = s->f(n, xtmp, NULL, s->f_data);
      for (i = 0; i < s->m_orig; ++i)
-	  con[i] = -s->fc(n, xtmp, NULL, s->fc_data + i * s->fc_datum_size);
+	  con[i] = -s->fc[i].f(n, xtmp, NULL, s->fc[i].f_data);
      for (j = 0; j < n; ++j) {
 	  if (!nlopt_isinf(lb[j]))
 	       con[i++] = x[j] - lb[j];
@@ -105,8 +103,7 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
 }
 
 nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
-			     int m, nlopt_func fc,
-			     void *fc_data_, ptrdiff_t fc_datum_size,
+			     int m, nlopt_constraint *fc,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
@@ -119,7 +116,7 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 
      s.f = f; s.f_data = f_data;
      s.m_orig = m;
-     s.fc = fc; s.fc_data = (char*) fc_data_; s.fc_datum_size = fc_datum_size;
+     s.fc = fc; 
      s.lb = lb; s.ub = ub;
      s.xtmp = (double *) malloc(sizeof(double) * n);
      if (!s.xtmp) return NLOPT_OUT_OF_MEMORY;

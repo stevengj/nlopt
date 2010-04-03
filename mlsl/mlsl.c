@@ -94,9 +94,6 @@ typedef struct {
      nlopt_sobol s; /* sobol data for LDS point generation, or NULL
 		       to use pseudo-random numbers */
 
-     nlopt_algorithm local_alg; /* local search algorithm */
-     int local_maxeval; /* max # local iterations (0 if unlimited) */
-
      double R_prefactor, dlm, dbound, gamma; /* parameters of MLSL */
      int N; /* number of pts to add per iteration */
 } mlsl_data;
@@ -281,8 +278,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 			   double *x, /* in: initial guess, out: minimizer */
 			   double *minf,
 			   nlopt_stopping *stop,
-			   nlopt_algorithm local_alg,
-			   int local_maxeval,
+			   nlopt_opt local_opt,
 			   int Nsamples, /* #samples/iteration (0=default) */
 			   int lds) /* random or low-discrepancy seq. (lds) */
 {
@@ -304,7 +300,11 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
      rb_tree_init(&d.pts, pt_compare);
      rb_tree_init(&d.lms, lm_compare);
      d.s = lds ? nlopt_sobol_create((unsigned) n) : NULL;
-     d.local_alg = local_alg; d.local_maxeval = local_maxeval;
+
+     nlopt_set_min_objective(local_opt, fcount, &d);
+     nlopt_set_lower_bounds(local_opt, lb);
+     nlopt_set_upper_bounds(local_opt, ub);
+     nlopt_set_stopval(local_opt, stop->minf_max);
 
      d.gamma = MLSL_GAMMA;
 
@@ -392,16 +392,10 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 		    lm = (double *) malloc(sizeof(double) * (n+1));
 		    if (!lm) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 		    memcpy(lm+1, p->x, sizeof(double) * n);
-		    lret = nlopt_minimize(local_alg, n, fcount, &d,
-					  lb, ub, lm+1, lm,
-					  stop->minf_max, 
-					  stop->ftol_rel, stop->ftol_abs,
-					  stop->xtol_rel, stop->xtol_abs,
-					  local_maxeval > 0 ?
-					  MIN(local_maxeval,
-					      stop->maxeval - stop->nevals)
-					  : stop->maxeval - stop->nevals,
-					  stop->maxtime - (t - stop->start));
+		    lret = nlopt_optimize_limited(local_opt, lm+1, lm,
+						  stop->maxeval - stop->nevals,
+						  stop->maxtime -
+						  (t - stop->start));
 		    p->minimized = 1;
 		    if (lret < 0) { free(lm); ret = lret; goto done; }
 		    if (!rb_tree_insert(&d.lms, lm)) { 

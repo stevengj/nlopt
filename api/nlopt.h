@@ -144,6 +144,111 @@ typedef enum {
      NLOPT_MAXTIME_REACHED = 6
 } nlopt_result;
 
+
+NLOPT_EXTERN void nlopt_srand(unsigned long seed);
+NLOPT_EXTERN void nlopt_srand_time(void);
+
+NLOPT_EXTERN void nlopt_version(int *major, int *minor, int *bugfix);
+
+/*************************** OBJECT-ORIENTED API **************************/
+/* The style here is that we create an nlopt_opt "object" (an opaque pointer),
+   then set various optimization parameters, and then execute the
+   algorithm.  In this way, we can add more and more optimization parameters
+   (including algorithm-specific ones) without breaking backwards
+   compatibility, having functions with zillions of parameters, or
+   relying non-reentrantly on global variables.*/
+
+struct nlopt_opt_s; /* opaque structure, defined internally */
+typedef struct nlopt_opt_s *nlopt_opt;
+
+/* the only immutable parameters of an optimization are the algorithm and
+   the dimension n of the problem, since changing either of these could
+   have side-effects on lots of other parameters */
+NLOPT_EXTERN nlopt_opt nlopt_create(nlopt_algorithm algorithm, int n);
+NLOPT_EXTERN void nlopt_destroy(nlopt_opt opt);
+NLOPT_EXTERN nlopt_opt nlopt_copy(const nlopt_opt opt);
+
+NLOPT_EXTERN nlopt_result nlopt_optimize(nlopt_opt opt, double *x,
+					 double *opt_f);
+
+NLOPT_EXTERN nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, 
+						  void *f_data);
+
+/* constraints: */
+
+NLOPT_EXTERN nlopt_result nlopt_set_lower_bounds(nlopt_opt opt, 
+						 const double *lb);
+NLOPT_EXTERN nlopt_result nlopt_set_lower_bounds1(nlopt_opt opt, double lb);
+NLOPT_EXTERN void nlopt_get_lower_bounds(const nlopt_opt opt, double *lb);
+NLOPT_EXTERN nlopt_result nlopt_set_upper_bounds(nlopt_opt opt, 
+						 const double *ub);
+NLOPT_EXTERN nlopt_result nlopt_set_upper_bounds1(nlopt_opt opt, double ub);
+NLOPT_EXTERN void nlopt_get_upper_bounds(const nlopt_opt opt, double *ub);
+
+NLOPT_EXTERN nlopt_result nlopt_remove_inequality_constraints(nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_add_inequality_constraint(nlopt_opt opt,
+							  nlopt_func fc,
+							  void *fc_data,
+							  double tol);
+
+NLOPT_EXTERN nlopt_result nlopt_remove_equality_constraints(nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_add_equality_constraint(nlopt_opt opt,
+							nlopt_func h,
+							void *h_data,
+							double tol);
+
+/* stopping criteria: */
+
+NLOPT_EXTERN nlopt_result nlopt_set_stopval(nlopt_opt opt, double minf_max);
+NLOPT_EXTERN double nlopt_get_stopval(const nlopt_opt opt);
+
+NLOPT_EXTERN nlopt_result nlopt_set_ftol_rel(nlopt_opt opt, double tol);
+NLOPT_EXTERN double nlopt_get_ftol_rel(const nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_set_ftol_abs(nlopt_opt opt, double tol);
+NLOPT_EXTERN double nlopt_get_ftol_abs(const nlopt_opt opt);
+
+NLOPT_EXTERN nlopt_result nlopt_set_xtol_rel(nlopt_opt opt, double tol);
+NLOPT_EXTERN double nlopt_get_xtol_rel(const nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
+NLOPT_EXTERN nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double *tol);
+NLOPT_EXTERN void nlopt_get_xtol_abs(const nlopt_opt opt, double *tol);
+
+NLOPT_EXTERN nlopt_result nlopt_set_maxeval(nlopt_opt opt, int maxeval);
+NLOPT_EXTERN int nlopt_get_maxeval(nlopt_opt opt);
+
+NLOPT_EXTERN nlopt_result nlopt_set_maxtime(nlopt_opt opt, double maxtime);
+NLOPT_EXTERN double nlopt_get_maxtime(nlopt_opt opt);
+
+/* more algorithm-specific parameters */
+
+NLOPT_EXTERN nlopt_result nlopt_set_local_optimizer(nlopt_opt opt, 
+						    const nlopt_opt local_opt);
+
+NLOPT_EXTERN nlopt_result nlopt_set_population(nlopt_opt opt, int pop);
+NLOPT_EXTERN int nlopt_get_population(const nlopt_opt opt);
+
+NLOPT_EXTERN nlopt_result nlopt_set_default_initial_step(nlopt_opt opt, 
+							 const double *x);
+NLOPT_EXTERN nlopt_result nlopt_set_initial_step(nlopt_opt opt, 
+						 const double *dx);
+NLOPT_EXTERN nlopt_result nlopt_set_initial_step1(nlopt_opt opt, double dx);
+NLOPT_EXTERN nlopt_result nlopt_get_initial_step(const nlopt_opt opt, 
+						 const double *x, double *dx);
+
+/*************************** DEPRECATED API **************************/
+/* The new "object-oriented" API is preferred, since it allows us to
+   gracefully add new features and algorithm-specific options in a
+   re-entrant way, and we can automatically assume reasonable defaults
+   for unspecified parameters. */
+
+/* Where possible (e.g. for gcc >= 3.1), enable a compiler warning
+   for code that uses a deprecated function */
+#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
+#  define NLOPT_DEPRECATED __attribute__((deprecated))
+#else
+#  define NLOPT_DEPRECATED 
+#endif
+
 NLOPT_EXTERN nlopt_result nlopt_minimize(
      nlopt_algorithm algorithm,
      int n, nlopt_func f, void *f_data,
@@ -152,7 +257,7 @@ NLOPT_EXTERN nlopt_result nlopt_minimize(
      double *minf, /* out: minimum */
      double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
-     int maxeval, double maxtime);
+     int maxeval, double maxtime) NLOPT_DEPRECATED;
 
 NLOPT_EXTERN nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
@@ -163,7 +268,7 @@ NLOPT_EXTERN nlopt_result nlopt_minimize_constrained(
      double *minf, /* out: minimum */
      double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
-     int maxeval, double maxtime);
+     int maxeval, double maxtime) NLOPT_DEPRECATED;
 
 NLOPT_EXTERN nlopt_result nlopt_minimize_econstrained(
      nlopt_algorithm algorithm,
@@ -176,22 +281,19 @@ NLOPT_EXTERN nlopt_result nlopt_minimize_econstrained(
      double minf_max, double ftol_rel, double ftol_abs,
      double xtol_rel, const double *xtol_abs,
      double htol_rel, double htol_abs,
-     int maxeval, double maxtime);
-
-NLOPT_EXTERN void nlopt_srand(unsigned long seed);
-NLOPT_EXTERN void nlopt_srand_time(void);
-
-NLOPT_EXTERN void nlopt_version(int *major, int *minor, int *bugfix);
+     int maxeval, double maxtime) NLOPT_DEPRECATED;
 
 NLOPT_EXTERN void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
 					     nlopt_algorithm *nonderiv,
-					     int *maxeval);
+					     int *maxeval) NLOPT_DEPRECATED;
 NLOPT_EXTERN void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 					     nlopt_algorithm nonderiv,
-					     int maxeval);
+					     int maxeval) NLOPT_DEPRECATED;
 
-NLOPT_EXTERN int nlopt_get_stochastic_population(void);
-NLOPT_EXTERN void nlopt_set_stochastic_population(int pop);
+NLOPT_EXTERN int nlopt_get_stochastic_population(void) NLOPT_DEPRECATED;
+NLOPT_EXTERN void nlopt_set_stochastic_population(int pop) NLOPT_DEPRECATED;
+
+/*********************************************************************/
 
 #ifdef __cplusplus
 }  /* extern "C" */
