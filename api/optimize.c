@@ -126,6 +126,17 @@ static nlopt_result initial_step(nlopt_opt opt, const double *x, double *step)
 
 /*********************************************************************/
 
+/* return true if [lb,ub] is finite in every dimension (n dimensions) */
+static int finite_domain(int n, const double *lb, const double *ub)
+{
+     int i;
+     for (i = 0; i < n; ++i)
+	  if (nlopt_isinf(ub[i] - lb[i])) return 0;
+     return 1;
+}
+
+/*********************************************************************/
+
 #define POP(defaultpop) (opt->stochastic_population > 0 ?		\
                          opt->stochastic_population :			\
                          (nlopt_stochastic_population > 0 ?		\
@@ -184,6 +195,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_DIRECT:
 	 case NLOPT_GN_DIRECT_L: 
 	 case NLOPT_GN_DIRECT_L_RAND: 
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      return cdirect(n, f, f_data, 
 			     lb, ub, x, minf, &stop, 0.0, 
 			     (algorithm != NLOPT_GN_DIRECT)
@@ -195,6 +207,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_DIRECT_NOSCAL:
 	 case NLOPT_GN_DIRECT_L_NOSCAL: 
 	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      return cdirect_unscaled(n, f, f_data, lb, ub, x, minf, 
 				      &stop, 0.0, 
 				      (algorithm != NLOPT_GN_DIRECT)
@@ -203,6 +216,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L: 
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, minf,
 				      stop.maxeval, -1, 0.0, 0.0,
 				      pow(stop.xtol_rel, (double) n), -1.0,
@@ -235,6 +249,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GD_STOGO:
 	 case NLOPT_GD_STOGO_RAND:
 #ifdef WITH_CXX
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      if (!stogo_minimize(n, f, f_data, x, minf, lb, ub, &stop,
 				  algorithm == NLOPT_GD_STOGO
 				  ? 0 : POP(2*n)))
@@ -330,6 +345,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 				 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
 
 	 case NLOPT_GN_CRS2_LM:
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      return crs_minimize(n, f, f_data, lb, ub, x, minf, &stop, 
 				  POP(0), 0);
 
@@ -337,6 +353,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GD_MLSL:
 	 case NLOPT_GN_MLSL_LDS:
 	 case NLOPT_GD_MLSL_LDS: {
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      nlopt_opt local_opt = opt->local_opt;
 	      nlopt_result ret;
 	      if (!local_opt) { /* default */
@@ -470,6 +487,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 }
 
 	 case NLOPT_GN_ISRES:
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      return isres_minimize(n, f, f_data, 
 				    opt->m, opt->fc,
 				    opt->p, opt->h,
