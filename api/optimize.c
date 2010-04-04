@@ -357,10 +357,17 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      nlopt_opt local_opt = opt->local_opt;
 	      nlopt_result ret;
 	      if (!local_opt) { /* default */
-		   local_opt = nlopt_create((algorithm == NLOPT_GN_MLSL ||
-					     algorithm == NLOPT_GN_MLSL_LDS)
-					    ? nlopt_local_search_alg_nonderiv
-					    : nlopt_local_search_alg_deriv, n);
+		   nlopt_algorithm local_alg = (algorithm == NLOPT_GN_MLSL ||
+						algorithm == NLOPT_GN_MLSL_LDS)
+			? nlopt_local_search_alg_nonderiv
+			: nlopt_local_search_alg_deriv;
+		   /* don't call MLSL recursively! */
+		   if (local_alg >= NLOPT_GN_MLSL
+		       && local_alg <= NLOPT_GD_MLSL_LDS)
+			local_alg = (algorithm == NLOPT_GN_MLSL ||
+				     algorithm == NLOPT_GN_MLSL_LDS)
+			     ? NLOPT_LN_COBYLA : NLOPT_LD_MMA;
+		   local_opt = nlopt_create(local_alg, n);
 		   if (!local_opt) return NLOPT_FAILURE;
 		   nlopt_set_ftol_rel(local_opt, opt->ftol_rel);
 		   nlopt_set_ftol_abs(local_opt, opt->ftol_abs);
