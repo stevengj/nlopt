@@ -350,6 +350,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 		   nlopt_set_xtol_rel(local_opt, opt->xtol_rel);
 		   nlopt_set_xtol_abs(local_opt, opt->xtol_abs);
 		   nlopt_set_maxeval(local_opt, nlopt_local_search_maxeval);
+		   nlopt_set_initial_step(local_opt, opt->dx);
 	      }
 	      for (i = 0; i < n && stop.xtol_abs[i] > 0; ++i) ;
 	      if (local_opt->ftol_rel <= 0 && local_opt->ftol_abs <= 0 &&
@@ -454,6 +455,8 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 		   nlopt_set_ftol_abs(local_opt, opt->ftol_abs);
 		   nlopt_set_xtol_rel(local_opt, opt->xtol_rel);
 		   nlopt_set_xtol_abs(local_opt, opt->xtol_abs);
+		   nlopt_set_maxeval(local_opt, nlopt_local_search_maxeval);
+		   nlopt_set_initial_step(local_opt, opt->dx);
 	      }
 	      ret = auglag_minimize(n, f, f_data, 
 				    opt->m, opt->fc, 
