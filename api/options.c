@@ -440,7 +440,7 @@ nlopt_result nlopt_set_default_initial_step(nlopt_opt opt, const double *x)
 		    step = (x[i] - lb[i]) * 1.1;
 	  }
 	  if (nlopt_isinf(step) || step == 0) {
-	       step = fabs(x[i]) * 0.25;
+	       step = x[i];
 	  }
 	  if (nlopt_isinf(step) || step == 0)
 	       step = 1;
