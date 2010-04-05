@@ -520,8 +520,6 @@ L40:
     for (k = 1; k <= i__1; ++k) {
       d__1 = resmax, d__2 = -con[k];
       resmax = max(d__1,d__2);
-      printf("cobyla tol[%d] = %g, con = %g\n",
-	     k, k <= state->m_orig ? state->fc[k-1].tol : 0, d__2);
       if (d__2 > (k <= state->m_orig ? state->fc[k-1].tol : 0))
 	   feasible = 0; /* SGJ, 2010 */
     }
