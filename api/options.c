@@ -42,6 +42,7 @@ void nlopt_destroy(nlopt_opt opt)
 	  free(opt->h);
 	  nlopt_destroy(opt->local_opt);
 	  free(opt->dx);
+	  free(opt);
      }
 }
 
