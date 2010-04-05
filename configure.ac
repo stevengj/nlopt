@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(nlopt, 1.2, stevenj@alum.mit.edu)
+AC_INIT(nlopt, 1.3, stevenj@alum.mit.edu)
 AC_CONFIG_SRCDIR(api/nlopt.h)
-SHARED_VERSION_INFO="2:0:2" # CURRENT:REVISION:AGE
+SHARED_VERSION_INFO="3:0:3" # CURRENT:REVISION:AGE
 
 AM_INIT_AUTOMAKE(1.7)
 AM_CONFIG_HEADER(config.h)
