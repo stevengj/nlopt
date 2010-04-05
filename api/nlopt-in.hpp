@@ -109,6 +109,8 @@ namespace nlopt {
       return result(ret);
     }
     result optimize(std::vector<double> &x, double &opt_f) {
+      if (o && nlopt_get_dimension(o) != x.size())
+        throw std::invalid_argument("dimension mismatch");
       return optimize(x.empty() ? NULL : &x[0], opt_f);
     }
 
