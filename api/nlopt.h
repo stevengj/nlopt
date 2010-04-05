@@ -182,11 +182,13 @@ NLOPT_EXTERN int nlopt_get_dimension(const nlopt_opt opt);
 NLOPT_EXTERN nlopt_result nlopt_set_lower_bounds(nlopt_opt opt, 
 						 const double *lb);
 NLOPT_EXTERN nlopt_result nlopt_set_lower_bounds1(nlopt_opt opt, double lb);
-NLOPT_EXTERN void nlopt_get_lower_bounds(const nlopt_opt opt, double *lb);
+NLOPT_EXTERN nlopt_result nlopt_get_lower_bounds(const nlopt_opt opt, 
+						 double *lb);
 NLOPT_EXTERN nlopt_result nlopt_set_upper_bounds(nlopt_opt opt, 
 						 const double *ub);
 NLOPT_EXTERN nlopt_result nlopt_set_upper_bounds1(nlopt_opt opt, double ub);
-NLOPT_EXTERN void nlopt_get_upper_bounds(const nlopt_opt opt, double *ub);
+NLOPT_EXTERN nlopt_result nlopt_get_upper_bounds(const nlopt_opt opt,
+						 double *ub);
 
 NLOPT_EXTERN nlopt_result nlopt_remove_inequality_constraints(nlopt_opt opt);
 NLOPT_EXTERN nlopt_result nlopt_add_inequality_constraint(nlopt_opt opt,
@@ -214,7 +216,8 @@ NLOPT_EXTERN nlopt_result nlopt_set_xtol_rel(nlopt_opt opt, double tol);
 NLOPT_EXTERN double nlopt_get_xtol_rel(const nlopt_opt opt);
 NLOPT_EXTERN nlopt_result nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
 NLOPT_EXTERN nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double *tol);
-NLOPT_EXTERN void nlopt_get_xtol_abs(const nlopt_opt opt, double *tol);
+NLOPT_EXTERN nlopt_result nlopt_get_xtol_abs(const nlopt_opt opt,
+					     double *tol);
 
 NLOPT_EXTERN nlopt_result nlopt_set_maxeval(nlopt_opt opt, int maxeval);
 NLOPT_EXTERN int nlopt_get_maxeval(nlopt_opt opt);
