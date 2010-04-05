@@ -114,11 +114,11 @@ namespace nlopt {
 
     // accessors:
     algorithm get_algorithm() const {
-      if (!o) throw std::invalid_argument("uninitialized nlopt::opt");
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       return algorithm(nlopt_get_algorithm(o));
     }
     unsigned get_dimension() const {
-      if (!o) throw std::invalid_argument("uninitialized nlopt::opt");
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       return nlopt_get_dimension(o);
     }
 
@@ -176,7 +176,7 @@ namespace nlopt {
       get_##name(v.empty() ? NULL : &v[0]);				\
     }									\
     std::vector<double> get_##name(void) const {			\
-      if (!o) throw std::invalid_argument("uninitialized nlopt::opt");	\
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");	\
       std::vector<double> v(nlopt_get_dimension(o));			\
       get_##name(v);							\
       return v;								\
@@ -194,7 +194,7 @@ namespace nlopt {
 
 #define NLOPT_GETSET(T, name)						\
     T get_##name() const {						\
-      if (!o) throw std::invalid_argument("uninitialized nlopt::opt");	\
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");	\
       return nlopt_get_##name(o);					\
     }									\
     void set_##name(T name) {						\
@@ -241,12 +241,15 @@ namespace nlopt {
 		       dx.empty() ? NULL : &dx[0]);
     }
     std::vector<double> get_initial_step(const std::vector<double> &x) const {
-      if (!o) throw std::invalid_argument("uninitialized nlopt::opt");
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       std::vector<double> v(nlopt_get_dimension(o));
       get_initial_step(x, v);
       return v;
     }
   };
+
+#undef NLOPT_GETSET
+#undef NLOPT_GETSET_VEC
 
   //////////////////////////////////////////////////////////////////////
 
