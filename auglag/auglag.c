@@ -137,6 +137,14 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      else
 	  d.rho = 1; /* whatever, doesn't matter */
 
+     if (auglag_verbose) {
+	  printf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
+	  for (i = 0; i < d.p; ++i) printf(" %g", d.lambda[i]);
+	  printf("\nauglag initial mu = ");
+	  for (i = 0; i < d.m; ++i) printf(" %g", d.mu[i]);
+	  printf("\n");
+     }
+
      do {
 	  double prev_ICM = ICM;
 	  
