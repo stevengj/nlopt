@@ -236,7 +236,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	  double fprev = fcur;
 	  if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	  else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
-	  else if (*minf < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
+	  else if (feasible && *minf < stop->minf_max) 
+	       ret = NLOPT_MINF_MAX_REACHED;
 	  if (ret != NLOPT_SUCCESS) goto done;
 	  if (++k > 1) memcpy(xprevprev, xprev, sizeof(double) * n);
 	  memcpy(xprev, xcur, sizeof(double) * n);
@@ -317,7 +318,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 	       }
 	       if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
-	       else if (*minf < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
+	       else if (feasible && *minf < stop->minf_max) 
+		    ret = NLOPT_MINF_MAX_REACHED;
 	       if (ret != NLOPT_SUCCESS) goto done;
 
 	       if (inner_done) break;
