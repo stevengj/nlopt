@@ -144,6 +144,44 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 
 /**************************************************************************/
 
+/* SGJ, 2010: I find that it seems to increase robustness of the algorithm
+   if, on "simplex" steps (which are intended to improve the linear
+   independence of the simplex, not improve the objective), we multiply
+   the steps by pseudorandom numbers in [0,1).  Intuitively, pseudorandom
+   steps are likely to avoid any accidental dependency in the simplex
+   vertices.  However, since I still want COBYLA to be a deterministic
+   algorithm, and I don't care all that much about the quality of the
+   randomness here, I implement a simple linear congruential generator
+   rather than use nlopt_urand, and set the initial seed deterministically. */
+
+#if defined(HAVE_STDINT_H)
+#  include <stdint.h>
+#endif
+
+#ifndef HAVE_UINT32_T
+#  if SIZEOF_UNSIGNED_LONG == 4
+typedef unsigned long uint32_t;
+#  elif SIZEOF_UNSIGNED_INT == 4
+typedef unsigned int uint32_t;
+#  else
+#    error No 32-bit unsigned integer type
+#  endif
+#endif
+
+/* a simple linear congruential generator */
+
+static uint32_t lcg_rand(uint32_t *seed)
+{
+     return (*seed = *seed * 1103515245 + 12345);
+}
+
+static double lcg_urand(uint32_t *seed, double a, double b)
+{
+     return a + lcg_rand(seed) * (b - a) / ((uint32_t) -1);
+}
+
+/**************************************************************************/
+
 static nlopt_result cobylb(int *n, int *m, int *mpp, double *x, double *minf, double *rhobeg,
   nlopt_stopping *stop, const double *lb, const double *ub, int *iprint, double *con, double *sim,
   double *simi, double *datmat, double *a, double *vsig, double *veta,
@@ -318,6 +356,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   int nbest, ifull, iptem, jdrop;
   nlopt_result rc = NLOPT_SUCCESS;
   double rhoend;
+  uint32_t seed = (uint32_t) (*n + *m); /* arbitrary deterministic LCG seed */
 
   /* SGJ, 2008: compute rhoend from NLopt stop info */
   rhoend = stop->xtol_rel * (*rhobeg);
@@ -701,7 +740,8 @@ L140:
   temp = 0.;
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
-    dx[i__] = dxsign * dx[i__];
+    /* SGJ, 2010: pseudo-randomize simplex steps (see LCG comments above) */
+    dx[i__] = dxsign * dx[i__] * lcg_urand(&seed, 0.01, 1);
     /* SGJ: make sure dx step says in [lb,ub] */
 #if ENFORCE_BOUNDS
     {
