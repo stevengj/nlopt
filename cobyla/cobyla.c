@@ -939,6 +939,17 @@ L440:
 /* Branch back for further iterations with the current RHO. */
 
   if (trured > 0. && trured >= prerem * .1) {
+    /* SGJ, 2010: following a suggestion in the SAS manual (which
+       mentions a similar modification to COBYLA, although they didn't
+       publish their source code), increase rho if predicted reduction
+       is sufficiently close to the actual reduction.  Otherwise,
+       COBLYA seems to easily get stuck making very small steps. 
+       Also require iflag != 0 (i.e., acceptable simplex), again
+       following SAS suggestion (otherwise I get convergence failure
+       in some cases.) */
+    if (trured >= prerem * 0.9 && trured <= prerem * 1.1 && iflag) {
+	 rho *= 2.0;
+    }
     goto L140;
   }
 L550:
