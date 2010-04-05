@@ -344,6 +344,11 @@ GETSET(maxtime, double, maxtime)
 
 /*************************************************************************/
 
+GET(algorithm, nlopt_algorithm, algorithm)
+GET(dimension, int, n)
+
+/*************************************************************************/
+
 nlopt_result nlopt_set_local_optimizer(nlopt_opt opt,
 				       const nlopt_opt local_opt)
 {

@@ -174,6 +174,9 @@ NLOPT_EXTERN nlopt_result nlopt_optimize(nlopt_opt opt, double *x,
 NLOPT_EXTERN nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, 
 						  void *f_data);
 
+NLOPT_EXTERN nlopt_algorithm nlopt_get_algorithm(const nlopt_opt opt);
+NLOPT_EXTERN int nlopt_get_dimension(const nlopt_opt opt);
+
 /* constraints: */
 
 NLOPT_EXTERN nlopt_result nlopt_set_lower_bounds(nlopt_opt opt, 
