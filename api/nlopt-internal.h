@@ -35,18 +35,18 @@ extern "C"
 
 struct nlopt_opt_s {
      nlopt_algorithm algorithm; /* the optimization algorithm (immutable) */
-     int n; /* the dimension of the problem (immutable) */
+     unsigned n; /* the dimension of the problem (immutable) */
 
      nlopt_func f; void *f_data; /* objective function to minimize */
 
      double *lb, *ub; /* lower and upper bounds (length n) */
 
-     int m; /* number of inequality constraints */
-     int m_alloc; /* number of inequality constraints allocated */
+     unsigned m; /* number of inequality constraints */
+     unsigned m_alloc; /* number of inequality constraints allocated */
      nlopt_constraint *fc; /* inequality constraints, length m_alloc */
 
-     int p; /* number of equality constraints */
-     int p_alloc; /* number of inequality constraints allocated */
+     unsigned p; /* number of equality constraints */
+     unsigned p_alloc; /* number of inequality constraints allocated */
      nlopt_constraint *h; /* equality constraints, length p_alloc */
 
      /* stopping criteria */
@@ -58,7 +58,7 @@ struct nlopt_opt_s {
 
      /* algorithm-specific parameters */
      nlopt_opt local_opt; /* local optimizer */
-     int stochastic_population; /* population size for stochastic algs */
+     unsigned stochastic_population; /* population size for stochastic algs */
      double *dx; /* initial step sizes (length n) for nonderivative algs */
 };
 
@@ -71,7 +71,7 @@ extern int nlopt_srand_called; /* whether the random seed is initialized */
 extern nlopt_algorithm nlopt_local_search_alg_deriv;
 extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
 extern int nlopt_local_search_maxeval;
-extern int nlopt_stochastic_population;
+extern unsigned nlopt_stochastic_population;
 
 /*********************************************************************/
 

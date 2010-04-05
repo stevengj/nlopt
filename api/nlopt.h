@@ -55,7 +55,7 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-typedef double (*nlopt_func)(int n, const double *x,
+typedef double (*nlopt_func)(unsigned n, const double *x,
 			     double *gradient, /* NULL if not needed */
 			     void *func_data);
 
@@ -164,7 +164,7 @@ typedef struct nlopt_opt_s *nlopt_opt;
 /* the only immutable parameters of an optimization are the algorithm and
    the dimension n of the problem, since changing either of these could
    have side-effects on lots of other parameters */
-NLOPT_EXTERN nlopt_opt nlopt_create(nlopt_algorithm algorithm, int n);
+NLOPT_EXTERN nlopt_opt nlopt_create(nlopt_algorithm algorithm, unsigned n);
 NLOPT_EXTERN void nlopt_destroy(nlopt_opt opt);
 NLOPT_EXTERN nlopt_opt nlopt_copy(const nlopt_opt opt);
 
@@ -175,7 +175,7 @@ NLOPT_EXTERN nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f,
 						  void *f_data);
 
 NLOPT_EXTERN nlopt_algorithm nlopt_get_algorithm(const nlopt_opt opt);
-NLOPT_EXTERN int nlopt_get_dimension(const nlopt_opt opt);
+NLOPT_EXTERN unsigned nlopt_get_dimension(const nlopt_opt opt);
 
 /* constraints: */
 
@@ -230,8 +230,8 @@ NLOPT_EXTERN double nlopt_get_maxtime(nlopt_opt opt);
 NLOPT_EXTERN nlopt_result nlopt_set_local_optimizer(nlopt_opt opt, 
 						    const nlopt_opt local_opt);
 
-NLOPT_EXTERN nlopt_result nlopt_set_population(nlopt_opt opt, int pop);
-NLOPT_EXTERN int nlopt_get_population(const nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_set_population(nlopt_opt opt, unsigned pop);
+NLOPT_EXTERN unsigned nlopt_get_population(const nlopt_opt opt);
 
 NLOPT_EXTERN nlopt_result nlopt_set_default_initial_step(nlopt_opt opt, 
 							 const double *x);
@@ -255,9 +255,13 @@ NLOPT_EXTERN nlopt_result nlopt_get_initial_step(const nlopt_opt opt,
 #  define NLOPT_DEPRECATED 
 #endif
 
+typedef double (*nlopt_func_old)(int n, const double *x,
+				 double *gradient, /* NULL if not needed */
+				 void *func_data);
+
 NLOPT_EXTERN nlopt_result nlopt_minimize(
      nlopt_algorithm algorithm,
-     int n, nlopt_func f, void *f_data,
+     int n, nlopt_func_old f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
@@ -267,8 +271,8 @@ NLOPT_EXTERN nlopt_result nlopt_minimize(
 
 NLOPT_EXTERN nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
-     int n, nlopt_func f, void *f_data,
-     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
+     int n, nlopt_func_old f, void *f_data,
+     int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
@@ -278,9 +282,9 @@ NLOPT_EXTERN nlopt_result nlopt_minimize_constrained(
 
 NLOPT_EXTERN nlopt_result nlopt_minimize_econstrained(
      nlopt_algorithm algorithm,
-     int n, nlopt_func f, void *f_data,
-     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
-     int p, nlopt_func h, void *h_data, ptrdiff_t h_datum_size,
+     int n, nlopt_func_old f, void *f_data,
+     int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size,
+     int p, nlopt_func_old h, void *h_data, ptrdiff_t h_datum_size,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */

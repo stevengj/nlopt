@@ -96,7 +96,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
 {
-     if (a < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
+     if (((int) a) < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
      return nlopt_algorithm_names[a];
 }
 

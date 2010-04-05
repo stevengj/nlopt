@@ -47,10 +47,10 @@ namespace nlopt {
   public:
     // should return function value, and set grad to gradient
     // (x and grad are length n)
-    virtual double operator()(int n, const double *x, double *grad) = 0;
+    virtual double operator()(unsigned n, const double *x, double *grad) = 0;
 
     // should return function value (x is length n)
-    virtual double operator()(int n, const double *x) = 0;
+    virtual double operator()(unsigned n, const double *x) = 0;
   };
 
   // (Note: it is inefficient to use std::vector<double> for the arguments,
@@ -73,7 +73,7 @@ namespace nlopt {
     }
 
     // nlopt_func wrapper around C++ "functional"
-    static double myfunc(int n, const double *x, double *grad, void *f_) {
+    static double myfunc(unsigned n, const double *x, double *grad, void *f_) {
       func *f = reinterpret_cast<func*>(f_);
       return grad ? (*f)(n, x, grad) : (*f)(n, x);
     }
@@ -81,10 +81,10 @@ namespace nlopt {
   public:
     // Constructors etc.
     opt() : o(NULL) {}
-    opt(nlopt_algorithm a, int n) : o(nlopt_create(a, n)) {
+    opt(nlopt_algorithm a, unsigned n) : o(nlopt_create(a, n)) {
       if (!o) throw std::bad_alloc();
     }
-    opt(algorithm a, int n) : o(nlopt_create(nlopt_algorithm(a), n)) {
+    opt(algorithm a, unsigned n) : o(nlopt_create(nlopt_algorithm(a), n)) {
       if (!o) throw std::bad_alloc();
     }
     opt(const nlopt_opt o0) : o(nlopt_copy(o0)) {
@@ -117,7 +117,7 @@ namespace nlopt {
       if (!o) throw std::invalid_argument("uninitialized nlopt::opt");
       return algorithm(nlopt_get_algorithm(o));
     }
-    int get_dimension() const {
+    unsigned get_dimension() const {
       if (!o) throw std::invalid_argument("uninitialized nlopt::opt");
       return nlopt_get_dimension(o);
     }
@@ -171,18 +171,18 @@ namespace nlopt {
       mythrow(ret);							\
     }									\
     void get_##name(std::vector<double> &v) const {			\
-      if (o && unsigned(nlopt_get_dimension(o)) != v.size())		\
+      if (o && nlopt_get_dimension(o) != v.size())			\
         throw std::invalid_argument("dimension mismatch");		\
       get_##name(v.empty() ? NULL : &v[0]);				\
     }									\
     std::vector<double> get_##name(void) const {			\
       if (!o) throw std::invalid_argument("uninitialized nlopt::opt");	\
-      std::vector<double> v(unsigned(nlopt_get_dimension(o)));		\
+      std::vector<double> v(nlopt_get_dimension(o));			\
       get_##name(v);							\
       return v;								\
     }			 						\
     void set_##name(const std::vector<double> &v) {			\
-      if (o && unsigned(nlopt_get_dimension(o)) != v.size())		\
+      if (o && nlopt_get_dimension(o) != v.size())			\
         throw std::invalid_argument("dimension mismatch");		\
       set_##name(v.empty() ? NULL : &v[0]);				\
     }
@@ -219,7 +219,7 @@ namespace nlopt {
       set_local_optimizer(lo.o);
     }
 
-    NLOPT_GETSET(int, population)
+    NLOPT_GETSET(unsigned, population)
     NLOPT_GETSET_VEC(initial_step)
 
     void set_default_initial_step(const double *x) {
@@ -234,15 +234,15 @@ namespace nlopt {
       mythrow(ret);
     }
     void get_initial_step(const std::vector<double> &x, std::vector<double> &dx) const {
-      if (o && (unsigned(nlopt_get_dimension(o)) != x.size()
-		|| unsigned(nlopt_get_dimension(o)) != dx.size()))
+      if (o && (nlopt_get_dimension(o) != x.size()
+		|| nlopt_get_dimension(o) != dx.size()))
         throw std::invalid_argument("dimension mismatch");
       get_initial_step(x.empty() ? NULL : &x[0],
 		       dx.empty() ? NULL : &dx[0]);
     }
     std::vector<double> get_initial_step(const std::vector<double> &x) const {
       if (!o) throw std::invalid_argument("uninitialized nlopt::opt");
-      std::vector<double> v(unsigned(nlopt_get_dimension(o)));
+      std::vector<double> v(nlopt_get_dimension(o));
       get_initial_step(x, v);
       return v;
     }

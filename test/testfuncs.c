@@ -11,11 +11,11 @@ static double sqr(double x) { return x * x; }
 int testfuncs_verbose = 0;
 int testfuncs_counter = 0;
 
-static double testfuncs_status(int n, const double *x, double f)
+static double testfuncs_status(unsigned n, const double *x, double f)
 {
      ++testfuncs_counter;
      if (testfuncs_verbose) {
-	  int i;
+	  unsigned i;
 	  printf("f_%d (%g", testfuncs_counter, x[0]);
 	  for (i = 1; i < n; ++i) printf(", %g", x[i]);
 	  printf(") = %g\n", f);
@@ -30,7 +30,7 @@ static double testfuncs_status(int n, const double *x, double f)
 #define PI4 12.5663706143592 /* 4*pi */
 
 /****************************************************************************/
-static double rosenbrock_f(int n, const double *x, double *grad, void *data)
+static double rosenbrock_f(unsigned n, const double *x, double *grad, void *data)
 {
      double a = x[1] - x[0] * x[0], b = 1 - x[0];
      UNUSED(data);
@@ -46,7 +46,7 @@ static const double rosenbrock_ub[2] = {2, 2};
 static const double rosenbrock_xmin[2] = {1, 1};
 
 /****************************************************************************/
-static double mccormic_f(int n, const double *x, double *grad, void *data)
+static double mccormic_f(unsigned n, const double *x, double *grad, void *data)
 {
      double a = x[0] + x[1], b = x[0] - x[1];
      UNUSED(data);
@@ -62,9 +62,9 @@ static const double mccormic_ub[2] = {4, 4};
 static const double mccormic_xmin[2] = {-0.547197553, -1.54719756};
 
 /****************************************************************************/
-static double boxbetts_f(int n, const double *x, double *grad, void *data)
+static double boxbetts_f(unsigned n, const double *x, double *grad, void *data)
 {
-     int i;
+     unsigned i;
      double f = 0;
      UNUSED(data);
      if (grad)
@@ -89,9 +89,9 @@ static const double boxbetts_ub[3] = {1.2,11.2,1.2};
 static const double boxbetts_xmin[3] = {1,10,1};
 
 /****************************************************************************/
-static double paviani_f(int n, const double *x, double *grad, void *data)
+static double paviani_f(unsigned n, const double *x, double *grad, void *data)
 {
-     int i;
+     unsigned i;
      double f = 0, prod = 1;
      UNUSED(data);
      if (grad) for (i = 0; i < 10; ++i) grad[i] = 0;
@@ -115,9 +115,9 @@ static const double paviani_ub[10] = {9.999,9.999,9.999,9.999,9.999,9.999,9.999,
 static const double paviani_xmin[10] = {9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583,9.35026583};
 
 /****************************************************************************/
-static double grosenbrock_f(int n, const double *x, double *grad, void *data)
+static double grosenbrock_f(unsigned n, const double *x, double *grad, void *data)
 {
-     int i;
+     unsigned i;
      double f = 0;
      UNUSED(data);
      if (grad) grad[0] = 0;
@@ -137,7 +137,7 @@ static const double grosenbrock_ub[30] = {30,30,30,30,30,30,30,30,30,30,30,30,30
 static const double grosenbrock_xmin[30] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 /****************************************************************************/
-static double goldsteinprice_f(int n, const double *x, double *grad, void *data)
+static double goldsteinprice_f(unsigned n, const double *x, double *grad, void *data)
 {
      double x0, x1, a1, a12, a2, b1, b12, b2;
      UNUSED(data);
@@ -162,7 +162,7 @@ static const double goldsteinprice_ub[2] = {2, 2};
 static const double goldsteinprice_xmin[2] = {0, -1};
 
 /****************************************************************************/
-static double shekel_f(int n, const double *x, double *grad, void *data)
+static double shekel_f(unsigned n, const double *x, double *grad, void *data)
 {
      static const double A[10][4] = { {4,4,4,4},
 				      {1,1,1,1},
@@ -175,10 +175,10 @@ static double shekel_f(int n, const double *x, double *grad, void *data)
 				      {6,2,6,2},
 				      {7,3.6,7,3.6} };
      static const double c[10] = {.1,.2,.2,.4,.4,.6,.3,.7,.5,.5};
-     int i;
+     unsigned i;
      double f = 0;
      if (grad) for (i = 0; i < n; ++i) grad[i] = 0;
-     int m = *((int *) data);
+     unsigned m = *((unsigned *) data);
      for (i = 0; i < m; ++i) {
 	  double fi = 1.0 / (c[i] 
 			     + sqr(x[0]-A[i][0])
@@ -196,7 +196,7 @@ static double shekel_f(int n, const double *x, double *grad, void *data)
      RETURN(f);
 }
 
-static int shekel_m[3] = {5,7,10};
+static unsigned shekel_m[3] = {5,7,10};
 static const double shekel_lb[4] = {0,0,0,0};
 static const double shekel_ub[4] = {10,10,10,10};
 static const double shekel0_xmin[4] = {4.000037154,4.000133276,4.000037154,4.000133276};
@@ -204,10 +204,10 @@ static const double shekel1_xmin[4] = {4.000572917,4.000689366,3.999489709,3.999
 static const double shekel2_xmin[4] = {4.000746531,4.000592935,3.999663399,3.999509801};
 
 /****************************************************************************/
-static double levy_f(int n, const double *x, double *grad, void *data)
+static double levy_f(unsigned n, const double *x, double *grad, void *data)
 {
      UNUSED(data);
-     int i;
+     unsigned i;
      double a = x[n-1] - 1, b = 1 + sqr(sin(PI2*x[n-1]));
      double f = sqr(sin(PI3*x[0])) + a * b;
      if (grad) {
@@ -235,9 +235,9 @@ static const double levy4_ub[4] = {10,10,10,10};
 static const double levy4_xmin[4] = {1,1,1,-9.75235596};
 
 /****************************************************************************/
-static double griewank_f(int n, const double *x, double *grad, void *data)
+static double griewank_f(unsigned n, const double *x, double *grad, void *data)
 {
-     int i;
+     unsigned i;
      double f = 1, p = 1;
      UNUSED(data);
      for (i = 0; i < n; ++i) {
@@ -257,7 +257,7 @@ static const double griewank_ub[10] = {600,600,600,600,600,600,600,600,600,600};
 static const double griewank_xmin[10] = {0,0,0,0,0,0,0,0,0,0};
 
 /****************************************************************************/
-static double sixhumpcamel_f(int n, const double *x, double *grad, void *data)
+static double sixhumpcamel_f(unsigned n, const double *x, double *grad, void *data)
 {
      UNUSED(data);
      if (grad) {
@@ -273,9 +273,9 @@ static const double sixhumpcamel_ub[2] = {5,5};
 static const double sixhumpcamel_xmin[2] = {0.08984201317, -0.7126564032};
 
 /****************************************************************************/
-static double convexcosh_f(int n, const double *x, double *grad, void *data)
+static double convexcosh_f(unsigned n, const double *x, double *grad, void *data)
 {
-     int i;
+     unsigned i;
      double f = 1;
      UNUSED(data);
      for (i = 0; i < n; ++i)
@@ -291,7 +291,7 @@ static const double convexcosh_ub[10] = {2,3,6,7,8,10,11,13,14,16};
 static const double convexcosh_xmin[10] = {0,1,2,3,4,5,6,7,8,9};
 
 /****************************************************************************/
-static double branin_f(int n, const double *x, double *grad, void *data)
+static double branin_f(unsigned n, const double *x, double *grad, void *data)
 {
      double a = 1 - 2*x[1] + 0.05 * sin(PI4 * x[1]) - x[0];
      double b = x[1] - 0.5 * sin(PI2 * x[0]);
@@ -308,10 +308,10 @@ static const double branin_ub[2] = {10,10};
 static const double branin_xmin[2] = {1,0};
 
 /****************************************************************************/
-static double shubert_f(int n, const double *x, double *grad, void *data)
+static double shubert_f(unsigned n, const double *x, double *grad, void *data)
 {
      UNUSED(data);
-     int i, j;
+     unsigned i, j;
      double f = 0;
      for (j = 1; j <= 5; ++j)
 	  for (i = 0; i < n; ++i)
@@ -331,9 +331,9 @@ static const double shubert_ub[2] = {10,10};
 static const double shubert_xmin[2] = {-6.774576143, -6.774576143};
 
 /****************************************************************************/
-static double hansen_f(int n, const double *x, double *grad, void *data)
+static double hansen_f(unsigned n, const double *x, double *grad, void *data)
 {
-     int i;
+     unsigned i;
      double a = 0, b = 0;
      UNUSED(data);
      for (i = 1; i <= 5; ++i)
@@ -358,7 +358,7 @@ static const double hansen_ub[2] = {10,10};
 static const double hansen_xmin[2] = {-1.306707704,-1.425128429};
 
 /****************************************************************************/
-static double osc1d_f(int n, const double *x, double *grad, void *data)
+static double osc1d_f(unsigned n, const double *x, double *grad, void *data)
 {
      double y = *x - 1.23456789;
      UNUSED(data);
@@ -371,7 +371,7 @@ static const double osc1d_ub[1] = {5};
 static const double osc1d_xmin[1] = {1.23456789};
 
 /****************************************************************************/
-static double corner4d_f(int n, const double *x, double *grad, void *data)
+static double corner4d_f(unsigned n, const double *x, double *grad, void *data)
 {
      UNUSED(data);
      UNUSED(n);
@@ -391,7 +391,7 @@ static const double corner4d_ub[4] = {1,1,1,1};
 static const double corner4d_xmin[4] = {0,0,0,0};
 
 /****************************************************************************/
-static double side4d_f(int n, const double *x, double *grad, void *data)
+static double side4d_f(unsigned n, const double *x, double *grad, void *data)
 {
      UNUSED(data);
      UNUSED(n);

@@ -45,7 +45,7 @@ int nlopt_stop_f(const nlopt_stopping *s, const double f, double oldf)
 
 int nlopt_stop_x(const nlopt_stopping *s, const double *x, const double *oldx)
 {
-     int i;
+     unsigned i;
      for (i = 0; i < s->n; ++i)
 	  if (!relstop(oldx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
 	       return 0;
@@ -54,7 +54,7 @@ int nlopt_stop_x(const nlopt_stopping *s, const double *x, const double *oldx)
 
 int nlopt_stop_dx(const nlopt_stopping *s, const double *x, const double *dx)
 {
-     int i;
+     unsigned i;
      for (i = 0; i < s->n; ++i)
 	  if (!relstop(x[i] - dx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
 	       return 0;
@@ -72,7 +72,7 @@ int nlopt_stop_xs(const nlopt_stopping *s,
 		  const double *xs, const double *oldxs,
 		  const double *scale_min, const double *scale_max)
 {
-     int i;
+     unsigned i;
      for (i = 0; i < s->n; ++i)
 	  if (relstop(sc(oldxs[i], scale_min[i], scale_max[i]), 
 		      sc(xs[i], scale_min[i], scale_max[i]),

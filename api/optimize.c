@@ -83,21 +83,21 @@ static double f_bound(int n, const double *x, void *data_)
 	  if (x[i] < data->lb[i] || x[i] > data->ub[i])
 	       return HUGE_VAL;
 
-     f = data->f(n, x, NULL, data->f_data);
+     f = data->f((unsigned) n, x, NULL, data->f_data);
      return (isnan(f) || nlopt_isinf(f) ? HUGE_VAL : f);
 }
 
 static double f_noderiv(int n, const double *x, void *data_)
 {
      nlopt_data *data = (nlopt_data *) data_;
-     return data->f(n, x, NULL, data->f_data);
+     return data->f((unsigned) n, x, NULL, data->f_data);
 }
 
 static double f_direct(int n, const double *x, int *undefined, void *data_)
 {
      nlopt_data *data = (nlopt_data *) data_;
      double f;
-     f = data->f(n, x, NULL, data->f_data);
+     f = data->f((unsigned) n, x, NULL, data->f_data);
      *undefined = isnan(f) || nlopt_isinf(f);
      return f;
 }
@@ -107,7 +107,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 /* get min(dx) for algorithms requiring a scalar initial step size */
 static nlopt_result initial_step(nlopt_opt opt, const double *x, double *step)
 {
-     int freedx = 0, i;
+     unsigned freedx = 0, i;
 
      if (!opt->dx) {
 	  freedx = 1;
@@ -127,9 +127,9 @@ static nlopt_result initial_step(nlopt_opt opt, const double *x, double *step)
 /*********************************************************************/
 
 /* return true if [lb,ub] is finite in every dimension (n dimensions) */
-static int finite_domain(int n, const double *lb, const double *ub)
+static int finite_domain(unsigned n, const double *lb, const double *ub)
 {
-     int i;
+     unsigned i;
      for (i = 0; i < n; ++i)
 	  if (nlopt_isinf(ub[i] - lb[i])) return 0;
      return 1;
@@ -147,7 +147,8 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
      const double *lb, *ub;
      nlopt_algorithm algorithm;
      nlopt_func f; void *f_data;
-     int n, i;
+     unsigned n, i;
+     int ni;
      nlopt_data d;
      nlopt_stopping stop;
 
@@ -155,6 +156,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 
      /* copy a few params to local vars for convenience */
      n = opt->n;
+     ni = (int) n; /* most of the subroutines take "int" arg */
      lb = opt->lb; ub = opt->ub;
      algorithm = opt->algorithm;
      f = opt->f; f_data = opt->f_data;
@@ -196,7 +198,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_DIRECT_L: 
 	 case NLOPT_GN_DIRECT_L_RAND: 
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      return cdirect(n, f, f_data, 
+	      return cdirect(ni, f, f_data, 
 			     lb, ub, x, minf, &stop, 0.0, 
 			     (algorithm != NLOPT_GN_DIRECT)
 			     + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND 
@@ -208,7 +210,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_DIRECT_L_NOSCAL: 
 	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      return cdirect_unscaled(n, f, f_data, lb, ub, x, minf, 
+	      return cdirect_unscaled(ni, f, f_data, lb, ub, x, minf, 
 				      &stop, 0.0, 
 				      (algorithm != NLOPT_GN_DIRECT)
 				      + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
@@ -217,7 +219,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L: 
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      switch (direct_optimize(f_direct, &d, n, lb, ub, x, minf,
+	      switch (direct_optimize(f_direct, &d, ni, lb, ub, x, minf,
 				      stop.maxeval, -1, 0.0, 0.0,
 				      pow(stop.xtol_rel, (double) n), -1.0,
 				      stop.minf_max, 0.0,
@@ -250,9 +252,9 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GD_STOGO_RAND:
 #ifdef WITH_CXX
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      if (!stogo_minimize(n, f, f_data, x, minf, lb, ub, &stop,
+	      if (!stogo_minimize(ni, f, f_data, x, minf, lb, ub, &stop,
 				  algorithm == NLOPT_GD_STOGO
-				  ? 0 : POP(2*n)))
+				  ? 0 : (int) POP(2*n)))
 		   return NLOPT_FAILURE;
 	      break;
 #else
@@ -291,7 +293,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
 	      return praxis_(0.0, DBL_EPSILON, 
-			     step, n, x, f_bound, &d, &stop, minf);
+			     step, ni, x, f_bound, &d, &stop, minf);
 	 }
 
 #ifdef WITH_NOCEDAL
@@ -303,8 +305,8 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 		   int uinf = nlopt_isinf(ub[i]) && ub[i] > 0;
 		   nbd[i] = linf && uinf ? 0 : (uinf ? 1 : (linf ? 3 : 2));
 	      }
-	      iret = lbfgsb_minimize(n, f, f_data, x, nbd, lb, ub,
-				     MIN(n, 5), 0.0, stop.ftol_rel, 
+	      iret = lbfgsb_minimize(ni, f, f_data, x, nbd, lb, ub,
+				     MIN(ni, 5), 0.0, stop.ftol_rel, 
 				     stop.xtol_abs[0] > 0 ? stop.xtol_abs[0]
 				     : stop.xtol_rel,
 				     stop.maxeval);
@@ -329,25 +331,25 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 #endif
 
 	 case NLOPT_LD_LBFGS: 
-	      return luksan_plis(n, f, f_data, lb, ub, x, minf, &stop);
+	      return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop);
 
 	 case NLOPT_LD_VAR1: 
 	 case NLOPT_LD_VAR2: 
-	      return luksan_plip(n, f, f_data, lb, ub, x, minf, &stop,
+	      return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop,
 		   algorithm == NLOPT_LD_VAR1 ? 1 : 2);
 
 	 case NLOPT_LD_TNEWTON: 
 	 case NLOPT_LD_TNEWTON_RESTART: 
 	 case NLOPT_LD_TNEWTON_PRECOND: 
 	 case NLOPT_LD_TNEWTON_PRECOND_RESTART: 
-	      return luksan_pnet(n, f, f_data, lb, ub, x, minf, &stop,
+	      return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) % 2,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
 
 	 case NLOPT_GN_CRS2_LM:
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      return crs_minimize(n, f, f_data, lb, ub, x, minf, &stop, 
-				  POP(0), 0);
+	      return crs_minimize(ni, f, f_data, lb, ub, x, minf, &stop, 
+				  (int) POP(0), 0);
 
 	 case NLOPT_GN_MLSL:
 	 case NLOPT_GD_MLSL:
@@ -384,8 +386,8 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 		   nlopt_set_ftol_rel(local_opt, 1e-15);
 		   nlopt_set_xtol_rel(local_opt, 1e-7);
 	      }
-	      ret = mlsl_minimize(n, f, f_data, lb, ub, x, minf, &stop,
-				  local_opt, POP(0),
+	      ret = mlsl_minimize(ni, f, f_data, lb, ub, x, minf, &stop,
+				  local_opt, (int) POP(0),
 				  algorithm >= NLOPT_GN_MLSL_LDS);
 	      if (!opt->local_opt) nlopt_destroy(local_opt);
 	      return ret;
@@ -404,7 +406,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      nlopt_set_maxeval(dual_opt, LO(maxeval, 100000));
 #undef LO
 
-	      ret = mma_minimize(n, f, f_data, opt->m, opt->fc,
+	      ret = mma_minimize(ni, f, f_data, (int) (opt->m), opt->fc,
 				 lb, ub, x, minf, &stop, dual_opt);
 	      nlopt_destroy(dual_opt);
 	      return ret;
@@ -414,7 +416,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
-	      return cobyla_minimize(n, f, f_data, 
+	      return cobyla_minimize(ni, f, f_data, 
 				     opt->m, opt->fc,
 				     lb, ub, x, minf, &stop,
 				     step);
@@ -424,7 +426,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
-	      return newuoa(n, 2*n+1, x, 0, 0, step,
+	      return newuoa(ni, 2*n+1, x, 0, 0, step,
 			    &stop, minf, f_noderiv, &d);
 	 }
 				     
@@ -432,7 +434,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
-	      return newuoa(n, 2*n+1, x, lb, ub, step,
+	      return newuoa(ni, 2*n+1, x, lb, ub, step,
 			    &stop, minf, f_noderiv, &d);
 	 }
 
@@ -440,7 +442,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
-	      return bobyqa(n, 2*n+1, x, lb, ub, step,
+	      return bobyqa(ni, 2*n+1, x, lb, ub, step,
 			    &stop, minf, f_noderiv, &d);
 	 }
 
@@ -455,9 +457,9 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 			return NLOPT_OUT_OF_MEMORY;
 	      }
 	      if (algorithm == NLOPT_LN_NELDERMEAD)
-		   ret= nldrmd_minimize(n,f,f_data,lb,ub,x,minf,opt->dx,&stop);
+		   ret= nldrmd_minimize(ni,f,f_data,lb,ub,x,minf,opt->dx,&stop);
 	      else
-		   ret= sbplx_minimize(n,f,f_data,lb,ub,x,minf,opt->dx,&stop);
+		   ret= sbplx_minimize(ni,f,f_data,lb,ub,x,minf,opt->dx,&stop);
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      return ret;
 	 }
@@ -482,7 +484,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 		   nlopt_set_maxeval(local_opt, nlopt_local_search_maxeval);
 		   nlopt_set_initial_step(local_opt, opt->dx);
 	      }
-	      ret = auglag_minimize(n, f, f_data, 
+	      ret = auglag_minimize(ni, f, f_data, 
 				    opt->m, opt->fc, 
 				    opt->p, opt->h,
 				    lb, ub, x, minf, &stop,
@@ -495,11 +497,11 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 
 	 case NLOPT_GN_ISRES:
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      return isres_minimize(n, f, f_data, 
-				    opt->m, opt->fc,
-				    opt->p, opt->h,
+	      return isres_minimize(ni, f, f_data, 
+				    (int) (opt->m), opt->fc,
+				    (int) (opt->p), opt->h,
 				    lb, ub, x, minf, &stop,
-				    POP(0));
+				    (int) POP(0));
 
 	 default:
 	      return NLOPT_INVALID_ARGS;

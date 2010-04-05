@@ -67,7 +67,7 @@ extern void nlopt_sobol_skip(nlopt_sobol s, unsigned n, double *x);
 
 /* stopping criteria */
 typedef struct {
-     int n;
+     unsigned n;
      double minf_max;
      double ftol_rel;
      double ftol_abs;

@@ -53,15 +53,15 @@ int nlopt_stochastic_population = 0;
 int nlopt_get_stochastic_population(void) { 
      return nlopt_stochastic_population; }
 void nlopt_set_stochastic_population(int pop) { 
-     nlopt_stochastic_population = pop; }
+     nlopt_stochastic_population = pop <= 0 ? 0 : (unsigned) pop; }
 
 /*************************************************************************/
 
 nlopt_result nlopt_minimize_econstrained(
      nlopt_algorithm algorithm,
-     int n, nlopt_func f, void *f_data,
-     int m, nlopt_func fc, void *fc_data_, ptrdiff_t fc_datum_size,
-     int p, nlopt_func h, void *h_data_, ptrdiff_t h_datum_size,
+     int n, nlopt_func_old f, void *f_data,
+     int m, nlopt_func_old fc, void *fc_data_, ptrdiff_t fc_datum_size,
+     int p, nlopt_func_old h, void *h_data_, ptrdiff_t h_datum_size,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
@@ -72,17 +72,20 @@ nlopt_result nlopt_minimize_econstrained(
 {
      char *fc_data = (char *) fc_data_;
      char *h_data = (char *) h_data_;
-     nlopt_opt opt = nlopt_create(algorithm, n);
+     nlopt_opt opt;
      nlopt_result ret;
      int i;
 
+     if (n < 0 || m < 0 || p < 0) return NLOPT_INVALID_ARGS;
+
+     opt = nlopt_create(algorithm, (unsigned) n);
      if (!opt) return NLOPT_INVALID_ARGS;
 
-     ret = nlopt_set_min_objective(opt, f, f_data);
+     ret = nlopt_set_min_objective(opt, (nlopt_func) f, f_data);
      if (ret != NLOPT_SUCCESS) { nlopt_destroy(opt); return ret; }
 
      for (i = 0; i < m; ++i) {
-	  ret = nlopt_add_inequality_constraint(opt, fc, 
+	  ret = nlopt_add_inequality_constraint(opt, (nlopt_func) fc, 
 						fc_data + i*fc_datum_size,
 						0.0);
 	  if (ret != NLOPT_SUCCESS) { nlopt_destroy(opt); return ret; }
@@ -90,7 +93,7 @@ nlopt_result nlopt_minimize_econstrained(
 
      (void) htol_rel; /* unused */
      for (i = 0; i < p; ++i) {
-	  ret = nlopt_add_equality_constraint(opt, h, 
+	  ret = nlopt_add_equality_constraint(opt, (nlopt_func) h, 
 					      h_data + i*h_datum_size,
 					      htol_abs);
 	  if (ret != NLOPT_SUCCESS) { nlopt_destroy(opt); return ret; }
@@ -128,8 +131,8 @@ nlopt_result nlopt_minimize_econstrained(
 
 nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
-     int n, nlopt_func f, void *f_data,
-     int m, nlopt_func fc, void *fc_data, ptrdiff_t fc_datum_size,
+     int n, nlopt_func_old f, void *f_data,
+     int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
@@ -146,7 +149,7 @@ nlopt_result nlopt_minimize_constrained(
 
 nlopt_result nlopt_minimize(
      nlopt_algorithm algorithm,
-     int n, nlopt_func f, void *f_data,
+     int n, nlopt_func_old f, void *f_data,
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf, /* out: minimum */
