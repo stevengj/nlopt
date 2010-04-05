@@ -119,6 +119,10 @@ namespace nlopt {
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       return algorithm(nlopt_get_algorithm(o));
     }
+    const char *get_algorithm_name() const {
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");
+      return nlopt_algorithm_name(nlopt_get_algorithm(o));
+    }
     unsigned get_dimension() const {
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       return nlopt_get_dimension(o);
@@ -259,6 +263,20 @@ namespace nlopt {
 
 #undef NLOPT_GETSET
 #undef NLOPT_GETSET_VEC
+
+  //////////////////////////////////////////////////////////////////////
+
+  inline void srand(unsigned long seed) { nlopt_srand(seed); }
+  inline void srand_time(void) { nlopt_srand_time(); }
+  inline void version(int &major, int &minor, int &bugfix) {
+    nlopt_version(&major, &minor, &bugfix);
+  }
+  inline const char *algorithm_name(nlopt_algorithm a) {
+    return nlopt_algorithm_name(a);
+  }
+  inline const char *algorithm_name(algorithm a) {
+    return algorithm_name(nlopt_algorithm(a));
+  }
 
   //////////////////////////////////////////////////////////////////////
 
