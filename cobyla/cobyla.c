@@ -71,10 +71,9 @@ typedef struct {
 } func_wrap_state;
 
 static int func_wrap(int n, int m, double *x, double *f, double *con,
-		     void *state)
+		     func_wrap_state *s)
 {
      int i, j;
-     func_wrap_state *s = (func_wrap_state *) state;
      double *xtmp = s->xtmp;
      const double *lb = s->lb, *ub = s->ub;
 
@@ -101,6 +100,57 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
      if (m != i) return 1; /* ... bug?? */
      return 0;
 }
+
+/*
+ * Verbosity level
+ */
+typedef enum {
+  COBYLA_MSG_NONE = 0, /* No messages */
+  COBYLA_MSG_EXIT = 1, /* Exit reasons */
+  COBYLA_MSG_ITER = 2, /* Rho and Sigma changes */
+  COBYLA_MSG_INFO = 3, /* Informational messages */
+} cobyla_message;
+
+/*
+ * A function as required by cobyla
+ * state is a void pointer provided to the function at each call
+ *
+ * n     : the number of variables
+ * m     : the number of constraints
+ * x     : on input, then vector of variables (should not be modified)
+ * f     : on output, the value of the function
+ * con   : on output, the value of the constraints (vector of size m)
+ * state : on input, the value of the state variable as provided to cobyla
+ *
+ * COBYLA will try to make all the values of the constraints positive.
+ * So if you want to input a constraint j such as x[i] <= MAX, set:
+ *   con[j] = MAX - x[i]
+ * The function must returns 0 if no error occurs or 1 to immediately end the
+ * minimization.
+ *
+ */
+typedef int cobyla_function(int n, int m, double *x, double *f, double *con,
+  func_wrap_state *state);
+
+/*
+ * cobyla : minimize a function subject to constraints
+ *
+ * n         : number of variables (>=0)
+ * m         : number of constraints (>=0)
+ * x         : on input, initial estimate ; on output, the solution
+ * minf      : on output, minimum objective function
+ * rhobeg    : a reasonable initial change to the variables
+ * stop      : the NLopt stopping criteria
+ * lb, ub    : lower and upper bounds on x
+ * message   : see the cobyla_message enum
+ * calcfc    : the function to minimize (see cobyla_function)
+ * state     : used by function (see cobyla_function)
+ *
+ * The cobyla function returns the usual nlopt_result codes.
+ *
+ */
+extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub,
+  int message, cobyla_function *calcfc, func_wrap_state *state);
 
 nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 			     int m, nlopt_constraint *fc,
@@ -186,7 +236,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp, double *x, double *minf, do
   nlopt_stopping *stop, const double *lb, const double *ub, int *iprint, double *con, double *sim,
   double *simi, double *datmat, double *a, double *vsig, double *veta,
   double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
-  void *state);
+  func_wrap_state *state);
 static void trstlp(int *n, int *m, double *a, double *b, double *rho,
   double *dx, int *ifull, int *iact, double *z__, double *zdota, double *vmultc,
   double *sdirn, double *dxnew, double *vmultd);
@@ -194,7 +244,7 @@ static void trstlp(int *n, int *m, double *a, double *b, double *rho,
 /* ------------------------------------------------------------------------ */
 
 nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub, int iprint,
-  cobyla_function *calcfc, void *state)
+  cobyla_function *calcfc, func_wrap_state *state)
 {
   int icon, isim, isigb, idatm, iveta, isimi, ivsig, iwork, ia, idx, mpp;
   int *iact;
@@ -326,7 +376,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
     int *iprint, double *con, double *sim, double *simi, 
     double *datmat, double *a, double *vsig, double *veta,
      double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
-     void *state)
+     func_wrap_state *state)
 {
   /* System generated locals */
   int sim_dim1, sim_offset, simi_dim1, simi_offset, datmat_dim1, 
@@ -357,6 +407,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   nlopt_result rc = NLOPT_SUCCESS;
   double rhoend;
   uint32_t seed = (uint32_t) (*n + *m); /* arbitrary deterministic LCG seed */
+  int feasible;
 
   /* SGJ, 2008: compute rhoend from NLopt stop info */
   rhoend = stop->xtol_rel * (*rhobeg);
@@ -463,16 +514,21 @@ L40:
   }
 
   resmax = 0.;
+  feasible = 1; /* SGJ, 2010 */
   if (*m > 0) {
     i__1 = *m;
     for (k = 1; k <= i__1; ++k) {
       d__1 = resmax, d__2 = -con[k];
       resmax = max(d__1,d__2);
+      printf("cobyla tol[%d] = %g, con = %g\n",
+	     k, k <= state->m_orig ? state->fc[k-1].tol : 0, d__2);
+      if (d__2 > (k <= state->m_orig ? state->fc[k-1].tol : 0))
+	   feasible = 0; /* SGJ, 2010 */
     }
   }
 
   /* SGJ, 2008: check for minf_max reached by feasible point */
-  if (f < stop->minf_max && resmax <= 0) {
+  if (f < stop->minf_max && feasible) {
        rc = NLOPT_MINF_MAX_REACHED;
        goto L620; /* not L600 because we want to use current x, f, resmax */
   }

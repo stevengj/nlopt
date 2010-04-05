@@ -45,57 +45,6 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-/*
- * Verbosity level
- */
-typedef enum {
-  COBYLA_MSG_NONE = 0, /* No messages */
-  COBYLA_MSG_EXIT = 1, /* Exit reasons */
-  COBYLA_MSG_ITER = 2, /* Rho and Sigma changes */
-  COBYLA_MSG_INFO = 3, /* Informational messages */
-} cobyla_message;
-
-/*
- * A function as required by cobyla
- * state is a void pointer provided to the function at each call
- *
- * n     : the number of variables
- * m     : the number of constraints
- * x     : on input, then vector of variables (should not be modified)
- * f     : on output, the value of the function
- * con   : on output, the value of the constraints (vector of size m)
- * state : on input, the value of the state variable as provided to cobyla
- *
- * COBYLA will try to make all the values of the constraints positive.
- * So if you want to input a constraint j such as x[i] <= MAX, set:
- *   con[j] = MAX - x[i]
- * The function must returns 0 if no error occurs or 1 to immediately end the
- * minimization.
- *
- */
-typedef int cobyla_function(int n, int m, double *x, double *f, double *con,
-  void *state);
-
-/*
- * cobyla : minimize a function subject to constraints
- *
- * n         : number of variables (>=0)
- * m         : number of constraints (>=0)
- * x         : on input, initial estimate ; on output, the solution
- * minf      : on output, minimum objective function
- * rhobeg    : a reasonable initial change to the variables
- * stop      : the NLopt stopping criteria
- * lb, ub    : lower and upper bounds on x
- * message   : see the cobyla_message enum
- * calcfc    : the function to minimize (see cobyla_function)
- * state     : used by function (see cobyla_function)
- *
- * The cobyla function returns the usual nlopt_result codes.
- *
- */
-extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub,
-  int message, cobyla_function *calcfc, void *state);
-
 /* NLopt-style interface function */
 nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
                              int m, nlopt_constraint *fc,
