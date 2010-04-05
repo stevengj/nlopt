@@ -135,7 +135,7 @@ typedef enum {
      NLOPT_INVALID_ARGS = -2,
      NLOPT_OUT_OF_MEMORY = -3,
      NLOPT_ROUNDOFF_LIMITED = -4,
-
+     NLOPT_STOPVAL_REACHED = 2,
      NLOPT_SUCCESS = 1, /* generic success code */
      NLOPT_MINF_MAX_REACHED = 2,
      NLOPT_FTOL_REACHED = 3,
@@ -144,6 +144,7 @@ typedef enum {
      NLOPT_MAXTIME_REACHED = 6
 } nlopt_result;
 
+#define NLOPT_MINF_MAX_REACHED NLOPT_STOPVAL_REACHED
 
 NLOPT_EXTERN void nlopt_srand(unsigned long seed);
 NLOPT_EXTERN void nlopt_srand_time(void);
@@ -172,6 +173,8 @@ NLOPT_EXTERN nlopt_result nlopt_optimize(nlopt_opt opt, double *x,
 					 double *opt_f);
 
 NLOPT_EXTERN nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, 
+						  void *f_data);
+NLOPT_EXTERN nlopt_result nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, 
 						  void *f_data);
 
 NLOPT_EXTERN nlopt_algorithm nlopt_get_algorithm(const nlopt_opt opt);
@@ -204,7 +207,7 @@ NLOPT_EXTERN nlopt_result nlopt_add_equality_constraint(nlopt_opt opt,
 
 /* stopping criteria: */
 
-NLOPT_EXTERN nlopt_result nlopt_set_stopval(nlopt_opt opt, double minf_max);
+NLOPT_EXTERN nlopt_result nlopt_set_stopval(nlopt_opt opt, double stopval);
 NLOPT_EXTERN double nlopt_get_stopval(const nlopt_opt opt);
 
 NLOPT_EXTERN nlopt_result nlopt_set_ftol_rel(nlopt_opt opt, double tol);

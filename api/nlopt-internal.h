@@ -38,6 +38,7 @@ struct nlopt_opt_s {
      unsigned n; /* the dimension of the problem (immutable) */
 
      nlopt_func f; void *f_data; /* objective function to minimize */
+     int maximize; /* nonzero if we are maximizing, not minimizing */
 
      double *lb, *ub; /* lower and upper bounds (length n) */
 
@@ -50,7 +51,7 @@ struct nlopt_opt_s {
      nlopt_constraint *h; /* equality constraints, length p_alloc */
 
      /* stopping criteria */
-     double minf_max; /* stop when f < minf_max */
+     double stopval; /* stop when f reaches stopval or better */
      double ftol_rel, ftol_abs; /* relative/absolute f tolerances */
      double xtol_rel, *xtol_abs; /* rel/abs x tolerances */
      int maxeval; /* max # evaluations */

@@ -91,6 +91,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      ret = nlopt_set_min_objective(sub_opt, auglag, &d); if (ret<0) return ret;
      ret = nlopt_set_lower_bounds(sub_opt, lb); if (ret<0) return ret;
      ret = nlopt_set_upper_bounds(sub_opt, ub); if (ret<0) return ret;
+     ret = nlopt_set_stopval(sub_opt, stop->minf_max); if (ret<0) return ret;
      ret = nlopt_remove_inequality_constraints(sub_opt); if (ret<0) return ret;
      ret = nlopt_remove_equality_constraints(sub_opt); if (ret<0) return ret;
      for (i = 0; i < m; ++i) {

@@ -130,6 +130,13 @@ namespace nlopt {
     void set_min_objective(func *f) {
       set_min_objective(myfunc, f);
     }
+    void set_max_objective(nlopt_func f, void *f_data) {
+      nlopt_result ret = nlopt_set_max_objective(o, f, f_data);
+      mythrow(ret);
+    }
+    void set_max_objective(func *f) {
+      set_max_objective(myfunc, f);
+    }
 
     // Nonlinear constraints:
 

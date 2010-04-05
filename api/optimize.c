@@ -69,8 +69,6 @@ typedef struct {
      const double *lb, *ub;
 } nlopt_data;
 
-#include "praxis.h"
-
 static double f_bound(int n, const double *x, void *data_)
 {
      int i;
@@ -142,7 +140,8 @@ static int finite_domain(unsigned n, const double *lb, const double *ub)
                          (nlopt_stochastic_population > 0 ?		\
 			  nlopt_stochastic_population : (defaultpop)))
 
-nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
+/* unlike nlopt_optimize() below, only handles minimization case */
+static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 {
      const double *lb, *ub;
      nlopt_algorithm algorithm;
@@ -152,8 +151,9 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
      nlopt_data d;
      nlopt_stopping stop;
 
-     if (!opt || !x || !minf || !opt->f) return NLOPT_INVALID_ARGS;
-
+     if (!opt || !x || !minf || !opt->f
+	 || opt->maximize) return NLOPT_INVALID_ARGS;
+     
      /* copy a few params to local vars for convenience */
      n = opt->n;
      ni = (int) n; /* most of the subroutines take "int" arg */
@@ -162,7 +162,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
      f = opt->f; f_data = opt->f_data;
 
      if (n == 0) { /* trivial case: no degrees of freedom */
-	  *minf = f(n, x, NULL, f_data);
+	  *minf = opt->f(n, x, NULL, opt->f_data);
 	  return NLOPT_SUCCESS;
      }
 
@@ -183,7 +183,7 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
 	       return NLOPT_INVALID_ARGS;
 
      stop.n = n;
-     stop.minf_max = opt->minf_max;
+     stop.minf_max = opt->stopval;
      stop.ftol_rel = opt->ftol_rel;
      stop.ftol_abs = opt->ftol_abs;
      stop.xtol_rel = opt->xtol_rel;
@@ -508,6 +508,55 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *minf)
      }
 
      return NLOPT_SUCCESS; /* never reached */
+}
+
+/*********************************************************************/
+
+typedef struct {
+     nlopt_func f;
+     void *f_data;
+} f_max_data;
+
+/* wrapper for maximizing: just flip the sign of f and grad */
+static double f_max(unsigned n, const double *x, double *grad, void *data)
+{
+     f_max_data *d = (f_max_data *) data;
+     double val = d->f(n, x, grad, d->f_data);
+     if (grad) {
+	  unsigned i;
+	  for (i = 0; i < n; ++i)
+	       grad[i] = -grad[i];
+     }
+     return -val;
+}
+
+nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
+{
+     nlopt_func f; void *f_data;
+     f_max_data fmd;
+     int maximize;
+     nlopt_result ret;
+
+     if (!opt || !opt_f || !opt->f) return NLOPT_INVALID_ARGS;
+     f = opt->f; f_data = opt->f_data;
+
+     /* for maximizing, just minimize the f_max wrapper, which 
+	flips the sign of everything */
+     if ((maximize = opt->maximize)) {
+	  fmd.f = f; fmd.f_data = f_data;
+	  opt->f = f_max; opt->f_data = &fmd;
+	  opt->stopval = -opt->stopval;
+     }
+
+     ret = nlopt_optimize_(opt, x, opt_f);
+
+     if (maximize) { /* restore original signs */
+	  opt->stopval = -opt->stopval;
+	  opt->f = f; opt->f_data = f_data;
+     	  *opt_f = -*opt_f;
+     }
+
+     return ret;
 }
 
 /*********************************************************************/

@@ -56,6 +56,7 @@ nlopt_opt nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->algorithm = algorithm;
 	  opt->n = n;
 	  opt->f = NULL; opt->f_data = NULL;
+	  opt->maximize = 0;
 
 	  opt->lb = opt->ub = NULL;
 	  opt->m = opt->m_alloc = 0;
@@ -63,7 +64,7 @@ nlopt_opt nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->p = opt->p_alloc = 0;
 	  opt->h = NULL;
 
-	  opt->minf_max = -HUGE_VAL;
+	  opt->stopval = -HUGE_VAL;
 	  opt->ftol_rel = opt->ftol_abs = 0;
 	  opt->xtol_rel = 0; opt->xtol_abs = NULL;
 	  opt->maxeval = 0;
@@ -158,6 +159,21 @@ nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, void *f_data)
 {
      if (opt && f) {
 	  opt->f = f; opt->f_data = f_data;
+	  opt->maximize = 0;
+	  if (nlopt_isinf(opt->stopval) && opt->stopval > 0)
+	       opt->stopval = -HUGE_VAL;
+	  return NLOPT_SUCCESS;
+     }
+     return NLOPT_INVALID_ARGS;
+}
+
+nlopt_result nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, void *f_data)
+{
+     if (opt && f) {
+	  opt->f = f; opt->f_data = f_data;
+	  opt->maximize = 1;
+	  if (nlopt_isinf(opt->stopval) && opt->stopval < 0)
+	       opt->stopval = +HUGE_VAL;
 	  return NLOPT_SUCCESS;
      }
      return NLOPT_INVALID_ARGS;
@@ -323,7 +339,7 @@ nlopt_result nlopt_add_equality_constraint(nlopt_opt opt,
 
 #define GETSET(param, T, arg) GET(param, T, arg) SET(param, T, arg)
 
-GETSET(stopval, double, minf_max)
+GETSET(stopval, double, stopval)
 
 GETSET(ftol_rel, double, ftol_rel)
 GETSET(ftol_abs, double, ftol_abs)

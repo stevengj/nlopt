@@ -231,6 +231,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
      nlopt_set_min_objective(dual_opt, dual_func, &dd);
      nlopt_set_lower_bounds(dual_opt, dual_lb);
      nlopt_set_upper_bounds(dual_opt, dual_ub);
+     nlopt_set_stopval(dual_opt, -HUGE_VAL);
 
      while (1) { /* outer iterations */
 	  double fprev = fcur;
