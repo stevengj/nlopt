@@ -546,11 +546,13 @@ nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
 	  fmd.f = f; fmd.f_data = f_data;
 	  opt->f = f_max; opt->f_data = &fmd;
 	  opt->stopval = -opt->stopval;
+	  opt->maximize = 0;
      }
 
      ret = nlopt_optimize_(opt, x, opt_f);
 
      if (maximize) { /* restore original signs */
+	  opt->maximize = maximize;
 	  opt->stopval = -opt->stopval;
 	  opt->f = f; opt->f_data = f_data;
      	  *opt_f = -*opt_f;
