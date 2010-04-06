@@ -12,8 +12,8 @@ dummy_SOURCES = dummy.c
 octdir = $(OCT_INSTALL_DIR)
 mdir = $(M_INSTALL_DIR)
 if WITH_OCTAVE
-oct_DATA = nlopt_minimize_constrained.oct
-m_DATA = $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
+oct_DATA = nlopt_minimize_constrained.oct nlopt_optimize.oct
+m_DATA = $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m nlopt_optimize.m
 endif
 
 nlopt_minimize_constrained.oct: nlopt_minimize_constrained-oct.cc nlopt_minimize_constrained_usage.h $(top_builddir)/.libs/libnlopt@NLOPT_SUFFIX@.la
@@ -22,6 +22,14 @@ nlopt_minimize_constrained.oct: nlopt_minimize_constrained-oct.cc nlopt_minimize
 nlopt_minimize_constrained_usage.h: $(srcdir)/nlopt_minimize_constrained.m
 	echo "#define NLOPT_MINIMIZE_CONSTRAINED_USAGE \\" > $@
 	sed 's/\"/\\"/g' $(srcdir)/nlopt_minimize_constrained.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
+	echo "" >> $@
+
+nlopt_optimize.oct: nlopt_optimize-oct.cc nlopt_optimize_usage.h $(top_builddir)/.libs/libnlopt@NLOPT_SUFFIX@.la
+	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_optimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
+
+nlopt_optimize_usage.h: $(srcdir)/nlopt_optimize.m
+	echo "#define NLOPT_OPTIMIZE_USAGE \\" > $@
+	sed 's/\"/\\"/g' $(srcdir)/nlopt_optimize.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
 	echo "" >> $@
 
 #######################################################################
@@ -35,6 +43,6 @@ nlopt_minimize_constrained.$(MEXSUFF): nlopt_minimize_constrained-mex.c $(top_bu
 
 #######################################################################
 
-EXTRA_DIST = nlopt_minimize_constrained-oct.cc nlopt_minimize_constrained-mex.c $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
+EXTRA_DIST = nlopt_minimize_constrained-oct.cc nlopt_optimize-oct.cc nlopt_minimize_constrained-mex.c $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m nlopt_optimize.m
 
-CLEANFILES = nlopt_minimize_constrained.oct nlopt_minimize_constrained_usage.h nlopt_minimize_constrained.$(MEXSUFF) nlopt_minimize_constrained-oct.o
+CLEANFILES = nlopt_minimize_constrained.oct nlopt_minimize_constrained_usage.h nlopt_optimize.oct nlopt_optimize_usage.h nlopt_minimize_constrained.$(MEXSUFF) nlopt_minimize_constrained-oct.o nlopt_optimize-oct.o

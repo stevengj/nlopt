@@ -105,7 +105,7 @@ DEFUN_DLD(nlopt_minimize_constrained, args, nargout, NLOPT_MINIMIZE_CONSTRAINED_
 
   CHECK(args.length() == 9 && nargout <= 3, "wrong number of args");
 
-  CHECK(args(0).is_real_scalar(), "n must be real scalar");
+  CHECK(args(0).is_real_scalar(), "algorithm must be integer");
   nlopt_algorithm algorithm = nlopt_algorithm(args(0).int_value());
 
   user_function_data d;
