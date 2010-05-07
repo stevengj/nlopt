@@ -288,7 +288,9 @@ nlopt_result nlopt_add_inequality_constraint(nlopt_opt opt,
 	  if (opt->algorithm != NLOPT_LD_MMA 
 	      && opt->algorithm != NLOPT_LN_COBYLA
 	      && !AUGLAG_ALG(opt->algorithm) 
-	      && opt->algorithm != NLOPT_GN_ISRES)
+	      && opt->algorithm != NLOPT_GN_ISRES
+	      && opt->algorithm != NLOPT_GN_ORIG_DIRECT
+	      && opt->algorithm != NLOPT_GN_ORIG_DIRECT_L)
 	       return NLOPT_INVALID_ARGS;
 
 	  return add_constraint(&opt->m, &opt->m_alloc, &opt->fc,

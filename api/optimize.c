@@ -63,16 +63,10 @@ static int my_isnan(double x) { return x != x; }
 
 /*********************************************************************/
 
-typedef struct {
-     nlopt_func f;
-     void *f_data;
-     const double *lb, *ub;
-} nlopt_data;
-
 static double f_bound(int n, const double *x, void *data_)
 {
      int i;
-     nlopt_data *data = (nlopt_data *) data_;
+     nlopt_opt data = (nlopt_opt) data_;
      double f;
 
      /* some methods do not support bound constraints, but support
@@ -87,16 +81,20 @@ static double f_bound(int n, const double *x, void *data_)
 
 static double f_noderiv(int n, const double *x, void *data_)
 {
-     nlopt_data *data = (nlopt_data *) data_;
+     nlopt_opt data = (nlopt_opt) data_;
      return data->f((unsigned) n, x, NULL, data->f_data);
 }
 
 static double f_direct(int n, const double *x, int *undefined, void *data_)
 {
-     nlopt_data *data = (nlopt_data *) data_;
+     nlopt_opt data = (nlopt_opt) data_;
      double f;
+     unsigned i;
      f = data->f((unsigned) n, x, NULL, data->f_data);
      *undefined = isnan(f) || nlopt_isinf(f);
+     for (i = 0; i < data->m && !*undefined; ++i)
+	  if (data->fc[i].f((unsigned) n, x, NULL, data->fc[i].f_data) > 0)
+	       *undefined = 1;
      return f;
 }
 
@@ -148,7 +146,6 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
      nlopt_func f; void *f_data;
      unsigned n, i;
      int ni;
-     nlopt_data d;
      nlopt_stopping stop;
 
      if (!opt || !x || !minf || !opt->f
@@ -168,11 +165,6 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 
      *minf = HUGE_VAL;
      
-     d.f = f;
-     d.f_data = f_data;
-     d.lb = lb;
-     d.ub = ub;
-
      /* make sure rand generator is inited */
      if (!nlopt_srand_called)
 	  nlopt_srand_time(); /* default is non-deterministic */
@@ -219,7 +211,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L: 
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      switch (direct_optimize(f_direct, &d, ni, lb, ub, x, minf,
+	      switch (direct_optimize(f_direct, opt, ni, lb, ub, x, minf,
 				      stop.maxeval, -1, 0.0, 0.0,
 				      pow(stop.xtol_rel, (double) n), -1.0,
 				      stop.minf_max, 0.0,
@@ -271,7 +263,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   if (nlopt_set_default_initial_step(opt, x) != NLOPT_SUCCESS)
 			return NLOPT_OUT_OF_MEMORY;
 	      }		       
-	      iret = nlopt_subplex(f_bound, minf, x, n, &d, &stop, opt->dx);
+	      iret = nlopt_subplex(f_bound, minf, x, n, opt, &stop, opt->dx);
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;
@@ -293,7 +285,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
 	      return praxis_(0.0, DBL_EPSILON, 
-			     step, ni, x, f_bound, &d, &stop, minf);
+			     step, ni, x, f_bound, opt, &stop, minf);
 	 }
 
 #ifdef WITH_NOCEDAL
@@ -427,7 +419,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
 	      return newuoa(ni, 2*n+1, x, 0, 0, step,
-			    &stop, minf, f_noderiv, &d);
+			    &stop, minf, f_noderiv, opt);
 	 }
 				     
 	 case NLOPT_LN_NEWUOA_BOUND: {
@@ -435,7 +427,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
 	      return newuoa(ni, 2*n+1, x, lb, ub, step,
-			    &stop, minf, f_noderiv, &d);
+			    &stop, minf, f_noderiv, opt);
 	 }
 
 	 case NLOPT_LN_BOBYQA: {
@@ -443,7 +435,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
 	      return bobyqa(ni, 2*n+1, x, lb, ub, step,
-			    &stop, minf, f_noderiv, &d);
+			    &stop, minf, f_noderiv, opt);
 	 }
 
 	 case NLOPT_LN_NELDERMEAD: 
