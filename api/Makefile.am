@@ -2,7 +2,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/cdirect -I$(top_srcdir)/direct -I$(top_srcdir)/sto
 
 include_HEADERS = nlopt.h nlopt.f nlopt.hpp
 noinst_LTLIBRARIES = libapi.la
-dist_man_MANS = nlopt_minimize.3 nlopt_minimize_constrained.3
+dist_man_MANS = nlopt.3
 
 libapi_la_SOURCES = general.c options.c optimize.c deprecated.c	\
 nlopt-internal.h nlopt.h f77api.c f77funcs.h
