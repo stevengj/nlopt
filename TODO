@@ -3,9 +3,3 @@ Python interface.
 SLSQP routine from scipy.
 
 Add nonlinearly constrained multistart algorithm.
-
-More object-based interface, e.g. nlopt_create(dimensions, function,
-algorithm), then nlopt_add_constraint(....) etcetera?  This would be
-more scalable and backwards compatible, so that I could add new
-features re-entrantly without breaking backwards compatibility or
-making the arargument list increasingly unwieldy.
