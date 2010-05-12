@@ -151,9 +151,9 @@
 % optimization algorithm as a subroutine, typically for local optimization.
 % By default, they use MMA or COBYLA for gradient-based or derivative-free
 % searching, respectively.  However, you can change this by specifying
-% opt.local_opt: this is a structure with the same types of fields as opt
+% opt.local_optimizer: this is a structure with the same types of fields as opt
 % (stopping criteria, algorithm, etcetera).  The objective function
-% and nonlinear constraint parameters of opt.local_opt are ignored.
+% and nonlinear constraint parameters of opt.local_optimizer are ignored.
 %
 % INITIAL STEP SIZE:
 %

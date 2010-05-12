@@ -29,10 +29,6 @@
 #include "nlopt.h"
 #include "nlopt_optimize_usage.h"
 
-static nlopt_func struct_val_func(Octave_map &m, const std::string& k)
-{
-}
-
 static int struct_val_default(Octave_map &m, const std::string& k,
 				 int dflt)
 {
