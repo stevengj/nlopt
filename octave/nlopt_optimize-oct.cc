@@ -205,7 +205,7 @@ nlopt_opt make_opt(Octave_map &opts, int n)
   return opt;
 }
 
-#define CHECK(cond, msg) if (!(cond)) { fprintf(stderr, msg "\n\n"); print_usage("nlopt_optimize"); nlopt_destroy(opt); return retval; }
+#define CHECK(cond, msg) if (!(cond)) { fprintf(stderr, msg "\n\n"); nlopt_destroy(opt); return retval; }
 
 DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
 {

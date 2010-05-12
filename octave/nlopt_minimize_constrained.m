@@ -87,3 +87,17 @@
 %
 % For more information on individual algorithms, see their individual
 % help pages (e.g. "help NLOPT_LN_SBPLX").
+function [xopt, fmin, retcode] = nlopt_minimize_constrained(algorithm, f, f_data, fc, fc_data, lb, ub, xinit, stop)
+
+opt = stop;
+if (isfield(stop, 'minf_max'))
+  opt.stopval = stop.minf_max;
+end
+opt.algorithm = algorithm;
+opt.min_objective = @(x) f(x, f_data{:});
+opt.lb = lb;
+opt.ub = ub;
+for i = 1:length(fc)
+  opt.fc{i} = @(x) fc{i}(x, fc_data{i}{:});
+end
+[xopt, fmin, retcode] = nlopt_optimize(opt, xinit);

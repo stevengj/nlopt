@@ -12,7 +12,7 @@ dummy_SOURCES = dummy.c
 octdir = $(OCT_INSTALL_DIR)
 mdir = $(M_INSTALL_DIR)
 if WITH_OCTAVE
-oct_DATA = nlopt_minimize_constrained.oct nlopt_optimize.oct
+oct_DATA = nlopt_optimize.oct
 m_DATA = $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m nlopt_optimize.m
 endif
 
@@ -35,7 +35,7 @@ nlopt_optimize_usage.h: $(srcdir)/nlopt_optimize.m
 #######################################################################
 mexdir = $(MEX_INSTALL_DIR)
 if WITH_MATLAB
-mex_DATA = nlopt_minimize_constrained.$(MEXSUFF) $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
+mex_DATA = $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m
 endif
 
 nlopt_minimize_constrained.$(MEXSUFF): nlopt_minimize_constrained-mex.c $(top_builddir)/.libs/libnlopt@NLOPT_SUFFIX@.la
