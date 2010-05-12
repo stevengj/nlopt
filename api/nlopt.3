@@ -33,7 +33,7 @@ of
 .I n
 design variables, using the specified
 .IR algorithm ,
-possibly subject to linear or nonlinear constraints.  The minimum
+possibly subject to linear or nonlinear constraints.  The optimum
 function value found is returned in \fIopt_f\fR (type double) with the
 corresponding design variable values returned in the (double) array
 .I x
@@ -66,8 +66,8 @@ between a variety of minimization algorithms.  Some of these algorithms
 require the gradient (derivatives) of the function to be supplied via
 .IR f ,
 and other algorithms do not require derivatives.  Some of the
-algorithms attempt to find a global minimum within the given bounds,
-and others find only a local minimum.  Most of the algorithms only
+algorithms attempt to find a global optimum within the given bounds,
+and others find only a local optimum.  Most of the algorithms only
 handle the case where there are no nonlinear constraints.  The NLopt
 library is a wrapper around several free/open-source minimization
 packages, as well as some new implementations of published
@@ -287,7 +287,7 @@ Constants with
 in their names
 refer to global optimization methods, whereas
 .B _L{N,D}_
-refers to local optimization methods (that try to find a local minimum
+refers to local optimization methods (that try to find a local optimum
 starting from the starting guess
 .IR x ).
 Constants with
@@ -427,7 +427,7 @@ Global (G) derivative-based (D) or derivative-free (N) optimization
 using the multi-level single-linkage (MLSL) algorithm with a
 low-discrepancy sequence (LDS).  This algorithm executes a quasi-random
 (LDS) sequence of local searches, with a clustering heuristic to
-avoid multiple local searches for the same local minimum.  The local
+avoid multiple local searches for the same local optimum.  The local
 search uses the derivative/nonderivative algorithm set by
 .I nlopt_set_local_optimizer
 (currently defaulting to
@@ -506,10 +506,10 @@ disables this stopping criterion.)
 .BI "                         double " tol );
 .sp
 Set relative tolerance on function value: stop when an optimization step
-(or an estimate of the minimum) changes the function value by less
+(or an estimate of the optimum) changes the function value by less
 than
 .I tol
-multiplied by the absolute value of the function value.  (If there is any chance that your minimum function value is close to zero, you might want to set an absolute tolerance with
+multiplied by the absolute value of the function value.  (If there is any chance that your optimum function value is close to zero, you might want to set an absolute tolerance with
 .B nlopt_set_ftol_abs
 as well.)  Criterion is disabled if \fItol\fR is non-positive.
 .TP
@@ -518,7 +518,7 @@ as well.)  Criterion is disabled if \fItol\fR is non-positive.
 .BI "                         double " tol );
 .sp
 Set absolute tolerance on function value: stop when an optimization step
-(or an estimate of the minimum) changes the function value by less
+(or an estimate of the optimum) changes the function value by less
 than
 .IR tol .
 Criterion is disabled if \fItol\fR is non-positive.
@@ -528,7 +528,7 @@ Criterion is disabled if \fItol\fR is non-positive.
 .BI "                         double " tol );
 .sp
 Set relative tolerance on design variables: stop when an optimization step
-(or an estimate of the minimum) changes every design variable by less
+(or an estimate of the optimum) changes every design variable by less
 than
 .I tol
 multiplied by the absolute value of the design variable.  (If there is
@@ -545,7 +545,7 @@ Set absolute tolerances on design variables.  \fItol\fR is a pointer
 to an array of length
 .I
 n giving the tolerances: stop when an
-optimization step (or an estimate of the minimum) changes every design
+optimization step (or an estimate of the optimum) changes every design
 variable
 .IR x [i]
 by less than
@@ -631,6 +631,9 @@ unknown algorithm was specified, etcetera).
 .TP
 .B NLOPT_OUT_OF_MEMORY
 Ran out of memory.
+.TP
+.B NLOPT_ROUNDOFF_LIMITED
+Halted because roundoff errors limited progress.
 .SH LOCAL OPTIMIZER
 Some of the algorithms, especially MLSL and AUGLAG, use a different
 optimization algorithm as a subroutine, typically for local
@@ -642,7 +645,7 @@ the local search algorithm and its tolerances by calling:
 .br
 .BI "                                         const nlopt_opt " "local_opt" );
 .sp
-Here, \fIlocal_opt\fR is another \fBnlopt_opt\fB object whose
+Here, \fIlocal_opt\fR is another \fBnlopt_opt\fR object whose
 parameters are used to determine the local search algorithm and
 stopping criteria.  (The objective function and nonlinear-constraint
 parameters of \fIlocal_opt\fR are ignored.)  The dimension \fIn\fR of
