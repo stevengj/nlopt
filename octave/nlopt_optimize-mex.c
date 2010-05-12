@@ -146,9 +146,9 @@ nlopt_opt make_opt(const mxArray *opts, unsigned n)
      nlopt_set_xtol_rel(opt, struct_val_default(opts, "xtol_rel", 0.0));
      nlopt_set_xtol_abs(opt, struct_arrval(opts, "xtol_abs", n,
 					   fill(tmp, n, 0.0)));
-     nlopt_set_xtol_rel(opt, struct_val_default(opts, "maxeval", 0.0) < 0 ?
-			0 : struct_val_default(opts, "maxeval", 0.0));
-     nlopt_set_xtol_rel(opt, struct_val_default(opts, "maxtime", 0.0));
+     nlopt_set_maxeval(opt, struct_val_default(opts, "maxeval", 0.0) < 0 ?
+		       0 : struct_val_default(opts, "maxeval", 0.0));
+     nlopt_set_maxtime(opt, struct_val_default(opts, "maxtime", 0.0));
 
      nlopt_set_population(opt, struct_val_default(opts, "population", 0));
 
