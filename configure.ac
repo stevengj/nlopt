@@ -44,6 +44,7 @@ AC_HEADER_TIME
 AC_CHECK_HEADERS([unistd.h getopt.h stdint.h])
 AC_C_CONST
 AC_C_INLINE
+AX_C_THREADLOCAL
 
 dnl find 32-bit unsigned integer type for random-number generator
 AC_CHECK_SIZEOF(unsigned int)

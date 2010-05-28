@@ -102,7 +102,7 @@ const char *nlopt_algorithm_name(nlopt_algorithm a)
 
 /*************************************************************************/
 
-int nlopt_srand_called = 0;
+static THREADLOCAL int nlopt_srand_called = 0;
 void nlopt_srand(unsigned long seed) {
      nlopt_srand_called = 1;
      nlopt_init_genrand(seed);
@@ -110,6 +110,10 @@ void nlopt_srand(unsigned long seed) {
 
 void nlopt_srand_time() {
      nlopt_srand(nlopt_time_seed());
+}
+
+void nlopt_srand_time_default() {
+     if (!nlopt_srand_called) nlopt_srand_time();
 }
 
 /*************************************************************************/

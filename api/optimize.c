@@ -170,8 +170,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
      *minf = HUGE_VAL;
      
      /* make sure rand generator is inited */
-     if (!nlopt_srand_called)
-	  nlopt_srand_time(); /* default is non-deterministic */
+     nlopt_srand_time_default(); /* default is non-deterministic */
 
      /* check bound constraints */
      for (i = 0; i < n; ++i)

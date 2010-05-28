@@ -70,7 +70,7 @@ struct nlopt_opt_s {
 };
 
 /*********************************************************************/
-extern int nlopt_srand_called; /* whether the random seed is initialized */
+void nlopt_srand_time_default(void); /* init the rand. seed only if unset */
 
 /*********************************************************************/
 /* global defaults set by deprecated API: */

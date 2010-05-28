@@ -70,8 +70,11 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-static uint32_t mt[N]; /* the array for the state vector  */
-static int mti=N+1; /* mti==N+1 means mt[N] is not initialized */
+/* SGJ 2010: make RNG thread-safe by declaring the RNG state as thread-local
+   storage, at least for GCC, MSVC, and Intel C++ */
+
+static THREADLOCAL uint32_t mt[N]; /* the array for the state vector  */
+static THREADLOCAL int mti=N+1; /* mti==N+1 means mt[N] is not initialized */
 
 /* initializes mt[N] with a seed */
 void nlopt_init_genrand(unsigned long s)
