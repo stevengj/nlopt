@@ -22,14 +22,15 @@ typedef struct {
 } auglag_data;
 
 /* the augmented lagrangian objective function */
-static double auglag(int n, const double *x, double *grad, void *data)
+static double auglag(unsigned n, const double *x, double *grad, void *data)
 {
      auglag_data *d = (auglag_data *) data;
      double *gradtmp = grad ? d->gradtmp : NULL;
      double rho = d->rho;
      const double *lambda = d->lambda, *mu = d->mu;
      double L;
-     int i, j;
+     int i;
+     unsigned j;
 
      L = d->f(n, x, grad, d->f_data);
 

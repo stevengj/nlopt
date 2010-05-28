@@ -71,7 +71,7 @@ typedef struct {
      double *x;
      const double *lb, *ub;
 } cdirect_uf_data;
-extern double cdirect_uf(int n, const double *xu, double *grad, void *d_);
+extern double cdirect_uf(unsigned n, const double *xu, double *grad, void *d_);
 
 #ifdef __cplusplus
 }  /* extern "C" */

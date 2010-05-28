@@ -51,7 +51,7 @@ typedef struct {
 } subspace_data;
 
 /* wrapper around objective function for subspace optimization */
-static double subspace_func(int ns, const double *xs, double *grad, void *data)
+static double subspace_func(unsigned ns, const double *xs, double *grad, void *data)
 {
      subspace_data *d = (subspace_data *) data;
      int i, is = d->is;
@@ -59,7 +59,7 @@ static double subspace_func(int ns, const double *xs, double *grad, void *data)
      double *x = d->x;
 
      (void) grad; /* should always be NULL here */
-     for (i = is; i < is + ns; ++i) x[p[i]] = xs[i-is];
+     for (i = is; i < is + ((int) ns); ++i) x[p[i]] = xs[i-is];
      return d->f(d->n, x, NULL, d->f_data);
 }
 

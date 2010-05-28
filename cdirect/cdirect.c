@@ -408,8 +408,8 @@ static nlopt_result divide_good_rects(params *p)
 	  int im, ip;
 
 	  /* find unequal points before (im) and after (ip) to get slope */
-	  for (im = i-1; im >= 0 && hull[im][0] == hull[i][0]; --im);
-	  for (ip = i+1; ip < nhull && hull[ip][0] == hull[i][0]; ++ip);
+	  for (im = i-1; im >= 0 && hull[im][0] == hull[i][0]; --im) ;
+	  for (ip = i+1; ip < nhull && hull[ip][0] == hull[i][0]; ++ip) ;
 
 	  if (im >= 0)
 	       K1 = (hull[i][1] - hull[im][1]) / (hull[i][0] - hull[im][0]);
@@ -552,11 +552,11 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
    coordinates to a unit hypercube ... we do this simply by
    wrapping cdirect() around cdirect_unscaled(). */
 
-double cdirect_uf(int n, const double *xu, double *grad, void *d_)
+double cdirect_uf(unsigned n, const double *xu, double *grad, void *d_)
 {
      cdirect_uf_data *d = (cdirect_uf_data *) d_;
      double f;
-     int i;
+     unsigned i;
      for (i = 0; i < n; ++i)
 	  d->x[i] = d->lb[i] + xu[i] * (d->ub[i] - d->lb[i]);
      f = d->f(n, d->x, grad, d->f_data);

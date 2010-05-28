@@ -108,7 +108,7 @@ typedef enum {
   COBYLA_MSG_NONE = 0, /* No messages */
   COBYLA_MSG_EXIT = 1, /* Exit reasons */
   COBYLA_MSG_ITER = 2, /* Rho and Sigma changes */
-  COBYLA_MSG_INFO = 3, /* Informational messages */
+  COBYLA_MSG_INFO = 3 /* Informational messages */
 } cobyla_message;
 
 /*
