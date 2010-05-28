@@ -31,10 +31,10 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-extern int mma_verbose;
+extern unsigned mma_verbose;
 
-nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
-			  int m, nlopt_constraint *fc,
+nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
+			  unsigned m, nlopt_constraint *fc,
 			  const double *lb, const double *ub, /* bounds */
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,

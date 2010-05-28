@@ -28,7 +28,7 @@
 #include "mma.h"
 #include "nlopt-util.h"
 
-int mma_verbose = 0; /* > 0 for verbose output */
+unsigned mma_verbose = 0; /* > 0 for verbose output */
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -50,7 +50,7 @@ static int my_isnan(double x) { return x != x; }
 
 typedef struct {
      int count; /* evaluation count, incremented each call */
-     int n; /* must be set on input to dimension of x */
+     unsigned n; /* must be set on input to dimension of x */
      const double *x, *lb, *ub, *sigma, *dfdx; /* arrays of length n */
      const double *dfcdx; /* m-by-n array of fc gradients */
      double fval, rho; /* must be set on input */
@@ -61,10 +61,10 @@ typedef struct {
 
 static double sqr(double x) { return x * x; }
 
-static double dual_func(int m, const double *y, double *grad, void *d_)
+static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 {
      dual_data *d = (dual_data *) d_;
-     int n = d->n;
+     unsigned n = d->n;
      const double *x = d->x, *lb = d->lb, *ub = d->ub, *sigma = d->sigma, 
 	  *dfdx = d->dfdx;
      const double *dfcdx = d->dfcdx;
@@ -72,7 +72,7 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
      const double *rhoc = d->rhoc, *fcval = d->fcval;
      double *xcur = d->xcur;
      double *gcval = d->gcval;
-     int i, j;
+     unsigned i, j;
      double val;
 
      d->count++;
@@ -145,8 +145,8 @@ static double dual_func(int m, const double *y, double *grad, void *d_)
    nlopt_minimize_constrained interface: whenever the constraint
    function returns NaN, that constraint becomes inactive. */
 
-nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
-			  int m, nlopt_constraint *fc,
+nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
+			  unsigned m, nlopt_constraint *fc,
 			  const double *lb, const double *ub, /* bounds */
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
@@ -157,7 +157,7 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
      double *dfcdx, *dfcdx_cur;
      double *fcval, *fcval_cur, *rhoc, *gcval, *y, *dual_lb, *dual_ub;
-     int i, j, k = 0;
+     unsigned i, j, k = 0;
      dual_data dd;
      int feasible;
      double infeasibility;
@@ -246,7 +246,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
 	  while (1) { /* inner iterations */
 	       double min_dual, infeasibility_cur;
-	       int feasible_cur, inner_done, save_verbose;
+	       int feasible_cur, inner_done;
+	       unsigned save_verbose;
 	       int new_infeasible_constraint;
 	       nlopt_result reti;
 

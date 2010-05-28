@@ -247,7 +247,7 @@ static pt *alloc_pt(int n)
 }
 
 /* wrapper around objective function that increments evaluation count */
-static double fcount(int n, const double *x, double *grad, void *p_)
+static double fcount(unsigned n, const double *x, double *grad, void *p_)
 {
      mlsl_data *p = (mlsl_data *) p_;
      p->stop->nevals++;
