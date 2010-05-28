@@ -132,6 +132,7 @@ static nlopt_result crs_trial(crs_data *d)
      do {
      	  d->p[0] = d->f(n, d->p + 1, NULL, d->f_data);
 	  d->stop->nevals++;
+	  if (nlopt_stop_forced(d->stop)) return NLOPT_FORCE_STOP;
 	  if (d->p[0] < worst->k[0]) break;
 	  if (nlopt_stop_evals(d->stop)) return NLOPT_MAXEVAL_REACHED;
 	  if (nlopt_stop_time(d->stop)) return NLOPT_MAXTIME_REACHED;

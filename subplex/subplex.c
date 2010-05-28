@@ -1500,7 +1500,9 @@ L40:
 	*fx = isubc_1.sfbest;
     }
 L50:
-    if (*fx < stop->minf_max)
+    if (nlopt_stop_forced(stop))
+	 *iflag = -20;
+    else if (*fx < stop->minf_max)
 	 *iflag = 2;
     else if (nlopt_stop_evals(stop))
 	 *iflag = -1;

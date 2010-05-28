@@ -95,3 +95,8 @@ int nlopt_stop_evalstime(const nlopt_stopping *stop)
 {
      return nlopt_stop_evals(stop) || nlopt_stop_time(stop);
 }
+
+int nlopt_stop_forced(const nlopt_stopping *stop)
+{
+     return stop->force_stop && *(stop->force_stop);
+}

@@ -1241,7 +1241,8 @@ L4:
 	 q_1->fbest = ret_val;
 	 memcpy(q_1->xbest, t, n * sizeof(double));
     }
-    if (nlopt_stop_evals(stop)) *ret = NLOPT_MAXEVAL_REACHED;
+    if (nlopt_stop_forced(stop)) *ret = NLOPT_FORCE_STOP;
+    else if (nlopt_stop_evals(stop)) *ret = NLOPT_MAXEVAL_REACHED;
     else if (nlopt_stop_time(stop)) *ret = NLOPT_MAXTIME_REACHED;
     else if (ret_val <= stop->minf_max) *ret = NLOPT_MINF_MAX_REACHED;
     return ret_val;

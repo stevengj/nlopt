@@ -333,7 +333,8 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
      if (!rb_tree_insert(&d.pts, (rb_key) p)) { 
 	  free(p); ret = NLOPT_OUT_OF_MEMORY; 
      }
-     if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
+     if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+     else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
      else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
      else if (p->f < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
 
@@ -357,7 +358,8 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 	       if (!rb_tree_insert(&d.pts, (rb_key) p)) { 
 		    free(p); ret = NLOPT_OUT_OF_MEMORY;
 	       }
-	       if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
+	       if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+	       else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
 	       else if (p->f < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
 	       else {
@@ -382,6 +384,9 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 		    double *lm;
 		    double t = nlopt_seconds();
 
+		    if (nlopt_stop_forced(stop)) {
+			 ret = NLOPT_FORCE_STOP; break;
+		    }
 		    if (nlopt_stop_evals(stop)) {
                          ret = NLOPT_MAXEVAL_REACHED; break;
 		    }
@@ -401,6 +406,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 		    if (!rb_tree_insert(&d.lms, lm)) { 
 			 free(lm); ret = NLOPT_OUT_OF_MEMORY;
 		    }
+		    else if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
 		    else if (*lm < stop->minf_max) 
 			 ret = NLOPT_MINF_MAX_REACHED;
 		    else if (nlopt_stop_evals(stop))

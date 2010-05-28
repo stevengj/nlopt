@@ -79,6 +79,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 
      *minf = f(n, x, NULL, f_data);
      stop->nevals++;
+     if (nlopt_stop_forced(stop)) return NLOPT_FORCE_STOP;
      if (*minf < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
      if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
      if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;

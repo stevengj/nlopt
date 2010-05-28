@@ -222,6 +222,9 @@ namespace nlopt {
     NLOPT_GETSET(int, maxeval)
     NLOPT_GETSET(double, maxtime)
 
+    NLOPT_GETSET(int, force_stop)
+    void force_stop() { set_force_stop(1); }
+
     // algorithm-specific parameters:
 
     void set_local_optimizer(const nlopt_opt lo) {

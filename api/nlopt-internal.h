@@ -57,6 +57,12 @@ struct nlopt_opt_s {
      int maxeval; /* max # evaluations */
      double maxtime; /* max time (seconds) */
 
+     int force_stop; /* if nonzero, force a halt the next time we
+			try to evaluate the objective during optimization */
+     /* when local optimization is used, we need a force_stop in the
+	parent object to force a stop in child optimizations */
+     struct nlopt_opt_s *force_stop_child;
+
      /* algorithm-specific parameters */
      nlopt_opt local_opt; /* local optimizer */
      unsigned stochastic_population; /* population size for stochastic algs */

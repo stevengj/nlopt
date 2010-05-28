@@ -235,7 +235,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 
      while (1) { /* outer iterations */
 	  double fprev = fcur;
-	  if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
+	  if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+	  else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	  else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
 	  else if (feasible && *minf < stop->minf_max) 
 	       ret = NLOPT_MINF_MAX_REACHED;
@@ -317,7 +318,8 @@ nlopt_result mma_minimize(int n, nlopt_func f, void *f_data,
 		    else if (new_infeasible_constraint) feasible = 0;
 
 	       }
-	       if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
+	       if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+	       else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
 	       else if (feasible && *minf < stop->minf_max) 
 		    ret = NLOPT_MINF_MAX_REACHED;

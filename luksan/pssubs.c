@@ -894,6 +894,10 @@ void luksan_pyfut1__(int *n, double *f, double *fo, double *umax,
 	d__1 = sqrt((fabs(*f))), d__2 = fabs(*f) / 10.;
 	*fo = *f + min(d__1,d__2);
     }
+    if (nlopt_stop_forced(stop)) {
+	*iterm = -999;
+	return;
+    }
     if (*f <= stop->minf_max /* *tolb */) {
 	*iterm = 3;
 	return;

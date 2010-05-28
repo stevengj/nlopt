@@ -135,6 +135,7 @@ typedef enum {
      NLOPT_INVALID_ARGS = -2,
      NLOPT_OUT_OF_MEMORY = -3,
      NLOPT_ROUNDOFF_LIMITED = -4,
+     NLOPT_FORCE_STOP = -5,
      NLOPT_SUCCESS = 1, /* generic success code */
      NLOPT_STOPVAL_REACHED = 2,
      NLOPT_FTOL_REACHED = 3,
@@ -226,6 +227,10 @@ NLOPT_EXTERN int nlopt_get_maxeval(nlopt_opt opt);
 
 NLOPT_EXTERN nlopt_result nlopt_set_maxtime(nlopt_opt opt, double maxtime);
 NLOPT_EXTERN double nlopt_get_maxtime(nlopt_opt opt);
+
+NLOPT_EXTERN nlopt_result nlopt_force_stop(nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_set_force_stop(nlopt_opt opt, int val);
+NLOPT_EXTERN int nlopt_get_force_stop(nlopt_opt opt);
 
 /* more algorithm-specific parameters */
 

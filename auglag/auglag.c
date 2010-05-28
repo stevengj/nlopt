@@ -215,6 +215,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	       if (ret != NLOPT_SUCCESS) break;
 	  }
 
+	  if (nlopt_stop_forced(stop)) {ret = NLOPT_FORCE_STOP; break;}
 	  if (nlopt_stop_evals(stop)) {ret = NLOPT_MAXEVAL_REACHED; break;}
           if (nlopt_stop_time(stop)) {ret = NLOPT_MAXTIME_REACHED; break;}
 

@@ -516,6 +516,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 	 case 4: return NLOPT_SUCCESS; /* gradient tolerance reached */
 	 case 6: return NLOPT_SUCCESS;
 	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
+	 case -999: return NLOPT_FORCE_STOP;
 	 default: return NLOPT_FAILURE;
      }
 }

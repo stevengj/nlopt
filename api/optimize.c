@@ -150,6 +150,10 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 
      if (!opt || !x || !minf || !opt->f
 	 || opt->maximize) return NLOPT_INVALID_ARGS;
+
+     /* reset stopping flag */
+     nlopt_set_force_stop(opt, 0);
+     opt->force_stop_child = NULL;
      
      /* copy a few params to local vars for convenience */
      n = opt->n;
@@ -184,6 +188,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
      stop.maxeval = opt->maxeval;
      stop.maxtime = opt->maxtime;
      stop.start = nlopt_seconds();
+     stop.force_stop = &(opt->force_stop);
 
      switch (algorithm) {
 	 case NLOPT_GN_DIRECT:
@@ -267,6 +272,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;
+		  case -20: return NLOPT_FORCE_STOP;
 		  case -10: return NLOPT_MAXTIME_REACHED;
 		  case -1: return NLOPT_MAXEVAL_REACHED;
 		  case 0: return NLOPT_XTOL_REACHED;
@@ -378,9 +384,11 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   nlopt_set_ftol_rel(local_opt, 1e-15);
 		   nlopt_set_xtol_rel(local_opt, 1e-7);
 	      }
+	      opt->force_stop_child = local_opt;
 	      ret = mlsl_minimize(ni, f, f_data, lb, ub, x, minf, &stop,
 				  local_opt, (int) POP(0),
 				  algorithm >= NLOPT_GN_MLSL_LDS);
+	      opt->force_stop_child = NULL;
 	      if (!opt->local_opt) nlopt_destroy(local_opt);
 	      return ret;
 	 }
@@ -476,6 +484,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   nlopt_set_maxeval(local_opt, nlopt_local_search_maxeval);
 		   nlopt_set_initial_step(local_opt, opt->dx);
 	      }
+	      opt->force_stop_child = local_opt;
 	      ret = auglag_minimize(ni, f, f_data, 
 				    opt->m, opt->fc, 
 				    opt->p, opt->h,
@@ -483,6 +492,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				    local_opt,
 				    algorithm == NLOPT_LN_AUGLAG_EQ
 				    || algorithm == NLOPT_LD_AUGLAG_EQ);
+	      opt->force_stop_child = NULL;
 	      if (!opt->local_opt) nlopt_destroy(local_opt);
 	      return ret;
 	 }

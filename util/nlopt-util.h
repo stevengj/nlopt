@@ -75,6 +75,7 @@ typedef struct {
      const double *xtol_abs;
      int nevals, maxeval;
      double maxtime, start;
+     int *force_stop;
 } nlopt_stopping;
 extern int nlopt_stop_f(const nlopt_stopping *stop, double f, double oldf);
 extern int nlopt_stop_ftol(const nlopt_stopping *stop, double f, double oldf);
@@ -88,6 +89,7 @@ extern int nlopt_stop_xs(const nlopt_stopping *stop,
 extern int nlopt_stop_evals(const nlopt_stopping *stop);
 extern int nlopt_stop_time(const nlopt_stopping *stop);
 extern int nlopt_stop_evalstime(const nlopt_stopping *stop);
+extern int nlopt_stop_forced(const nlopt_stopping *stop);
 
 /* for local optimizations, temporarily setting eval/time limits */
 extern nlopt_result nlopt_optimize_limited(nlopt_opt opt, 

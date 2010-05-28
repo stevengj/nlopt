@@ -142,7 +142,7 @@ static double function_eval(const double *x, params *p) {
      p->stop->nevals++;
      return f;
 }
-#define FUNCTION_EVAL(fv,x,p,freeonerr) fv = function_eval(x, p); if (p->minf < p->stop->minf_max) { free(freeonerr); return NLOPT_MINF_MAX_REACHED; } else if (nlopt_stop_evals((p)->stop)) { free(freeonerr); return NLOPT_MAXEVAL_REACHED; } else if (nlopt_stop_time((p)->stop)) { free(freeonerr); return NLOPT_MAXTIME_REACHED; }
+#define FUNCTION_EVAL(fv,x,p,freeonerr) fv = function_eval(x, p); if (nlopt_stop_forced((p)->stop)) { free(freeonerr); return NLOPT_FORCE_STOP; } else if (p->minf < p->stop->minf_max) { free(freeonerr); return NLOPT_MINF_MAX_REACHED; } else if (nlopt_stop_evals((p)->stop)) { free(freeonerr); return NLOPT_MAXEVAL_REACHED; } else if (nlopt_stop_time((p)->stop)) { free(freeonerr); return NLOPT_MAXTIME_REACHED; }
 
 #define THIRD (0.3333333333333333333333)
 

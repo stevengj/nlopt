@@ -69,6 +69,8 @@ nlopt_opt nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->xtol_rel = 0; opt->xtol_abs = NULL;
 	  opt->maxeval = 0;
 	  opt->maxtime = 0;
+	  opt->force_stop = 0;
+	  opt->force_stop_child = NULL;
 
 	  opt->local_opt = NULL;
 	  opt->stochastic_population = 0;
@@ -105,6 +107,7 @@ nlopt_opt nlopt_copy(const nlopt_opt opt)
 	  nopt->m_alloc = nopt->p_alloc = 0;
 	  nopt->local_opt = NULL;
 	  nopt->dx = NULL;
+	  opt->force_stop_child = NULL;
 
 	  if (opt->n > 0) {
 	       nopt->lb = (double *) malloc(sizeof(double) * (opt->n));
@@ -157,11 +160,11 @@ oom:
 
 nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, void *f_data)
 {
-     if (opt && f) {
+     if (opt) {
 	  opt->f = f; opt->f_data = f_data;
 	  opt->maximize = 0;
 	  if (nlopt_isinf(opt->stopval) && opt->stopval > 0)
-	       opt->stopval = -HUGE_VAL;
+	       opt->stopval = -HUGE_VAL; /* switch default from max to min */
 	  return NLOPT_SUCCESS;
      }
      return NLOPT_INVALID_ARGS;
@@ -169,11 +172,11 @@ nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, void *f_data)
 
 nlopt_result nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, void *f_data)
 {
-     if (opt && f) {
+     if (opt) {
 	  opt->f = f; opt->f_data = f_data;
 	  opt->maximize = 1;
 	  if (nlopt_isinf(opt->stopval) && opt->stopval < 0)
-	       opt->stopval = +HUGE_VAL;
+	       opt->stopval = +HUGE_VAL; /* switch default from min to max */
 	  return NLOPT_SUCCESS;
      }
      return NLOPT_INVALID_ARGS;
@@ -379,6 +382,22 @@ GETSET(maxtime, double, maxtime)
 
 /*************************************************************************/
 
+nlopt_result nlopt_set_force_stop(nlopt_opt opt, int force_stop)
+{
+     if (opt) {
+	  opt->force_stop = force_stop;
+	  if (opt->force_stop_child)
+	       return nlopt_set_force_stop(opt->force_stop_child, force_stop);
+	  return NLOPT_SUCCESS;
+     }
+     return NLOPT_INVALID_ARGS;
+}
+
+GET(force_stop, int, force_stop)
+nlopt_result nlopt_force_stop(nlopt_opt opt) { nlopt_set_force_stop(opt, 1); }
+
+/*************************************************************************/
+
 GET(algorithm, nlopt_algorithm, algorithm)
 GET(dimension, unsigned, n)
 
@@ -397,6 +416,8 @@ nlopt_result nlopt_set_local_optimizer(nlopt_opt opt,
 	       nlopt_set_upper_bounds(opt->local_opt, opt->ub);
 	       nlopt_remove_inequality_constraints(opt->local_opt);
 	       nlopt_remove_equality_constraints(opt->local_opt);
+	       nlopt_set_min_objective(opt->local_opt, NULL, NULL);
+	       opt->local_opt->force_stop = 0;
 	  }
 	  return NLOPT_SUCCESS;
      }

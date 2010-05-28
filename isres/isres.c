@@ -164,7 +164,8 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 		    if (ret != NLOPT_SUCCESS) goto done;
 	       }
 
-	       if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
+	       if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+	       else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
 	       if (ret != NLOPT_SUCCESS) goto done;
 	  }
