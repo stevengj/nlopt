@@ -57,6 +57,19 @@ namespace nlopt {
   //  since that would require a copy to be made of NLopt's double* data.)
 
   //////////////////////////////////////////////////////////////////////
+  
+  // NLopt-specific exceptions (corresponding to error codes):
+  class roundoff_limited : public std::runtime_error {
+  public:
+    roundoff_limited() : std::runtime_error("nlopt roundoff-limited") {}
+  };
+
+  class forced_stop : public std::runtime_error {
+  public:
+    forced_stop() : std::runtime_error("nlopt forced stop") {}
+  };
+
+  //////////////////////////////////////////////////////////////////////
 
   class opt {
   private:
@@ -66,8 +79,9 @@ namespace nlopt {
       switch (ret) {
       case NLOPT_FAILURE: throw std::runtime_error("nlopt failure");
       case NLOPT_OUT_OF_MEMORY: throw std::bad_alloc();
-      case NLOPT_INVALID_ARGS: throw std::invalid_argument("nlopt");
-      case NLOPT_ROUNDOFF_LIMITED: throw std::runtime_error("nlopt roundoff");
+      case NLOPT_INVALID_ARGS: throw std::invalid_argument("nlopt invalid argument");
+      case NLOPT_ROUNDOFF_LIMITED: throw roundoff_limited();
+      case NLOPT_FORCED_STOP: throw forced_stop();
       default: break;
       }
     }

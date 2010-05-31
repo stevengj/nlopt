@@ -592,7 +592,7 @@ L260:
 	    goto L340;
 	}
 
-	if (nlopt_stop_forced(stop)) return NLOPT_FORCE_STOP;
+	if (nlopt_stop_forced(stop)) return NLOPT_FORCED_STOP;
 	else if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
 	else if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
 
@@ -679,7 +679,7 @@ L260:
 	if (f < fval[*kopt]) {
 	    *kopt = kpt;
 	}
-	if (nlopt_stop_forced(stop)) return NLOPT_FORCE_STOP;
+	if (nlopt_stop_forced(stop)) return NLOPT_FORCED_STOP;
 	else if (f < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
 	else if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
 	else if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
@@ -1939,7 +1939,7 @@ L50:
 	temp = xpt[nf + ipt * xpt_dim1] * xpt[nf + jpt * xpt_dim1];
 	hq[ih] = (fbeg - fval[ipt + 1] - fval[jpt + 1] + f) / temp;
     }
-    if (nlopt_stop_forced(stop)) return NLOPT_FORCE_STOP;
+    if (nlopt_stop_forced(stop)) return NLOPT_FORCED_STOP;
     else if (f < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
     else if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
     else if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
@@ -2572,7 +2572,7 @@ L360:
 /* L380: */
     }
 
-    if (nlopt_stop_forced(stop)) rc = NLOPT_FORCE_STOP;
+    if (nlopt_stop_forced(stop)) rc = NLOPT_FORCED_STOP;
     else if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
     else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
     if (rc != NLOPT_SUCCESS) goto L720;

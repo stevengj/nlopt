@@ -271,7 +271,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      switch (iret) {
 		  case -2: return NLOPT_INVALID_ARGS;
-		  case -20: return NLOPT_FORCE_STOP;
+		  case -20: return NLOPT_FORCED_STOP;
 		  case -10: return NLOPT_MAXTIME_REACHED;
 		  case -1: return NLOPT_MAXEVAL_REACHED;
 		  case 0: return NLOPT_XTOL_REACHED;

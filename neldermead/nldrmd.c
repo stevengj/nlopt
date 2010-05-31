@@ -78,7 +78,7 @@ static int reflectpt(int n, double *xnew,
 
 #define CHECK_EVAL(xc,fc) 						  \
  stop->nevals++;							  \
- if (nlopt_stop_forced(stop)) { ret=NLOPT_FORCE_STOP; goto done; }        \
+ if (nlopt_stop_forced(stop)) { ret=NLOPT_FORCED_STOP; goto done; }        \
  if ((fc) <= *minf) {							  \
    *minf = (fc); memcpy(x, (xc), n * sizeof(double));			  \
    if (*minf < stop->minf_max) { ret=NLOPT_MINF_MAX_REACHED; goto done; } \
@@ -291,7 +291,7 @@ nlopt_result nldrmd_minimize(int n, nlopt_func f, void *f_data,
 
      *minf = f(n, x, NULL, f_data);
      stop->nevals++;
-     if (nlopt_stop_forced(stop)) return NLOPT_FORCE_STOP;
+     if (nlopt_stop_forced(stop)) return NLOPT_FORCED_STOP;
      if (*minf < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
      if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
      if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;

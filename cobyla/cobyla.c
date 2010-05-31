@@ -499,7 +499,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
      #*&!%*@ Fortran-66 spaghetti code */
 
 L40:
-  if (nlopt_stop_forced(stop)) rc = NLOPT_FORCE_STOP;
+  if (nlopt_stop_forced(stop)) rc = NLOPT_FORCED_STOP;
   else if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
   else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
   if (rc != NLOPT_SUCCESS) goto L600;

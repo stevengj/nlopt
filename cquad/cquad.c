@@ -315,7 +315,7 @@ nlopt_result cquad_minimize(int n, nlopt_func f, void *f_data,
 	       memcpy(x, x0, sizeof(double) * n);
 	       feasible = 1;
 	  }
-	  if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+	  if (nlopt_stop_forced(stop)) ret = NLOPT_FORCED_STOP;
 	  else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	  else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
 	  else if (*minf < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
@@ -342,7 +342,7 @@ nlopt_result cquad_minimize(int n, nlopt_func f, void *f_data,
 			 memcpy(x, xcur, sizeof(double) * n);
 			 feasible = 1;
 		    }
-		    if (nlopt_stop_forced(stop)) ret = NLOPT_FORCE_STOP;
+		    if (nlopt_stop_forced(stop)) ret = NLOPT_FORCED_STOP;
 		    else if (nlopt_stop_evals(stop)) 
 			 ret = NLOPT_MAXEVAL_REACHED;
 		    else if (nlopt_stop_time(stop)) 
