@@ -50,6 +50,8 @@ struct nlopt_opt_s {
      unsigned p_alloc; /* number of inequality constraints allocated */
      nlopt_constraint *h; /* equality constraints, length p_alloc */
 
+     int free_f_data; /* flag (for f77 api) to free f_data in nlopt_destroy */
+
      /* stopping criteria */
      double stopval; /* stop when f reaches stopval or better */
      double ftol_rel, ftol_abs; /* relative/absolute f tolerances */

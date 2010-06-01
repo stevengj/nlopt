@@ -34,6 +34,14 @@
 void nlopt_destroy(nlopt_opt opt)
 {
      if (opt) {
+	  if (opt->free_f_data) {
+	       unsigned i;
+	       free(opt->f_data);
+	       for (i = 0; i < opt->m; ++i)
+		    free(opt->fc[i].f_data);
+	       for (i = 0; i < opt->p; ++i)
+		    free(opt->h[i].f_data);
+	  }
 	  free(opt->lb); free(opt->ub);
 	  free(opt->xtol_abs);
 	  free(opt->fc);
@@ -57,6 +65,7 @@ nlopt_opt nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->n = n;
 	  opt->f = NULL; opt->f_data = NULL;
 	  opt->maximize = 0;
+	  opt->free_f_data = 0;
 
 	  opt->lb = opt->ub = NULL;
 	  opt->m = opt->m_alloc = 0;
@@ -108,6 +117,7 @@ nlopt_opt nlopt_copy(const nlopt_opt opt)
 	  nopt->local_opt = NULL;
 	  nopt->dx = NULL;
 	  opt->force_stop_child = NULL;
+	  opt->free_f_data = 0;
 
 	  if (opt->n > 0) {
 	       nopt->lb = (double *) malloc(sizeof(double) * (opt->n));
@@ -162,6 +172,7 @@ nlopt_result nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, void *f_data)
 {
      if (opt) {
 	  opt->f = f; opt->f_data = f_data;
+	  if (f_data) opt->free_f_data = 0;
 	  opt->maximize = 0;
 	  if (nlopt_isinf(opt->stopval) && opt->stopval > 0)
 	       opt->stopval = -HUGE_VAL; /* switch default from max to min */
@@ -174,6 +185,7 @@ nlopt_result nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, void *f_data)
 {
      if (opt) {
 	  opt->f = f; opt->f_data = f_data;
+	  if (f_data) opt->free_f_data = 0;
 	  opt->maximize = 1;
 	  if (nlopt_isinf(opt->stopval) && opt->stopval < 0)
 	       opt->stopval = +HUGE_VAL; /* switch default from min to max */
@@ -295,7 +307,7 @@ nlopt_result nlopt_add_inequality_constraint(nlopt_opt opt,
 	      && opt->algorithm != NLOPT_GN_ORIG_DIRECT
 	      && opt->algorithm != NLOPT_GN_ORIG_DIRECT_L)
 	       return NLOPT_INVALID_ARGS;
-
+	  if (fc_data) opt->free_f_data = 0;
 	  return add_constraint(&opt->m, &opt->m_alloc, &opt->fc,
 				fc, fc_data, tol);
      }
@@ -318,7 +330,7 @@ nlopt_result nlopt_add_equality_constraint(nlopt_opt opt,
 	  /* equality constraints (h(x) = 0) only via some algorithms */
 	  if (!AUGLAG_ALG(opt->algorithm) && opt->algorithm != NLOPT_GN_ISRES)
 	       return NLOPT_INVALID_ARGS;
-
+	  if (h_data) opt->free_f_data = 0;
 	  return add_constraint(&opt->p, &opt->p_alloc, &opt->h,
 				h, h_data, tol);
      }

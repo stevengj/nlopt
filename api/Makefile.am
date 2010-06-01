@@ -5,7 +5,7 @@ noinst_LTLIBRARIES = libapi.la
 dist_man_MANS = nlopt.3
 
 libapi_la_SOURCES = general.c options.c optimize.c deprecated.c	\
-nlopt-internal.h nlopt.h f77api.c f77funcs.h
+nlopt-internal.h nlopt.h f77api.c f77funcs.h f77funcs_.h
 
 BUILT_SOURCES = nlopt.f nlopt.hpp
 EXTRA_DIST = nlopt-in.hpp

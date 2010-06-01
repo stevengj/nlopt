@@ -55,8 +55,8 @@ void F77(nloptc,NLOPTC)(int *info,
      }
 
      *info = nlopt_minimize_constrained((nlopt_algorithm) *algorithm, 
-					*n, f77_func_wrap, &d,
-					*m, f77_func_wrap, 
+					*n, f77_func_wrap_old, &d,
+					*m, f77_func_wrap_old, 
 					dc, sizeof(f77_func_data),
 					lb, ub, x, minf,
 					*minf_max, *ftol_rel, *ftol_abs,
@@ -112,3 +112,7 @@ void F77(nlossp,NLOSSP)(const int *pop)
 {
      nlopt_set_stochastic_population(*pop);
 }
+
+#define F77_(name,NAME) F77(name,NAME)
+# include "f77funcs_.h"
+#undef F77_

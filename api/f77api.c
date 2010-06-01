@@ -22,8 +22,7 @@
 
 #include <stdlib.h>
 
-#include "nlopt.h"
-#include "nlopt-util.h"
+#include "nlopt-internal.h"
 
 /*-----------------------------------------------------------------------*/
 /* wrappers around f77 procedures */
@@ -37,7 +36,7 @@ typedef struct {
      void *f_data;
 } f77_func_data;
 
-static double f77_func_wrap(int n, const double *x, double *grad, void *data)
+static double f77_func_wrap_old(int n, const double *x, double *grad, void *data)
 {
      f77_func_data *d = (f77_func_data *) data;
      double val;
@@ -46,39 +45,52 @@ static double f77_func_wrap(int n, const double *x, double *grad, void *data)
      return val;
 }
 
+static double f77_func_wrap(unsigned n, const double *x, double *grad, void *data)
+{
+     f77_func_data *d = (f77_func_data *) data;
+     int ni = (int) n;
+     double val;
+     int need_gradient = grad != 0;
+     d->f(&val, &ni, x, grad, &need_gradient, d->f_data);
+     return val;
+}
+
+/*-----------------------------------------------------------------------*/
+
+#define F77_GET(name,NAME,T) void F77_(nlo_get_##name,NLO_GET_##NAME)(T *val, nlopt_opt *opt) { *val = (T) nlopt_get_##name(*opt); }
+#define F77_SET(name,NAME,T) void F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, *val); }
+#define F77_GETSET(name,NAME,T) F77_GET(name,NAME,T) F77_SET(name,NAME,T)
+
+#define F77_GETA(name,NAME,T) void F77_(nlo_get_##name,NLO_GET_##NAME)(int *ret, T *val, nlopt_opt *opt) { *ret = (int) nlopt_get_##name(*opt, val); }
+#define F77_SETA(name,NAME,T) void F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, val); }
+#define F77_GETSETA(name,NAME,T) F77_GETA(name,NAME,T) F77_SETA(name,NAME,T) F77_SET(name##1,NAME##1,T)
+
 /*-----------------------------------------------------------------------*/
 /* rather than trying to detect the Fortran name-mangling scheme with
    autoconf, we just include wrappers with all common name-mangling
    schemes ... this avoids problems and also allows us to work with
-   multiple Fortran compilers on the same machine . 
-
-   Note that our Fortran function names do not contain underscores;
-   otherwise, we would need to deal with the additional headache that
-   g77 appends two underscores in that case. */
-
-#ifndef WINDOWS_F77_MANGLING
+   multiple Fortran compilers on the same machine.  Since the Fortran
+   wrapper functions are so small, the library bloat of including them
+   multiple times is negligible and seems well worth the benefit. */
 
 /* name + underscore is by far the most common (gfortran, g77, Intel, ...) */
 #  define F77(a, A) a ## _
 #  include "f77funcs.h"
+
+/* also include g77 convention of name + double underscore for identifiers
+   containing underscores */
+#  define F77_(a, A) a ## __
+#  include "f77funcs_.h"
+#  undef F77_
 
 /* AIX and HPUX use just the lower-case name */
 #  undef F77
 #  define F77(a, A) a
 #  include "f77funcs.h"
 
-/* old Cray UNICOS used just the upper-case name */
-#  undef F77
-#  define F77(a, A) A
-#  include "f77funcs.h"
-
-#else /* WINDOWS_F77_MANGLING */
-
-/* Various mangling conventions common (?) under Windows. */
-
-/* name + underscore for gfortran, g77, ...? */
-#  define F77(a, A) a ## _
-#  include "f77funcs.h"
+/* Old Cray Unicos, as well as several Windows Fortran compilers
+   (Digital/Compaq/HP Visual Fortran and Intel Fortran) use all-uppercase
+   name */
 
 /* Digital/Compaq/HP Visual Fortran, Intel Fortran.  stdcall attribute
    is apparently required to adjust for calling conventions (callee
@@ -86,13 +98,5 @@ static double f77_func_wrap(int n, const double *x, double *grad, void *data)
        http://msdn.microsoft.com/library/en-us/vccore98/html/_core_mixed.2d.language_programming.3a_.overview.asp
 */
 #  undef F77
-#  if defined(__GNUC__)
-#    define F77(a, A) __attribute__((stdcall)) A
-#  elif defined(_MSC_VER) || defined(_ICC) || defined(_STDCALL_SUPPORTED)
-#    define F77(a, A) __stdcall A
-#  else
-#    define F77(a, A) A /* oh well */
-#  endif
+#  define F77(a, A) NLOPT_STDCALL A
 #  include "f77funcs.h"
-
-#endif /* WINDOWS_F77_MANGLING */
