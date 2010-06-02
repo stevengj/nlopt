@@ -99,15 +99,19 @@ namespace nlopt {
       }
     }
 
+    std::vector<double> xtmp, gradtmp, gradtmp0; // scratch for myvfunc
+
     // nlopt_func wrapper, using std::vector<double>
     static double myvfunc(unsigned n, const double *x, double *grad, void *d_){
       myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
       try {
-	std::vector<double> xv(n);
+	std::vector<double> &xv = d->o->xtmp;
 	for (unsigned i = 0; i < n; ++i) xv[i] = x[i];
-	std::vector<double> gradv(grad ? n : 0);
-	double val = d->vf(xv, gradv, d->f_data);
-	if (grad) for (unsigned i = 0; i < n; ++i) grad[i] = gradv[i];
+	double val=d->vf(xv, grad ? d->o->gradtmp : d->o->gradtmp0, d->f_data);
+	if (grad) {
+	  std::vector<double> &gradv = d->o->gradtmp;
+	  for (unsigned i = 0; i < n; ++i) grad[i] = gradv[i];
+	}
 	return val;
       }
       catch (...) {
@@ -116,12 +120,21 @@ namespace nlopt {
       }
     }
 
+    void alloc_tmp() {
+      if (xtmp.size() != nlopt_get_dimension(o)) {
+	xtmp = std::vector<double>(nlopt_get_dimension(o));
+	gradtmp = std::vector<double>(nlopt_get_dimension(o));
+      }
+    }
+
   public:
     // Constructors etc.
-    opt() : o(NULL), stopped_by_exception(false) {}
+    opt() : 
+      o(NULL), stopped_by_exception(false), xtmp(0), gradtmp(0), gradtmp0(0) {}
     ~opt() { nlopt_destroy(o); }
     opt(algorithm a, unsigned n) : 
-      o(nlopt_create(nlopt_algorithm(a), n)), stopped_by_exception(false) {
+      o(nlopt_create(nlopt_algorithm(a), n)), stopped_by_exception(false),
+      xtmp(0), gradtmp(0), gradtmp0(0) {
       if (!o) throw std::bad_alloc();
       nlopt_set_free_f_data(o, 1);
     }
@@ -176,6 +189,7 @@ namespace nlopt {
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_set_min_objective(o, myvfunc, d)); // d freed via o
+      alloc_tmp();
     }
     void set_max_objective(func f, void *f_data) {
       myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
@@ -188,6 +202,7 @@ namespace nlopt {
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
+      alloc_tmp();
     }
 
     // Nonlinear constraints:
@@ -207,6 +222,7 @@ namespace nlopt {
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_add_inequality_constraint(o, myvfunc, d, tol));
+      alloc_tmp();
     }
 
     void remove_equality_constraints(void) {
@@ -224,6 +240,7 @@ namespace nlopt {
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_add_equality_constraint(o, myvfunc, d, tol));
+      alloc_tmp();
     }
 
 #define NLOPT_GETSET_VEC(name)						\
