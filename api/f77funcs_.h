@@ -36,7 +36,7 @@ void F77_(nlo_create,NLO_CREATE)(nlopt_opt *opt, int *alg, int *n)
      if (*n < 0) *opt = NULL;
      else {
 	  *opt = nlopt_create((nlopt_algorithm) *alg, (unsigned) *n);
-	  (*opt)->free_f_data = 1;
+	  nlopt_set_free_f_data(*opt, 1);
      }
 }
 
@@ -59,7 +59,6 @@ void F77_(nlo_set_min_objective,NLO_SET_MIN_OBJECTIVE)(
      d->f = f;
      d->f_data = f_data;
      *ret = (int) nlopt_set_min_objective(*opt, f77_func_wrap, d);
-     /* FIXME: memory leak in nlopt_destroy */
 }
 
 void F77_(nlo_set_max_objective,NLO_SET_MAX_OBJECTIVE)(

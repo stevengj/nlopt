@@ -248,6 +248,11 @@ NLOPT_EXTERN nlopt_result nlopt_set_initial_step1(nlopt_opt opt, double dx);
 NLOPT_EXTERN nlopt_result nlopt_get_initial_step(const nlopt_opt opt, 
 						 const double *x, double *dx);
 
+/* set to 1: nlopt_destroy should call free() on all of the f_data pointers
+   (for the objective, constraints, etcetera) ... mainly for internal use */
+NLOPT_EXTERN nlopt_result nlopt_set_free_f_data(nlopt_opt opt, int val);
+NLOPT_EXTERN int nlopt_get_free_f_data(nlopt_opt opt);
+
 /*************************** DEPRECATED API **************************/
 /* The new "object-oriented" API is preferred, since it allows us to
    gracefully add new features and algorithm-specific options in a

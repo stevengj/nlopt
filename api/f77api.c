@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 
-#include "nlopt-internal.h"
+#include "nlopt.h"
 
 /*-----------------------------------------------------------------------*/
 /* wrappers around f77 procedures */
