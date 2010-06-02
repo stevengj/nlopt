@@ -40,6 +40,15 @@ void F77_(nlo_create,NLO_CREATE)(nlopt_opt *opt, int *alg, int *n)
      }
 }
 
+void F77_(nlo_copy,NLO_COPY)(nlopt_opt *nopt, nlopt_opt *opt)
+{
+     *nopt = nlopt_copy(*opt);
+     if (*nopt && nlopt_dup_f_data(*nopt, sizeof(f77_func_data)) < 0) {
+	  nlopt_destroy(*nopt);
+	  *nopt = NULL;
+     }
+}
+
 void F77_(nlo_destroy,NLO_DESTROY)(nlopt_opt *opt)
 {
      nlopt_destroy(*opt);
