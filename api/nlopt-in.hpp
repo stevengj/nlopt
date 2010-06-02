@@ -125,12 +125,6 @@ namespace nlopt {
       if (!o) throw std::bad_alloc();
       nlopt_set_free_f_data(o, 1);
     }
-    void reinit(algorithm a, unsigned n) {
-      if (o) nlopt_destroy(o);
-      o = nlopt_create(nlopt_algorithm(a), n);
-      if (!o) throw std::bad_alloc();
-      nlopt_set_free_f_data(o, 1);
-    }
     opt(const opt& from) : o(nlopt_copy(from.o)) {
       if (from.o && !o) throw std::bad_alloc();
       mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
