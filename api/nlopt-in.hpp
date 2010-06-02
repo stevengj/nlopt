@@ -46,9 +46,9 @@ namespace nlopt {
   typedef nlopt_func func; // nlopt::func synoynm
 
   // alternative to nlopt_func that takes std::vector<double>
-  // but no data pointer ... mostly for SWIG
+  // ... unfortunately requires a data copy
   typedef double (*vfunc)(const std::vector<double> &x,
-			  std::vector<double> &grad);
+			  std::vector<double> &grad, void *data);
 
   //////////////////////////////////////////////////////////////////////
   
@@ -106,7 +106,7 @@ namespace nlopt {
 	std::vector<double> xv(n);
 	for (unsigned i = 0; i < n; ++i) xv[i] = x[i];
 	std::vector<double> gradv(grad ? n : 0);
-	double val = d->vf(xv, gradv);
+	double val = d->vf(xv, gradv, d->f_data);
 	if (grad) for (unsigned i = 0; i < n; ++i) grad[i] = gradv[i];
 	return val;
       }
@@ -177,10 +177,10 @@ namespace nlopt {
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
       mythrow(nlopt_set_min_objective(o, myfunc, d)); // d freed via o
     }
-    void set_min_objective(vfunc vf) {
+    void set_min_objective(vfunc vf, void *f_data) {
       myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
       if (!d) throw std::bad_alloc();
-      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_set_min_objective(o, myvfunc, d)); // d freed via o
     }
     void set_max_objective(func f, void *f_data) {
@@ -189,10 +189,10 @@ namespace nlopt {
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
       mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
     }
-    void set_max_objective(vfunc vf) {
+    void set_max_objective(vfunc vf, void *f_data) {
       myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
       if (!d) throw std::bad_alloc();
-      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
     }
 
@@ -208,10 +208,10 @@ namespace nlopt {
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
       mythrow(nlopt_add_inequality_constraint(o, myfunc, d, tol));
     }
-    void add_inequality_constraint(vfunc vf, double tol=0) {
+    void add_inequality_constraint(vfunc vf, void *f_data, double tol=0) {
       myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
       if (!d) throw std::bad_alloc();
-      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_add_inequality_constraint(o, myvfunc, d, tol));
     }
 
@@ -225,10 +225,10 @@ namespace nlopt {
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
       mythrow(nlopt_add_equality_constraint(o, myfunc, d, tol));
     }
-    void add_equality_constraint(vfunc vf, double tol=0) {
+    void add_equality_constraint(vfunc vf, void *f_data, double tol=0) {
       myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
       if (!d) throw std::bad_alloc();
-      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
       mythrow(nlopt_add_equality_constraint(o, myvfunc, d, tol));
     }
 
