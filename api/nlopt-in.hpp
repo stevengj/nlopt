@@ -28,6 +28,7 @@
 #include <vector>
 #include <stdexcept>
 #include <new>
+#include <cstdlib>
 
 // convenience overloading for below (not in nlopt:: since has nlopt_ prefix)
 inline nlopt_result nlopt_get_initial_step(const nlopt_opt opt, double *dx) {
@@ -42,19 +43,12 @@ namespace nlopt {
   // GEN_ENUMS_HERE
   //////////////////////////////////////////////////////////////////////
 
-  // virtual base class for objective function and constraints:
-  class func {
-  public:
-    // should return function value, and set grad to gradient
-    // (x and grad are length n)
-    virtual double operator()(unsigned n, const double *x, double *grad) = 0;
+  typedef nlopt_func func; // nlopt::func synoynm
 
-    // should return function value (x is length n)
-    virtual double operator()(unsigned n, const double *x) = 0;
-  };
-
-  // (Note: it is inefficient to use std::vector<double> for the arguments,
-  //  since that would require a copy to be made of NLopt's double* data.)
+  // alternative to nlopt_func that takes std::vector<double>
+  // but no data pointer ... mostly for SWIG
+  typedef double (*vfunc)(const std::vector<double> &x,
+			  std::vector<double> &grad);
 
   //////////////////////////////////////////////////////////////////////
   
@@ -74,6 +68,7 @@ namespace nlopt {
   class opt {
   private:
     nlopt_opt o;
+    bool stopped_by_exception;
     
     void mythrow(nlopt_result ret) const {
       switch (ret) {
@@ -86,46 +81,79 @@ namespace nlopt {
       }
     }
 
-    // nlopt_func wrapper around C++ "functional"
-    static double myfunc(unsigned n, const double *x, double *grad, void *f_) {
-      func *f = reinterpret_cast<func*>(f_);
-      return grad ? (*f)(n, x, grad) : (*f)(n, x);
+    typedef struct {
+      opt *o;
+      func f; void *f_data;
+      vfunc vf;
+    } myfunc_data;
+
+    // nlopt_func wrapper that catches exceptions
+    static double myfunc(unsigned n, const double *x, double *grad, void *d_) {
+      myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
+      try {
+	return d->f(n, x, grad, d->f_data);
+      }
+      catch (...) {
+	d->o->stopped_by_exception = true;
+	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+      }
+    }
+
+    // nlopt_func wrapper, using std::vector<double>
+    static double myvfunc(unsigned n, const double *x, double *grad, void *d_){
+      myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
+      try {
+	std::vector<double> xv(n);
+	for (unsigned i = 0; i < n; ++i) xv[i] = x[i];
+	std::vector<double> gradv(grad ? n : 0);
+	double val = d->vf(xv, gradv);
+	if (grad) for (unsigned i = 0; i < n; ++i) grad[i] = gradv[i];
+	return val;
+      }
+      catch (...) {
+	d->o->stopped_by_exception = true;
+	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+      }
     }
 
   public:
     // Constructors etc.
-    opt() : o(NULL) {}
-    opt(nlopt_algorithm a, unsigned n) : o(nlopt_create(a, n)) {
-      if (!o) throw std::bad_alloc();
-    }
-    opt(algorithm a, unsigned n) : o(nlopt_create(nlopt_algorithm(a), n)) {
-      if (!o) throw std::bad_alloc();
-    }
-    opt(const nlopt_opt o0) : o(nlopt_copy(o0)) {
-      if (o0 && !o) throw std::bad_alloc();
-    }
+    opt() : o(NULL), stopped_by_exception(false) {}
     ~opt() { nlopt_destroy(o); }
+    opt(algorithm a, unsigned n) : 
+      o(nlopt_create(nlopt_algorithm(a), n)), stopped_by_exception(false) {
+      if (!o) throw std::bad_alloc();
+      nlopt_set_free_f_data(o, 1);
+    }
+    void reinit(algorithm a, unsigned n) {
+      if (o) nlopt_destroy(o);
+      o = nlopt_create(nlopt_algorithm(a), n);
+      if (!o) throw std::bad_alloc();
+      nlopt_set_free_f_data(o, 1);
+    }
     opt(const opt& from) : o(nlopt_copy(from.o)) {
       if (from.o && !o) throw std::bad_alloc();
+      mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
     }
     opt& operator=(opt const& f) {
       if (this == &f) return *this; // self-assignment
       nlopt_destroy(o);
       o = nlopt_copy(f.o);
       if (f.o && !o) throw std::bad_alloc();
+      mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
       return *this;
     }
 
     // Do the optimization:
-    result optimize(double *x, double &opt_f) {
-      nlopt_result ret = nlopt_optimize(o, x, &opt_f);
-      mythrow(ret);
-      return result(ret);
-    }
     result optimize(std::vector<double> &x, double &opt_f) {
       if (o && nlopt_get_dimension(o) != x.size())
         throw std::invalid_argument("dimension mismatch");
-      return optimize(x.empty() ? NULL : &x[0], opt_f);
+      stopped_by_exception = false;
+      nlopt_result ret = nlopt_optimize(o, x.empty() ? NULL : &x[0], &opt_f);
+      if (ret == NLOPT_FORCED_STOP && stopped_by_exception)
+	throw; // re-throw last-caught exception
+      mythrow(ret);
+      return result(ret);
     }
 
     // accessors:
@@ -143,19 +171,29 @@ namespace nlopt {
     }
 
     // Set the objective function
-    void set_min_objective(nlopt_func f, void *f_data) {
-      nlopt_result ret = nlopt_set_min_objective(o, f, f_data);
-      mythrow(ret);
+    void set_min_objective(func f, void *f_data) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      mythrow(nlopt_set_min_objective(o, myfunc, d)); // d freed via o
     }
-    void set_min_objective(func *f) {
-      set_min_objective(myfunc, f);
+    void set_min_objective(vfunc vf) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      mythrow(nlopt_set_min_objective(o, myvfunc, d)); // d freed via o
     }
-    void set_max_objective(nlopt_func f, void *f_data) {
-      nlopt_result ret = nlopt_set_max_objective(o, f, f_data);
-      mythrow(ret);
+    void set_max_objective(func f, void *f_data) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
     }
-    void set_max_objective(func *f) {
-      set_max_objective(myfunc, f);
+    void set_max_objective(vfunc vf) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
     }
 
     // Nonlinear constraints:
@@ -164,35 +202,37 @@ namespace nlopt {
       nlopt_result ret = nlopt_remove_inequality_constraints(o);
       mythrow(ret);
     }
-    void add_inequality_constraint(nlopt_func f, void *f_data, double tol=0) {
-      nlopt_result ret = nlopt_add_inequality_constraint(o, f, f_data, tol);
-      mythrow(ret);
+    void add_inequality_constraint(func f, void *f_data, double tol=0) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      mythrow(nlopt_add_inequality_constraint(o, myfunc, d, tol));
     }
-    void add_inequality_constraint(func *f, double tol=0) {
-      add_inequality_constraint(myfunc, f, tol);
+    void add_inequality_constraint(vfunc vf, double tol=0) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      mythrow(nlopt_add_inequality_constraint(o, myvfunc, d, tol));
     }
 
     void remove_equality_constraints(void) {
       nlopt_result ret = nlopt_remove_equality_constraints(o);
       mythrow(ret);
     }
-    void add_equality_constraint(nlopt_func f, void *f_data, double tol=0) {
-      nlopt_result ret = nlopt_add_equality_constraint(o, f, f_data, tol);
-      mythrow(ret);
+    void add_equality_constraint(func f, void *f_data, double tol=0) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      mythrow(nlopt_add_equality_constraint(o, myfunc, d, tol));
     }
-    void add_equality_constraint(func *f, double tol=0) {
-      add_equality_constraint(myfunc, f, tol);
+    void add_equality_constraint(vfunc vf, double tol=0) {
+      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = NULL; d->f_data = NULL; d->vf = vf;
+      mythrow(nlopt_add_equality_constraint(o, myvfunc, d, tol));
     }
 
 #define NLOPT_GETSET_VEC(name)						\
-    void get_##name(double *v) const {					\
-      nlopt_result ret = nlopt_get_##name(o, v);			\
-      mythrow(ret);							\
-    }									\
-    void set_##name(const double *v) {					\
-      nlopt_result ret = nlopt_set_##name(o, v);			\
-      mythrow(ret);							\
-    }									\
     void set_##name(double val) {					\
       nlopt_result ret = nlopt_set_##name##1(o, val);			\
       mythrow(ret);							\
@@ -200,7 +240,8 @@ namespace nlopt {
     void get_##name(std::vector<double> &v) const {			\
       if (o && nlopt_get_dimension(o) != v.size())			\
         throw std::invalid_argument("dimension mismatch");		\
-      get_##name(v.empty() ? NULL : &v[0]);				\
+      nlopt_result ret = nlopt_get_##name(o, v.empty() ? NULL : &v[0]);	\
+      mythrow(ret);							\
     }									\
     std::vector<double> get_##name(void) const {			\
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");	\
@@ -211,7 +252,8 @@ namespace nlopt {
     void set_##name(const std::vector<double> &v) {			\
       if (o && nlopt_get_dimension(o) != v.size())			\
         throw std::invalid_argument("dimension mismatch");		\
-      set_##name(v.empty() ? NULL : &v[0]);				\
+      nlopt_result ret = nlopt_set_##name(o, v.empty() ? NULL : &v[0]);	\
+      mythrow(ret);							\
     }
 
     NLOPT_GETSET_VEC(lower_bounds)
@@ -241,34 +283,26 @@ namespace nlopt {
 
     // algorithm-specific parameters:
 
-    void set_local_optimizer(const nlopt_opt lo) {
-      nlopt_result ret = nlopt_set_local_optimizer(o, lo);
-      mythrow(ret);
-    }
     void set_local_optimizer(const opt &lo) {
-      set_local_optimizer(lo.o);
+      nlopt_result ret = nlopt_set_local_optimizer(o, lo.o);
+      mythrow(ret);
     }
 
     NLOPT_GETSET(unsigned, population)
     NLOPT_GETSET_VEC(initial_step)
 
-    void set_default_initial_step(const double *x) {
-      nlopt_result ret = nlopt_set_default_initial_step(o, x);
-      mythrow(ret);
-    }
     void set_default_initial_step(const std::vector<double> &x) {
-      set_default_initial_step(x.empty() ? NULL : &x[0]);
-    }
-    void get_initial_step(const double *x, double *dx) const {
-      nlopt_result ret = nlopt_get_initial_step(o, x, dx);
+      nlopt_result ret 
+	= nlopt_set_default_initial_step(o, x.empty() ? NULL : &x[0]);
       mythrow(ret);
     }
     void get_initial_step(const std::vector<double> &x, std::vector<double> &dx) const {
       if (o && (nlopt_get_dimension(o) != x.size()
 		|| nlopt_get_dimension(o) != dx.size()))
         throw std::invalid_argument("dimension mismatch");
-      get_initial_step(x.empty() ? NULL : &x[0],
-		       dx.empty() ? NULL : &dx[0]);
+      nlopt_result ret = nlopt_get_initial_step(o, x.empty() ? NULL : &x[0],
+						dx.empty() ? NULL : &dx[0]);
+      mythrow(ret);
     }
     std::vector<double> get_initial_step(const std::vector<double> &x) const {
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");
@@ -288,11 +322,8 @@ namespace nlopt {
   inline void version(int &major, int &minor, int &bugfix) {
     nlopt_version(&major, &minor, &bugfix);
   }
-  inline const char *algorithm_name(nlopt_algorithm a) {
-    return nlopt_algorithm_name(a);
-  }
   inline const char *algorithm_name(algorithm a) {
-    return algorithm_name(nlopt_algorithm(a));
+    return nlopt_algorithm_name(nlopt_algorithm(a));
   }
 
   //////////////////////////////////////////////////////////////////////

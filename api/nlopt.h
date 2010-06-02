@@ -23,7 +23,7 @@
 #ifndef NLOPT_H
 #define NLOPT_H
 
-#include <stddef.h> /* for ptrdiff_t */
+#include <stddef.h> /* for ptrdiff_t and size_t */
 
 /* use stdcall convention under Windows, since this seems to
    be more standard there and is important for calling from .NET */
@@ -251,7 +251,8 @@ NLOPT_EXTERN nlopt_result nlopt_get_initial_step(const nlopt_opt opt,
 /* set to 1: nlopt_destroy should call free() on all of the f_data pointers
    (for the objective, constraints, etcetera) ... mainly for internal use */
 NLOPT_EXTERN nlopt_result nlopt_set_free_f_data(nlopt_opt opt, int val);
-NLOPT_EXTERN int nlopt_get_free_f_data(nlopt_opt opt);
+NLOPT_EXTERN int nlopt_get_free_f_data(const nlopt_opt opt);
+NLOPT_EXTERN nlopt_result nlopt_dup_f_data(nlopt_opt opt, size_t sz);
 
 /*************************** DEPRECATED API **************************/
 /* The new "object-oriented" API is preferred, since it allows us to

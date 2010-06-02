@@ -402,7 +402,9 @@ nlopt_result nlopt_set_force_stop(nlopt_opt opt, int force_stop)
 }
 
 GET(force_stop, int, force_stop)
-nlopt_result nlopt_force_stop(nlopt_opt opt) { nlopt_set_force_stop(opt, 1); }
+nlopt_result nlopt_force_stop(nlopt_opt opt) { 
+     return nlopt_set_force_stop(opt, 1); 
+}
 
 /*************************************************************************/
 
@@ -525,5 +527,39 @@ nlopt_result nlopt_set_default_initial_step(nlopt_opt opt, const double *x)
 /*************************************************************************/
 
 GETSET(free_f_data, int, free_f_data)
+
+/* the dup_f_data function replaces all f_data pointers with a new
+   pointer to a duplicate block of memory, assuming all non-NULL
+   f_data pointers point to a block of sz bytes...  this is pretty
+   exclusively intended for internal use (e.g. it may lead to a
+   double-free if one subsequently calles add_inequality_constraint
+   etc.), e.g. in the C++ API */
+
+static int dup(void **p, size_t sz) {
+     if (*p) {
+	  void *pdup = malloc(sz);
+	  if (pdup) {
+	       memcpy(pdup, *p, sz);
+	       *p = pdup;
+	       return 1;
+	  }
+	  else return 0;
+     }
+     else return 1;
+}
+
+nlopt_result nlopt_dup_f_data(nlopt_opt opt, size_t sz) {
+     if (opt) {
+	  unsigned i;
+	  if (!dup(&opt->f_data, sz)) return NLOPT_OUT_OF_MEMORY;
+	  for (i = 0; i < opt->m; ++i)
+	       if (!dup(&opt->fc[i].f_data, sz)) return NLOPT_OUT_OF_MEMORY;
+	  for (i = 0; i < opt->p; ++i)
+	       if (!dup(&opt->h[i].f_data, sz)) return NLOPT_OUT_OF_MEMORY;
+	  nlopt_set_free_f_data(opt, 1); // nlopt_destroy must now free f_data!
+	  return NLOPT_SUCCESS;
+     }
+     return NLOPT_INVALID_ARGS;
+}
 
 /*************************************************************************/
