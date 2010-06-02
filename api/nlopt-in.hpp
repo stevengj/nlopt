@@ -29,6 +29,8 @@
 #include <stdexcept>
 #include <new>
 #include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 // convenience overloading for below (not in nlopt:: since has nlopt_ prefix)
 inline nlopt_result nlopt_get_initial_step(const nlopt_opt opt, double *dx) {
@@ -96,6 +98,7 @@ namespace nlopt {
       catch (...) {
 	d->o->stopped_by_exception = true;
 	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+	return HUGE_VAL;
       }
     }
 
@@ -106,17 +109,18 @@ namespace nlopt {
       myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
       try {
 	std::vector<double> &xv = d->o->xtmp;
-	for (unsigned i = 0; i < n; ++i) xv[i] = x[i];
+	if (n) std::memcpy(&xv[0], x, n * sizeof(double));
 	double val=d->vf(xv, grad ? d->o->gradtmp : d->o->gradtmp0, d->f_data);
-	if (grad) {
+	if (grad && n) {
 	  std::vector<double> &gradv = d->o->gradtmp;
-	  for (unsigned i = 0; i < n; ++i) grad[i] = gradv[i];
+	  std::memcpy(grad, &gradv[0], n * sizeof(double));
 	}
 	return val;
       }
       catch (...) {
 	d->o->stopped_by_exception = true;
 	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+	return HUGE_VAL;
       }
     }
 
