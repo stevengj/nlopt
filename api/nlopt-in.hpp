@@ -70,7 +70,6 @@ namespace nlopt {
   class opt {
   private:
     nlopt_opt o;
-    bool stopped_by_exception;
     
     void mythrow(nlopt_result ret) const {
       switch (ret) {
@@ -96,7 +95,6 @@ namespace nlopt {
 	return d->f(n, x, grad, d->f_data);
       }
       catch (...) {
-	d->o->stopped_by_exception = true;
 	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
 	return HUGE_VAL;
       }
@@ -118,7 +116,6 @@ namespace nlopt {
 	return val;
       }
       catch (...) {
-	d->o->stopped_by_exception = true;
 	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
 	return HUGE_VAL;
       }
@@ -133,11 +130,10 @@ namespace nlopt {
 
   public:
     // Constructors etc.
-    opt() : 
-      o(NULL), stopped_by_exception(false), xtmp(0), gradtmp(0), gradtmp0(0) {}
+    opt() : o(NULL), xtmp(0), gradtmp(0), gradtmp0(0) {}
     ~opt() { nlopt_destroy(o); }
     opt(algorithm a, unsigned n) : 
-      o(nlopt_create(nlopt_algorithm(a), n)), stopped_by_exception(false),
+      o(nlopt_create(nlopt_algorithm(a), n)), 
       xtmp(0), gradtmp(0), gradtmp0(0) {
       if (!o) throw std::bad_alloc();
       nlopt_set_free_f_data(o, 1);
@@ -159,10 +155,7 @@ namespace nlopt {
     result optimize(std::vector<double> &x, double &opt_f) {
       if (o && nlopt_get_dimension(o) != x.size())
         throw std::invalid_argument("dimension mismatch");
-      stopped_by_exception = false;
       nlopt_result ret = nlopt_optimize(o, x.empty() ? NULL : &x[0], &opt_f);
-      if (ret == NLOPT_FORCED_STOP && stopped_by_exception)
-	throw; // re-throw last-caught exception
       mythrow(ret);
       return result(ret);
     }
