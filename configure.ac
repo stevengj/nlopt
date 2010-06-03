@@ -51,11 +51,20 @@ AC_CHECK_TYPES(uint32_t, [], [], [$ac_includes_default
 
 dnl Checks for libraries and functions
 AC_CHECK_LIB(m, sin)
-AC_CHECK_FUNCS([BSDgettimeofday gettimeofday time qsort_r])
+AC_CHECK_FUNCS([BSDgettimeofday gettimeofday time qsort_r getpid])
+
+AC_MSG_CHECKING([for gettid syscall])
+AC_TRY_LINK([#include <unistd.h>
+#include <sys/syscall.h>
+], [syscall(SYS_gettid);], [ok=yes], [ok=no])
+if test "$ok" = "yes"; then
+	AC_DEFINE(HAVE_GETTID_SYSCALL,1,[Define if syscall(SYS_gettid) available.])
+fi
+AC_MSG_RESULT(${ok})
 
 AC_MSG_CHECKING([for isnan])
 AC_TRY_LINK([#include <math.h>
-], if (!isnan(3.14159)) isnan(2.7183);, ok=yes, ok=no)
+], [if (!isnan(3.14159)) isnan(2.7183);], ok=yes, ok=no)
 if test "$ok" = "yes"; then
 	AC_DEFINE(HAVE_ISNAN,1,[Define if the isnan() function/macro is available.])
 fi
@@ -63,7 +72,7 @@ AC_MSG_RESULT(${ok})
 
 AC_MSG_CHECKING([for isinf])
 AC_TRY_LINK([#include <math.h>
-], if (!isinf(3.14159)) isinf(2.7183);, ok=yes, ok=no)
+], [if (!isinf(3.14159)) isinf(2.7183);], ok=yes, ok=no)
 if test "$ok" = "yes"; then
 	AC_DEFINE(HAVE_ISINF,1,[Define if the isinf() function/macro is available.])
 fi

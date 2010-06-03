@@ -101,6 +101,26 @@ const char *nlopt_algorithm_name(nlopt_algorithm a)
 }
 
 /*************************************************************************/
+/* get thread id, if possible, for use in nlopt_srand_time to ensure that
+   different threads have a different default seed even if they are called
+   simultaneously */
+
+#if defined(_WIN32) || defined(__WIN32__)
+#  include <windows.h>
+#  define my_gettid GetCurrentThreadId
+#elif defined(HAVE_GETTID_SYSCALL)
+#  include <unistd.h>
+#  include <sys/syscall.h>
+#  define my_gettid() syscall(SYS_gettid)
+#elif defined(HAVE_GETPID)
+#  include <sys/types.h>
+#  include <unistd.h>
+#  define my_gettid getpid
+#else
+#  define my_gettid() (0)
+#endif
+
+/*************************************************************************/
 
 static THREADLOCAL int nlopt_srand_called = 0;
 void nlopt_srand(unsigned long seed) {
@@ -109,7 +129,7 @@ void nlopt_srand(unsigned long seed) {
 }
 
 void nlopt_srand_time() {
-     nlopt_srand(nlopt_time_seed());
+     nlopt_srand(nlopt_time_seed() + my_gettid() * 314159);
 }
 
 void nlopt_srand_time_default() {
