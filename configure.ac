@@ -8,7 +8,7 @@ AM_CONFIG_HEADER(config.h)
 AC_CONFIG_MACRO_DIR([m4])
 AM_MAINTAINER_MODE
 AC_SUBST(SHARED_VERSION_INFO)
-AC_DISABLE_SHARED dnl to hell with shared libraries
+AC_DISABLE_SHARED dnl shared libraries are a PITA, disable by default
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -78,6 +78,41 @@ AM_CONDITIONAL(WITH_NOCEDAL, test -n "$have_lbfgs")
 if test -n "$have_lbfgs"; then
    AC_DEFINE(WITH_NOCEDAL, [1], [Define if we have the non-free Nocedal LBFGS code])
 fi
+
+dnl -----------------------------------------------------------------------
+dnl SWIG wrappers
+
+dnl Guile:
+AC_CHECK_PROG(GUILE_CONFIG, guile-config, guile-config, unknown)
+if test "x$GUILE_CONFIG" = "xunknown"; then
+   AC_MSG_WARN([can't find guile-config, disabling Guile wrapper])
+else
+   save_CPPFLAGS=$CPPFLAGS
+   save_LIBS=$LIBS
+   GUILE_CPPFLAGS=`$GUILE_CONFIG compile`
+   GUILE_LIBS=`$GUILE_CONFIG link`
+   CPPFLAGS="$CPPFLAGS $GUILE_CPPFLAGS"
+   LIBS="$GUILE_LIBS $LIBS"
+   AC_MSG_CHECKING([if linking to guile works])
+   AC_TRY_LINK_FUNC(scm_is_vector, [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)
+        AC_MSG_WARN(guile-config is broken, disabling Guile wrapper)
+        GUILE_CONFIG="unknown"])
+   CPPFLAGS=$save_CPPFLAGS
+   LIBS=$save_LIBS
+fi
+AC_CHECK_PROG(GUILE, guile, guile, unknown)
+if test "x$GUILE" = xunknown; then
+   AC_MSG_WARN([can't find guile, disabling Guile wrapper])
+   GUILE_CONFIG=unknown
+else
+   AC_MSG_CHECKING([for Guile site installation directory])
+   GUILE_SITEDIR=`guile -c '(display (%site-dir))'`
+   AC_MSG_RESULT([$GUILE_SITEDIR])
+fi
+AC_SUBST(GUILE_SITEDIR)
+AC_SUBST(GUILE_CPPFLAGS)
+AC_SUBST(GUILE_LIBS)
+AM_CONDITIONAL(WITH_GUILE, test x"$GUILE_CONFIG" != "xunknown")
 
 dnl -----------------------------------------------------------------------
 dnl Compiling Octave plug-in
@@ -322,6 +357,8 @@ AC_CONFIG_FILES([
    bobyqa/Makefile
    isres/Makefile
    test/Makefile
+   swig/Makefile
+   swig/nlopt.scm
 ])
 
 AC_OUTPUT

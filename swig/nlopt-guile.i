@@ -6,7 +6,7 @@ static double vfunc_guile(const std::vector<double> &x,
   SCM xscm = scm_c_make_vector(x.size(), SCM_UNSPECIFIED);
   for (unsigned i = 0; i < x.size(); ++i)
     scm_c_vector_set_x(xscm, i, scm_make_real(x[i]));
-  SCM ret = scm_call_2((SCM) f, xscm);
+  SCM ret = scm_call_1((SCM) f, xscm);
   if (scm_real_p(ret)) {
     if (grad.size()) throw std::invalid_argument("missing gradient");
     return scm_to_double(ret);
@@ -36,6 +36,6 @@ static double vfunc_guile(const std::vector<double> &x,
 %feature("constasvar", "1");
 
 %scheme %{ 
-(dynamic-link "libnlopt.so")
-(load-extension "libnlopt-guile.so" "SWIG_init")
+(dynamic-link "libnlopt@NLOPT_SUFFIX@.so")
+(load-extension "libnlopt@NLOPT_SUFFIX@_guile.so" "SWIG_init")
 %}

@@ -14,6 +14,8 @@ while test $# -ge 1; do
     shift
 done
 
+touch swig/nlopt.scm.in
+
 # paranoia: sometimes autoconf doesn't get things right the first time
 autoreconf --verbose --install --symlink --force
 autoreconf --verbose --install --symlink --force
