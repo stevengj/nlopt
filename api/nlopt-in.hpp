@@ -70,6 +70,8 @@ namespace nlopt {
   class opt {
   private:
     nlopt_opt o;
+    result last_result;
+    double last_optf;
     
     void mythrow(nlopt_result ret) const {
       switch (ret) {
@@ -130,16 +132,20 @@ namespace nlopt {
 
   public:
     // Constructors etc.
-    opt() : o(NULL), xtmp(0), gradtmp(0), gradtmp0(0) {}
+    opt() : o(NULL), xtmp(0), gradtmp(0), gradtmp0(0), 
+	    last_result(nlopt::FAILURE), last_optf(HUGE_VAL) {}
     ~opt() { nlopt_destroy(o); }
     opt(algorithm a, unsigned n) : 
       o(nlopt_create(nlopt_algorithm(a), n)), 
-      xtmp(0), gradtmp(0), gradtmp0(0) {
+      xtmp(0), gradtmp(0), gradtmp0(0),
+      last_result(nlopt::FAILURE), last_optf(HUGE_VAL) {
       if (!o) throw std::bad_alloc();
       nlopt_set_free_f_data(o, 1);
     }
-    opt(const opt& from) : o(nlopt_copy(from.o)) {
-      if (from.o && !o) throw std::bad_alloc();
+    opt(const opt& f) : o(nlopt_copy(f.o)), 
+			xtmp(f.xtmp), gradtmp(f.gradtmp), gradtmp0(0),
+			last_result(f.last_result), last_optf(f.last_optf) {
+      if (f.o && !o) throw std::bad_alloc();
       mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
     }
     opt& operator=(opt const& f) {
@@ -148,6 +154,8 @@ namespace nlopt {
       o = nlopt_copy(f.o);
       if (f.o && !o) throw std::bad_alloc();
       mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
+      xtmp = f.xtmp; gradtmp = f.gradtmp;
+      last_result = f.last_result; last_optf = f.last_optf;
       return *this;
     }
 
@@ -156,9 +164,20 @@ namespace nlopt {
       if (o && nlopt_get_dimension(o) != x.size())
         throw std::invalid_argument("dimension mismatch");
       nlopt_result ret = nlopt_optimize(o, x.empty() ? NULL : &x[0], &opt_f);
+      last_result = result(ret);
+      last_optf = opt_f;
       mythrow(ret);
-      return result(ret);
+      return last_result;
     }
+
+    // variant mainly useful for SWIG wrappers:
+    std::vector<double> optimize(const std::vector<double> &x0) {
+      std::vector<double> x(x0);
+      last_result = optimize(x, last_optf);
+      return x;
+    }
+    result last_optimize_result() const { return last_result; }
+    double last_optimum_value() const { return last_optf; }
 
     // accessors:
     algorithm get_algorithm() const {

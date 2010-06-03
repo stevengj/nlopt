@@ -27,24 +27,7 @@ static double vfunc_guile(const std::vector<double> &x,
   throw std::invalid_argument("invalid result passed to nlopt");
 }
 
-extern SCM nlopt_do_optimize(nlopt::opt &opt, const std::vector<double> &x);
-
-// wrapper around opt::optimize that returns a triplet (result . (x . optf))
-SCM nlopt_do_optimize(nlopt::opt &opt, const std::vector<double> &x0)
-{
-  std::vector<double> x(x0);
-  double optf;
-  nlopt::result res = opt.optimize(x, optf);
-  SCM xscm = scm_c_make_vector(x.size(), SCM_UNSPECIFIED);
-  for (unsigned i = 0; i < x.size(); ++i)
-    scm_c_vector_set_x(xscm, i, scm_make_real(x[i]));
-  return scm_cons(scm_from_int(int(res)),
-		  scm_cons(xscm, scm_make_real(optf)));
-}
-
 %}
-
-extern SCM nlopt_do_optimize(nlopt::opt &opt, const std::vector<double> &x);
 
 %typemap(in)(nlopt::vfunc vf, void *f_data) {
   $1 = vfunc_guile;
