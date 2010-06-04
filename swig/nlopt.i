@@ -24,4 +24,8 @@ namespace std {
 %include "nlopt-guile.i"
 #endif
 
+#ifdef SWIGPYTHON
+%include "nlopt-python.i"
+#endif
+
 %include "nlopt.hpp"
