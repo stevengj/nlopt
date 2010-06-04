@@ -261,6 +261,7 @@ nlopt_result nlopt_get_upper_bounds(nlopt_opt opt, double *ub)
 
 nlopt_result nlopt_remove_inequality_constraints(nlopt_opt opt)
 {
+     if (!opt) return NLOPT_INVALID_ARGS;
      free(opt->fc);
      opt->fc = NULL;
      opt->m = opt->m_alloc = 0;
@@ -313,6 +314,7 @@ nlopt_result nlopt_add_inequality_constraint(nlopt_opt opt,
 
 nlopt_result nlopt_remove_equality_constraints(nlopt_opt opt)
 {
+     if (!opt) return NLOPT_INVALID_ARGS;
      free(opt->h);
      opt->h = NULL;
      opt->p = opt->p_alloc = 0;

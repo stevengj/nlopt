@@ -1,4 +1,5 @@
-EXTRA_DIST = nlopt.i nlopt-guile.i nlopt-enum-renames.i nlopt.scm.in
+SWIG_SRC = nlopt.i nlopt-exceptions.i nlopt-enum-renames.i 
+EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt.scm.in
 
 BUILT_SOURCES = nlopt-guile.cpp nlopt-enum-renames.i nlopt.scm.in
 
@@ -29,7 +30,7 @@ lib_LTLIBRARIES = $(guilelib)
 
 if MAINTAINER_MODE
 
-nlopt-guile.cpp: nlopt.i nlopt-enum-renames.i nlopt-guile.i $(HDR)
+nlopt-guile.cpp: $(SWIG_SRC) nlopt-guile.i $(HDR)
 	swig -I$(top_builddir)/api -outdir $(builddir) -c++ -guile -scmstub -o $@ nlopt.i
 	rm -f nlopt.scm.in
 	mv nlopt.scm nlopt.scm.in

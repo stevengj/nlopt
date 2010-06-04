@@ -223,7 +223,7 @@ namespace nlopt {
 
     // Nonlinear constraints:
 
-    void remove_inequality_constraints(void) {
+    void remove_inequality_constraints() {
       nlopt_result ret = nlopt_remove_inequality_constraints(o);
       mythrow(ret);
     }
@@ -241,7 +241,7 @@ namespace nlopt {
       alloc_tmp();
     }
 
-    void remove_equality_constraints(void) {
+    void remove_equality_constraints() {
       nlopt_result ret = nlopt_remove_equality_constraints(o);
       mythrow(ret);
     }
@@ -261,16 +261,14 @@ namespace nlopt {
 
 #define NLOPT_GETSET_VEC(name)						\
     void set_##name(double val) {					\
-      nlopt_result ret = nlopt_set_##name##1(o, val);			\
-      mythrow(ret);							\
+      mythrow(nlopt_set_##name##1(o, val));				\
     }									\
     void get_##name(std::vector<double> &v) const {			\
       if (o && nlopt_get_dimension(o) != v.size())			\
         throw std::invalid_argument("dimension mismatch");		\
-      nlopt_result ret = nlopt_get_##name(o, v.empty() ? NULL : &v[0]);	\
-      mythrow(ret);							\
+      mythrow(nlopt_get_##name(o, v.empty() ? NULL : &v[0]));		\
     }									\
-    std::vector<double> get_##name(void) const {			\
+    std::vector<double> get_##name() const {			\
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");	\
       std::vector<double> v(nlopt_get_dimension(o));			\
       get_##name(v);							\
@@ -279,8 +277,7 @@ namespace nlopt {
     void set_##name(const std::vector<double> &v) {			\
       if (o && nlopt_get_dimension(o) != v.size())			\
         throw std::invalid_argument("dimension mismatch");		\
-      nlopt_result ret = nlopt_set_##name(o, v.empty() ? NULL : &v[0]);	\
-      mythrow(ret);							\
+      mythrow(nlopt_set_##name(o, v.empty() ? NULL : &v[0]));		\
     }
 
     NLOPT_GETSET_VEC(lower_bounds)
@@ -294,8 +291,7 @@ namespace nlopt {
       return nlopt_get_##name(o);					\
     }									\
     void set_##name(T name) {						\
-      nlopt_result ret = nlopt_set_##name(o, name);			\
-      mythrow(ret);							\
+      mythrow(nlopt_set_##name(o, name));				\
     }
     NLOPT_GETSET(double, stopval)
     NLOPT_GETSET(double, ftol_rel)
@@ -344,12 +340,27 @@ namespace nlopt {
 
   //////////////////////////////////////////////////////////////////////
 
-  inline void srand(unsigned long seed) { nlopt_srand(seed); }
-  inline void srand_time(void) { nlopt_srand_time(); }
-  inline void version(int &major, int &minor, int &bugfix) {
+  void srand(unsigned long seed) { nlopt_srand(seed); }
+  void srand_time() { nlopt_srand_time(); }
+  void version(int &major, int &minor, int &bugfix) {
     nlopt_version(&major, &minor, &bugfix);
   }
-  inline const char *algorithm_name(algorithm a) {
+  int version_major() {
+    int major, minor, bugfix;
+    nlopt_version(&major, &minor, &bugfix);
+    return major;
+  }
+  int version_minor() {
+    int major, minor, bugfix;
+    nlopt_version(&major, &minor, &bugfix);
+    return minor;
+  }
+  int version_bugfix() {
+    int major, minor, bugfix;
+    nlopt_version(&major, &minor, &bugfix);
+    return bugfix;
+  }
+  const char *algorithm_name(algorithm a) {
     return nlopt_algorithm_name(nlopt_algorithm(a));
   }
 

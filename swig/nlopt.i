@@ -18,6 +18,8 @@ namespace std {
 %rename(nlopt_algorithm_name) nlopt::algorithm_name;
 %include "nlopt-enum-renames.i"
 
+%include "nlopt-exceptions.i"
+
 #ifdef SWIGGUILE
 %include "nlopt-guile.i"
 #endif
