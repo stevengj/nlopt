@@ -26,7 +26,6 @@ static double vfunc_guile(const std::vector<double> &x,
   }
   throw std::invalid_argument("invalid result passed to nlopt");
 }
-
 %}
 
 %typemap(in)(nlopt::vfunc vf, void *f_data) {
