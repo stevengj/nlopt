@@ -327,7 +327,7 @@ namespace nlopt {
 						dx.empty() ? NULL : &dx[0]);
       mythrow(ret);
     }
-    std::vector<double> get_initial_step(const std::vector<double> &x) const {
+    std::vector<double> get_initial_step_(const std::vector<double> &x) const {
       if (!o) throw std::runtime_error("uninitialized nlopt::opt");
       std::vector<double> v(nlopt_get_dimension(o));
       get_initial_step(x, v);
