@@ -88,7 +88,37 @@ namespace nlopt {
       opt *o;
       func f; void *f_data;
       vfunc vf;
+      nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
     } myfunc_data;
+
+    // free/destroy f_data in nlopt_destroy and nlopt_copy, respectively
+    static void *free_myfunc_data(void *p) { 
+      myfunc_data *d = (myfunc_data *) p;
+      if (d) {
+	if (d->f_data && d->munge_destroy) d->munge_destroy(d->f_data);
+	delete d;
+      }
+      return NULL;
+    }
+    static void *dup_myfunc_data(void *p) {
+      myfunc_data *d = (myfunc_data *) p;
+      if (d) {
+	void *f_data;
+	if (d->f_data && d->munge_copy) {
+	  f_data = d->munge_copy(d->f_data);
+	  if (!f_data) return NULL;
+	}
+	else
+	  f_data = d->f_data;
+	myfunc_data *dnew = new myfunc_data;
+	if (dnew) {
+	  *dnew = *d;
+	  dnew->f_data = f_data;
+	}
+	return (void*) dnew;
+      }
+      else return NULL;
+    }
 
     // nlopt_func wrapper that catches exceptions
     static double myfunc(unsigned n, const double *x, double *grad, void *d_) {
@@ -140,20 +170,18 @@ namespace nlopt {
       xtmp(0), gradtmp(0), gradtmp0(0),
       last_result(nlopt::FAILURE), last_optf(HUGE_VAL) {
       if (!o) throw std::bad_alloc();
-      nlopt_set_free_f_data(o, 1);
+      nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
     }
     opt(const opt& f) : o(nlopt_copy(f.o)), 
 			xtmp(f.xtmp), gradtmp(f.gradtmp), gradtmp0(0),
 			last_result(f.last_result), last_optf(f.last_optf) {
       if (f.o && !o) throw std::bad_alloc();
-      mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
     }
     opt& operator=(opt const& f) {
       if (this == &f) return *this; // self-assignment
       nlopt_destroy(o);
       o = nlopt_copy(f.o);
       if (f.o && !o) throw std::bad_alloc();
-      mythrow(nlopt_dup_f_data(o, sizeof(myfunc_data)));
       xtmp = f.xtmp; gradtmp = f.gradtmp;
       last_result = f.last_result; last_optf = f.last_optf;
       return *this;
@@ -195,30 +223,53 @@ namespace nlopt {
 
     // Set the objective function
     void set_min_objective(func f, void *f_data) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_set_min_objective(o, myfunc, d)); // d freed via o
     }
     void set_min_objective(vfunc vf, void *f_data) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_set_min_objective(o, myvfunc, d)); // d freed via o
       alloc_tmp();
     }
     void set_max_objective(func f, void *f_data) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
     }
     void set_max_objective(vfunc vf, void *f_data) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
       alloc_tmp();
+    }
+
+    // for internal use in SWIG wrappers -- variant that
+    // takes ownership of f_data, with munging for destroy/copy
+    void set_min_objective(func f, void *f_data,
+			   nlopt_munge md, nlopt_munge mc) {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = md; d->munge_copy = mc;
+      mythrow(nlopt_set_min_objective(o, myfunc, d)); // d freed via o
+    }
+    void set_max_objective(func f, void *f_data,
+			   nlopt_munge md, nlopt_munge mc) {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = md; d->munge_copy = mc;
+      mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
     }
 
     // Nonlinear constraints:
@@ -228,15 +279,17 @@ namespace nlopt {
       mythrow(ret);
     }
     void add_inequality_constraint(func f, void *f_data, double tol=0) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_add_inequality_constraint(o, myfunc, d, tol));
     }
     void add_inequality_constraint(vfunc vf, void *f_data, double tol=0) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_add_inequality_constraint(o, myvfunc, d, tol));
       alloc_tmp();
     }
@@ -246,17 +299,39 @@ namespace nlopt {
       mythrow(ret);
     }
     void add_equality_constraint(func f, void *f_data, double tol=0) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_add_equality_constraint(o, myfunc, d, tol));
     }
     void add_equality_constraint(vfunc vf, void *f_data, double tol=0) {
-      myfunc_data *d = (myfunc_data *) std::malloc(sizeof(myfunc_data));
+      myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->f = NULL; d->f_data = f_data; d->vf = vf;
+      d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_add_equality_constraint(o, myvfunc, d, tol));
       alloc_tmp();
+    }
+
+    // For internal use in SWIG wrappers (see also above)
+    void add_inequality_constraint(func f, void *f_data, 
+				   nlopt_munge md, nlopt_munge mc,
+				   double tol=0) {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = md; d->munge_copy = mc;
+      mythrow(nlopt_add_inequality_constraint(o, myfunc, d, tol));
+    }
+    void add_equality_constraint(func f, void *f_data, 
+				 nlopt_munge md, nlopt_munge mc,
+				 double tol=0) {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->vf = NULL;
+      d->munge_destroy = md; d->munge_copy = mc;
+      mythrow(nlopt_add_equality_constraint(o, myfunc, d, tol));
     }
 
 #define NLOPT_GETSET_VEC(name)						\

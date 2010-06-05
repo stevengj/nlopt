@@ -34,13 +34,14 @@
 void nlopt_destroy(nlopt_opt opt)
 {
      if (opt) {
-	  if (opt->free_f_data) {
+	  if (opt->munge_on_destroy) {
+	       nlopt_munge munge = opt->munge_on_destroy;
 	       unsigned i;
-	       free(opt->f_data);
+	       munge(opt->f_data);
 	       for (i = 0; i < opt->m; ++i)
-		    free(opt->fc[i].f_data);
+		    munge(opt->fc[i].f_data);
 	       for (i = 0; i < opt->p; ++i)
-		    free(opt->h[i].f_data);
+		    munge(opt->h[i].f_data);
 	  }
 	  free(opt->lb); free(opt->ub);
 	  free(opt->xtol_abs);
@@ -65,7 +66,7 @@ nlopt_opt nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->n = n;
 	  opt->f = NULL; opt->f_data = NULL;
 	  opt->maximize = 0;
-	  opt->free_f_data = 0;
+	  opt->munge_on_destroy = opt->munge_on_copy = NULL;
 
 	  opt->lb = opt->ub = NULL;
 	  opt->m = opt->m_alloc = 0;
@@ -117,7 +118,10 @@ nlopt_opt nlopt_copy(const nlopt_opt opt)
 	  nopt->local_opt = NULL;
 	  nopt->dx = NULL;
 	  opt->force_stop_child = NULL;
-	  opt->free_f_data = 0;
+
+	  nlopt_munge munge = nopt->munge_on_copy;
+	  if (munge && nopt->f_data)
+	       if (!(nopt->f_data = munge(nopt->f_data))) goto oom;
 
 	  if (opt->n > 0) {
 	       nopt->lb = (double *) malloc(sizeof(double) * (opt->n));
@@ -138,6 +142,12 @@ nlopt_opt nlopt_copy(const nlopt_opt opt)
 						      * (opt->m));
 	       if (!nopt->fc) goto oom;
 	       memcpy(nopt->fc, opt->fc, sizeof(nlopt_constraint) * (opt->m));
+	       if (munge)
+		    for (unsigned i = 0; i < opt->m; ++i)
+			 if (nopt->fc[i].f_data &&
+			     !(nopt->fc[i].f_data
+			       = munge(nopt->fc[i].f_data)))
+			      goto oom;
 	  }
 
 	  if (opt->p) {
@@ -146,6 +156,12 @@ nlopt_opt nlopt_copy(const nlopt_opt opt)
 						     * (opt->p));
 	       if (!nopt->h) goto oom;
 	       memcpy(nopt->h, opt->h, sizeof(nlopt_constraint) * (opt->p));
+	       if (munge)
+		    for (unsigned i = 0; i < opt->p; ++i)
+			 if (nopt->h[i].f_data &&
+			     !(nopt->h[i].f_data
+			       = munge(nopt->h[i].f_data)))
+			      goto oom;
 	  }
 
 	  if (opt->local_opt) {
@@ -162,6 +178,7 @@ nlopt_opt nlopt_copy(const nlopt_opt opt)
      return nopt;
 
 oom:
+     nopt->munge_on_destroy = NULL; // better to leak mem than crash
      nlopt_destroy(nopt);
      return NULL;
 }
@@ -262,6 +279,11 @@ nlopt_result nlopt_get_upper_bounds(nlopt_opt opt, double *ub)
 nlopt_result nlopt_remove_inequality_constraints(nlopt_opt opt)
 {
      if (!opt) return NLOPT_INVALID_ARGS;
+     if (opt->munge_on_destroy) {
+	  nlopt_munge munge = opt->munge_on_destroy;
+	  for (unsigned i = 0; i < opt->m; ++i)
+	       munge(opt->fc[i].f_data);
+     }
      free(opt->fc);
      opt->fc = NULL;
      opt->m = opt->m_alloc = 0;
@@ -315,6 +337,11 @@ nlopt_result nlopt_add_inequality_constraint(nlopt_opt opt,
 nlopt_result nlopt_remove_equality_constraints(nlopt_opt opt)
 {
      if (!opt) return NLOPT_INVALID_ARGS;
+     if (opt->munge_on_destroy) {
+	  nlopt_munge munge = opt->munge_on_destroy;
+	  for (unsigned i = 0; i < opt->p; ++i)
+	       munge(opt->h[i].f_data);
+     }
      free(opt->h);
      opt->h = NULL;
      opt->p = opt->p_alloc = 0;
@@ -528,40 +555,13 @@ nlopt_result nlopt_set_default_initial_step(nlopt_opt opt, const double *x)
 
 /*************************************************************************/
 
-GETSET(free_f_data, int, free_f_data)
-
-/* the dup_f_data function replaces all f_data pointers with a new
-   pointer to a duplicate block of memory, assuming all non-NULL
-   f_data pointers point to a block of sz bytes...  this is pretty
-   exclusively intended for internal use (e.g. it may lead to a
-   double-free if one subsequently calles add_inequality_constraint
-   etc.), e.g. in the C++ API */
-
-static int dup(void **p, size_t sz) {
-     if (*p) {
-	  void *pdup = malloc(sz);
-	  if (pdup) {
-	       memcpy(pdup, *p, sz);
-	       *p = pdup;
-	       return 1;
-	  }
-	  else return 0;
-     }
-     else return 1;
-}
-
-nlopt_result nlopt_dup_f_data(nlopt_opt opt, size_t sz) {
+void nlopt_set_munge(nlopt_opt opt,
+		     nlopt_munge munge_on_destroy,
+		     nlopt_munge munge_on_copy) {
      if (opt) {
-	  unsigned i;
-	  if (!dup(&opt->f_data, sz)) return NLOPT_OUT_OF_MEMORY;
-	  for (i = 0; i < opt->m; ++i)
-	       if (!dup(&opt->fc[i].f_data, sz)) return NLOPT_OUT_OF_MEMORY;
-	  for (i = 0; i < opt->p; ++i)
-	       if (!dup(&opt->h[i].f_data, sz)) return NLOPT_OUT_OF_MEMORY;
-	  nlopt_set_free_f_data(opt, 1); // nlopt_destroy must now free f_data!
-	  return NLOPT_SUCCESS;
+	  opt->munge_on_destroy = munge_on_destroy;
+	  opt->munge_on_copy = munge_on_copy;
      }
-     return NLOPT_INVALID_ARGS;
 }
 
 /*************************************************************************/

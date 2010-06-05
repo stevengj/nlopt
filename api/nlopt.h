@@ -248,11 +248,14 @@ NLOPT_EXTERN nlopt_result nlopt_set_initial_step1(nlopt_opt opt, double dx);
 NLOPT_EXTERN nlopt_result nlopt_get_initial_step(const nlopt_opt opt, 
 						 const double *x, double *dx);
 
-/* set to 1: nlopt_destroy should call free() on all of the f_data pointers
-   (for the objective, constraints, etcetera) ... mainly for internal use */
-NLOPT_EXTERN nlopt_result nlopt_set_free_f_data(nlopt_opt opt, int val);
-NLOPT_EXTERN int nlopt_get_free_f_data(const nlopt_opt opt);
-NLOPT_EXTERN nlopt_result nlopt_dup_f_data(nlopt_opt opt, size_t sz);
+/* the following are functions mainly designed to be used internally
+   by the Fortran and SWIG wrappers, allow us to tel nlopt_destroy and
+   nlopt_copy to do something to the f_data pointers (e.g. free or
+   duplicate them, respectively) */
+typedef void* (*nlopt_munge)(void *p);
+NLOPT_EXTERN void nlopt_set_munge(nlopt_opt opt,
+				  nlopt_munge munge_on_destroy,
+				  nlopt_munge munge_on_copy);
 
 /*************************** DEPRECATED API **************************/
 /* The new "object-oriented" API is preferred, since it allows us to

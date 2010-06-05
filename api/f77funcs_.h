@@ -36,17 +36,13 @@ void F77_(nlo_create,NLO_CREATE)(nlopt_opt *opt, int *alg, int *n)
      if (*n < 0) *opt = NULL;
      else {
 	  *opt = nlopt_create((nlopt_algorithm) *alg, (unsigned) *n);
-	  nlopt_set_free_f_data(*opt, 1);
+	  nlopt_set_munge(*opt, free_f77_func_data, dup_f77_func_data);
      }
 }
 
 void F77_(nlo_copy,NLO_COPY)(nlopt_opt *nopt, nlopt_opt *opt)
 {
      *nopt = nlopt_copy(*opt);
-     if (*nopt && nlopt_dup_f_data(*nopt, sizeof(f77_func_data)) < 0) {
-	  nlopt_destroy(*nopt);
-	  *nopt = NULL;
-     }
 }
 
 void F77_(nlo_destroy,NLO_DESTROY)(nlopt_opt *opt)

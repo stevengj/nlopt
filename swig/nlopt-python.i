@@ -59,6 +59,9 @@
 // Wrapper for objective function callbacks
 
 %{
+static void *free_pyfunc(void *p) { Py_DECREF((PyObject*) p); return p; }
+static void *dup_pyfunc(void *p) { Py_INCREF((PyObject*) p); return p; }
+
 static double func_python(unsigned n, const double *x, double *grad, void *f)
 {
   npy_intp sz = npy_intp(n), sz0 = 0;
@@ -85,10 +88,11 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
 }
 %}
 
-%typemap(in)(nlopt::func f, void *f_data) {
-  Py_INCREF($input);
+%typemap(in)(nlopt::func f, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = func_python;
-  $2 = (void*) $input;
+  $2 = dup_pyfunc((void*) $input);
+  $3 = free_pyfunc;
+  $4 = dup_pyfunc;
 }
 %typecheck(SWIG_TYPECHECK_POINTER)(nlopt::func f, void *f_data) {
   $1 = PyCallable_Check($input);

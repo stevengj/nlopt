@@ -36,6 +36,13 @@ typedef struct {
      void *f_data;
 } f77_func_data;
 
+static void *free_f77_func_data(void *p) { free(p); return NULL; }
+static void *dup_f77_func_data(void *p) { 
+     void *pnew = (void*) malloc(sizeof(f77_func_data));
+     if (pnew) memcpy(pnew, p, sizeof(f77_func_data));
+     return pnew;
+}
+
 static double f77_func_wrap_old(int n, const double *x, double *grad, void *data)
 {
      f77_func_data *d = (f77_func_data *) data;
