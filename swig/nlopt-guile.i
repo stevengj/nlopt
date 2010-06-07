@@ -42,7 +42,7 @@ static double func_guile(unsigned n, const double *x, double *grad, void *f) {
   $3 = free_guilefunc;
   $4 = dup_guilefunc;
 }
-%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::vfunc vf, void *f_data) {
+%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::vfunc vf, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = SCM_NFALSEP(scm_procedure_p($input));
 }
 

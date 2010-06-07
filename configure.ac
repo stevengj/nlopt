@@ -123,6 +123,24 @@ AC_SUBST(GUILE_CPPFLAGS)
 AC_SUBST(GUILE_LIBS)
 AM_CONDITIONAL(WITH_GUILE, test x"$GUILE_CONFIG" != "xunknown")
 
+dnl Python:
+AM_PATH_PYTHON([],[have_python=yes],[have_python=no])
+if test $have_python = yes; then
+  pdir=`dirname $pythondir | sed 's,/lib/,/include/,'`
+  pdir=`eval echo $pdir`
+  AC_MSG_CHECKING([for Python include directory])
+  for PYTHON_INCLUDE_DIR in "$pdir" /usr/include/python$PYTHON_VERSION /usr/local/include/python$PYTHON_VERSION unknown; do
+    test -d "$PYTHON_INCLUDE_DIR" && break
+  done
+  AC_MSG_RESULT([$PYTHON_INCLUDE_DIR])
+  if test "x$PYTHON_INCLUDE_DIR" = xunknown; then
+     AC_MSG_WARN([disabling Python wrappers])
+     have_python=no
+  fi
+  AC_SUBST(PYTHON_INCLUDE_DIR)
+fi
+AM_CONDITIONAL(WITH_PYTHON, test x"$have_python" = "xyes")
+
 dnl -----------------------------------------------------------------------
 dnl Compiling Octave plug-in
 

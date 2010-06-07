@@ -1,7 +1,7 @@
 SWIG_SRC = nlopt.i nlopt-exceptions.i nlopt-enum-renames.i 
-EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt-python.i nlopt.scm.in
+EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt-python.i nlopt.scm.in nlopt.py
 
-BUILT_SOURCES = nlopt-guile.cpp nlopt-enum-renames.i nlopt.scm.in
+BUILT_SOURCES = nlopt-guile.cpp nlopt-python.cpp nlopt-enum-renames.i nlopt.scm.in
 
 HDR = $(top_builddir)/api/nlopt.hpp
 
@@ -19,9 +19,21 @@ guile_DATA = nlopt.scm
 guilelib = libnlopt@NLOPT_SUFFIX@_guile.la
 endif
 
+##############################################################################
+# Python wrapper
 
+libnlopt_python_la_SOURCES = nlopt-python.cpp
+libnlopt_python_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
+libnlopt_python_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
+libnlopt_python_la_CPPFLAGS = -I$(PYTHON_INCLUDE_DIR) -I$(top_builddir)/api
+
+if WITH_PYTHON
+python_PYTHON = nlopt.py
+pyexec_LTLIBRARIES = libnlopt_python.la
+endif
 
 ##############################################################################
+
 
 lib_LTLIBRARIES = $(guilelib)
 

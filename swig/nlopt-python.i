@@ -27,7 +27,7 @@
 (PyArrayObject* array=NULL, int is_new_object=0, std::vector<double> arrayv)
 {
   npy_intp size[1] = { -1 };
-  array = obj_to_array_allow_conversion($input, DATA_TYPECODE, &is_new_object);
+  array = obj_to_array_allow_conversion($input, NPY_DOUBLE, &is_new_object);
   if (!array || !require_dimensions(array, 1) ||
       !require_size(array, size, 1)) SWIG_fail;
   arrayv = std::vector<double>(array_size(array,0));
@@ -64,8 +64,10 @@ static void *dup_pyfunc(void *p) { Py_INCREF((PyObject*) p); return p; }
 
 static double func_python(unsigned n, const double *x, double *grad, void *f)
 {
-  npy_intp sz = npy_intp(n), sz0 = 0;
-  PyObject *xpy = PyArray_SimpleNewFromData(1, &sz, NPY_DOUBLE, x);
+  npy_intp sz = npy_intp(n), sz0 = 0, stride1 = 1;
+  PyObject *xpy = PyArray_New(&PyArray_Type, 1, &sz, NPY_DOUBLE, &stride1,
+			      const_cast<double*>(x), // not NPY_WRITEABLE
+			      0, NPY_C_CONTIGUOUS | NPY_ALIGNED, NULL);
   PyObject *gradpy = grad ? PyArray_SimpleNew(1, &sz0, NPY_DOUBLE)
     : PyArray_SimpleNewFromData(1, &sz, NPY_DOUBLE, grad);
   
@@ -94,6 +96,6 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
   $3 = free_pyfunc;
   $4 = dup_pyfunc;
 }
-%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::func f, void *f_data) {
+%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::func f, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = PyCallable_Check($input);
 }
