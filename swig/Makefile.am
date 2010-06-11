@@ -22,14 +22,14 @@ endif
 ##############################################################################
 # Python wrapper
 
-libnlopt_python_la_SOURCES = nlopt-python.cpp
-libnlopt_python_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
-libnlopt_python_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
-libnlopt_python_la_CPPFLAGS = -I$(PYTHON_INCLUDE_DIR) -I$(top_builddir)/api
+_nlopt_la_SOURCES = nlopt-python.cpp
+_nlopt_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
+_nlopt_la_LDFLAGS = -module -no-undefined -version-info @SHARED_VERSION_INFO@
+_nlopt_la_CPPFLAGS = -I$(PYTHON_INCLUDE_DIR) -I$(top_builddir)/api
 
 if WITH_PYTHON
 python_PYTHON = nlopt.py
-pyexec_LTLIBRARIES = libnlopt_python.la
+pyexec_LTLIBRARIES = _nlopt.la
 endif
 
 ##############################################################################
