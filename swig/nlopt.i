@@ -9,7 +9,8 @@ namespace std {
   %template(nlopt_doublevector) vector<double>;
 };
 
-#ifndef SWIGPYTHON
+// prepend "nlopt_" in Guile to substitute for namespace
+#if defined(SWIGGUILE)
 %rename(nlopt_opt) nlopt::opt;
 %rename(nlopt_roundoff_limited) nlopt::roundoff_limited;
 %rename(nlopt_forced_stop) nlopt::forced_stop;
