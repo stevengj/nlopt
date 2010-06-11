@@ -9,6 +9,7 @@ namespace std {
   %template(nlopt_doublevector) vector<double>;
 };
 
+#ifndef SWIGPYTHON
 %rename(nlopt_opt) nlopt::opt;
 %rename(nlopt_roundoff_limited) nlopt::roundoff_limited;
 %rename(nlopt_forced_stop) nlopt::forced_stop;
@@ -17,6 +18,7 @@ namespace std {
 %rename(nlopt_version) nlopt::version;
 %rename(nlopt_algorithm_name) nlopt::algorithm_name;
 %include "nlopt-enum-renames.i"
+#endif
 
 %include "nlopt-exceptions.i"
 

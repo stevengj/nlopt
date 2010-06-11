@@ -68,8 +68,9 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
   PyObject *xpy = PyArray_New(&PyArray_Type, 1, &sz, NPY_DOUBLE, &stride1,
 			      const_cast<double*>(x), // not NPY_WRITEABLE
 			      0, NPY_C_CONTIGUOUS | NPY_ALIGNED, NULL);
-  PyObject *gradpy = grad ? PyArray_SimpleNew(1, &sz0, NPY_DOUBLE)
-    : PyArray_SimpleNewFromData(1, &sz, NPY_DOUBLE, grad);
+  PyObject *gradpy = grad
+    ? PyArray_SimpleNewFromData(1, &sz, NPY_DOUBLE, grad)
+    : PyArray_SimpleNew(1, &sz0, NPY_DOUBLE);
   
   PyObject *arglist = Py_BuildValue("OO", xpy, gradpy);
   PyObject *result = PyEval_CallObject((PyObject *) f, arglist);
@@ -79,11 +80,12 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
   Py_DECREF(xpy);
 
   double val = HUGE_VAL;
-  if (SWIG_IsOK(SWIG_AsVal_double(result, &val))) {
+  if (result && PyFloat_Check(result)) {
+    val = PyFloat_AsDouble(result);
     Py_DECREF(result);
   }
   else {
-    Py_DECREF(result);
+    Py_XDECREF(result);
     throw std::invalid_argument("invalid result passed to nlopt");
   }
   return val;
