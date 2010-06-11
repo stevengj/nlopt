@@ -1,6 +1,8 @@
-NLopt 1.3
+NLopt 2.0
 
 * New API.
+
+* Python and Guile wrappers.
 
 * ... todo: list changes ...
 
