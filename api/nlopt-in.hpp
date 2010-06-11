@@ -70,8 +70,6 @@ namespace nlopt {
   class opt {
   private:
     nlopt_opt o;
-    result last_result;
-    double last_optf;
     
     void mythrow(nlopt_result ret) const {
       switch (ret) {
@@ -159,6 +157,9 @@ namespace nlopt {
 	gradtmp = std::vector<double>(nlopt_get_dimension(o));
       }
     }
+
+    result last_result;
+    double last_optf;
 
   public:
     // Constructors etc.
