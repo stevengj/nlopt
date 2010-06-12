@@ -124,10 +124,18 @@ namespace nlopt {
       try {
 	return d->f(n, x, grad, d->f_data);
       }
-      catch (...) {
-	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
-	return HUGE_VAL;
-      }
+      catch (std::bad_alloc&)
+	{ d->o->forced_stop_reason = NLOPT_OUT_OF_MEMORY; }
+      catch (std::invalid_argument&)
+	{ d->o->forced_stop_reason = NLOPT_INVALID_ARGS; }
+      catch (roundoff_limited&)
+	{ d->o->forced_stop_reason = NLOPT_ROUNDOFF_LIMITED; }
+      catch (forced_stop&)
+	{ d->o->forced_stop_reason = NLOPT_FORCED_STOP; }
+      catch (...)
+	{ d->o->forced_stop_reason = NLOPT_FAILURE; }
+      d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+      return HUGE_VAL;
     }
 
     std::vector<double> xtmp, gradtmp, gradtmp0; // scratch for myvfunc
@@ -145,10 +153,18 @@ namespace nlopt {
 	}
 	return val;
       }
-      catch (...) {
-	d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
-	return HUGE_VAL;
-      }
+      catch (std::bad_alloc&)
+	{ d->o->forced_stop_reason = NLOPT_OUT_OF_MEMORY; }
+      catch (std::invalid_argument&)
+	{ d->o->forced_stop_reason = NLOPT_INVALID_ARGS; }
+      catch (roundoff_limited&)
+	{ d->o->forced_stop_reason = NLOPT_ROUNDOFF_LIMITED; }
+      catch (forced_stop&)
+	{ d->o->forced_stop_reason = NLOPT_FORCED_STOP; }
+      catch (...)
+	{ d->o->forced_stop_reason = NLOPT_FAILURE; }
+      d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+      return HUGE_VAL;
     }
 
     void alloc_tmp() {
@@ -160,22 +176,26 @@ namespace nlopt {
 
     result last_result;
     double last_optf;
+    nlopt_result forced_stop_reason;
 
   public:
     // Constructors etc.
     opt() : o(NULL), xtmp(0), gradtmp(0), gradtmp0(0), 
-	    last_result(nlopt::FAILURE), last_optf(HUGE_VAL) {}
+	    last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
+	    forced_stop_reason(NLOPT_FORCED_STOP) {}
     ~opt() { nlopt_destroy(o); }
     opt(algorithm a, unsigned n) : 
       o(nlopt_create(nlopt_algorithm(a), n)), 
       xtmp(0), gradtmp(0), gradtmp0(0),
-      last_result(nlopt::FAILURE), last_optf(HUGE_VAL) {
+      last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
+      forced_stop_reason(NLOPT_FORCED_STOP) {
       if (!o) throw std::bad_alloc();
       nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
     }
     opt(const opt& f) : o(nlopt_copy(f.o)), 
 			xtmp(f.xtmp), gradtmp(f.gradtmp), gradtmp0(0),
-			last_result(f.last_result), last_optf(f.last_optf) {
+			last_result(f.last_result), last_optf(f.last_optf),
+			forced_stop_reason(f.forced_stop_reason) {
       if (f.o && !o) throw std::bad_alloc();
     }
     opt& operator=(opt const& f) {
@@ -185,6 +205,7 @@ namespace nlopt {
       if (f.o && !o) throw std::bad_alloc();
       xtmp = f.xtmp; gradtmp = f.gradtmp;
       last_result = f.last_result; last_optf = f.last_optf;
+      forced_stop_reason = f.forced_stop_reason;
       return *this;
     }
 
@@ -192,9 +213,12 @@ namespace nlopt {
     result optimize(std::vector<double> &x, double &opt_f) {
       if (o && nlopt_get_dimension(o) != x.size())
         throw std::invalid_argument("dimension mismatch");
+      forced_stop_reason = NLOPT_FORCED_STOP;
       nlopt_result ret = nlopt_optimize(o, x.empty() ? NULL : &x[0], &opt_f);
       last_result = result(ret);
       last_optf = opt_f;
+      if (ret == NLOPT_FORCED_STOP)
+	mythrow(forced_stop_reason);
       mythrow(ret);
       return last_result;
     }
