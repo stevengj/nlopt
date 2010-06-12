@@ -34,7 +34,8 @@
   $1 = &arrayv;
   {
     double *arr_data = (double *) array_data(array);
-    int arr_i, arr_s = array_stride(array,0), arr_sz = array_size(array,0);
+    int arr_i, arr_s = array_stride(array,0) / sizeof(double);
+    int arr_sz = array_size(array,0);
     for (arr_i = 0; arr_i < arr_sz; ++arr_i)
       arrayv[arr_i] = arr_data[arr_i * arr_s];
   }
@@ -64,7 +65,7 @@ static void *dup_pyfunc(void *p) { Py_INCREF((PyObject*) p); return p; }
 
 static double func_python(unsigned n, const double *x, double *grad, void *f)
 {
-  npy_intp sz = npy_intp(n), sz0 = 0, stride1 = 1;
+  npy_intp sz = npy_intp(n), sz0 = 0, stride1 = sizeof(double);
   PyObject *xpy = PyArray_New(&PyArray_Type, 1, &sz, NPY_DOUBLE, &stride1,
 			      const_cast<double*>(x), // not NPY_WRITEABLE
 			      0, NPY_C_CONTIGUOUS | NPY_ALIGNED, NULL);
