@@ -1,5 +1,28 @@
 // -*- C++ -*-
 
+%typemap(throws) std::runtime_error %{
+  scm_throw(gh_symbol2scm("runtime-error"), 
+	    scm_list_1(scm_from_locale_string(($1).what())));
+%}
+
+%typemap(throws) std::bad_alloc %{
+  scm_throw(gh_symbol2scm("bad-alloc"), 
+	    scm_list_1(scm_from_locale_string(($1).what())));
+%}
+
+%typemap(throws) std::invalid_argument %{
+  scm_throw(gh_symbol2scm("invalid-argument"), 
+	    scm_list_1(scm_from_locale_string(($1).what())));
+%}
+
+%typemap(throws) nlopt::forced_stop %{
+  scm_throw(gh_symbol2scm("forced-stop"), SCM_EOL);
+%}
+
+%typemap(throws) nlopt::roundoff_limited %{
+  scm_throw(gh_symbol2scm("roundoff-limited"), SCM_EOL);
+%}
+
 %{
 // because our f_data pointer to the Scheme function is stored on the
 // heap, rather than the stack, it may be missed by the Guile garbage
