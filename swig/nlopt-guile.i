@@ -10,7 +10,7 @@ static void *free_guilefunc(void *p) {
 static void *dup_guilefunc(void *p) { 
   scm_gc_protect_object((SCM) p); return p; }
 
-// vfunc wrapper around Guile function (val . grad) = f(x)
+// func wrapper around Guile function (val . grad) = f(x)
 static double func_guile(unsigned n, const double *x, double *grad, void *f) {
   SCM xscm = scm_c_make_vector(n, SCM_UNSPECIFIED);
   for (unsigned i = 0; i < n; ++i)
@@ -36,13 +36,13 @@ static double func_guile(unsigned n, const double *x, double *grad, void *f) {
 }
 %}
 
-%typemap(in)(nlopt::vfunc vf, void *f_data, nlopt_munge md, nlopt_munge mc) {
-  $1 = vfunc_guile;
+%typemap(in)(nlopt::func f, void *f_data, nlopt_munge md, nlopt_munge mc) {
+  $1 = func_guile;
   $2 = dup_guilefunc((void*) $input); // input = SCM pointer to Scheme function
   $3 = free_guilefunc;
   $4 = dup_guilefunc;
 }
-%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::vfunc vf, void *f_data, nlopt_munge md, nlopt_munge mc) {
+%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::func f, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = SCM_NFALSEP(scm_procedure_p($input));
 }
 
