@@ -1,6 +1,62 @@
 // -*- C++ -*-
 
 //////////////////////////////////////////////////////////////////////////////
+// Converting NLopt/C++ exceptions to Python exceptions
+
+%{
+
+#define ExceptionSubclass(EXCNAME, EXCDOC)				\
+  static PyTypeObject MyExc_ ## EXCNAME = {				\
+    PyObject_HEAD_INIT(NULL)						\
+      0,								\
+      "nlopt." # EXCNAME,						\
+      sizeof(PyBaseExceptionObject),					\
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
+      Py_TPFLAGS_DEFAULT,						\
+      PyDoc_STR(EXCDOC)							\
+  };									\
+  static void init_ ## EXCNAME(PyObject *m) {				\
+    MyExc_ ## EXCNAME .tp_base = (PyTypeObject *) PyExc_Exception;	\
+    PyType_Ready(&MyExc_ ## EXCNAME);					\
+    Py_INCREF(&MyExc_ ## EXCNAME);					\
+    PyModule_AddObject(m, # EXCNAME, (PyObject *) &MyExc_ ## EXCNAME);	\
+  }
+
+
+ExceptionSubclass(ForcedStop,
+		  "Python version of nlopt::forced_stop exception.")
+
+ExceptionSubclass(RoundoffLimited,
+		  "Python version of nlopt::roundoff_limited exception.")
+
+%}
+
+%init %{
+  init_ForcedStop(m);
+  init_RoundoffLimited(m);
+%}
+%pythoncode %{
+  ForcedStop = _nlopt.ForcedStop
+  RoundoffLimited = _nlopt.RoundoffLimited
+%}
+
+%typemap(throws) std::bad_alloc %{
+  PyErr_SetString(PyExc_MemoryError, ($1).what());
+  SWIG_fail;
+%}
+
+%typemap(throws) nlopt::forced_stop %{
+  if (!PyErr_Occurred())
+    PyErr_SetString((PyObject*)&MyExc_ForcedStop, "NLopt forced stop");
+  SWIG_fail;
+%}
+
+%typemap(throws) nlopt::roundoff_limited %{
+  PyErr_SetString((PyObject*)&MyExc_RoundoffLimited, "NLopt roundoff-limited");
+  SWIG_fail;
+%}
+
+//////////////////////////////////////////////////////////////////////////////
 
 %{
 #define SWIG_FILE_WITH_INIT
@@ -81,7 +137,10 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
   Py_DECREF(xpy);
 
   double val = HUGE_VAL;
-  if (result && PyFloat_Check(result)) {
+  if (PyErr_Occurred()) {
+    throw nlopt::forced_stop(); // just stop, don't call PyErr_Clear()
+  }
+  else if (result && PyFloat_Check(result)) {
     val = PyFloat_AsDouble(result);
     Py_DECREF(result);
   }
