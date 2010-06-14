@@ -5,7 +5,7 @@
 
 #include "auglag.h"
 
-int auglag_verbose = 1;
+int auglag_verbose = 0;
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
