@@ -463,12 +463,17 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      return ret;
 	 }
 
+	 case NLOPT_AUGLAG:
+	 case NLOPT_AUGLAG_EQ:
 	 case NLOPT_LN_AUGLAG:
 	 case NLOPT_LN_AUGLAG_EQ:
 	 case NLOPT_LD_AUGLAG:
 	 case NLOPT_LD_AUGLAG_EQ: {
 	      nlopt_opt local_opt = opt->local_opt;
 	      nlopt_result ret;
+	      if ((algorithm == NLOPT_AUGLAG || algorithm == NLOPT_AUGLAG_EQ)
+		  && !local_opt)
+		   return NLOPT_INVALID_ARGS;
 	      if (!local_opt) { /* default */
 		   local_opt = nlopt_create(
 			algorithm == NLOPT_LN_AUGLAG || 
@@ -489,7 +494,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				    opt->p, opt->h,
 				    lb, ub, x, minf, &stop,
 				    local_opt,
-				    algorithm == NLOPT_LN_AUGLAG_EQ
+				    algorithm == NLOPT_AUGLAG_EQ
+				    || algorithm == NLOPT_LN_AUGLAG_EQ
 				    || algorithm == NLOPT_LD_AUGLAG_EQ);
 	      opt->force_stop_child = NULL;
 	      if (!opt->local_opt) nlopt_destroy(local_opt);

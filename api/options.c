@@ -271,7 +271,9 @@ nlopt_result nlopt_get_upper_bounds(nlopt_opt opt, double *ub)
 
 /*************************************************************************/
 
-#define AUGLAG_ALG(a) ((a) == NLOPT_LN_AUGLAG ||        \
+#define AUGLAG_ALG(a) ((a) == NLOPT_AUGLAG ||		\
+	               (a) == NLOPT_AUGLAG_EQ ||        \
+	               (a) == NLOPT_LN_AUGLAG ||        \
 		       (a) == NLOPT_LN_AUGLAG_EQ ||     \
 		       (a) == NLOPT_LD_AUGLAG ||        \
 		       (a) == NLOPT_LD_AUGLAG_EQ)

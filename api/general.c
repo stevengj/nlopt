@@ -85,6 +85,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)",
      "Nelder-Mead simplex algorithm (local, no-derivative)",
      "Sbplx variant of Nelder-Mead (re-implementation of Rowan's Subplex) (local, no-derivative)",
+     "Augmented Lagrangian method (needs sub-algorithm)",
+     "Augmented Lagrangian method for equality constraints (needs sub-algorithm)",
      "Augmented Lagrangian method (local, no-derivative)",
      "Augmented Lagrangian method (local, derivative)",
      "Augmented Lagrangian method for equality constraints (local, no-derivative)",

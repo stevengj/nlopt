@@ -72,6 +72,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      double ICM = HUGE_VAL, minf_penalty = HUGE_VAL, penalty;
      double *xcur = NULL, fcur;
      int i, feasible, minf_feasible = 0;
+     int auglag_iters = 0;
 
      /* magic parameters from Birgin & Martinez */
      const double tau = 0.5, gam = 10;
@@ -181,30 +182,26 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  if (ICM > tau * prev_ICM) {
 	       d.rho *= gam;
 	  }
+
+	  auglag_iters++;
 	  
 	  if (auglag_verbose) {
-	       printf("auglag: ICM=%g, rho=%g\nauglag lambda=", ICM, d.rho);
+	       printf("auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
+		      auglag_iters, ICM, feasible ? "" : "not ", d.rho);
 	       for (i = 0; i < d.p; ++i) printf(" %g", d.lambda[i]);
-	       printf("\nauglag mu = ");
+	       printf("\nauglag %d: mu = ", auglag_iters);
 	       for (i = 0; i < d.m; ++i) printf(" %g", d.mu[i]);
 	       printf("\n");
 	  }
 
 	  if ((feasible && (!minf_feasible || penalty < minf_penalty
-			    || fcur <= *minf)) || 
-	      (!minf_feasible && penalty <= minf_penalty)) {
+			    || fcur < *minf)) || 
+	      (!minf_feasible && penalty < minf_penalty)) {
 	       ret = NLOPT_SUCCESS;
 	       if (feasible) {
 		    if (fcur < stop->minf_max) 
 			 ret = NLOPT_MINF_MAX_REACHED;
 		    else if (nlopt_stop_ftol(stop, fcur, *minf)) 
-			 ret = NLOPT_FTOL_REACHED;
-		    else if (nlopt_stop_x(stop, xcur, x))
-			 ret = NLOPT_XTOL_REACHED;
-	       }
-	       else { /* check if no progress towards feasibility */
-		    if (nlopt_stop_ftol(stop, fcur, *minf)
-			&& nlopt_stop_ftol(stop, penalty, minf_penalty))
 			 ret = NLOPT_FTOL_REACHED;
 		    else if (nlopt_stop_x(stop, xcur, x))
 			 ret = NLOPT_XTOL_REACHED;
