@@ -27,7 +27,6 @@
 #include <float.h>
 
 #include "nlopt-internal.h"
-#include "nlopt-util.h"
 
 /*************************************************************************/
 
