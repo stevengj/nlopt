@@ -476,6 +476,20 @@ superseded by BOBYQA.
 Local (L) derivative-free (N) optimization using the BOBYQA algorithm
 of Powell, based on successive quadratic approximations of the
 objective function, supporting bound constraints.
+.TP
+.B NLOPT_AUGLAG
+Optimize an objective with nonlinear inequality/equality constraints
+via an unconstrained (or bound-constrained) optimization algorithm,
+using a gradually increasing "augmented Lagrangian" penalty for
+violated constraints.  Requires you to specify another optimization
+algorithm for optimizing the objective+penalty function, using
+\fInlopt_set_local_optimizer\fR.  (This subsidiary algorithm can be
+global or local and with or without derivatives, but you must specify
+its own termination criteria.)  A variant, \fBNLOPT_AUGLAG_EQ\fR, only
+uses the penalty approach for equality constraints, while inequality
+constraints are handled directly by the subsidiary algorithm (restricting
+the choice of subsidiary algorithms to those that can handle inequality
+constraints).
 .SH STOPPING CRITERIA
 Multiple stopping criteria for the optimization are supported, as
 specified by the functions to modify a given optimization problem
@@ -642,8 +656,8 @@ objective function.
 .SH LOCAL OPTIMIZER
 Some of the algorithms, especially MLSL and AUGLAG, use a different
 optimization algorithm as a subroutine, typically for local
-optimization.  By default, they use MMA or COBYLA for gradient-based
-or derivative-free searching, respectively.  However, you can change
+optimization.  By default, MLSL uses MMA or COBYLA for gradient-based
+or derivative-free searching, respectively.  You can change
 the local search algorithm and its tolerances by calling:
 .sp
 .BI "  nlopt_result nlopt_set_local_optimizer(nlopt_opt " "opt" , 
@@ -652,9 +666,9 @@ the local search algorithm and its tolerances by calling:
 .sp
 Here, \fIlocal_opt\fR is another \fBnlopt_opt\fR object whose
 parameters are used to determine the local search algorithm and
-stopping criteria.  (The objective function and nonlinear-constraint
-parameters of \fIlocal_opt\fR are ignored.)  The dimension \fIn\fR of
-\fIlocal_opt\fR must match that of \fIopt\fR.
+stopping criteria.  (The objective function, bounds, and
+nonlinear-constraint parameters of \fIlocal_opt\fR are ignored.)  The
+dimension \fIn\fR of \fIlocal_opt\fR must match that of \fIopt\fR.
 .sp
 This function makes a copy of the \fIlocal_opt\fR object, so you can
 freely destroy your original \fIlocal_opt\fR afterwards.
