@@ -72,7 +72,7 @@ struct nlopt_opt_s {
 };
 
 /*********************************************************************/
-void nlopt_srand_time_default(void); /* init the rand. seed only if unset */
+extern void nlopt_srand_time_default(void); /* init the rand. seed only if unset */
 
 /*********************************************************************/
 /* global defaults set by deprecated API: */

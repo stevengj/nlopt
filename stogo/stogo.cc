@@ -18,9 +18,9 @@ public:
     switch (which) {
     case GRADIENT_ONLY:
     case OBJECTIVE_AND_GRADIENT:
-      return my_func(xy.GetLength(), xy.raw_data_const(), grad.raw_data(), my_data);
+      return my_func((unsigned) xy.GetLength(), xy.raw_data_const(), grad.raw_data(), my_data);
     case OBJECTIVE_ONLY:
-      return my_func(xy.GetLength(), xy.raw_data_const(), NULL, my_data);
+      return my_func((unsigned) xy.GetLength(), xy.raw_data_const(), NULL, my_data);
     }
     return 0.0;
   }

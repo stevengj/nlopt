@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-typedef double (*objective_func)(int n, const double *x, double *grad,
+typedef double (*objective_func)(unsigned n, const double *x, double *grad,
 				 void *data);
 
 /* search for the global minimum of the function fgrad(n, x, grad, data)

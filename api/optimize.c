@@ -303,7 +303,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   nbd[i] = linf && uinf ? 0 : (uinf ? 1 : (linf ? 3 : 2));
 	      }
 	      iret = lbfgsb_minimize(ni, f, f_data, x, nbd, lb, ub,
-				     MIN(ni, 5), 0.0, stop.ftol_rel, 
+				     ni < 5 ? ni : 5, 0.0, stop.ftol_rel, 
 				     stop.xtol_abs[0] > 0 ? stop.xtol_abs[0]
 				     : stop.xtol_rel,
 				     stop.maxeval);

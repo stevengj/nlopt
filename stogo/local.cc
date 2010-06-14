@@ -82,7 +82,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
      return LS_Old ;
    } 
 
-#ifdef NLOPT_H
+#if 0
 
   if (axis != -1) {
     cout << "NLopt code only works with axis == -1, exiting...\n" ;

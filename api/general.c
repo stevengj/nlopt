@@ -23,8 +23,7 @@
 #include <math.h>
 #include <float.h>
 
-#include "nlopt.h"
-#include "nlopt-util.h"
+#include "nlopt-internal.h"
 
 /*************************************************************************/
 
@@ -128,11 +127,11 @@ void nlopt_srand(unsigned long seed) {
      nlopt_init_genrand(seed);
 }
 
-void nlopt_srand_time() {
+void nlopt_srand_time(void) {
      nlopt_srand(nlopt_time_seed() + my_gettid() * 314159);
 }
 
-void nlopt_srand_time_default() {
+void nlopt_srand_time_default(void) {
      if (!nlopt_srand_called) nlopt_srand_time();
 }
 
