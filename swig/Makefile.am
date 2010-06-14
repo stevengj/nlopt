@@ -1,5 +1,5 @@
 SWIG_SRC = nlopt.i nlopt-exceptions.i nlopt-enum-renames.i 
-EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt-python.i nlopt.scm.in nlopt.py
+EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt-python.i nlopt.scm.in nlopt.py numpy.i
 
 BUILT_SOURCES = nlopt-guile.cpp nlopt-python.cpp nlopt-enum-renames.i nlopt.scm.in
 
@@ -47,7 +47,7 @@ nlopt-guile.cpp nlopt.scm.in: $(SWIG_SRC) nlopt-guile.i $(HDR)
 	rm -f nlopt.scm.in
 	mv nlopt.scm nlopt.scm.in
 
-nlopt-python.cpp nlopt.py: $(SWIG_SRC) nlopt-python.i $(HDR)
+nlopt-python.cpp nlopt.py: $(SWIG_SRC) nlopt-python.i numpy.i $(HDR)
 	swig -I$(top_builddir)/api -outdir $(builddir) -c++ -python -o $@ nlopt.i
 
 nlopt-enum-renames.i: $(top_srcdir)/api/nlopt.h
