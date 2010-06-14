@@ -51,6 +51,6 @@ nlopt-python.cpp nlopt.py: $(SWIG_SRC) nlopt-python.i numpy.i $(HDR)
 	swig -I$(top_builddir)/api -outdir $(builddir) -c++ -python -o $@ nlopt.i
 
 nlopt-enum-renames.i: $(top_srcdir)/api/nlopt.h
-	(echo "// AUTOMATICALLY GENERATED -- DO NOT EDIT"; egrep 'NLOPT_[LG][DN]|NLOPT_NUM_ALGORITHMS' $(top_srcdir)/api/nlopt.h | sed 's/NLOPT_//g' |tr -d ' ' |tr '/' ',' |tr '=' ',' |cut -d, -f1 |while read name; do echo "%rename(NLOPT_$$name) nlopt::$$name;"; done; egrep 'NLOPT_[A-Z_]* =' $(top_srcdir)/api/nlopt.h | egrep -v 'NLOPT_[LG][DN]' | sed 's/NLOPT_//g' |tr -d ' ' |cut -d'=' -f1 | while read name; do echo "%rename(NLOPT_$$name) nlopt::$$name;"; done) > $@
+	(echo "// AUTOMATICALLY GENERATED -- DO NOT EDIT"; egrep 'NLOPT_[LG][DN]|NLOPT_AUGLAG|NLOPT_NUM_ALGORITHMS' $(top_srcdir)/api/nlopt.h | sed 's/NLOPT_//g' |tr -d ' ' |tr '/' ',' |tr '=' ',' |cut -d, -f1 |while read name; do echo "%rename(NLOPT_$$name) nlopt::$$name;"; done; egrep 'NLOPT_[A-Z_]* =' $(top_srcdir)/api/nlopt.h | egrep -v 'NLOPT_[LG][DN]|NLOPT_AUGLAG' | sed 's/NLOPT_//g' |tr -d ' ' |cut -d'=' -f1 | while read name; do echo "%rename(NLOPT_$$name) nlopt::$$name;"; done) > $@
 
 endif

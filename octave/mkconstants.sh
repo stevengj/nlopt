@@ -1,9 +1,9 @@
 #!/bin/sh 
 
-names=`egrep NLOPT_[LG][ND] ../api/nlopt.h |sed 's/ //g' |tr = , |cut -d, -f1`
+names=`egrep 'NLOPT_[LG][ND]|NLOPT_AUGLAG' ../api/nlopt.h |sed 's/ //g' |tr = , |cut -d, -f1`
 i=0
 
-gcc -I.. -E ../api/nlopt.c | perl -pe 's/^ *\n//' > foo.c
+gcc -I../util -I.. -E ../api/general.c | perl -pe 's/^ *\n//' > foo.c
 desc_start=`grep -n nlopt_algorithm_names foo.c |cut -d: -f1 |head -1`
 
 for n in $names; do

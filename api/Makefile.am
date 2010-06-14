@@ -15,10 +15,10 @@ if MAINTAINER_MODE
 
 nlopt.f: nlopt.h
 	rm -f $@
-	(i=0; egrep 'NLOPT_[LG][DN]' $(srcdir)/nlopt.h | tr -d ' =0,' | while read n; do echo "      integer $$n"; echo "      parameter ($$n=$$i)"; i=`expr $$i + 1`; done; tail -n +`grep -n enum $(srcdir)/nlopt.h |cut -d: -f1 |tail -n 1` $(srcdir)/nlopt.h  | grep NLOPT | egrep -v 'EXTERN|DEPRECATED|MINF_MAX' | cut -d, -f1 | tr -d ' ' | perl -pe 's/([A-Za-z0-9_]+)=([-+0-9]+)/      integer \1\n      parameter (\1=\2)/') > $@
+	(i=0; egrep 'NLOPT_[LG][DN]|NLOPT_AUGLAG' $(srcdir)/nlopt.h | tr -d ' =0,' | while read n; do echo "      integer $$n"; echo "      parameter ($$n=$$i)"; i=`expr $$i + 1`; done; tail -n +`grep -n enum $(srcdir)/nlopt.h |cut -d: -f1 |tail -n 1` $(srcdir)/nlopt.h  | grep NLOPT | egrep -v 'EXTERN|DEPRECATED|MINF_MAX' | cut -d, -f1 | tr -d ' ' | perl -pe 's/([A-Za-z0-9_]+)=([-+0-9]+)/      integer \1\n      parameter (\1=\2)/') > $@
 
 nlopt.hpp: nlopt.h nlopt-in.hpp
 	rm -f $@
-	(n=`grep -n GEN_ENUMS_HERE nlopt-in.hpp | cut -d: -f1`; head -n $$n $(srcdir)/nlopt-in.hpp;  echo "  enum algorithm {"; egrep 'NLOPT_[LG][DN]|NLOPT_NUM_ALGORITHMS' $(srcdir)/nlopt.h | sed 's/NLOPT_//g'; echo "  };"; echo "  enum result {"; egrep 'NLOPT_[A-Z_]* =' $(srcdir)/nlopt.h | egrep -v 'NLOPT_[LG][DN]' | sed 's/NLOPT_//g'; echo "  };"; tail -n +$$n $(srcdir)/nlopt-in.hpp) > $@
+	(n=`grep -n GEN_ENUMS_HERE nlopt-in.hpp | cut -d: -f1`; head -n $$n $(srcdir)/nlopt-in.hpp;  echo "  enum algorithm {"; egrep 'NLOPT_[LG][DN]|NLOPT_AUGLAG|NLOPT_NUM_ALGORITHMS' $(srcdir)/nlopt.h | sed 's/NLOPT_//g'; echo "  };"; echo "  enum result {"; egrep 'NLOPT_[A-Z_]* =' $(srcdir)/nlopt.h | egrep -v 'NLOPT_[LG][DN]' | sed 's/NLOPT_//g'; echo "  };"; tail -n +$$n $(srcdir)/nlopt-in.hpp) > $@
 
 endif
