@@ -1,5 +1,3 @@
-Python interface.
-
 SLSQP routine from scipy.
 
 Add nonlinearly constrained multistart algorithm.
