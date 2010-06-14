@@ -486,7 +486,11 @@ nlopt_result nlopt_set_initial_step1(nlopt_opt opt, double dx)
 nlopt_result nlopt_set_initial_step(nlopt_opt opt, const double *dx)
 {
      unsigned i;
-     if (!opt || !dx) return NLOPT_INVALID_ARGS;
+     if (!opt) return NLOPT_INVALID_ARGS;
+     if (!dx) {
+	  free(opt->dx); opt->dx = NULL;
+	  return NLOPT_SUCCESS;
+     }
      for (i = 0; i < opt->n; ++i) if (dx[i] == 0) return NLOPT_INVALID_ARGS;
      if (!opt->dx && nlopt_set_initial_step1(opt, 1) == NLOPT_OUT_OF_MEMORY)
           return NLOPT_OUT_OF_MEMORY;
