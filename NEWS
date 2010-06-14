@@ -1,10 +1,64 @@
 NLopt 2.0
 
-* New API.
+* New C API, that works by creating an nlopt_opt "object" and then calling
+  functions to set the optimization parameters -- much more extensible
+  than the old API (which is preserved for backwards compatibility).
+  (Updated Fortran, Matlab, and GNU Octave wrappers as well.)
 
-* Python and Guile wrappers.
+* C++ nlopt.hpp wrapper around C API, allowing namespaces, object
+  constructors/destructors, std::vector<double>, and exceptions
+  to be exploited.
 
-* ... todo: list changes ...
+* New nlopt wrappers callable from Python and GNU Guile, generated
+  with the help of SWIG.
+
+* New 'man nlopt' manual page documenting new API.
+
+* New AUGLAG algorithm(s) implementing an augmented-Lagrangian method
+  proposed by Birgin and Martinez (2008), which supports nonlinear
+  equality and inequality constraints "wrapped around" other
+  local/global optimization methods.
+
+* Added API for nonlinear equality constraints (currently only
+  supported by AUGLAG and ISRES algorithms).
+
+* Support inequality constraints directly in ORIG_DIRECT algorithms
+  (no need to return NaN when constraint is violated).
+
+* Inequality/equality constraints now have optional tolerances that
+  are used as conditions in stopping criteria.
+
+* Pseudo-randomize simplex steps in COBYLA algorithm, improving robustness
+  by avoiding accidentally taking steps that don't improve conditioning
+  (which seems to happen sometimes with active bound constraints).  The
+  algorithm remains deterministic (a deterministic seed is used), however.
+
+* Allow COBYLA to increase the trust-region radius if the predicted improvement
+  was approximately right and the simplex is OK, following a suggestion
+  in the SAS manual for PROC NLP that seems to improve convergence speed.
+
+* Added nlopt_force_stop function to force a (graceful) halt to
+  the optimization, and corresponding NLOPT_FORCED_STOP return code.
+
+* Improved thread-safety in random-number generation: thread-local
+  storage is used for random-number state, on compilers that support
+  it (e.g. gcc, Intel, Microsoft), to make the generation thread-safe.
+  In this case, the random-number seed must be set per-thread.
+
+* Return an error in global-search algorithms if the domain is not finite.
+
+* Use stdcall convention on Windows; thanks to Alan Young for the suggestion.
+
+* Added missing absolute-tolerance criteria in Luksan algorithms; thanks
+  to Greg Nicholas for the bug report.
+
+* Fixed compilation under C++, and use C++ compiler for everything in
+  --with-cxx mode; thanks to Greg Nicholas for the bug report.
+
+* In MMA, only stop at minf_max/stopval if the point is feasible.
+
+* Fix Matlab mex file to not include unnecessary nlopt-util.h file,
+  simplifying Windows compilation.
 
 NLopt 1.2 (18 November 2009)
 
