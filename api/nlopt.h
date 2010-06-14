@@ -116,8 +116,6 @@ typedef enum {
      NLOPT_LN_NELDERMEAD,
      NLOPT_LN_SBPLX,
 
-     NLOPT_AUGLAG,
-     NLOPT_AUGLAG_EQ,
      NLOPT_LN_AUGLAG,
      NLOPT_LD_AUGLAG,
      NLOPT_LN_AUGLAG_EQ,
@@ -126,6 +124,10 @@ typedef enum {
      NLOPT_LN_BOBYQA,
 
      NLOPT_GN_ISRES,
+
+     /* not with older AUGLAG constants for backwards compatibility */
+     NLOPT_AUGLAG,
+     NLOPT_AUGLAG_EQ,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;

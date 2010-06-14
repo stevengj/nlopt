@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_GN_ISRES
-  val = 37;
+  val = 35;
