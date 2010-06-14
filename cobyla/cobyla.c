@@ -237,7 +237,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp, double *x, double *minf, do
   double *simi, double *datmat, double *a, double *vsig, double *veta,
   double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
   func_wrap_state *state);
-static void trstlp(int *n, int *m, double *a, double *b, double *rho,
+static nlopt_result trstlp(int *n, int *m, double *a, double *b, double *rho,
   double *dx, int *ifull, int *iact, double *z__, double *zdota, double *vmultc,
   double *sdirn, double *dxnew, double *vmultd);
 
@@ -848,8 +848,9 @@ L370:
   isdirn = ivmc + mp;
   idxnew = isdirn + *n;
   ivmd = idxnew + *n;
-  trstlp(n, m, &a[a_offset], &con[1], &rho, &dx[1], &ifull, &iact[1], &w[
+  rc = trstlp(n, m, &a[a_offset], &con[1], &rho, &dx[1], &ifull, &iact[1], &w[
       iz], &w[izdota], &w[ivmc], &w[isdirn], &w[idxnew], &w[ivmd]);
+  if (rc != NLOPT_SUCCESS) goto L600;
 #if ENFORCE_BOUNDS
   /* SGJ: since the bound constraints are linear, we should never get
      a dx that lies outside the [lb,ub] constraints here, but we'll
@@ -1169,7 +1170,7 @@ L620:
 } /* cobylb */
 
 /* ------------------------------------------------------------------------- */
-static void trstlp(int *n, int *m, double *a, 
+static nlopt_result trstlp(int *n, int *m, double *a, 
     double *b, double *rho, double *dx, int *ifull, 
     int *iact, double *z__, double *zdota, double *vmultc,
      double *sdirn, double *dxnew, double *vmultd)
@@ -1643,6 +1644,9 @@ L340:
     step = min(step,resmax);
   }
 
+  /* SGJ, 2010: check for error here */
+  if (nlopt_isinf(step)) return NLOPT_ROUNDOFF_LIMITED;
+
 /* Set DXNEW to the new variables if STEP is the steplength, and reduce */
 /* RESMAX to the corresponding maximum residual if stage one is being done. */
 /* Because DXNEW will be changed during the calculation of some Lagrange */
@@ -1786,5 +1790,5 @@ L490:
   }
   *ifull = 0;
 L500:
-  return;
+  return NLOPT_SUCCESS;
 } /* trstlp */
