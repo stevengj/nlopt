@@ -91,6 +91,10 @@ fi
 dnl -----------------------------------------------------------------------
 dnl SWIG wrappers
 
+if test "$enable_shared" = no; then
+   AC_MSG_WARN([Python and Guile wrappers require --enable-shared; disabling])
+else
+
 dnl Guile:
 AC_CHECK_PROG(GUILE_CONFIG, guile-config, guile-config, unknown)
 if test "x$GUILE_CONFIG" = "xunknown"; then
@@ -140,6 +144,8 @@ if test $have_python = yes; then
   AC_SUBST(PYTHON_INCLUDE_DIR)
 fi
 AM_CONDITIONAL(WITH_PYTHON, test x"$have_python" = "xyes")
+
+fi
 
 dnl -----------------------------------------------------------------------
 dnl Compiling Octave plug-in
