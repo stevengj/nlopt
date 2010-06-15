@@ -1,4 +1,4 @@
-NLopt 2.0
+NLopt 2.0 (15 June 2010)
 
 * New C API, that works by creating an nlopt_opt "object" and then calling
   functions to set the optimization parameters -- much more extensible
