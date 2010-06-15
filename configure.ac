@@ -140,6 +140,13 @@ if test $have_python = yes; then
   if test "x$PYTHON_INCLUDE_DIR" = xunknown; then
      AC_MSG_WARN([disabling Python wrappers])
      have_python=no
+  else
+     save_CPPFLAGS=$CPPFLAGS
+     CPPFLAGS="$CPPFLAGS -I$PYTHON_INCLUDE_DIR"
+     AC_CHECK_HEADER([numpy/arrayobject.h],[],[
+          AC_MSG_WARN([disabling Python wrappers])
+     	  have_python=no],[#include <Python.h>])
+     CPPFLAGS=$save_CPPFLAGS
   fi
   AC_SUBST(PYTHON_INCLUDE_DIR)
 fi
