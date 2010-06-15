@@ -422,21 +422,17 @@ Global (G) derivative-free (N) optimization using a genetic algorithm
 handle nonlinear inequality and equality constraints as suggested by
 Runarsson and Yao.
 .TP
-\fBNLOPT_GD_MLSL_LDS\fR, \fBNLOPT_GN_MLSL_LDS\fR
-Global (G) derivative-based (D) or derivative-free (N) optimization
-using the multi-level single-linkage (MLSL) algorithm with a
-low-discrepancy sequence (LDS).  This algorithm executes a quasi-random
-(LDS) sequence of local searches, with a clustering heuristic to
-avoid multiple local searches for the same local optimum.  The local
-search uses the derivative/nonderivative algorithm set by
-.I nlopt_set_local_optimizer
-(currently defaulting to
-.I NLOPT_LD_MMA
-and
-.I NLOPT_LN_COBYLA
-for derivative/nonderivative searches, respectively).  There are also
-two other variants, \fBNLOPT_GD_MLSL\fR and \fBNLOPT_GN_MLSL\fR, which use
-pseudo-random numbers (instead of an LDS) as in the original MLSL algorithm.
+\fBNLOPT_G_MLSL_LDS\fR, \fBNLOPT_G_MLSL\fR 
+Global (G) optimization using the multi-level single-linkage (MLSL)
+algorithm with a low-discrepancy sequence (LDS) or pseudorandom
+numbers, respectively.  This algorithm executes a low-discrepancy
+or pseudorandom sequence of local searches, with a clustering
+heuristic to avoid multiple local searches for the same local optimum.
+The local search algorithm must be specified, along with termination
+criteria/tolerances for the local searches, by
+\fInlopt_set_local_optimizer\fR.  (This subsidiary algorithm can be
+with or without derivatives, and determines whether the objective
+function needs gradients.)
 .TP
 .B NLOPT_LD_MMA
 Local (L) gradient-based (D) optimization using the method of moving

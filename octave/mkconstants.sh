@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-names=`egrep 'NLOPT_[LG][ND]|NLOPT_AUGLAG' ../api/nlopt.h |sed 's/ //g' |tr = , |cut -d, -f1`
+names=`egrep 'NLOPT_[LG][ND]|NLOPT_AUGLAG|NLOPT_G_MLSL' ../api/nlopt.h |sed 's/ //g' |tr = , |cut -d, -f1`
 i=0
 
 gcc -I../util -I.. -E ../api/general.c | perl -pe 's/^ *\n//' > foo.c

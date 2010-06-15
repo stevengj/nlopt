@@ -348,6 +348,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      return crs_minimize(ni, f, f_data, lb, ub, x, minf, &stop, 
 				  (int) POP(0), 0);
 
+	 case NLOPT_G_MLSL:
+	 case NLOPT_G_MLSL_LDS:
 	 case NLOPT_GN_MLSL:
 	 case NLOPT_GD_MLSL:
 	 case NLOPT_GN_MLSL_LDS:
@@ -355,6 +357,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      nlopt_opt local_opt = opt->local_opt;
 	      nlopt_result ret;
+	      if (!local_opt && (algorithm == NLOPT_G_MLSL 
+				 || algorithm == NLOPT_G_MLSL_LDS))
+		   return NLOPT_INVALID_ARGS;
 	      if (!local_opt) { /* default */
 		   nlopt_algorithm local_alg = (algorithm == NLOPT_GN_MLSL ||
 						algorithm == NLOPT_GN_MLSL_LDS)
@@ -386,7 +391,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      opt->force_stop_child = local_opt;
 	      ret = mlsl_minimize(ni, f, f_data, lb, ub, x, minf, &stop,
 				  local_opt, (int) POP(0),
-				  algorithm >= NLOPT_GN_MLSL_LDS);
+				  algorithm >= NLOPT_GN_MLSL_LDS &&
+				  algorithm != NLOPT_G_MLSL);
 	      opt->force_stop_child = NULL;
 	      if (!opt->local_opt) nlopt_destroy(local_opt);
 	      return ret;

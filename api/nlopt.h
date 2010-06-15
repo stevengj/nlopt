@@ -125,9 +125,12 @@ typedef enum {
 
      NLOPT_GN_ISRES,
 
-     /* not with older AUGLAG constants for backwards compatibility */
+     /* new variants that require local_optimizer to be set,
+	not with older constants for backwards compatibility */
      NLOPT_AUGLAG,
      NLOPT_AUGLAG_EQ,
+     NLOPT_G_MLSL,
+     NLOPT_G_MLSL_LDS,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;

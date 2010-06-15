@@ -93,6 +93,8 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "ISRES evolutionary constrained optimization (global, no-derivative)",
      "Augmented Lagrangian method (needs sub-algorithm)",
      "Augmented Lagrangian method for equality constraints (needs sub-algorithm)",
+     "Multi-level single-linkage (MLSL), random (global, needs sub-algorithm)",
+     "Multi-level single-linkage (MLSL), quasi-random (global, needs sub-algorithm)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
