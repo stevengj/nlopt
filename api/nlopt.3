@@ -652,9 +652,8 @@ objective function.
 .SH LOCAL OPTIMIZER
 Some of the algorithms, especially MLSL and AUGLAG, use a different
 optimization algorithm as a subroutine, typically for local
-optimization.  By default, MLSL uses MMA or COBYLA for gradient-based
-or derivative-free searching, respectively.  You can change
-the local search algorithm and its tolerances by calling:
+optimization.  You can change the local search algorithm and its
+tolerances by calling:
 .sp
 .BI "  nlopt_result nlopt_set_local_optimizer(nlopt_opt " "opt" , 
 .br
