@@ -91,10 +91,21 @@ fi
 dnl -----------------------------------------------------------------------
 dnl SWIG wrappers
 
+AC_ARG_WITH(guile,
+	[AC_HELP_STRING([--without-guile], [don't compile Guile plugin])],
+        with_guile=$withval,with_guile=yes)
+AC_ARG_WITH(python,
+	[AC_HELP_STRING([--without-python], [don't compile Python plugin])],
+        with_python=$withval,with_python=yes)
+
 if test "$enable_shared" = no; then
    AC_MSG_WARN([Python and Guile wrappers require --enable-shared; disabling])
    GUILE_CONFIG=unknown
    have_python=no
+else
+
+if test "x$with_guile" = xno; then
+   GUILE_CONFIG=unknown
 else
 
 dnl Guile:
@@ -124,9 +135,12 @@ else
    GUILE_SITEDIR=`guile -c '(display (%site-dir))'`
    AC_MSG_RESULT([$GUILE_SITEDIR])
 fi
-AC_SUBST(GUILE_SITEDIR)
-AC_SUBST(GUILE_CPPFLAGS)
-AC_SUBST(GUILE_LIBS)
+
+fi # with_guile
+
+if test "x$with_python" = xno; then
+  have_python=no
+else
 
 dnl Python:
 AM_PATH_PYTHON([],[have_python=yes],[have_python=no])
@@ -149,11 +163,16 @@ if test $have_python = yes; then
      	  have_python=no],[#include <Python.h>])
      CPPFLAGS=$save_CPPFLAGS
   fi
-  AC_SUBST(PYTHON_INCLUDE_DIR)
 fi
+
+fi # with_python
 
 fi # if enable_shared
 
+AC_SUBST(GUILE_SITEDIR)
+AC_SUBST(GUILE_CPPFLAGS)
+AC_SUBST(GUILE_LIBS)
+AC_SUBST(PYTHON_INCLUDE_DIR)
 AM_CONDITIONAL(WITH_GUILE, test x"$GUILE_CONFIG" != "xunknown")
 AM_CONDITIONAL(WITH_PYTHON, test x"$have_python" = "xyes")
 
