@@ -28,6 +28,7 @@ nlopt_algorithm nlopt_local_search_alg_deriv = NLOPT_LD_MMA;
 nlopt_algorithm nlopt_local_search_alg_nonderiv = NLOPT_LN_COBYLA;
 int nlopt_local_search_maxeval = -1; /* no maximum by default */
 
+NLOPT_STDCALL
 void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
 				      nlopt_algorithm *nonderiv,
 				      int *maxeval)
@@ -37,6 +38,7 @@ void nlopt_get_local_search_algorithm(nlopt_algorithm *deriv,
      *maxeval = nlopt_local_search_maxeval;
 }
 
+NLOPT_STDCALL
 void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 				      nlopt_algorithm nonderiv,
 				      int maxeval)
@@ -50,13 +52,16 @@ void nlopt_set_local_search_algorithm(nlopt_algorithm deriv,
 
 int nlopt_stochastic_population = 0;
 
+NLOPT_STDCALL
 int nlopt_get_stochastic_population(void) { 
      return nlopt_stochastic_population; }
+NLOPT_STDCALL
 void nlopt_set_stochastic_population(int pop) { 
      nlopt_stochastic_population = pop <= 0 ? 0 : (unsigned) pop; }
 
 /*************************************************************************/
 
+NLOPT_STDCALL
 nlopt_result nlopt_minimize_econstrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func_old f, void *f_data,
@@ -129,6 +134,7 @@ nlopt_result nlopt_minimize_econstrained(
      return ret;
 }
 
+NLOPT_STDCALL
 nlopt_result nlopt_minimize_constrained(
      nlopt_algorithm algorithm,
      int n, nlopt_func_old f, void *f_data,
@@ -147,6 +153,7 @@ nlopt_result nlopt_minimize_constrained(
 	  xtol_rel, xtol_abs, ftol_rel, ftol_abs, maxeval, maxtime);
 }
 
+NLOPT_STDCALL
 nlopt_result nlopt_minimize(
      nlopt_algorithm algorithm,
      int n, nlopt_func_old f, void *f_data,

@@ -81,6 +81,8 @@ static double f77_func_wrap(unsigned n, const double *x, double *grad, void *dat
    wrapper functions are so small, the library bloat of including them
    multiple times is negligible and seems well worth the benefit. */
 
+#  define F77CALL(a, A) F77(a, A)
+
 /* name + underscore is by far the most common (gfortran, g77, Intel, ...) */
 #  define F77(a, A) a ## _
 #  include "f77funcs.h"
@@ -106,5 +108,7 @@ static double f77_func_wrap(unsigned n, const double *x, double *grad, void *dat
        http://msdn.microsoft.com/library/en-us/vccore98/html/_core_mixed.2d.language_programming.3a_.overview.asp
 */
 #  undef F77
+#  undef F77CALL
 #  define F77(a, A) NLOPT_STDCALL A
+#  define F77CALL(a, A) A
 #  include "f77funcs.h"

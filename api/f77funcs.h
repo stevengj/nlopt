@@ -80,7 +80,7 @@ void F77(nloptm,NLOPTM)(int *info,
 			const int *maxeval, const double *maxtime)
 {
      int m = 0;
-     F77(nloptc,NLOPTC)(info, algorithm, n, f, f_data, &m, 0, 0, 0,
+     F77CALL(nloptc,NLOPTC)(info, algorithm, n, f, f_data, &m, 0, 0, 0,
 			lb, ub, x, minf, minf_max, ftol_rel, ftol_abs,
 			xtol_rel, xtol_abs, have_xtol_abs, maxeval, maxtime);
 }

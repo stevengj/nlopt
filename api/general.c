@@ -36,7 +36,7 @@ int nlopt_isinf(double x) {
 }
 /*************************************************************************/
 
-void nlopt_version(int *major, int *minor, int *bugfix)
+NLOPT_STDCALL void nlopt_version(int *major, int *minor, int *bugfix)
 {
      *major = MAJOR_VERSION;
      *minor = MINOR_VERSION;
@@ -126,12 +126,12 @@ const char *nlopt_algorithm_name(nlopt_algorithm a)
 /*************************************************************************/
 
 static THREADLOCAL int nlopt_srand_called = 0;
-void nlopt_srand(unsigned long seed) {
+NLOPT_STDCALL void nlopt_srand(unsigned long seed) {
      nlopt_srand_called = 1;
      nlopt_init_genrand(seed);
 }
 
-void nlopt_srand_time(void) {
+NLOPT_STDCALL void nlopt_srand_time(void) {
      nlopt_srand(nlopt_time_seed() + my_gettid() * 314159);
 }
 
