@@ -35,11 +35,12 @@
 % BOUND CONSTRAINTS:
 %
 % Lower and/or upper bounds for the design variables x are specified
-% via opt.lb and/or opt.ub, respectively: these are vectors (of the
-% same length as xinit, above) giving the bounds in each component.
-% An unbounded component may be specified by a lower/upper bound of
-% -inf/+inf, respectively.  If opt.lb and/or opt.ub are not specified,
-% the default bounds are -inf/+inf (i.e. unbounded), respectively.
+% via opt.lower_bounds and/or opt.upper_bounds, respectively: these
+% are vectors (of the same length as xinit, above) giving the bounds
+% in each component. An unbounded component may be specified by a
+% lower/upper bound of -inf/+inf, respectively.  If opt.lower_bounds
+% and/or opt.upper_bounds are not specified, the default bounds are
+% -inf/+inf (i.e. unbounded), respectively.
 %
 % NONLINEAR CONSTRAINTS:
 %

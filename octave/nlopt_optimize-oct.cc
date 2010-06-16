@@ -151,13 +151,13 @@ nlopt_opt make_opt(Octave_map &opts, int n)
   CHECK1(opt, "nlopt: out of memory");
 
   Matrix m_inf(1, n, -HUGE_VAL);
-  Matrix lb = struct_val_default(opts, "lb", m_inf);
-  CHECK1(n == lb.length(), "wrong length of opt.lb");
+  Matrix lb = struct_val_default(opts, "lower_bounds", m_inf);
+  CHECK1(n == lb.length(), "wrong length of opt.lower_bounds");
   CHECK1(nlopt_set_lower_bounds(opt, lb.data()) > 0, "nlopt: out of memory");
 
   Matrix p_inf(1, n, +HUGE_VAL);
-  Matrix ub = struct_val_default(opts, "ub", p_inf);
-  CHECK1(n == ub.length(), "wrong length of opt.ub");
+  Matrix ub = struct_val_default(opts, "upper_bounds", p_inf);
+  CHECK1(n == ub.length(), "wrong length of opt.upper_bounds");
   CHECK1(nlopt_set_upper_bounds(opt, ub.data()) > 0, "nlopt: out of memory");
 
   nlopt_set_stopval(opt, struct_val_default(opts, "stopval", -HUGE_VAL));

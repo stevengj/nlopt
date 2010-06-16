@@ -135,9 +135,9 @@ nlopt_opt make_opt(const mxArray *opts, unsigned n)
      opt = nlopt_create(algorithm, n);
      CHECK1(opt, "nlopt: out of memory");
 
-     nlopt_set_lower_bounds(opt, struct_arrval(opts, "lb", n,
+     nlopt_set_lower_bounds(opt, struct_arrval(opts, "lower_bounds", n,
 					       fill(tmp, n, -HUGE_VAL)));
-     nlopt_set_upper_bounds(opt, struct_arrval(opts, "ub", n,
+     nlopt_set_upper_bounds(opt, struct_arrval(opts, "upper_bounds", n,
 					       fill(tmp, n, +HUGE_VAL)));
 
      nlopt_set_stopval(opt, struct_val_default(opts, "stopval", -HUGE_VAL));

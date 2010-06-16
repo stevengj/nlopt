@@ -95,8 +95,8 @@ if (isfield(stop, 'minf_max'))
 end
 opt.algorithm = algorithm;
 opt.min_objective = @(x) f(x, f_data{:});
-opt.lb = lb;
-opt.ub = ub;
+opt.lower_bounds = lb;
+opt.upper_bounds = ub;
 for i = 1:length(fc)
   opt.fc{i} = @(x) fc{i}(x, fc_data{i}{:});
 end
