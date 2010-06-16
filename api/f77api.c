@@ -69,7 +69,7 @@ static double f77_func_wrap(unsigned n, const double *x, double *grad, void *dat
 #define F77_SET(name,NAME,T) void F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, *val); }
 #define F77_GETSET(name,NAME,T) F77_GET(name,NAME,T) F77_SET(name,NAME,T)
 
-#define F77_GETA(name,NAME,T) void F77_(nlo_get_##name,NLO_GET_##NAME)(int *ret, T *val, nlopt_opt *opt) { *ret = (int) nlopt_get_##name(*opt, val); }
+#define F77_GETA(name,NAME,T) void F77_(nlo_get_##name,NLO_GET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_get_##name(*opt, val); }
 #define F77_SETA(name,NAME,T) void F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, val); }
 #define F77_GETSETA(name,NAME,T) F77_GETA(name,NAME,T) F77_SETA(name,NAME,T) F77_SET(name##1,NAME##1,T)
 
