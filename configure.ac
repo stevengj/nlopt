@@ -33,6 +33,14 @@ if test "x$with_cxx" = xyes; then
 fi
 AC_SUBST(NLOPT_SUFFIX)
 
+AC_ARG_WITH(mthreads,
+        [AC_HELP_STRING([--with-mthreads], [use -mthreads compiler flag])],
+        with_mthrads=$withval,with_mthreads=no)
+if test "x$with_mthreads" = xyes; then
+   CFLAGS="$CFLAGS -mthreads"
+   CXXFLAGS="$CXXFLAGS -mthreads"
+fi
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDC
 AC_HEADER_TIME

@@ -3,7 +3,7 @@ set -e
 
 rm -rf mingw
 
-./configure --prefix=`pwd`/mingw --host=i586-mingw32msvc --enable-shared --disable-static --without-matlab --without-octave --without-python --without-guile && make -j4 && make install
+./configure --prefix=`pwd`/mingw --host=i586-mingw32msvc --with-mthreads --enable-shared --disable-static --without-matlab --without-octave --without-python --without-guile && make -j4 && make install
 
 cd mingw/bin
 for dll in *.dll; do
