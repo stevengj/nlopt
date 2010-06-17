@@ -1,3 +1,9 @@
+NLopt 2.0.2 (17 June 2010)
+
+* Fixed compilation failure in Microsoft Visual Studio, due to
+  incorrect usage of __stdcall keyword; thanks to Dave Katz for the
+  bug report.
+
 NLopt 2.0.1 (16 June 2010)
 
 * Bug fix in Fortran API (for nlo_get_ functions returning arrays).
