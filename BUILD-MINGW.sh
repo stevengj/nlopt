@@ -10,7 +10,7 @@ for dll in *.dll; do
     def=`basename $dll .dll`.def
     echo "LIBRARY $dll" > $def
     echo EXPORTS >> $def
-    i586-mingw32msvc-nm $dll | grep ' T _' | sed 's/.* T _//' | grep nlopt >> $def
+    i586-mingw32msvc-nm $dll | grep ' T _' | sed 's/.* T _//' | egrep 'nlopt|nlo_' |cut -d@ -f1 >> $def
 done
 cd ../..
 
