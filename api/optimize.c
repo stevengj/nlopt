@@ -543,8 +543,8 @@ static double f_max(unsigned n, const double *x, double *grad, void *data)
      return -val;
 }
 
-NLOPT_STDCALL 
-nlopt_result nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
+nlopt_result 
+NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
 {
      nlopt_func f; void *f_data;
      f_max_data fmd;
