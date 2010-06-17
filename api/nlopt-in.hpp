@@ -23,6 +23,9 @@
 // C++ style wrapper around NLopt API
 // nlopt.hpp is AUTOMATICALLY GENERATED from nlopt-in.hpp - edit the latter!
 
+#ifndef NLOPT_HPP
+#define NLOPT_HPP
+
 #include <nlopt.h>
 
 #include <vector>
@@ -467,3 +470,5 @@ namespace nlopt {
   //////////////////////////////////////////////////////////////////////
 
 } // namespace nlopt
+
+#endif /* NLOPT_HPP */
