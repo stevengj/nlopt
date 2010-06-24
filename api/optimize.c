@@ -423,6 +423,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   return NLOPT_OUT_OF_MEMORY;
 	      return cobyla_minimize(ni, f, f_data, 
 				     opt->m, opt->fc,
+				     opt->p, opt->h,
 				     lb, ub, x, minf, &stop,
 				     step);
 	 }

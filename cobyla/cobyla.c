@@ -66,6 +66,8 @@ typedef struct {
      void *f_data;
      int m_orig;
      nlopt_constraint *fc;
+     int p;
+     nlopt_constraint *h;
      double *xtmp;
      const double *lb, *ub;
 } func_wrap_state;
@@ -91,6 +93,11 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
      *f = s->f(n, xtmp, NULL, s->f_data);
      for (i = 0; i < s->m_orig; ++i)
 	  con[i] = -s->fc[i].f(n, xtmp, NULL, s->fc[i].f_data);
+     for (j = 0; j < s->p; ++j) {
+	  double h = s->h[j].f(n, xtmp, NULL, s->h[j].f_data);
+	  con[i++] = h;
+	  con[i++] = -h;
+     }
      for (j = 0; j < n; ++j) {
 	  if (!nlopt_isinf(lb[j]))
 	       con[i++] = x[j] - lb[j];
@@ -154,6 +161,7 @@ extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg,
 
 nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 			     int m, nlopt_constraint *fc,
+                             int p, nlopt_constraint *h,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
@@ -167,9 +175,14 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
      s.f = f; s.f_data = f_data;
      s.m_orig = m;
      s.fc = fc; 
+     s.p = p;
+     s.h = h;
      s.lb = lb; s.ub = ub;
      s.xtmp = (double *) malloc(sizeof(double) * n);
      if (!s.xtmp) return NLOPT_OUT_OF_MEMORY;
+
+     /* each equality constraint gives two inequality constraints */
+     m += 2*p;
 
      /* add constraints for lower/upper bounds (if any) */
      for (j = 0; j < n; ++j) {

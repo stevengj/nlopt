@@ -367,7 +367,8 @@ NLOPT_STDCALL nlopt_add_equality_constraint(nlopt_opt opt,
 {
      if (opt && h && tol >= 0) {
 	  /* equality constraints (h(x) = 0) only via some algorithms */
-	  if (!AUGLAG_ALG(opt->algorithm) && opt->algorithm != NLOPT_GN_ISRES)
+	  if (!AUGLAG_ALG(opt->algorithm) && opt->algorithm != NLOPT_GN_ISRES
+	      && opt->algorithm != NLOPT_LN_COBYLA)
 	       return NLOPT_INVALID_ARGS;
 	  return add_constraint(&opt->p, &opt->p_alloc, &opt->h,
 				h, h_data, tol);
