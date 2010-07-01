@@ -53,6 +53,8 @@ static int key_compare(void *keys_, const void *a_, const void *b_)
      return keys[*a] < keys[*b] ? -1 : (keys[*a] > keys[*b] ? +1 : 0);
 }
 
+static unsigned imax2(unsigned a, unsigned b) { return (a > b ? a : b); }
+
 nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 			    int m, nlopt_constraint *fc, /* fc <= 0 */
 			    int p, nlopt_constraint *h, /* h == 0 */
@@ -78,6 +80,8 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
      int mp = m + p;
      double minf_penalty = HUGE_VAL, minf_gpenalty = HUGE_VAL;
      double taup, tau;
+     double *results = 0; /* scratch space for mconstraint results */
+     unsigned ires;
 
      *minf = HUGE_VAL;
 
@@ -92,11 +96,16 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
      for (j = 0; j < n; ++j) if (nlopt_isinf(lb[j]) || nlopt_isinf(ub[j]))
 				  return NLOPT_INVALID_ARGS;
 
+     ires = imax2(nlopt_max_constraint_dim(m, fc),
+		  nlopt_max_constraint_dim(p, h));
+     results = (double *) malloc(ires * sizeof(double));
+     if (ires > 0 && !results) return NLOPT_OUT_OF_MEMORY;
+
      sigmas = (double*) malloc(sizeof(double) * (population*n*2
 						 + population
 						 + population
 						 + n));
-     if (!sigmas) return NLOPT_OUT_OF_MEMORY;
+     if (!sigmas) { free(results); return NLOPT_OUT_OF_MEMORY; }
      xs = sigmas + population*n;
      fval = xs + population*n;
      penalty = fval + population;
@@ -124,16 +133,24 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 	       fval[k] = f(n, xs + k*n, NULL, f_data);
 	       penalty[k] = 0;
 	       for (c = 0; c < m; ++c) { /* inequality constraints */
-		    double gval = fc[c].f(n, xs + k*n, NULL, fc[c].f_data);
-		    if (gval > fc[c].tol) feasible = 0;
-		    if (gval < 0) gval = 0;
-		    penalty[k] += gval*gval;
+		    nlopt_eval_constraint(results, NULL,
+					  fc + c, n, xs + k*n);
+		    for (ires = 0; ires < fc[c].m; ++ires) {
+			 double gval = results[ires];
+			 if (gval > fc[c].tol[ires]) feasible = 0;
+			 if (gval < 0) gval = 0;
+			 penalty[k] += gval*gval;
+		    }
 	       }
 	       gpenalty = penalty[k];
 	       for (c = m; c < mp; ++c) { /* equality constraints */
-		    double hval = h[c-m].f(n, xs + k*n, NULL, h[c-m].f_data);
-		    if (fabs(hval) > h[c-m].tol) feasible = 0;
-		    penalty[k] += hval*hval;
+		    nlopt_eval_constraint(results, NULL,
+					  h + (c-m), n, xs + k*n);
+		    for (ires = 0; ires < h[c-m].m; ++ires) {
+			 double hval = results[ires];
+			 if (fabs(hval) > h[c-m].tol[ires]) feasible = 0;
+			 penalty[k] += hval*hval;
+		    }
 	       }
 	       if (penalty[k] > 0) all_feasible = 0;
 
@@ -255,5 +272,6 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 done:
      if (irank) free(irank);
      if (sigmas) free(sigmas);
+     if (results) free(results);
      return ret;
 }

@@ -100,3 +100,30 @@ int nlopt_stop_forced(const nlopt_stopping *stop)
 {
      return stop->force_stop && *(stop->force_stop);
 }
+
+unsigned nlopt_count_constraints(unsigned p, const nlopt_constraint *c)
+{
+     unsigned i, count = 0;
+     for (i = 0; i < p; ++i)
+	  count += c[i].m;
+     return count;
+}
+
+unsigned nlopt_max_constraint_dim(unsigned p, const nlopt_constraint *c)
+{
+     unsigned i, max_dim = 0;
+     for (i = 0; i < p; ++i)
+	  if (c[i].m > max_dim)
+	       max_dim = c[i].m;
+     return max_dim;
+}
+
+void nlopt_eval_constraint(double *result, double *grad,
+			   const nlopt_constraint *c,
+			   unsigned n, const double *x)
+{
+     if (c->f)
+	  result[0] = c->f(n, x, grad, c->f_data);
+     else
+	  c->mf(c->m, result, n, x, grad, c->f_data);
+}

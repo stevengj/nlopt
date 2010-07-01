@@ -59,6 +59,11 @@ typedef double (*nlopt_func)(unsigned n, const double *x,
 			     double *gradient, /* NULL if not needed */
 			     void *func_data);
 
+typedef void (*nlopt_mfunc)(unsigned m, double *result,
+			    unsigned n, const double *x,
+			     double *gradient, /* NULL if not needed */
+			     void *func_data);
+
 typedef enum {
      /* Naming conventions:
 
@@ -205,12 +210,22 @@ NLOPT_EXTERN(nlopt_result) nlopt_add_inequality_constraint(nlopt_opt opt,
 							  nlopt_func fc,
 							  void *fc_data,
 							  double tol);
+NLOPT_EXTERN(nlopt_result) nlopt_add_inequality_mconstraint(nlopt_opt opt,
+							    unsigned m,
+							    nlopt_mfunc fc,
+							    void *fc_data,
+							    const double *tol);
 
 NLOPT_EXTERN(nlopt_result) nlopt_remove_equality_constraints(nlopt_opt opt);
 NLOPT_EXTERN(nlopt_result) nlopt_add_equality_constraint(nlopt_opt opt,
 							nlopt_func h,
 							void *h_data,
 							double tol);
+NLOPT_EXTERN(nlopt_result) nlopt_add_equality_mconstraint(nlopt_opt opt,
+							  unsigned m,
+							  nlopt_mfunc h,
+							  void *h_data,
+							  const double *tol);
 
 /* stopping criteria: */
 

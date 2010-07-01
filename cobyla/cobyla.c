@@ -70,12 +70,13 @@ typedef struct {
      nlopt_constraint *h;
      double *xtmp;
      const double *lb, *ub;
+     double *con_tol;
 } func_wrap_state;
 
 static int func_wrap(int n, int m, double *x, double *f, double *con,
 		     func_wrap_state *s)
 {
-     int i, j;
+     int i, j, k;
      double *xtmp = s->xtmp;
      const double *lb = s->lb, *ub = s->ub;
 
@@ -91,12 +92,18 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
      }
 
      *f = s->f(n, xtmp, NULL, s->f_data);
-     for (i = 0; i < s->m_orig; ++i)
-	  con[i] = -s->fc[i].f(n, xtmp, NULL, s->fc[i].f_data);
+     i = 0;
+     for (j = 0; j < s->m_orig; ++j) {
+	  nlopt_eval_constraint(con + i, NULL, s->fc+j, n, xtmp);
+	  for (k = 0; k < s->fc[j].m; ++k)
+	       con[i + k] = -con[i + k];
+	  i += s->fc[j].m;
+     }
      for (j = 0; j < s->p; ++j) {
-	  double h = s->h[j].f(n, xtmp, NULL, s->h[j].f_data);
-	  con[i++] = h;
-	  con[i++] = -h;
+	  nlopt_eval_constraint(con + i, NULL, s->h+j, n, xtmp);
+	  for (k = 0; k < s->h[j].m; ++k)
+	       con[(i + s->h[j].m) + k] = -con[i + k];
+	  i += 2 * s->h[j].m;
      }
      for (j = 0; j < n; ++j) {
 	  if (!nlopt_isinf(lb[j]))
@@ -168,7 +175,7 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 			     nlopt_stopping *stop,
 			     double rhobegin)
 {
-     int j;
+     int i, j;
      func_wrap_state s;
      nlopt_result ret;
 
@@ -182,7 +189,7 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
      if (!s.xtmp) return NLOPT_OUT_OF_MEMORY;
 
      /* each equality constraint gives two inequality constraints */
-     m += 2*p;
+     m = nlopt_count_constraints(m, fc) + 2 * nlopt_count_constraints(p, h);
 
      /* add constraints for lower/upper bounds (if any) */
      for (j = 0; j < n; ++j) {
@@ -190,6 +197,23 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 	       ++m;
 	  if (!nlopt_isinf(ub[j]))
 	       ++m;
+     }
+
+     s.con_tol = (double *) malloc(sizeof(double) * m);
+     if (m && !s.con_tol) {
+	  free(s.xtmp);
+	  return NLOPT_OUT_OF_MEMORY;
+     }
+     for (j = 0; j < m; ++j) s.con_tol[j] = 0;
+     for (j = i = 0; i < s.m_orig; ++i) {
+	  int j0 = j, jnext = j + fc[i].m;
+	  for (; j < jnext; ++j) s.con_tol[j] = fc[i].tol[j - j0];
+     }
+     for (i = 0; i < s.p; ++i) {
+	  int j0 = j, jnext = j + h[i].m;
+	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - j0];
+	  j0 = j; jnext = j + h[i].m;
+	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - j0];
      }
 
      ret = cobyla(n, m, x, minf, rhobegin, stop, lb, ub, COBYLA_MSG_NONE, 
@@ -201,6 +225,7 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 	  if (x[j] > ub[j]) x[j] = ub[j];
      }
 
+     free(s.con_tol);
      free(s.xtmp);
      return ret;
 }
@@ -534,7 +559,7 @@ L40:
     for (k = 1; k <= i__1; ++k) {
       d__1 = resmax, d__2 = -con[k];
       resmax = max(d__1,d__2);
-      if (d__2 > (k <= state->m_orig ? state->fc[k-1].tol : 0))
+      if (d__2 > state->con_tol[k-1])
 	   feasible = 0; /* SGJ, 2010 */
     }
   }

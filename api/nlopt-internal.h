@@ -69,6 +69,8 @@ struct nlopt_opt_s {
      nlopt_opt local_opt; /* local optimizer */
      unsigned stochastic_population; /* population size for stochastic algs */
      double *dx; /* initial step sizes (length n) for nonderivative algs */
+
+     double *work; /* algorithm-specific workspace during optimization */
 };
 
 /*********************************************************************/

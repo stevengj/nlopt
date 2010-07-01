@@ -14,10 +14,10 @@ int auglag_verbose = 0;
 
 typedef struct {
      nlopt_func f; void *f_data;
-     int m; nlopt_constraint *fc;
-     int p; nlopt_constraint *h;
+     int m, mm; nlopt_constraint *fc;
+     int p, pp; nlopt_constraint *h;
      double rho, *lambda, *mu;
-     double *gradtmp;
+     double *restmp, *gradtmp;
      nlopt_stopping *stop;
 } auglag_data;
 
@@ -26,28 +26,34 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
 {
      auglag_data *d = (auglag_data *) data;
      double *gradtmp = grad ? d->gradtmp : NULL;
+     double *restmp = d->restmp;
      double rho = d->rho;
      const double *lambda = d->lambda, *mu = d->mu;
      double L;
-     int i;
-     unsigned j;
+     int i, ii;
+     unsigned j, k;
 
      L = d->f(n, x, grad, d->f_data);
 
-     for (i = 0; i < d->p; ++i) {
-	  double h;
-	  h = d->h[i].f(n, x, gradtmp, d->h[i].f_data) + lambda[i] / rho;
-	  L += 0.5 * rho * h*h;
-	  if (grad) for (j = 0; j < n; ++j) grad[j] += (rho * h) * gradtmp[j];
+     for (ii = i = 0; i < d->p; ++i) {
+	  nlopt_eval_constraint(restmp, gradtmp, d->h + i, n, x);
+	  for (k = 0; k < d->h[i].m; ++k) {
+	       double h = restmp[k] + lambda[ii++] / rho;
+	       L += 0.5 * rho * h*h;
+	       if (grad) for (j = 0; j < n; ++j) 
+			      grad[j] += (rho * h) * gradtmp[k*n + j];
+	  }
      }
 
-     for (i = 0; i < d->m; ++i) {
-	  double fc;
-	  fc = d->fc[i].f(n, x, gradtmp, d->fc[i].f_data) + mu[i] / rho;
-	  if (fc > 0) {
-	       L += 0.5 * rho * fc*fc;
-	       if (grad) for (j = 0; j < n; ++j) 
-		    grad[j] += (rho * fc) * gradtmp[j];
+     for (ii = i = 0; i < d->m; ++i) {
+	  nlopt_eval_constraint(restmp, gradtmp, d->fc + i, n, x);
+	  for (k = 0; k < d->h[i].m; ++k) {
+	       double fc = restmp[k] + mu[ii++] / rho;
+	       if (fc > 0) {
+		    L += 0.5 * rho * fc*fc;
+		    if (grad) for (j = 0; j < n; ++j) 
+				   grad[j] += (rho * fc) * gradtmp[k*n + j];
+	       }
 	  }
      }
      
@@ -71,8 +77,9 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      nlopt_result ret = NLOPT_SUCCESS;
      double ICM = HUGE_VAL, minf_penalty = HUGE_VAL, penalty;
      double *xcur = NULL, fcur;
-     int i, feasible, minf_feasible = 0;
+     int i, ii, k, feasible, minf_feasible = 0;
      int auglag_iters = 0;
+     int max_constraint_dim;
 
      /* magic parameters from Birgin & Martinez */
      const double tau = 0.5, gam = 10;
@@ -83,12 +90,18 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      d.p = p; d.h = h;
      d.stop = stop;
 
+     max_constraint_dim = MAX(nlopt_max_constraint_dim(m, fc),
+			      nlopt_max_constraint_dim(p, h));
+
      /* whether we handle inequality constraints via the augmented
 	Lagrangian penalty function, or directly in the sub-algorithm */
      if (sub_has_fc)
 	  d.m = 0;
      else
 	  m = 0;
+
+     d.mm = nlopt_count_constraints(d.m, fc);
+     d.pp = nlopt_count_constraints(d.p, fc);
 
      ret = nlopt_set_min_objective(sub_opt, auglag, &d); if (ret<0) return ret;
      ret = nlopt_set_lower_bounds(sub_opt, lb); if (ret<0) return ret;
@@ -97,19 +110,28 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      ret = nlopt_remove_inequality_constraints(sub_opt); if (ret<0) return ret;
      ret = nlopt_remove_equality_constraints(sub_opt); if (ret<0) return ret;
      for (i = 0; i < m; ++i) {
-	  ret = nlopt_add_inequality_constraint(sub_opt, fc[i].f, fc[i].f_data,
-						fc[i].tol);
+	  if (fc[i].f)
+	       ret = nlopt_add_inequality_constraint(sub_opt,
+						     fc[i].f, fc[i].f_data,
+						     fc[i].tol[0]);
+	  else
+	       ret = nlopt_add_inequality_mconstraint(sub_opt, fc[i].m, 
+						      fc[i].mf, fc[i].f_data,
+						      fc[i].tol);
 	  if (ret < 0) return ret;
      }
 
-     xcur = (double *) malloc(sizeof(double) * (2*n + d.p + d.m));
+     xcur = (double *) malloc(sizeof(double) * (n
+						+ max_constraint_dim * (1 + n)
+						+ d.pp + d.mm));
      if (!xcur) return NLOPT_OUT_OF_MEMORY;
      memcpy(xcur, x, sizeof(double) * n);
 
-     d.gradtmp = xcur + n;
-     memset(d.gradtmp, 0, sizeof(double) * (n + d.p + d.m));
-     d.lambda = d.gradtmp + n;
-     d.mu = d.lambda + d.p;
+     d.restmp = xcur + n;
+     d.gradtmp = d.restmp + max_constraint_dim;
+     memset(d.gradtmp, 0, sizeof(double) * (n*max_constraint_dim + d.pp+d.mm));
+     d.lambda = d.gradtmp + n * max_constraint_dim;
+     d.mu = d.lambda + d.pp;
 
      *minf = HUGE_VAL;
 
@@ -121,16 +143,22 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  penalty = 0;
 	  feasible = 1;
 	  for (i = 0; i < d.p; ++i) {
-               double hi = h[i].f(n, xcur, NULL, d.h[i].f_data);
-	       penalty += fabs(hi);
-	       feasible = feasible && fabs(hi) <= h[i].tol;
-	       con2 += hi * hi;
+	       nlopt_eval_constraint(d.restmp, NULL, d.h + i, n, xcur);
+	       for (k = 0; k < d.h[i].m; ++k) {
+		    double hi = d.restmp[k];
+		    penalty += fabs(hi);
+		    feasible = feasible && fabs(hi) <= h[i].tol[k];
+		    con2 += hi * hi;
+	       }
 	  }
 	  for (i = 0; i < d.m; ++i) {
-               double fci = fc[i].f(n, xcur, NULL, d.fc[i].f_data);
-	       penalty += fci > 0 ? fci : 0;
-	       feasible = feasible && fci <= fc[i].tol;
-	       if (fci > 0) con2 += fci * fci;
+	       nlopt_eval_constraint(d.restmp, NULL, d.fc + i, n, xcur);
+	       for (k = 0; k < d.fc[i].m; ++k) {
+		    double fci = d.restmp[k];
+		    penalty += fci > 0 ? fci : 0;
+		    feasible = feasible && fci <= fc[i].tol[k];
+		    if (fci > 0) con2 += fci * fci;
+	       }
 	  }
 	  *minf = fcur;
 	  minf_penalty = penalty;
@@ -142,9 +170,9 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 
      if (auglag_verbose) {
 	  printf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
-	  for (i = 0; i < d.p; ++i) printf(" %g", d.lambda[i]);
+	  for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
 	  printf("\nauglag initial mu = ");
-	  for (i = 0; i < d.m; ++i) printf(" %g", d.mu[i]);
+	  for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
 	  printf("\n");
      }
 
@@ -163,21 +191,27 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  ICM = 0;
 	  penalty = 0;
 	  feasible = 1;
-	  for (i = 0; i < d.p; ++i) {
-	       double hi = h[i].f(n, xcur, NULL, d.h[i].f_data);
-	       double newlam = d.lambda[i] + d.rho * hi;
-	       penalty += fabs(hi);
-	       feasible = feasible && fabs(hi) <= h[i].tol;
-	       ICM = MAX(ICM, fabs(hi));
-	       d.lambda[i] = MIN(MAX(lam_min, newlam), lam_max);
+	  for (i = ii = 0; i < d.p; ++i) {
+	       nlopt_eval_constraint(d.restmp, NULL, d.h + i, n, xcur);
+	       for (k = 0; k < d.h[i].m; ++k) {
+		    double hi = d.restmp[k];
+		    double newlam = d.lambda[ii] + d.rho * hi;
+		    penalty += fabs(hi);
+		    feasible = feasible && fabs(hi) <= h[i].tol[k];
+		    ICM = MAX(ICM, fabs(hi));
+		    d.lambda[ii++] = MIN(MAX(lam_min, newlam), lam_max);
+	       }
 	  }
-	  for (i = 0; i < d.m; ++i) {
-	       double fci = fc[i].f(n, xcur, NULL, d.fc[i].f_data);
-	       double newmu = d.mu[i] + d.rho * fci;
-	       penalty += fci > 0 ? fci : 0;
-	       feasible = feasible && fci <= fc[i].tol;
-	       ICM = MAX(ICM, fabs(MAX(fci, -d.mu[i] / d.rho)));
-	       d.mu[i] = MIN(MAX(0.0, newmu), mu_max);
+	  for (i = ii = 0; i < d.m; ++i) {
+	       nlopt_eval_constraint(d.restmp, NULL, d.fc + i, n, xcur);
+	       for (k = 0; k < d.fc[i].m; ++k) {
+		    double fci = d.restmp[k];
+		    double newmu = d.mu[ii] + d.rho * fci;
+		    penalty += fci > 0 ? fci : 0;
+		    feasible = feasible && fci <= fc[i].tol[k];
+		    ICM = MAX(ICM, fabs(MAX(fci, -d.mu[ii] / d.rho)));
+		    d.mu[ii++] = MIN(MAX(0.0, newmu), mu_max);
+	       }
 	  }
 	  if (ICM > tau * prev_ICM) {
 	       d.rho *= gam;
@@ -188,9 +222,9 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  if (auglag_verbose) {
 	       printf("auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
 		      auglag_iters, ICM, feasible ? "" : "not ", d.rho);
-	       for (i = 0; i < d.p; ++i) printf(" %g", d.lambda[i]);
+	       for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
 	       printf("\nauglag %d: mu = ", auglag_iters);
-	       for (i = 0; i < d.m; ++i) printf(" %g", d.mu[i]);
+	       for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
 	       printf("\n");
 	  }
 
@@ -223,7 +257,9 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	     Besides the fact that these kinds of absolute tolerances
 	     (non-scale-invariant) are unsatisfying and it is not
 	     clear how the user should specify it, the ICM <= epsilon
-	     condition seems not too different from requiring feasibility. */
+	     condition seems not too different from requiring feasibility,
+	     especially now that the user can provide constraint-specific
+	     tolerances analogous to epsilon. */
 	  if (ICM == 0) return NLOPT_FTOL_REACHED;
      } while (1);
 

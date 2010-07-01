@@ -102,10 +102,18 @@ extern nlopt_result nlopt_optimize_limited(nlopt_opt opt,
    "feasible" for purposes of stopping of the constraint is violated
    by at most tol. */
 typedef struct {
-     nlopt_func f;
+     unsigned m; /* dimensional of constraint: mf maps R^n -> R^m */
+     nlopt_func f; /* one-dimensional constraint, requires m == 1 */
+     nlopt_mfunc mf;
      void *f_data;
-     double tol;
+     double *tol;
 } nlopt_constraint;
+
+extern unsigned nlopt_count_constraints(unsigned p, const nlopt_constraint *c);
+extern unsigned nlopt_max_constraint_dim(unsigned p, const nlopt_constraint *c);
+extern void nlopt_eval_constraint(double *result, double *grad,
+				  const nlopt_constraint *c,
+				  unsigned n, const double *x);
 
 #ifdef __cplusplus
 }  /* extern "C" */

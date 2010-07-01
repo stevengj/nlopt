@@ -157,11 +157,13 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
      double *dfcdx, *dfcdx_cur;
      double *fcval, *fcval_cur, *rhoc, *gcval, *y, *dual_lb, *dual_ub;
-     unsigned i, j, k = 0;
+     unsigned i, ifc, j, k = 0;
      dual_data dd;
      int feasible;
      double infeasibility;
-     
+     unsigned mfc;
+
+     m = nlopt_count_constraints(mfc = m, fc);
      sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*7));
      if (!sigma) return NLOPT_OUT_OF_MEMORY;
      dfdx = sigma + n;
@@ -209,8 +211,12 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      memcpy(xcur, x, sizeof(double) * n);
 
      feasible = 1; infeasibility = 0;
+     for (i = ifc = 0; ifc < mfc; ++ifc) {
+	  nlopt_eval_constraint(fcval + i, dfcdx + i*n,
+				fc + ifc, n, x);
+	  i += fc[ifc].m;
+     }
      for (i = 0; i < m; ++i) {
-	  fcval[i] = fc[i].f(n, x, dfcdx + i*n, fc[i].f_data);
 	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
 	  if (fcval[i] > infeasibility) infeasibility = fcval[i];
      }
@@ -279,20 +285,25 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	       feasible_cur = 1; infeasibility_cur = 0;
 	       new_infeasible_constraint = 0;
 	       inner_done = dd.gval >= fcur;
-	       for (i = 0; i < m; ++i) {
-		    fcval_cur[i] = fc[i].f(n, xcur, dfcdx_cur + i*n, 
-					   fc[i].f_data);
-		    if (!isnan(fcval_cur[i])) {
-			 feasible_cur = feasible_cur 
-			      && (fcval_cur[i] <= fc[i].tol);
-			 if (!isnan(fcval[i]))
-			      inner_done = inner_done && 
-				   (dd.gcval[i] >= fcval_cur[i]);
-			 else if (fcval_cur[i] > 0)
-			      new_infeasible_constraint = 1;
-			 if (fcval_cur[i] > infeasibility_cur)
-			      infeasibility_cur = fcval_cur[i];
-		    }
+	       for (i = ifc = 0; ifc < mfc; ++ifc) {
+		    nlopt_eval_constraint(fcval_cur + i, dfcdx_cur + i*n,
+					  fc + ifc, n, xcur);
+		    i += fc[ifc].m;
+	       }
+	       for (i = ifc = 0; ifc < mfc; ++ifc) {
+		    unsigned i0 = i, inext = i + fc[ifc].m;
+		    for (; i < inext; ++i)
+			 if (!isnan(fcval_cur[i])) {
+			      feasible_cur = feasible_cur 
+				   && (fcval_cur[i] <= fc[ifc].tol[i-i0]);
+			      if (!isnan(fcval[i]))
+				   inner_done = inner_done && 
+					(dd.gcval[i] >= fcval_cur[i]);
+			      else if (fcval_cur[i] > 0)
+				   new_infeasible_constraint = 1;
+			      if (fcval_cur[i] > infeasibility_cur)
+				   infeasibility_cur = fcval_cur[i];
+			 }
 	       }
 
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))

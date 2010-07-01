@@ -89,12 +89,15 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
 {
      nlopt_opt data = (nlopt_opt) data_;
      double f;
-     unsigned i;
+     unsigned i, j;
      f = data->f((unsigned) n, x, NULL, data->f_data);
      *undefined = isnan(f) || nlopt_isinf(f);
-     for (i = 0; i < data->m && !*undefined; ++i)
-	  if (data->fc[i].f((unsigned) n, x, NULL, data->fc[i].f_data) > 0)
-	       *undefined = 1;
+     for (i = 0; i < data->m && !*undefined; ++i) {
+	  nlopt_eval_constraint(data->work, NULL, data->fc+i, (unsigned) n, x);
+	  for (j = 0; j < data->fc[i].m; ++j)
+	       if (data->work[j] > 0)
+		    *undefined = 1;
+     }
      return f;
 }
 
@@ -213,16 +216,23 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				      + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 1 : (algorithm != NLOPT_GN_DIRECT)));
 	      
 	 case NLOPT_GN_ORIG_DIRECT:
-	 case NLOPT_GN_ORIG_DIRECT_L: 
+	 case NLOPT_GN_ORIG_DIRECT_L: {
+	      direct_return_code dret;
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      switch (direct_optimize(f_direct, opt, ni, lb, ub, x, minf,
-				      stop.maxeval, -1, 0.0, 0.0,
-				      pow(stop.xtol_rel, (double) n), -1.0,
-				      stop.minf_max, 0.0,
-				      NULL, 
-				      algorithm == NLOPT_GN_ORIG_DIRECT
-				      ? DIRECT_ORIGINAL
-				      : DIRECT_GABLONSKY)) {
+	      opt->work = (double*) malloc(sizeof(double) *
+					   nlopt_max_constraint_dim(opt->m,
+								    opt->fc));
+	      if (!opt->work) return NLOPT_OUT_OF_MEMORY;
+	      dret = direct_optimize(f_direct, opt, ni, lb, ub, x, minf,
+				     stop.maxeval, -1, 0.0, 0.0,
+				     pow(stop.xtol_rel, (double) n), -1.0,
+				     stop.minf_max, 0.0,
+				     NULL, 
+				     algorithm == NLOPT_GN_ORIG_DIRECT
+				     ? DIRECT_ORIGINAL
+				     : DIRECT_GABLONSKY);
+	      free(opt->work); opt->work = NULL;
+	      switch (dret) {
 		  case DIRECT_INVALID_BOUNDS:
 		  case DIRECT_MAXFEVAL_TOOBIG:
 		  case DIRECT_INVALID_ARGS:
@@ -241,6 +251,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		       return NLOPT_XTOL_REACHED;
 		  case DIRECT_OUT_OF_MEMORY:
 		       return NLOPT_OUT_OF_MEMORY;
+	      }
 	      break;
 	 }
 
