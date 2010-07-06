@@ -1,3 +1,13 @@
+NLopt 2.1 (6 July 2010)
+
+* New vector-valued constraint feature; thanks to Dmitrey Kroshko of OpenOpt
+  for the suggestion.
+
+* COBYLA now accepts equality constraints.
+
+* Guard against multiple inclusion in nlopt.hpp; thanks to Saul
+  Thurrowgood for the suggestion.
+
 NLopt 2.0.2 (17 June 2010)
 
 * Fixed compilation failure in Microsoft Visual Studio, due to
