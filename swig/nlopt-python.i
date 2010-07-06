@@ -189,12 +189,12 @@ static void mfunc_python(unsigned m, double *result,
   $1 = PyCallable_Check($input);
 }
 
-%typemap(in)(nlopt::mfunc f, void *f_data, nlopt_munge md, nlopt_munge mc) {
+%typemap(in)(nlopt::mfunc mf, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = mfunc_python;
   $2 = dup_pyfunc((void*) $input);
   $3 = free_pyfunc;
   $4 = dup_pyfunc;
 }
-%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::mfunc f, void *f_data, nlopt_munge md, nlopt_munge mc) {
+%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::mfunc mf, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = PyCallable_Check($input);
 }

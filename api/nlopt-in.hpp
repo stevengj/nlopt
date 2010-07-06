@@ -344,15 +344,13 @@ namespace nlopt {
       mythrow(nlopt_add_inequality_constraint(o, myvfunc, d, tol));
       alloc_tmp();
     }
-    void add_inequality_mconstraint(unsigned m, mfunc mf, void *f_data, 
+    void add_inequality_mconstraint(mfunc mf, void *f_data, 
 				    const std::vector<double> &tol) {
-      if (o && nlopt_get_dimension(o) != tol.size())
-	throw std::invalid_argument("dimension mismatch");
       myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->mf = mf; d->f_data = f_data; d->f = NULL; d->vf = NULL;
       d->munge_destroy = d->munge_copy = NULL;
-      mythrow(nlopt_add_inequality_mconstraint(o, m, mymfunc, d, 
+      mythrow(nlopt_add_inequality_mconstraint(o, tol.size(), mymfunc, d, 
 					       tol.empty() ? NULL : &tol[0]));
     }
 
@@ -375,15 +373,13 @@ namespace nlopt {
       mythrow(nlopt_add_equality_constraint(o, myvfunc, d, tol));
       alloc_tmp();
     }
-    void add_equality_mconstraint(unsigned m, mfunc mf, void *f_data, 
+    void add_equality_mconstraint(mfunc mf, void *f_data, 
 				  const std::vector<double> &tol) {
-      if (o && nlopt_get_dimension(o) != tol.size())
-	throw std::invalid_argument("dimension mismatch");
       myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->mf = mf; d->f_data = f_data; d->f = NULL; d->vf = NULL;
       d->munge_destroy = d->munge_copy = NULL;
-      mythrow(nlopt_add_equality_mconstraint(o, m, mymfunc, d, 
+      mythrow(nlopt_add_equality_mconstraint(o, tol.size(), mymfunc, d, 
 					     tol.empty() ? NULL : &tol[0]));
     }
 
@@ -406,28 +402,24 @@ namespace nlopt {
       d->munge_destroy = md; d->munge_copy = mc;
       mythrow(nlopt_add_equality_constraint(o, myfunc, d, tol));
     }
-    void add_inequality_mconstraint(unsigned m, mfunc mf, void *f_data, 
+    void add_inequality_mconstraint(mfunc mf, void *f_data, 
 				    nlopt_munge md, nlopt_munge mc,
 				    const std::vector<double> &tol) {
-      if (o && nlopt_get_dimension(o) != tol.size())
-	throw std::invalid_argument("dimension mismatch");
       myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->mf = mf; d->f_data = f_data; d->f = NULL; d->vf = NULL;
       d->munge_destroy = md; d->munge_copy = mc;
-      mythrow(nlopt_add_inequality_mconstraint(o, m, mymfunc, d, 
+      mythrow(nlopt_add_inequality_mconstraint(o, tol.size(), mymfunc, d, 
 					       tol.empty() ? NULL : &tol[0]));
     }
-    void add_equality_mconstraint(unsigned m, mfunc mf, void *f_data, 
+    void add_equality_mconstraint(mfunc mf, void *f_data, 
 				  nlopt_munge md, nlopt_munge mc,
 				  const std::vector<double> &tol) {
-      if (o && nlopt_get_dimension(o) != tol.size())
-	throw std::invalid_argument("dimension mismatch");
       myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
       d->o = this; d->mf = mf; d->f_data = f_data; d->f = NULL; d->vf = NULL;
       d->munge_destroy = md; d->munge_copy = mc;
-      mythrow(nlopt_add_equality_mconstraint(o, m, mymfunc, d, 
+      mythrow(nlopt_add_equality_mconstraint(o, tol.size(), mymfunc, d, 
 					     tol.empty() ? NULL : &tol[0]));
     }
 
