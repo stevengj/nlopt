@@ -47,7 +47,7 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
 
      for (ii = i = 0; i < d->m; ++i) {
 	  nlopt_eval_constraint(restmp, gradtmp, d->fc + i, n, x);
-	  for (k = 0; k < d->h[i].m; ++k) {
+	  for (k = 0; k < d->fc[i].m; ++k) {
 	       double fc = restmp[k] + mu[ii++] / rho;
 	       if (fc > 0) {
 		    L += 0.5 * rho * fc*fc;
@@ -90,9 +90,6 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      d.p = p; d.h = h;
      d.stop = stop;
 
-     max_constraint_dim = MAX(nlopt_max_constraint_dim(m, fc),
-			      nlopt_max_constraint_dim(p, h));
-
      /* whether we handle inequality constraints via the augmented
 	Lagrangian penalty function, or directly in the sub-algorithm */
      if (sub_has_fc)
@@ -100,13 +97,18 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      else
 	  m = 0;
 
+     max_constraint_dim = MAX(nlopt_max_constraint_dim(d.m, fc),
+			      nlopt_max_constraint_dim(d.p, h));
+
      d.mm = nlopt_count_constraints(d.m, fc);
-     d.pp = nlopt_count_constraints(d.p, fc);
+     d.pp = nlopt_count_constraints(d.p, h);
 
      ret = nlopt_set_min_objective(sub_opt, auglag, &d); if (ret<0) return ret;
      ret = nlopt_set_lower_bounds(sub_opt, lb); if (ret<0) return ret;
      ret = nlopt_set_upper_bounds(sub_opt, ub); if (ret<0) return ret;
-     ret = nlopt_set_stopval(sub_opt, stop->minf_max); if (ret<0) return ret;
+     ret = nlopt_set_stopval(sub_opt, 
+			     d.m==0 && d.p==0 ? stop->minf_max : -HUGE_VAL);
+     if (ret<0) return ret;
      ret = nlopt_remove_inequality_constraints(sub_opt); if (ret<0) return ret;
      ret = nlopt_remove_equality_constraints(sub_opt); if (ret<0) return ret;
      for (i = 0; i < m; ++i) {
@@ -183,10 +185,14 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 				       stop->maxeval - stop->nevals,
 				       stop->maxtime - (nlopt_seconds() 
 							- stop->start));
+	  if (auglag_verbose)
+	       printf("auglag: subopt return code %d\n", ret);
 	  if (ret < 0) break;
 	  
 	  d.stop->nevals++;
 	  fcur = f(n, xcur, NULL, f_data);
+	  if (auglag_verbose)
+	       printf("auglag: fcur = %g\n", fcur);
 	  
 	  ICM = 0;
 	  penalty = 0;
