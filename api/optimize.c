@@ -415,7 +415,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #define LO(param, def) (opt->local_opt ? opt->local_opt->param : (def))
 	      dual_opt = nlopt_create(LO(algorithm,
 					 nlopt_local_search_alg_deriv),
-				      opt->m);
+				      nlopt_count_constraints(opt->m,
+							      opt->fc));
 	      if (!dual_opt) return NLOPT_FAILURE;
 	      nlopt_set_ftol_rel(dual_opt, LO(ftol_rel, 1e-12));
 	      nlopt_set_ftol_abs(dual_opt, LO(ftol_abs, 0.0));

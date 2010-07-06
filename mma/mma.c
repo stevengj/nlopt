@@ -164,6 +164,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      unsigned mfc;
 
      m = nlopt_count_constraints(mfc = m, fc);
+     if (nlopt_get_dimension(dual_opt) != m) return NLOPT_INVALID_ARGS;
      sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*7));
      if (!sigma) return NLOPT_OUT_OF_MEMORY;
      dfdx = sigma + n;
@@ -238,6 +239,8 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      nlopt_set_lower_bounds(dual_opt, dual_lb);
      nlopt_set_upper_bounds(dual_opt, dual_ub);
      nlopt_set_stopval(dual_opt, -HUGE_VAL);
+     nlopt_remove_inequality_constraints(dual_opt);
+     nlopt_remove_equality_constraints(dual_opt);
 
      while (1) { /* outer iterations */
 	  double fprev = fcur;
@@ -323,8 +326,10 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 		       be violated slightly by rounding errors etc. so we
 		       must be a little careful about checking feasibility */
 		    if (infeasibility_cur == 0) {
-			 if (!feasible) /* reset upper bounds to infinity */
+			 if (!feasible) { /* reset upper bounds to infin. */
 			      for (i = 0; i < m; ++i) dual_ub[i] = HUGE_VAL;
+			      nlopt_set_upper_bounds(dual_opt, dual_ub);
+			 }
 			 feasible = 1;
 		    }
 		    else if (new_infeasible_constraint) feasible = 0;
