@@ -17,6 +17,9 @@ namespace std {
 %rename(nlopt_srand) nlopt::srand;
 %rename(nlopt_srand_time) nlopt::srand_time;
 %rename(nlopt_version) nlopt::version;
+%rename(nlopt_version_major) nlopt::version_major;
+%rename(nlopt_version_minor) nlopt::version_minor;
+%rename(nlopt_version_bugfix) nlopt::version_bugfix;
 %rename(nlopt_algorithm_name) nlopt::algorithm_name;
 %include "nlopt-enum-renames.i"
 #endif
