@@ -25,7 +25,7 @@ endif
 _nlopt_la_SOURCES = nlopt-python.cpp
 _nlopt_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
 _nlopt_la_LDFLAGS = -module -no-undefined -version-info @SHARED_VERSION_INFO@
-_nlopt_la_CPPFLAGS = -I$(PYTHON_INCLUDE_DIR) -I$(top_builddir)/api
+_nlopt_la_CPPFLAGS = $(PYTHON_INCLUDES) -I$(top_builddir)/api
 
 if WITH_PYTHON
 python_PYTHON = nlopt.py

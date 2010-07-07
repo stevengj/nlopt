@@ -153,24 +153,25 @@ else
 dnl Python:
 AM_PATH_PYTHON([],[have_python=yes],[have_python=no])
 if test $have_python = yes; then
-  pdir=`dirname $pythondir | sed 's,/lib/,/include/,'`
-  pdir=`eval echo $pdir`
   AC_MSG_CHECKING([for Python include directory])
-  for PYTHON_INCLUDE_DIR in "$pdir" /usr/include/python$PYTHON_VERSION /usr/local/include/python$PYTHON_VERSION unknown; do
-    test -d "$PYTHON_INCLUDE_DIR" && break
-  done
-  AC_MSG_RESULT([$PYTHON_INCLUDE_DIR])
-  if test "x$PYTHON_INCLUDE_DIR" = xunknown; then
-     AC_MSG_WARN([disabling Python wrappers])
-     have_python=no
-  else
-     save_CPPFLAGS=$CPPFLAGS
-     CPPFLAGS="$CPPFLAGS -I$PYTHON_INCLUDE_DIR"
-     AC_CHECK_HEADER([numpy/arrayobject.h],[],[
-          AC_MSG_WARN([disabling Python wrappers])
-     	  have_python=no],[#include <Python.h>])
-     CPPFLAGS=$save_CPPFLAGS
+  pinc=`echo "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()" | $PYTHON - 2>/dev/null`
+  AC_MSG_RESULT([${pinc:-unknown}])
+  test -n "$pinc" && PYTHON_INCLUDES="-I$pinc"
+  save_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$CPPFLAGS $PYTHON_INCLUDES"
+  AC_CHECK_HEADER([Python.h], [], [AC_MSG_WARN([disabling Python wrappers]) 
+                                   have_python=no])
+  if test $have_python = yes; then
+    AC_MSG_CHECKING([for Numpy include directory])
+    pinc=`echo "import numpy; print numpy.get_include()" | $PYTHON - 2>/dev/null`
+    AC_MSG_RESULT([${pinc:-unknown}])
+    test -n "$pinc" && PYTHON_INCLUDES="$PYTHON_INCLUDES -I$pinc"
+    CPPFLAGS="$save_CPPFLAGS $PYTHON_INCLUDES"
+    AC_CHECK_HEADER([numpy/arrayobject.h],[],[
+      AC_MSG_WARN([disabling Python wrappers])
+      have_python=no],[#include <Python.h>])
   fi
+  CPPFLAGS=$save_CPPFLAGS
 fi
 
 fi # with_python
@@ -180,7 +181,7 @@ fi # if enable_shared
 AC_SUBST(GUILE_SITEDIR)
 AC_SUBST(GUILE_CPPFLAGS)
 AC_SUBST(GUILE_LIBS)
-AC_SUBST(PYTHON_INCLUDE_DIR)
+AC_SUBST(PYTHON_INCLUDES)
 AM_CONDITIONAL(WITH_GUILE, test x"$GUILE_CONFIG" != "xunknown")
 AM_CONDITIONAL(WITH_PYTHON, test x"$have_python" = "xyes")
 
