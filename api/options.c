@@ -431,7 +431,8 @@ NLOPT_STDCALL nlopt_add_equality_mconstraint(nlopt_opt opt, unsigned m,
 					     const double *tol)
 {
      if (!m) return NLOPT_SUCCESS; /* empty constraints are always ok */
-     if (!opt || !equality_ok(opt->algorithm)) return NLOPT_INVALID_ARGS;
+     if (!opt || !equality_ok(opt->algorithm)
+	 || nlopt_count_constraints(opt->p, opt->h) + m > opt->n) return NLOPT_INVALID_ARGS;
      return add_constraint(&opt->p, &opt->p_alloc, &opt->h,
 			   m, NULL, fc, fc_data, tol);
 }
@@ -441,7 +442,8 @@ NLOPT_STDCALL nlopt_add_equality_constraint(nlopt_opt opt,
 					    nlopt_func fc, void *fc_data,
 					    double tol)
 {
-     if (!opt || !equality_ok(opt->algorithm)) return NLOPT_INVALID_ARGS;
+     if (!opt || !equality_ok(opt->algorithm)
+	 || nlopt_count_constraints(opt->p, opt->h) + 1 > opt->n) return NLOPT_INVALID_ARGS;
      return add_constraint(&opt->p, &opt->p_alloc, &opt->h,
 			   1, fc, NULL, fc_data, &tol);
 }
