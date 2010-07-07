@@ -336,9 +336,11 @@ static nlopt_result add_constraint(unsigned *m, unsigned *m_alloc,
 				   const double *tol)
 {
      double *tolcopy;
+     unsigned i;
 
-     if ((fc && mfc) || (fc && fm != 1) || (!fc && !mfc) || tol < 0)
+     if ((fc && mfc) || (fc && fm != 1) || (!fc && !mfc) || !tol)
 	  return NLOPT_INVALID_ARGS;
+     for (i = 0; i < fm; ++i) if (tol[i] < 0) return NLOPT_INVALID_ARGS;
      
      tolcopy = (double *) malloc(sizeof(double) * fm);
      if (fm && !tolcopy) return NLOPT_OUT_OF_MEMORY;
