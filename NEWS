@@ -1,3 +1,12 @@
+NLopt 2.1.1 (7 July 2010)
+
+* More robust configure check for Python include directories, via
+  distutils.sysconfig.get_python_inc() and numpy.get_include().
+  Thanks to Nathaniel Smith for the tip.
+
+* Bug fix in Guile interface: added missing prefix to nlopt-version-major
+  etcetera.
+
 NLopt 2.1 (6 July 2010)
 
 * New vector-valued constraint feature; thanks to Dmitrey Kroshko of OpenOpt
