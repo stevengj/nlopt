@@ -214,6 +214,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_min_objective(nlopt_opt opt,
 						   nlopt_func f, void *f_data)
 {
      if (opt) {
+	  if (opt->munge_on_destroy) opt->munge_on_destroy(opt->f_data);
 	  opt->f = f; opt->f_data = f_data;
 	  opt->maximize = 0;
 	  if (nlopt_isinf(opt->stopval) && opt->stopval > 0)
@@ -227,6 +228,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_max_objective(nlopt_opt opt,
 						   nlopt_func f, void *f_data)
 {
      if (opt) {
+	  if (opt->munge_on_destroy) opt->munge_on_destroy(opt->f_data);
 	  opt->f = f; opt->f_data = f_data;
 	  opt->maximize = 1;
 	  if (nlopt_isinf(opt->stopval) && opt->stopval < 0)
@@ -381,13 +383,20 @@ static int inequality_ok(nlopt_algorithm algorithm) {
 
 nlopt_result
 NLOPT_STDCALL nlopt_add_inequality_mconstraint(nlopt_opt opt, unsigned m,
-					      nlopt_mfunc fc, void *fc_data,
+					       nlopt_mfunc fc, void *fc_data,
 					       const double *tol)
 {
-     if (!m) return NLOPT_SUCCESS; /* empty constraints are always ok */
-     if (!opt || !inequality_ok(opt->algorithm)) return NLOPT_INVALID_ARGS;
-     return add_constraint(&opt->m, &opt->m_alloc, &opt->fc,
-			   m, NULL, fc, fc_data, tol);
+     nlopt_result ret;
+     if (!m) { /* empty constraints are always ok */
+	  if (opt && opt->munge_on_destroy) opt->munge_on_destroy(fc_data);
+	  return NLOPT_SUCCESS;
+     }
+     if (!opt || !inequality_ok(opt->algorithm)) ret = NLOPT_INVALID_ARGS;
+     else ret = add_constraint(&opt->m, &opt->m_alloc, &opt->fc,
+			       m, NULL, fc, fc_data, tol);
+     if (ret < 0 && opt && opt->munge_on_destroy)
+	  opt->munge_on_destroy(fc_data);
+     return ret;
 }
 
 nlopt_result
@@ -395,9 +404,13 @@ NLOPT_STDCALL nlopt_add_inequality_constraint(nlopt_opt opt,
 					      nlopt_func fc, void *fc_data,
 					      double tol)
 {
-     if (!opt || !inequality_ok(opt->algorithm)) return NLOPT_INVALID_ARGS;
-     return add_constraint(&opt->m, &opt->m_alloc, &opt->fc,
-			   1, fc, NULL, fc_data, &tol);
+     nlopt_result ret;
+     if (!opt || !inequality_ok(opt->algorithm)) ret = NLOPT_INVALID_ARGS;
+     else ret = add_constraint(&opt->m, &opt->m_alloc, &opt->fc,
+			       1, fc, NULL, fc_data, &tol);
+     if (ret < 0 && opt && opt->munge_on_destroy)
+	  opt->munge_on_destroy(fc_data);
+     return ret;
 }
 
 nlopt_result
@@ -430,11 +443,19 @@ NLOPT_STDCALL nlopt_add_equality_mconstraint(nlopt_opt opt, unsigned m,
 					     nlopt_mfunc fc, void *fc_data,
 					     const double *tol)
 {
-     if (!m) return NLOPT_SUCCESS; /* empty constraints are always ok */
+     nlopt_result ret;
+     if (!m) { /* empty constraints are always ok */
+	  if (opt && opt->munge_on_destroy) opt->munge_on_destroy(fc_data);
+	  return NLOPT_SUCCESS;
+     }
      if (!opt || !equality_ok(opt->algorithm)
-	 || nlopt_count_constraints(opt->p, opt->h) + m > opt->n) return NLOPT_INVALID_ARGS;
-     return add_constraint(&opt->p, &opt->p_alloc, &opt->h,
-			   m, NULL, fc, fc_data, tol);
+	 || nlopt_count_constraints(opt->p, opt->h) + m > opt->n) 
+	  ret = NLOPT_INVALID_ARGS;
+     else ret = add_constraint(&opt->p, &opt->p_alloc, &opt->h,
+			       m, NULL, fc, fc_data, tol);
+     if (ret < 0 && opt && opt->munge_on_destroy)
+	  opt->munge_on_destroy(fc_data);
+     return ret;
 }
 
 nlopt_result
@@ -442,10 +463,15 @@ NLOPT_STDCALL nlopt_add_equality_constraint(nlopt_opt opt,
 					    nlopt_func fc, void *fc_data,
 					    double tol)
 {
+     nlopt_result ret;
      if (!opt || !equality_ok(opt->algorithm)
-	 || nlopt_count_constraints(opt->p, opt->h) + 1 > opt->n) return NLOPT_INVALID_ARGS;
-     return add_constraint(&opt->p, &opt->p_alloc, &opt->h,
-			   1, fc, NULL, fc_data, &tol);
+	 || nlopt_count_constraints(opt->p, opt->h) + 1 > opt->n)
+	  ret = NLOPT_INVALID_ARGS;
+     else ret = add_constraint(&opt->p, &opt->p_alloc, &opt->h,
+			       1, fc, NULL, fc_data, &tol);
+     if (ret < 0 && opt && opt->munge_on_destroy)
+	  opt->munge_on_destroy(fc_data);
+     return ret;
 }
 
 /*************************************************************************/
