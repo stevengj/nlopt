@@ -138,6 +138,7 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
 
   double val = HUGE_VAL;
   if (PyErr_Occurred()) {
+    Py_XDECREF(result);
     throw nlopt::forced_stop(); // just stop, don't call PyErr_Clear()
   }
   else if (result && PyFloat_Check(result)) {
