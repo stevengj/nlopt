@@ -155,14 +155,15 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
 static void mfunc_python(unsigned m, double *result,
 			 unsigned n, const double *x, double *grad, void *f)
 {
-  npy_intp nsz = npy_intp(n), msz = npy_intp(m), mnsz = npy_intp(m * n);
+  npy_intp nsz = npy_intp(n), msz = npy_intp(m);
+  npy_intp mnsz[2] = {msz, nsz};
   npy_intp sz0 = 0, stride1 = sizeof(double);
   PyObject *xpy = PyArray_New(&PyArray_Type, 1, &nsz, NPY_DOUBLE, &stride1,
 			      const_cast<double*>(x), // not NPY_WRITEABLE
 			      0, NPY_C_CONTIGUOUS | NPY_ALIGNED, NULL);
   PyObject *rpy = PyArray_SimpleNewFromData(1, &msz, NPY_DOUBLE, result);
   PyObject *gradpy = grad
-    ? PyArray_SimpleNewFromData(1, &mnsz, NPY_DOUBLE, grad)
+    ? PyArray_SimpleNewFromData(2, mnsz, NPY_DOUBLE, grad)
     : PyArray_SimpleNew(1, &sz0, NPY_DOUBLE);
   
   PyObject *arglist = Py_BuildValue("OOO", rpy, xpy, gradpy);
