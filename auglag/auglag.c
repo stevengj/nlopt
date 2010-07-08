@@ -34,9 +34,12 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
      unsigned j, k;
 
      L = d->f(n, x, grad, d->f_data);
+     d->stop->nevals++;
+     if (nlopt_stop_forced(d->stop)) return L;
 
      for (ii = i = 0; i < d->p; ++i) {
 	  nlopt_eval_constraint(restmp, gradtmp, d->h + i, n, x);
+	  if (nlopt_stop_forced(d->stop)) return L;
 	  for (k = 0; k < d->h[i].m; ++k) {
 	       double h = restmp[k] + lambda[ii++] / rho;
 	       L += 0.5 * rho * h*h;
@@ -47,6 +50,7 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
 
      for (ii = i = 0; i < d->m; ++i) {
 	  nlopt_eval_constraint(restmp, gradtmp, d->fc + i, n, x);
+	  if (nlopt_stop_forced(d->stop)) return L;
 	  for (k = 0; k < d->fc[i].m; ++k) {
 	       double fc = restmp[k] + mu[ii++] / rho;
 	       if (fc > 0) {
@@ -56,8 +60,6 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
 	       }
 	  }
      }
-     
-     d->stop->nevals++;
 
      return L;
 }
@@ -142,10 +144,14 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  double con2 = 0;
 	  d.stop->nevals++;
 	  fcur = f(n, xcur, NULL, f_data);
+	  if (nlopt_stop_forced(stop)) {
+	       ret = NLOPT_FORCED_STOP; goto done; }
 	  penalty = 0;
 	  feasible = 1;
 	  for (i = 0; i < d.p; ++i) {
 	       nlopt_eval_constraint(d.restmp, NULL, d.h + i, n, xcur);
+	       if (nlopt_stop_forced(stop)) {
+		    ret = NLOPT_FORCED_STOP; goto done; }
 	       for (k = 0; k < d.h[i].m; ++k) {
 		    double hi = d.restmp[k];
 		    penalty += fabs(hi);
@@ -155,6 +161,8 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  }
 	  for (i = 0; i < d.m; ++i) {
 	       nlopt_eval_constraint(d.restmp, NULL, d.fc + i, n, xcur);
+	       if (nlopt_stop_forced(stop)) {
+		    ret = NLOPT_FORCED_STOP; goto done; }
 	       for (k = 0; k < d.fc[i].m; ++k) {
 		    double fci = d.restmp[k];
 		    penalty += fci > 0 ? fci : 0;
@@ -191,6 +199,8 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  
 	  d.stop->nevals++;
 	  fcur = f(n, xcur, NULL, f_data);
+	  if (nlopt_stop_forced(stop)) {
+	       ret = NLOPT_FORCED_STOP; goto done; }
 	  if (auglag_verbose)
 	       printf("auglag: fcur = %g\n", fcur);
 	  
@@ -199,6 +209,8 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  feasible = 1;
 	  for (i = ii = 0; i < d.p; ++i) {
 	       nlopt_eval_constraint(d.restmp, NULL, d.h + i, n, xcur);
+	       if (nlopt_stop_forced(stop)) {
+		    ret = NLOPT_FORCED_STOP; goto done; }
 	       for (k = 0; k < d.h[i].m; ++k) {
 		    double hi = d.restmp[k];
 		    double newlam = d.lambda[ii] + d.rho * hi;
@@ -210,6 +222,8 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  }
 	  for (i = ii = 0; i < d.m; ++i) {
 	       nlopt_eval_constraint(d.restmp, NULL, d.fc + i, n, xcur);
+	       if (nlopt_stop_forced(stop)) {
+		    ret = NLOPT_FORCED_STOP; goto done; }
 	       for (k = 0; k < d.fc[i].m; ++k) {
 		    double fci = d.restmp[k];
 		    double newmu = d.mu[ii] + d.rho * fci;
@@ -269,6 +283,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  if (ICM == 0) return NLOPT_FTOL_REACHED;
      } while (1);
 
+done:
      free(xcur);
      return ret;
 }

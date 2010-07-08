@@ -210,12 +210,14 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      dd.fval = fcur = *minf = f(n, x, dfdx, f_data);
      stop->nevals++;
      memcpy(xcur, x, sizeof(double) * n);
+     if (nlopt_stop_forced(stop)) { ret = NLOPT_FORCED_STOP; goto done; }
 
      feasible = 1; infeasibility = 0;
      for (i = ifc = 0; ifc < mfc; ++ifc) {
 	  nlopt_eval_constraint(fcval + i, dfcdx + i*n,
 				fc + ifc, n, x);
 	  i += fc[ifc].m;
+	  if (nlopt_stop_forced(stop)) { ret = NLOPT_FORCED_STOP; goto done; }
      }
      for (i = 0; i < m; ++i) {
 	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
@@ -285,6 +287,8 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 
 	       fcur = f(n, xcur, dfdx_cur, f_data);
 	       stop->nevals++;
+	       if (nlopt_stop_forced(stop)) { 
+		    ret = NLOPT_FORCED_STOP; goto done; }
 	       feasible_cur = 1; infeasibility_cur = 0;
 	       new_infeasible_constraint = 0;
 	       inner_done = dd.gval >= fcur;
@@ -292,6 +296,8 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 		    nlopt_eval_constraint(fcval_cur + i, dfcdx_cur + i*n,
 					  fc + ifc, n, xcur);
 		    i += fc[ifc].m;
+		    if (nlopt_stop_forced(stop)) { 
+			 ret = NLOPT_FORCED_STOP; goto done; }
 	       }
 	       for (i = ifc = 0; ifc < mfc; ++ifc) {
 		    unsigned i0 = i, inext = i + fc[ifc].m;

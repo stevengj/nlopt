@@ -71,6 +71,7 @@ typedef struct {
      double *xtmp;
      const double *lb, *ub;
      double *con_tol;
+     nlopt_stopping *stop;
 } func_wrap_state;
 
 static int func_wrap(int n, int m, double *x, double *f, double *con,
@@ -92,15 +93,18 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
      }
 
      *f = s->f(n, xtmp, NULL, s->f_data);
+     if (nlopt_stop_forced(s->stop)) return 1;
      i = 0;
      for (j = 0; j < s->m_orig; ++j) {
 	  nlopt_eval_constraint(con + i, NULL, s->fc+j, n, xtmp);
+	  if (nlopt_stop_forced(s->stop)) return 1;
 	  for (k = 0; k < s->fc[j].m; ++k)
 	       con[i + k] = -con[i + k];
 	  i += s->fc[j].m;
      }
      for (j = 0; j < s->p; ++j) {
 	  nlopt_eval_constraint(con + i, NULL, s->h+j, n, xtmp);
+	  if (nlopt_stop_forced(s->stop)) return 1;
 	  for (k = 0; k < s->h[j].m; ++k)
 	       con[(i + s->h[j].m) + k] = -con[i + k];
 	  i += 2 * s->h[j].m;
@@ -111,7 +115,6 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
 	  if (!nlopt_isinf(ub[j]))
 	       con[i++] = ub[j] - x[j];
      }
-     if (m != i) return 1; /* ... bug?? */
      return 0;
 }
 
@@ -185,6 +188,7 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
      s.p = p;
      s.h = h;
      s.lb = lb; s.ub = ub;
+     s.stop = stop;
      s.xtmp = (double *) malloc(sizeof(double) * n);
      if (!s.xtmp) return NLOPT_OUT_OF_MEMORY;
 
@@ -548,7 +552,7 @@ L40:
     if (*iprint >= 1) {
       fprintf(stderr, "cobyla: user requested end of minimization.\n");
     }
-    rc = NLOPT_FAILURE;
+    rc = NLOPT_FORCED_STOP;
     goto L600;
   }
 

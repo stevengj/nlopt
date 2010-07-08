@@ -4,6 +4,10 @@ NLopt 2.1.2 (8 July 2010)
   now pass a 2-dimensional array for the gradient argument, rather
   than a flattened 1d array.
 
+* Improved handling of exceptions and forced stops for constrained
+  optimization, making sure that no constraints are evaluated after
+  the stop.
+
 * Return an NLOPT_INVALID_ARGS error if more than n equality constraints
   are added in an n-dimensional problem.
 

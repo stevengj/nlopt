@@ -131,10 +131,14 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 	       double gpenalty;
 	       stop->nevals++;
 	       fval[k] = f(n, xs + k*n, NULL, f_data);
+	       if (nlopt_stop_forced(stop)) { 
+		    ret = NLOPT_FORCED_STOP; goto done; }
 	       penalty[k] = 0;
 	       for (c = 0; c < m; ++c) { /* inequality constraints */
 		    nlopt_eval_constraint(results, NULL,
 					  fc + c, n, xs + k*n);
+		    if (nlopt_stop_forced(stop)) { 
+			 ret = NLOPT_FORCED_STOP; goto done; }
 		    for (ires = 0; ires < fc[c].m; ++ires) {
 			 double gval = results[ires];
 			 if (gval > fc[c].tol[ires]) feasible = 0;
@@ -146,6 +150,8 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 	       for (c = m; c < mp; ++c) { /* equality constraints */
 		    nlopt_eval_constraint(results, NULL,
 					  h + (c-m), n, xs + k*n);
+		    if (nlopt_stop_forced(stop)) { 
+			 ret = NLOPT_FORCED_STOP; goto done; }
 		    for (ires = 0; ires < h[c-m].m; ++ires) {
 			 double hval = results[ires];
 			 if (fabs(hval) > h[c-m].tol[ires]) feasible = 0;
