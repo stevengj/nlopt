@@ -1,3 +1,13 @@
+NLopt 2.1.2 (8 July 2010)
+
+* Return an NLOPT_INVALID_ARGS error if more than n equality constraints
+  are added in an n-dimensional problem.
+
+* Fix bug that could cause spurious NLOPT_INVALID_ARGS errors when
+  adding constraints under rare circumstances.
+
+* Eliminate a few small memory leaks that could occur under error conditions.
+
 NLopt 2.1.1 (7 July 2010)
 
 * More robust configure check for Python include directories, via
