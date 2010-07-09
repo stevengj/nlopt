@@ -117,6 +117,7 @@ if test "x$with_guile" = xno; then
 else
 
 dnl Guile:
+AC_ARG_VAR(GUILE_INSTALL_DIR, [where to install Guile plug-ins])
 AC_CHECK_PROG(GUILE_CONFIG, guile-config, guile-config, unknown)
 if test "x$GUILE_CONFIG" = "xunknown"; then
    AC_MSG_WARN([can't find guile-config, disabling Guile wrapper])
@@ -138,10 +139,10 @@ AC_CHECK_PROG(GUILE, guile, guile, unknown)
 if test "x$GUILE" = xunknown; then
    AC_MSG_WARN([can't find guile, disabling Guile wrapper])
    GUILE_CONFIG=unknown
-else
-   AC_MSG_CHECKING([for Guile site installation directory])
-   GUILE_SITEDIR=`guile -c '(display (%site-dir))'`
-   AC_MSG_RESULT([$GUILE_SITEDIR])
+elif test x"$GUILE_INSTALL_DIR" = "x"; then
+   AC_MSG_CHECKING([for Guile installation directory])
+   GUILE_INSTALL_DIR=`guile -c '(display (%site-dir))'`
+   AC_MSG_RESULT([$GUILE_INSTALL_DIR])
 fi
 
 fi # with_guile
@@ -178,7 +179,7 @@ fi # with_python
 
 fi # if enable_shared
 
-AC_SUBST(GUILE_SITEDIR)
+AC_SUBST(GUILE_INSTALL_DIR)
 AC_SUBST(GUILE_CPPFLAGS)
 AC_SUBST(GUILE_LIBS)
 AC_SUBST(PYTHON_INCLUDES)

@@ -13,7 +13,7 @@ libnlopt@NLOPT_SUFFIX@_guile_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
 libnlopt@NLOPT_SUFFIX@_guile_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
 libnlopt@NLOPT_SUFFIX@_guile_la_CPPFLAGS = $(GUILE_CPPFLAGS) -I$(top_builddir)/api
 
-guiledir = $(GUILE_SITEDIR)
+guiledir = $(GUILE_INSTALL_DIR)
 if WITH_GUILE
 guile_DATA = nlopt.scm
 guilelib = libnlopt@NLOPT_SUFFIX@_guile.la
