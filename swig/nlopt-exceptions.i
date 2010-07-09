@@ -21,12 +21,22 @@
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(func f, void *f_data);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(vfunc vf, void *f_data);
 
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_min_objective(func f, void *f_data, nlopt_munge md, nlopt_munge mc);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(func f, void *f_data, nlopt_munge md, nlopt_munge mc);
+
 %catches(std::invalid_argument) nlopt::opt::remove_inequality_constraints();
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_inequality_constraint(func f, void *f_data, double tol=0);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_inequality_constraint(vfunc vf, void *f_data, double tol=0);
 %catches(std::invalid_argument) nlopt::opt::remove_equality_constraints();
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_equality_constraint(func f, void *f_data, double tol=0);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_equality_constraint(vfunc vf, void *f_data, double tol=0);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_inequality_mconstraint(mfunc mf, void *f_data, const std::vector<double> &tol);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_equality_mconstraint(mfunc mf, void *f_data, const std::vector<double> &tol);
+
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_inequality_constraint(func f, void *f_data, nlopt_munge md, nlopt_munge mc, double tol=0);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_equality_constraint(func f, void *f_data, nlopt_munge md, nlopt_munge mc, double tol=0);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_inequality_mconstraint(mfunc mf, void *f_data, nlopt_munge md, nlopt_munge mc, const std::vector<double> &tol);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_equality_mconstraint(mfunc mf, void *f_data, nlopt_munge md, nlopt_munge mc, const std::vector<double> &tol);
 
 #define SET_EXCEPT(name, T) %catches(std::invalid_argument) nlopt::opt::set_##name(T val);
 #define GET_EXCEPT(name) %catches(std::invalid_argument) nlopt::opt::get_##name();
@@ -56,4 +66,4 @@ GETSETVEC_EXCEPT(initial_step)
 
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_default_initial_step(const std::vector<double> &x);
 %catches(std::invalid_argument) nlopt::opt::get_initial_step(const std::vector<double> &x, std::vector<double> &dx);
-%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::get_initial_step(const std::vector<double> &x);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::get_initial_step_(const std::vector<double> &x);
