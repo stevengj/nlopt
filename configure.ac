@@ -245,6 +245,8 @@ elif test x"$OCT_INSTALL_DIR" = "x"; then
 		AC_MSG_WARN([can't find where to install octave scripts: won't be able to install octave plugin])
 		OCT_INSTALL_DIR=""
 	fi
+elif test x"$M_INSTALL_DIR" = "x"; then # user-specified OCT_INSTALL_DIR
+     M_INSTALL_DIR=$OCT_INSTALL_DIR
 fi
 
 if test x"$OCT_INSTALL_DIR" != "x"; then
