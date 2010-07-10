@@ -92,8 +92,10 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
      unsigned i, j;
      f = data->f((unsigned) n, x, NULL, data->f_data);
      *undefined = isnan(f) || nlopt_isinf(f);
+     if (nlopt_get_force_stop(data)) return f;
      for (i = 0; i < data->m && !*undefined; ++i) {
 	  nlopt_eval_constraint(data->work, NULL, data->fc+i, (unsigned) n, x);
+	  if (nlopt_get_force_stop(data)) return f;
 	  for (j = 0; j < data->fc[i].m; ++j)
 	       if (data->work[j] > 0)
 		    *undefined = 1;
