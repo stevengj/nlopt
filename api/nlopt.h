@@ -137,6 +137,8 @@ typedef enum {
      NLOPT_G_MLSL,
      NLOPT_G_MLSL_LDS,
 
+     NLOPT_LD_SLSQP,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

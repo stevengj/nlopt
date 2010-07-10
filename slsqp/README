@@ -1,0 +1,35 @@
+This code implements a sequential quadratic programming (SQP)
+algorithm for nonlinearly constrained gradient-based optimization, and
+was originally written by Dieter Kraft and described in:
+
+    Dieter Kraft, "A software package for sequential quadratic
+    programming", Technical Report DFVLR-FB 88-28, Institut für
+    Dynamik der Flugsysteme, Oberpfaffenhofen, July 1988.
+
+    Dieter Kraft, "Algorithm 733: TOMP–Fortran modules for optimal
+    control calculations," ACM Transactions on Mathematical Software,
+    vol. 20, no. 3, pp. 262-281 (1994).
+
+The actual Fortran file was obtained from the SciPy project, who are
+responsible for obtaining permission to distribute it under a
+free-software (3-clause BSD) license (see the permission email from
+ACM at the top of slsqp.c, and also projects.scipy.org/scipy/ticket/1056).
+
+The code was modified for inclusion in NLopt by S. G. Johnson in 2010,
+with the following changes.  The code was converted to C and manually
+cleaned up.  It was modified to be re-entrant, preserving the
+reverse-communication interface but explicitly saving the state in a
+data structure.  The reverse-communication interface was wrapped with
+an NLopt-style inteface, with NLopt stopping conditions.  The inexact
+line search was modified to evaluate the functions including
+gradients, since this removes the need to evaluate the
+function+gradient a second time for the same point when the inexact
+line search concludes (hopefully after one or two steps), since
+NLopt's interface combines the function and gradient computations.
+
+The exact line-search option is currently disabled; if we want to
+re-enable this (although exact line-search is usually overkill in
+these kinds of algorithms), we plan to do so using a recursive call to
+NLopt.  (This will allow a user-specified line-search algorithm to be
+used, and will allow the gradient to be exploited in the exact line
+search, in contrast to the routine provided with SLSQP.)

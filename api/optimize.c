@@ -60,6 +60,7 @@ static int my_isnan(double x) { return x != x; }
 #include "auglag.h"
 #include "bobyqa.h"
 #include "isres.h"
+#include "slsqp.h"
 
 /*********************************************************************/
 
@@ -531,6 +532,12 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				    lb, ub, x, minf, &stop,
 				    (int) POP(0));
 
+	 case NLOPT_LD_SLSQP:
+	      return nlopt_slsqp(n, f, f_data,
+				 opt->m, opt->fc,
+				 opt->p, opt->h,
+				 lb, ub, x, minf, &stop);
+				     
 	 default:
 	      return NLOPT_INVALID_ARGS;
      }

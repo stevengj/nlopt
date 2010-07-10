@@ -95,6 +95,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Augmented Lagrangian method for equality constraints (needs sub-algorithm)",
      "Multi-level single-linkage (MLSL), random (global, needs sub-algorithm)",
      "Multi-level single-linkage (MLSL), quasi-random (global, needs sub-algorithm)",
+     "Sequential Quadratic Programming (SQP) (local, derivative)",
 };
 
 const char *nlopt_algorithm_name(nlopt_algorithm a)
