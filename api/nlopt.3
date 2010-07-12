@@ -202,9 +202,9 @@ constant (so that you don't have to fill an array with a constant value):
 .SH NONLINEAR CONSTRAINTS
 Several of the algorithms in NLopt (MMA and ORIG_DIRECT) also support
 arbitrary nonlinear inequality constraints, and some also allow
-nonlinear equality constraints (COBYLA, ISRES, and AUGLAG).  For these
-algorithms, you can specify as many nonlinear constraints as you wish
-by calling the following functions multiple times.
+nonlinear equality constraints (COBYLA, SLSQP, ISRES, and AUGLAG).
+For these algorithms, you can specify as many nonlinear constraints as
+you wish by calling the following functions multiple times.
 .sp
 In particular, a nonlinear inequality constraint of the form 
 \fIfc\fR(\fIx\fR) <= 0, where the function
@@ -441,9 +441,18 @@ published by Svanberg (2002).  (NLopt uses an independent
 free-software/open-source implementation of Svanberg's algorithm.)
 The
 .B NLOPT_LD_MMA
-algorithm supports both bound-constrained and unconstrained optimization,
-and also supports an arbitrary number (\fIm\fR) of nonlinear constraints
-as described above.
+algorithm supports both bound-constrained and unconstrained
+optimization, and also supports an arbitrary number (\fIm\fR) of
+nonlinear inequality (not equality) constraints as described above.
+.TP
+.B NLOPT_LD_SLSQP
+Local (L) gradient-based (D) optimization using sequential quadratic
+programming and BFGS updates, supporting arbitrary nonlinear
+inequality and equality constraints, based on the code by Dieter Kraft
+(1988) adapted for use by the SciPy project.  Note that this algorithm
+uses dense-matrix methods requiring O(\fIn\fR^2) storage and
+O(\fIn\fR^3) time, making it less practical for problems involving
+more than a few thousand parameters.
 .TP
 .B NLOPT_LN_COBYLA
 Local (L) derivative-free (N) optimization using the COBYLA algorithm
