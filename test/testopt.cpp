@@ -209,6 +209,7 @@ static int test_function(int ifunc)
     printf("return code %d from nlopt_minimize\n", ret);
     if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED) {
       fprintf(stderr, "testopt: error in nlopt_minimize\n");
+      free(x);
       return 0;
     }
     printf("Found minimum f = %g after %d evaluations.\n", 
