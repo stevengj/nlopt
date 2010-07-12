@@ -78,11 +78,20 @@ static double bounds_wrap_func(int n, const double *x, double *grad, void *d_)
 {
   bounds_wrap_data *d = (bounds_wrap_data *) d_;
   int i;
-  for (i = 0; i < n; ++i)
-    if (x[i] < d->lb[i] || x[i] > d->ub[i])
+  double b = 0;
+  for (i = 0; i < n; ++i) {
+    if (x[i] < d->lb[i]) {
+      b = d->lb[i];
+      break; 
+    }
+    else if (x[i] > d->ub[i]) {
+      b = d->ub[i];
       break;
+    }
+  }
   if (i < n)
-    fprintf(stderr, "WARNING: bounds violated by x[%d] = %g\n", i, x[i]);
+    fprintf(stderr, "WARNING: bounds violated by x[%d] = %g = %g + %g\n",
+	    i, x[i], b, x[i] - b);
   return d->f(n, x, grad, d->f_data);
 }
 
