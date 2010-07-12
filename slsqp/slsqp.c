@@ -1145,7 +1145,7 @@ static void lsei_(double *c__, double *d__, double *e,
     }
     *mode = 1;
     w[mc1] = 0.0;
-    i__2 = *mg - *mc;
+    i__2 = *mg; // BUGFIX for *mc == *n: changed from *mg - *mc, SGJ 2010
     dcopy___(&i__2, &w[mc1], 0, &w[mc1], 1);
     if (*mc == *n) {
 	goto L50;
@@ -1413,6 +1413,15 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
 	dcopy___(m, &w[iw], 1, &y[1], 1);
 	dcopy___(&n3, &w[iw + *m], 1, &y[*m + 1], 1);
 	dcopy___(&n3, &w[iw + *m + *n], 1, &y[*m + n3 + 1], 1);
+
+	/* SGJ, 2010: make sure bound constraints are satisfied, since
+	   roundoff error sometimes causes slight violations and
+	   NLopt guarantees that bounds are strictly obeyed */
+	i__1 = *n;
+	for (i__ = 1; i__ <= i__1; ++i__) {
+	     if (x[i__] < xl[i__]) x[i__] = xl[i__];
+	     else if (x[i__] > xu[i__]) x[i__] = xu[i__];
+	}
     }
 /*   END OF SUBROUTINE LSQ */
 } /* lsq_ */
@@ -1901,6 +1910,7 @@ L130:
     h4 = one;
     lsq_(m, meq, n, &n3, la, &l[1], &g[1], &a[a_offset], &c__[1], &u[1], &v[1]
 	    , &s[1], &r__[1], &w[1], &iw[1], mode);
+
 /*   AUGMENTED PROBLEM FOR INCONSISTENT LINEARIZATION */
     if (*mode == 6) {
 	if (*n == *meq) {
@@ -2010,13 +2020,19 @@ L190:
     dscal_sl__(n, &alpha, &s[1], 1);
     dcopy___(n, &x0[1], 1, &x[1], 1);
     daxpy_sl__(n, &one, &s[1], 1, &x[1], 1);
-    /* SGJ change, 2010: since we should expect the inexact linesearch to often succeed on the
-       first try or two, there is no point in not computing the gradient information (especially
-       since gradients are cheap).  Hence we pass a special mode -2, that tells the caller
-       to evaluate the function and gradient values (like mode -1), but also tells the caller
-       that the subsequent mode -1 call can return without evaluating the function (since
-       the subsequent mode -1 call will always be for the same point as the last mode -2 call) */
-    *mode = -2;
+    
+    /* SGJ 2010: ensure roundoff doesn't push us past bound constraints */
+    i__1 = *n; for (i__ = 1; i__ <= i__1; ++i__) {
+	 if (x[i__] < xl[i__]) x[i__] = xl[i__];
+	 else if (x[i__] > xu[i__]) x[i__] = xu[i__];
+    }
+
+    /* SGJ 2010: optimizing for the common case where the inexact line
+       search succeeds in one step, use special mode = -2 here to
+       eliminate a a subsequent unnecessary mode = -1 call, at the 
+       expense of extra gradient evaluations when more than one inexact
+       line-search step is required */
+    *mode = line == 1 ? -2 : 1;
     goto L330;
 L200:
     if (h1 <= h3 / ten || line > 10) {
@@ -2414,7 +2430,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 {
      slsqpb_state state = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
      unsigned mtot = nlopt_count_constraints(m, fc);
-     unsigned ptot = nlopt_count_constraints(p, fc);
+     unsigned ptot = nlopt_count_constraints(p, h);
      double *work, *cgrad, *c, *grad, *w, 
 	  fcur, *xcur, fprev, *xprev, *cgradtmp;
      int mpi = (int) (mtot + ptot), pi = (int) ptot,  ni = (int) n, mpi1 = mpi > 0 ? mpi : 1;
@@ -2424,8 +2440,8 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
      int iter = 0; /* tell sqsqp to ignore this check, since we check evaluation counts ourselves */
      unsigned i, ii;
      nlopt_result ret = NLOPT_SUCCESS;
-     int feasible = 0, feasible_cur;
-     double infeasibility = HUGE_VAL, infeasibility_cur;
+     int feasible, feasible_cur;
+     double infeasibility = HUGE_VAL, infeasibility_cur = HUGE_VAL;
      unsigned max_cdim;
      
      max_cdim = max(nlopt_max_constraint_dim(m, fc),
@@ -2434,15 +2450,15 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 
 #define U(n) ((unsigned) (n))
      work = (double *) malloc(sizeof(double) * (U(mpi1) * (n + 1) 
-						+ U(mtot+ptot) 
-						+ n + n + n + max_cdim*n
+						+ U(mpi) 
+						+ n+1 + n + n + max_cdim*n
 						+ U(len_w))
 			      + sizeof(int) * U(len_jw));
      if (!work) return NLOPT_OUT_OF_MEMORY;
      cgrad = work;
      c = cgrad + U(mpi1) * (n + 1);
-     grad = c + (mtot+ptot);
-     xcur = grad + n;
+     grad = c + mpi;
+     xcur = grad + n+1;
      xprev = xcur + n;
      cgradtmp = xprev + n;
      w = cgradtmp + max_cdim*n;
@@ -2451,7 +2467,9 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
      memcpy(xcur, x, sizeof(double) * n);
      memcpy(xprev, x, sizeof(double) * n);
      fprev = fcur = *minf = HUGE_VAL;
-     feasible = 0;
+     feasible = feasible_cur = 0;
+
+     goto eval_f_and_grad; /* eval before calling slsqp the first time */
 
      do {
 	  slsqp(&mpi, &pi, &mpi1, &ni,
@@ -2465,6 +2483,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	      case -1:  /* objective & gradient evaluation */
 		   if (prev_mode == -2) break; /* just evaluated this point */
 	      case -2:
+		   eval_f_and_grad:
 		   feasible_cur = 1; infeasibility_cur = 0;
 		   fcur = f(n, xcur, grad, f_data);
 		   if (nlopt_stop_forced(stop)) { 
@@ -2537,7 +2556,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	      case 8: /* positive directional derivative for linesearch */
 		   /* relaxed convergence check for a feasible_cur point,
 		      as in the SLSQP code */
-		   ret = NLOPT_FAILURE;
+		   ret = NLOPT_ROUNDOFF_LIMITED; /* usually why deriv>0 */
 		   if (feasible_cur) {
 			double save_ftol_rel = stop->ftol_rel;
 			double save_ftol_abs = stop->ftol_abs;
@@ -2570,6 +2589,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	  if ((fcur < *minf && (feasible_cur || !feasible))
 	      || (!feasible && infeasibility_cur < infeasibility)) {
 	       *minf = fcur;
+	       feasible = feasible_cur;
 	       infeasibility = infeasibility_cur;
 	       memcpy(x, xcur, sizeof(double)*n);
 	  }
