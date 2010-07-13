@@ -10,6 +10,11 @@ was originally written by Dieter Kraft and described in:
     control calculations," ACM Transactions on Mathematical Software,
     vol. 20, no. 3, pp. 262-281 (1994).
 
+(I believe that SLSQP stands for something like Sequential
+Least-Squares Quadratic Programming, because the problem is treated as
+a sequence of constrained least-squared problems, but such a
+least-squares problem is equivalent to a QP.)
+
 The actual Fortran file was obtained from the SciPy project, who are
 responsible for obtaining permission to distribute it under a
 free-software (3-clause BSD) license (see the permission email from
