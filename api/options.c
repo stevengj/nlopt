@@ -576,6 +576,7 @@ NLOPT_STDCALL nlopt_set_local_optimizer(nlopt_opt opt,
 	       nlopt_remove_inequality_constraints(opt->local_opt);
 	       nlopt_remove_equality_constraints(opt->local_opt);
 	       nlopt_set_min_objective(opt->local_opt, NULL, NULL);
+	       nlopt_set_munge(opt->local_opt, NULL, NULL);
 	       opt->local_opt->force_stop = 0;
 	  }
 	  return NLOPT_SUCCESS;
