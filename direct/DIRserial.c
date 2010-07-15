@@ -20,7 +20,7 @@
 	integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
 	minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
 	const integer *maxdeep, integer *oops, doublereal *fmax, integer *
-	ifeasiblef, integer *iinfesiblef, void *fcn_data)
+	ifeasiblef, integer *iinfesiblef, void *fcn_data, int *force_stop)
 {
     /* System generated locals */
     integer length_dim1, length_offset, c_dim1, c_offset, i__1, i__2;
@@ -80,8 +80,13 @@
 /* +-----------------------------------------------------------------------+ */
 /* | Call the function.                                                    | */
 /* +-----------------------------------------------------------------------+ */
-	direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[(pos << 1) + 1], 
-			 &kret, fcn_data);
+	if (force_stop && *force_stop)  /* skip eval after forced stop */
+	     f[(pos << 1) + 1] = *fmax;
+	else
+	     direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[(pos << 1) + 1], 
+			      &kret, fcn_data);
+	if (force_stop && *force_stop)
+	     kret = -1; /* mark as invalid point */
 /* +-----------------------------------------------------------------------+ */
 /* | Remember IF an infeasible point has been found.                       | */
 /* +-----------------------------------------------------------------------+ */
@@ -128,7 +133,7 @@
 /* | Iterate over all evaluated points and see, IF the minimal             | */
 /* | value of the function has changed.  IF this has happEND,               | */
 /* | store the minimal value and its position in the array.                | */
-/* | Attention: Only valied values are checked!!                           | */
+/* | Attention: Only valid values are checked!!                           | */
 /* +-----------------------------------------------------------------------+ */
     i__1 = *maxi + *maxi;
     for (j = 1; j <= i__1; ++j) {

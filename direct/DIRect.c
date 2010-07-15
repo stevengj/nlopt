@@ -44,7 +44,7 @@
 /* |   Lipschitz continues. However, DIRECT has proven to be effective on  | */
 /* |   more complex problems than these.                                   | */
 /* +-----------------------------------------------------------------------+ */
-/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, doublereal *minf, doublereal *l, 
+/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, int *force_stop, doublereal *minf, doublereal *l, 
 	doublereal *u, integer *algmethod, integer *ierror, FILE *logfile, 
 	doublereal *fglobal, doublereal *fglper, doublereal *volper, 
 	doublereal *sigmaper, void *fcn_data)
@@ -405,7 +405,8 @@
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
 	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
 	    minf, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
-	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones);
+	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones,
+	     force_stop);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
 /* +-----------------------------------------------------------------------+ */
@@ -420,6 +421,7 @@
 		 fprintf(logfile, "WARNING: Error occured in routine DIRsamplef..\n");
 	    goto cleanup;
 	}
+	if (*ierror == -102) goto L100;
     }
     numfunc = maxi + 1 + maxi;
     actmaxdeep = 1;
@@ -544,7 +546,11 @@
 			    logfile, f, &ifree, &maxi, point, fcn, &x[
 			1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
 			MAXDEEP, &oops, &fmax, &ifeasiblef, &iinfesiblef, 
-			fcn_data);
+				   fcn_data, force_stop);
+		if (force_stop && *force_stop) {
+		     *ierror = -102;
+		     goto L100;
+		}
 		if (oops > 0) {
 		    if (logfile)
 			 fprintf(logfile, "WARNING: Error occured in routine DIRsamplef.\n");

@@ -229,6 +229,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      dret = direct_optimize(f_direct, opt, ni, lb, ub, x, minf,
 				     stop.maxeval, -1, 0.0, 0.0,
 				     pow(stop.xtol_rel, (double) n), -1.0,
+				     stop.force_stop,
 				     stop.minf_max, 0.0,
 				     NULL, 
 				     algorithm == NLOPT_GN_ORIG_DIRECT
@@ -254,6 +255,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		       return NLOPT_XTOL_REACHED;
 		  case DIRECT_OUT_OF_MEMORY:
 		       return NLOPT_OUT_OF_MEMORY;
+		  case DIRECT_FORCED_STOP:
+		       return NLOPT_FORCED_STOP;
 	      }
 	      break;
 	 }

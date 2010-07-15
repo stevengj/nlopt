@@ -1148,7 +1148,7 @@ L50:
 	doublereal *thirds, doublereal *levels, integer *maxfunc, const integer *
 	maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfeasible, integer *ierror, void *fcndata,
-				      integer jones)
+				      integer jones, int *force_stop)
 {
     /* System generated locals */
     integer c_dim1, c_offset, length_dim1, length_offset, list2_dim1, 
@@ -1242,6 +1242,10 @@ L50:
 /* L20: */
     }
     direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[3], &help, fcndata);
+    if (force_stop && *force_stop) {
+	 *ierror = -102;
+	 return;
+    }
     f[4] = (doublereal) help;
     *iinfeasible = help;
     *fmax = f[3];
@@ -1282,7 +1286,12 @@ L50:
     direct_dirsamplef_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &length[
 	    length_offset], logfile, &f[3], free, maxi, &point[
 	    1], fcn, &x[1], &l[1], minf, minpos, &u[1], n, maxfunc, 
-	    maxdeep, &oops, fmax, ifeasiblef, iinfeasible, fcndata);
+	    maxdeep, &oops, fmax, ifeasiblef, iinfeasible, fcndata,
+	    force_stop);
+    if (force_stop && *force_stop) {
+	 *ierror = -102;
+	 return;
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/23/01 Added error checking.                                     | */
 /* +-----------------------------------------------------------------------+ */

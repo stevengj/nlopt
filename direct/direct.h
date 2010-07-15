@@ -30,7 +30,8 @@ typedef enum {
      DIRECT_SIGMATOL = 5,
 
      DIRECT_OUT_OF_MEMORY = -100,
-     DIRECT_INVALID_ARGS = -101
+     DIRECT_INVALID_ARGS = -101,
+     DIRECT_FORCED_STOP = -102
 } direct_return_code;
 
 #define DIRECT_UNKNOWN_FGLOBAL (-HUGE_VAL)
@@ -46,6 +47,7 @@ extern direct_return_code direct_optimize(
      int max_feval, int max_iter,
      double magic_eps, double magic_eps_abs,
      double volume_reltol, double sigma_reltol,
+     int *force_stop,
 
      double fglobal,
      double fglobal_reltol,

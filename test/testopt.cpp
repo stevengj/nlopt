@@ -207,7 +207,8 @@ static int test_function(int ifunc)
 			 maxeval, maxtime);
     printf("finished after %g seconds.\n", nlopt_seconds() - start);
     printf("return code %d from nlopt_minimize\n", ret);
-    if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED) {
+    if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED
+	&& ret != NLOPT_FORCED_STOP) {
       fprintf(stderr, "testopt: error in nlopt_minimize\n");
       free(x);
       return 0;
@@ -236,6 +237,7 @@ static int test_function(int ifunc)
     if (val != minf) {
       fprintf(stderr, "Mismatch %g between returned minf=%g and f(x) = %g\n", 
 	      minf - val, minf, val);
+      free(x);
       return 0;
     }
   }

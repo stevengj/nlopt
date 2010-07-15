@@ -40,7 +40,7 @@ extern void direct_dirinit_(
      doublereal *thirds, doublereal *levels, integer *maxfunc, const integer *
      maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
      ifeasiblef, integer *iinfeasible, integer *ierror, void *fcndata,
-     integer jones);
+     integer jones, int *force_stop);
 extern void direct_dirinitlist_(
      integer *anchor, integer *free, integer *
      point, doublereal *f, integer *maxfunc, const integer *maxdeep);
@@ -103,12 +103,12 @@ extern void direct_dirsamplef_(
      integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
      minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
      const integer *maxdeep, integer *oops, doublereal *fmax, integer *
-     ifeasiblef, integer *iinfesiblef, void *fcn_data);
+     ifeasiblef, integer *iinfesiblef, void *fcn_data, int *force_stop);
 
 /* DIRect.c */
 extern void direct_direct_(
      fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs,
-     integer *maxf, integer *maxt, doublereal *minf, doublereal *l, 
+     integer *maxf, integer *maxt, int *force_stop, doublereal *minf, doublereal *l, 
      doublereal *u, integer *algmethod, integer *ierror, FILE *logfile, 
      doublereal *fglobal, doublereal *fglper, doublereal *volper, 
      doublereal *sigmaper, void *fcn_data);
