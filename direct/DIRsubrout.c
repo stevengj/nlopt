@@ -126,7 +126,7 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
     length -= length_offset;
 
     /* Function Body */
-    helplower = 1e20;
+    helplower = HUGE_VAL;
     helpgreater = 0.;
     k = 1;
     if (*ifeasiblef >= 1) {
@@ -169,7 +169,7 @@ L12:
 /* L11: */
     }
     for (j = *maxpos; j >= 1; --j) {
-	helplower = 1e20;
+	helplower = HUGE_VAL;
 	helpgreater = 0.;
 	j___ = s[j + s_dim1];
 	i__1 = j - 1;
@@ -227,10 +227,6 @@ L12:
 		}
 	    }
 /* L31: */
-	}
-	if (helplower > 1e20 && helpgreater > 0.) {
-	    helplower = helpgreater;
-	    helpgreater += -1.;
 	}
 	if (helpgreater <= helplower) {
 	    if (*cheat == 1 && helplower > *kmax) {
@@ -1194,7 +1190,7 @@ L50:
     c__ -= c_offset;
 
     /* Function Body */
-    *minf = 1e20;
+    *minf = HUGE_VAL;
     costmin = *minf;
 /* JG 09/15/00 If Jones way of characterising rectangles is used, */
 /*             initialise thirds to reflect this. */
