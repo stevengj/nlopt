@@ -18,20 +18,28 @@ dnl @version 2010-05-28
 dnl @license GPLWithACException
 dnl @author Steven G. Johnson <stevenj@alum.mit.edu>
 AC_DEFUN([AX_C_THREADLOCAL],
-[AC_CACHE_CHECK([for C thread-local keyword], acx_cv_c_threadlocal,
-[acx_cv_c_threadlocal=unsupported
- AC_LANG_SAVE
- AC_LANG_C
- for acx_kw in __thread "__declspec(thread)"; do
-   AC_TRY_COMPILE([], [static $acx_kw int x = 0;], 
-                      [acx_cv_c_threadlocal=$acx_kw; break])
- done
- AC_LANG_RESTORE
+[AC_ARG_WITH(threadlocal,
+  [AC_HELP_STRING([--without-threadlocal], [no thread-local storage keyword])],
+  with_ax_c_threadlocal=$withval, with_ax_c_threadlocal=yes)
+ AC_CACHE_CHECK([for C thread-local keyword], ax_cv_c_threadlocal,
+[if test "x$with_ax_c_threadlocal" = xno; then
+   ax_cv_c_threadlocal=disabled
+ else
+   ax_cv_c_threadlocal=unsupported
+   AC_LANG_SAVE
+   AC_LANG_C
+   for ax_kw in __thread "__declspec(thread)"; do
+     AC_TRY_COMPILE([], [static $ax_kw int x = 0;], 
+                        [ax_cv_c_threadlocal=$ax_kw; break])
+   done
+   AC_LANG_RESTORE
+ fi
 ])
- acx_kw="$acx_cv_c_threadlocal"
- if test "$acx_kw" = unsupported; then acx_kw=""; fi
- AC_DEFINE_UNQUOTED(THREADLOCAL, $acx_kw, [Define to C thread-local keyword, or to nothing if this is not supported in your compiler.])
- if test "$acx_cv_c_threadlocal" = unsupported; then
+ ax_kw="$ax_cv_c_threadlocal"
+ if test "x$ax_kw" = xunsupported; then ax_kw=""; fi
+ if test "x$ax_kw" = xdisabled; then ax_kw=""; fi
+ AC_DEFINE_UNQUOTED(THREADLOCAL, $ax_kw, [Define to C thread-local keyword, or to nothing if this is not supported in your compiler.])
+ if test "$ax_cv_c_threadlocal" = unsupported; then
    m4_default([$2],:)
  else
    m4_default([$1],:)
