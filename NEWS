@@ -1,3 +1,26 @@
+NLopt 2.2
+
+* Added SLSQP algorithm for gradient-based local optimization with
+  nonlinear constraints via sequential quadratic programming, based
+  on the implementation by Dieter Kraft that was adapted for SciPy.
+
+* Modified BOBYQA and COBYLA algorithms to support unequal initial
+  step sizes in different directions; thanks to Tom Fiddaman for pointing
+  out the need for this in the case where different directions have
+  very different scales.
+
+* Added Python module docstring; thanks to Sebastian Walter for the suggestion.
+
+* Added GUILE_INSTALL_DIR variable to allow the user to change the
+  Guile installation directory.
+
+* Throw correct exceptions in Python for the add_*constraint functions;
+  thanks to Dmitrey Kroshko for the bug report.
+
+* Bugfix in C++ interface (and some other language front-ends) when
+  deallocating the nlopt_opt object in cases like MLSL where
+  local_optimizer is used; thanks to Jurgen Werner for the bug report.
+
 NLopt 2.1.2 (8 July 2010)
 
 * The Python mconstraint (vector-valued constraint) functions
