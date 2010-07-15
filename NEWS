@@ -17,6 +17,11 @@ NLopt 2.2
 * Throw correct exceptions in Python for the add_*constraint functions;
   thanks to Dmitrey Kroshko for the bug report.
 
+* Support forced stop and exceptions in ORIG_DIRECT algorithm.
+
+* Remove arbitrary 1e20 upper bound on function values from ORIG_DIRECT
+  code.
+
 * Bugfix in C++ interface (and some other language front-ends) when
   deallocating the nlopt_opt object in cases like MLSL where
   local_optimizer is used; thanks to Jurgen Werner for the bug report.
