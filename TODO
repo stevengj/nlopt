@@ -1,5 +1,3 @@
-SLSQP routine from scipy.
-
 Add nonlinearly constrained multistart algorithm.
 
 Wrappers for GNU R, Java, Perl, Ocaml, C#, ...
