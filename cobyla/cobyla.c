@@ -58,28 +58,33 @@ static char const rcsid[] =
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 #define abs(x) ((x) >= 0 ? (x) : -(x))
 
+#define U(n) ((unsigned) (n))
+
 /**************************************************************************/
 /* SGJ, 2008: NLopt-style interface function: */
 
 typedef struct {
      nlopt_func f;
      void *f_data;
-     int m_orig;
+     unsigned m_orig;
      nlopt_constraint *fc;
-     int p;
+     unsigned p;
      nlopt_constraint *h;
      double *xtmp;
-     const double *lb, *ub;
-     double *con_tol;
+     double *lb, *ub;
+     double *con_tol, *scale;
      nlopt_stopping *stop;
 } func_wrap_state;
 
-static int func_wrap(int n, int m, double *x, double *f, double *con,
+static int func_wrap(int ni, int mi, double *x, double *f, double *con,
 		     func_wrap_state *s)
 {
-     int i, j, k;
+     unsigned n = U(ni);
+     unsigned i, j, k;
      double *xtmp = s->xtmp;
      const double *lb = s->lb, *ub = s->ub;
+
+     (void) mi; /* unused */
 
      /* in nlopt, we guarante that the function is never evaluated outside
 	the lb and ub bounds, so we need force this with xtmp ... note
@@ -91,6 +96,7 @@ static int func_wrap(int n, int m, double *x, double *f, double *con,
 	  else if (x[j] > ub[j]) xtmp[j] = ub[j];
 	  else xtmp[j] = x[j];
      }
+     nlopt_unscale(n, s->scale, xtmp, xtmp);
 
      *f = s->f(n, xtmp, NULL, s->f_data);
      if (nlopt_stop_forced(s->stop)) return 1;
@@ -166,31 +172,48 @@ typedef int cobyla_function(int n, int m, double *x, double *f, double *con,
  * The cobyla function returns the usual nlopt_result codes.
  *
  */
-extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub,
+extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double rhoend, nlopt_stopping *stop, const double *lb, const double *ub,
   int message, cobyla_function *calcfc, func_wrap_state *state);
 
-nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
-			     int m, nlopt_constraint *fc,
-                             int p, nlopt_constraint *h,
+nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
+			     unsigned m, nlopt_constraint *fc,
+                             unsigned p, nlopt_constraint *h,
 			     const double *lb, const double *ub, /* bounds */
 			     double *x, /* in: initial guess, out: minimizer */
 			     double *minf,
 			     nlopt_stopping *stop,
-			     double rhobegin)
+			     const double *dx)
 {
-     int i, j;
+     unsigned i, j;
      func_wrap_state s;
      nlopt_result ret;
+     double rhobeg, rhoend;
 
      s.f = f; s.f_data = f_data;
      s.m_orig = m;
      s.fc = fc; 
      s.p = p;
      s.h = h;
-     s.lb = lb; s.ub = ub;
      s.stop = stop;
+     s.lb = s.ub = s.xtmp = s.con_tol = s.scale = NULL;
+
+     s.scale = nlopt_compute_rescaling(n, dx);
+     if (!s.scale) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+
+     s.lb = nlopt_new_rescaled(n, s.scale, lb);
+     if (!s.lb) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+     s.ub = nlopt_new_rescaled(n, s.scale, ub);
+     if (!s.ub) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+
      s.xtmp = (double *) malloc(sizeof(double) * n);
-     if (!s.xtmp) return NLOPT_OUT_OF_MEMORY;
+     if (!s.xtmp) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+
+     /* SGJ, 2008: compute rhoend from NLopt stop info */
+     rhobeg = dx[0] / s.scale[0];
+     rhoend = stop->xtol_rel * (rhobeg);
+     for (j = 0; j < n; ++j)
+	  if (rhoend < stop->xtol_abs[j] / s.scale[j])
+	       rhoend = stop->xtol_abs[j] / s.scale[j];
 
      /* each equality constraint gives two inequality constraints */
      m = nlopt_count_constraints(m, fc) + 2 * nlopt_count_constraints(p, h);
@@ -204,24 +227,25 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
      }
 
      s.con_tol = (double *) malloc(sizeof(double) * m);
-     if (m && !s.con_tol) {
-	  free(s.xtmp);
-	  return NLOPT_OUT_OF_MEMORY;
-     }
+     if (m && !s.con_tol) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+
      for (j = 0; j < m; ++j) s.con_tol[j] = 0;
      for (j = i = 0; i < s.m_orig; ++i) {
-	  int j0 = j, jnext = j + fc[i].m;
-	  for (; j < jnext; ++j) s.con_tol[j] = fc[i].tol[j - j0];
+	  unsigned ji = j, jnext = j + fc[i].m;
+	  for (; j < jnext; ++j) s.con_tol[j] = fc[i].tol[j - ji];
      }
      for (i = 0; i < s.p; ++i) {
-	  int j0 = j, jnext = j + h[i].m;
-	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - j0];
-	  j0 = j; jnext = j + h[i].m;
-	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - j0];
+	  unsigned ji = j, jnext = j + h[i].m;
+	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - ji];
+	  ji = j; jnext = j + h[i].m;
+	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - ji];
      }
 
-     ret = cobyla(n, m, x, minf, rhobegin, stop, lb, ub, COBYLA_MSG_NONE, 
+     nlopt_rescale(n, s.scale, x, x);
+     ret = cobyla((int) n, (int) m, x, minf, rhobeg, rhoend,
+		  stop, s.lb, s.ub, COBYLA_MSG_NONE, 
 		  func_wrap, &s);
+     nlopt_unscale(n, s.scale, x, x);
 
      /* make sure e.g. rounding errors didn't push us slightly out of bounds */
      for (j = 0; j < n; ++j) {
@@ -229,8 +253,12 @@ nlopt_result cobyla_minimize(int n, nlopt_func f, void *f_data,
 	  if (x[j] > ub[j]) x[j] = ub[j];
      }
 
+done:
      free(s.con_tol);
      free(s.xtmp);
+     free(s.ub);
+     free(s.lb);
+     free(s.scale);
      return ret;
 }
 
@@ -274,7 +302,7 @@ static double lcg_urand(uint32_t *seed, double a, double b)
 
 /**************************************************************************/
 
-static nlopt_result cobylb(int *n, int *m, int *mpp, double *x, double *minf, double *rhobeg,
+static nlopt_result cobylb(int *n, int *m, int *mpp, double *x, double *minf, double *rhobeg, double rhoend,
   nlopt_stopping *stop, const double *lb, const double *ub, int *iprint, double *con, double *sim,
   double *simi, double *datmat, double *a, double *vsig, double *veta,
   double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
@@ -285,7 +313,7 @@ static nlopt_result trstlp(int *n, int *m, double *a, double *b, double *rho,
 
 /* ------------------------------------------------------------------------ */
 
-nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_stopping *stop, const double *lb, const double *ub, int iprint,
+nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double rhoend, nlopt_stopping *stop, const double *lb, const double *ub, int iprint,
   cobyla_function *calcfc, func_wrap_state *state)
 {
   int icon, isim, isigb, idatm, iveta, isimi, ivsig, iwork, ia, idx, mpp;
@@ -365,13 +393,13 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
   }
 
   /* workspace allocation */
-  w = (double*) malloc((n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
+  w = (double*) malloc(U(n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
   if (w == NULL)
   {
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
     return NLOPT_OUT_OF_MEMORY;
   }
-  iact = (int*)malloc((m+1)*sizeof(*iact));
+  iact = (int*)malloc(U(m+1)*sizeof(*iact));
   if (iact == NULL)
   {
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
@@ -397,7 +425,7 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
   isigb = iveta + n;
   idx = isigb + n;
   iwork = idx + n;
-  rc = cobylb(&n, &m, &mpp, &x[1], minf, &rhobeg, stop, &lb[1], &ub[1], &iprint,
+  rc = cobylb(&n, &m, &mpp, &x[1], minf, &rhobeg, rhoend, stop, &lb[1], &ub[1], &iprint,
       &w[icon], &w[isim], &w[isimi], &w[idatm], &w[ia], &w[ivsig], &w[iveta],
       &w[isigb], &w[idx], &w[iwork], &iact[1], calcfc, state);
 
@@ -413,7 +441,7 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, nlopt_
 
 /* ------------------------------------------------------------------------- */
 static nlopt_result cobylb(int *n, int *m, int *mpp,
-    double *x, double *minf, double *rhobeg, 
+   double *x, double *minf, double *rhobeg, double rhoend,
     nlopt_stopping *stop, const double *lb, const double *ub,
     int *iprint, double *con, double *sim, double *simi, 
     double *datmat, double *a, double *vsig, double *veta,
@@ -447,15 +475,8 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   int mp, np, iz, ibrnch;
   int nbest, ifull, iptem, jdrop;
   nlopt_result rc = NLOPT_SUCCESS;
-  double rhoend;
   uint32_t seed = (uint32_t) (*n + *m); /* arbitrary deterministic LCG seed */
   int feasible;
-
-  /* SGJ, 2008: compute rhoend from NLopt stop info */
-  rhoend = stop->xtol_rel * (*rhobeg);
-  for (j = 0; j < *n; ++j)
-       if (rhoend < stop->xtol_abs[j])
-	    rhoend = stop->xtol_abs[j];
 
   /* SGJ, 2008: added code to keep track of minimum feasible function val */
   *minf = HUGE_VAL;

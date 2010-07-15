@@ -115,6 +115,12 @@ extern void nlopt_eval_constraint(double *result, double *grad,
 				  const nlopt_constraint *c,
 				  unsigned n, const double *x);
 
+/* rescale.c: */
+double *nlopt_compute_rescaling(unsigned n, const double *dx);
+double *nlopt_new_rescaled(unsigned n, const double *s, const double *x);
+void nlopt_rescale(unsigned n, const double *s, const double *x, double *xs);
+void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs);
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

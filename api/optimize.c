@@ -426,21 +426,27 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      nlopt_set_maxeval(dual_opt, LO(maxeval, 100000));
 #undef LO
 
-	      ret = mma_minimize(ni, f, f_data, (int) (opt->m), opt->fc,
+	      ret = mma_minimize(n, f, f_data, opt->m, opt->fc,
 				 lb, ub, x, minf, &stop, dual_opt);
 	      nlopt_destroy(dual_opt);
 	      return ret;
 	 }
 
 	 case NLOPT_LN_COBYLA: {
-	      double step;
-	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
-		   return NLOPT_OUT_OF_MEMORY;
-	      return cobyla_minimize(ni, f, f_data, 
+	      nlopt_result ret;
+	      int freedx = 0;
+	      if (!opt->dx) {
+		   freedx = 1;
+		   if (nlopt_set_default_initial_step(opt, x) != NLOPT_SUCCESS)
+			return NLOPT_OUT_OF_MEMORY;
+	      }
+	      return cobyla_minimize(n, f, f_data, 
 				     opt->m, opt->fc,
 				     opt->p, opt->h,
 				     lb, ub, x, minf, &stop,
-				     step);
+				     opt->dx);
+	      if (freedx) { free(opt->dx); opt->dx = NULL; }
+	      return ret;
 	 }
 				     
 	 case NLOPT_LN_NEWUOA: {
@@ -460,11 +466,17 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	 }
 
 	 case NLOPT_LN_BOBYQA: {
-	      double step;
-	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
-		   return NLOPT_OUT_OF_MEMORY;
-	      return bobyqa(ni, 2*n+1, x, lb, ub, step,
-			    &stop, minf, f_noderiv, opt);
+	      nlopt_result ret;
+	      int freedx = 0;
+	      if (!opt->dx) {
+		   freedx = 1;
+		   if (nlopt_set_default_initial_step(opt, x) != NLOPT_SUCCESS)
+			return NLOPT_OUT_OF_MEMORY;
+	      }
+	      ret = bobyqa(ni, 2*n+1, x, lb, ub, opt->dx,
+			   &stop, minf, opt->f, opt->f_data);
+	      if (freedx) { free(opt->dx); opt->dx = NULL; }
+	      return ret;
 	 }
 
 	 case NLOPT_LN_NELDERMEAD: 

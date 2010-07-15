@@ -9,6 +9,8 @@
 
 #include "bobyqa.h"
 
+typedef double (*bobyqa_func)(int n, const double *x, void *func_data);
+
 #define min(a,b) ((a) <= (b) ? (a) : (b))
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 #define iabs(x) ((x) < 0 ? -(x) : (x))
@@ -3054,10 +3056,25 @@ L720:
 
 /**************************************************************************/
 
+#define U(n) ((unsigned) (n))
+
+typedef struct {
+     double *s, *xs;
+     nlopt_func f; void *f_data;
+} rescale_fun_data;
+
+static double rescale_fun(int n, const double *x, void *d_)
+{
+     rescale_fun_data *d = (rescale_fun_data*) d_;
+     nlopt_unscale(U(n), d->s, x, d->xs);
+     return d->f(U(n), d->xs, NULL, d->f_data);
+}
+
 nlopt_result bobyqa(int n, int npt, double *x, 
-		    const double *xl, const double *xu, double rhobeg, 
+		    const double *xl, const double *xu, 
+		    const double *dx,
 		    nlopt_stopping *stop, double *minf,
-		    bobyqa_func calfun, void *calfun_data)
+		    nlopt_func f, void *f_data)
 {
     /* System generated locals */
     int i__1;
@@ -3069,15 +3086,41 @@ nlopt_result bobyqa(int n, int npt, double *x,
     double temp, zero;
     int ibmat, izmat;
 
-    double rhoend;
-    double *w;
+    double rhobeg, rhoend;
+    double *w0 = NULL, *w;
     nlopt_result ret;
+    double *s = NULL, *sxl = NULL, *sxu = NULL, *xs = NULL;
+    rescale_fun_data calfun_data;
+    
+    /* SGJ 2010: rescale parameters to make the initial step sizes dx
+                 equal in all directions */
+    s = nlopt_compute_rescaling(U(n), dx);
+    if (!s) return NLOPT_OUT_OF_MEMORY;
 
-/* SGJ, 2009: compute rhoend from NLopt stop info */
+    /* this statement must go before goto done, so that --x occurs */
+    nlopt_rescale(U(n), s, x, x); --x;
+
+    xs = (double *) malloc(sizeof(double) * (U(n)));
+
+    sxl = nlopt_new_rescaled(U(n), s, xl);
+    if (!sxl) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+    xl = sxl;
+    sxu = nlopt_new_rescaled(U(n), s, xu);
+    if (!sxu) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+    xu = sxu;
+
+    rhobeg = dx[0] / s[0]; /* equals all other dx[i] after rescaling */
+
+    calfun_data.s = s;
+    calfun_data.xs = xs;
+    calfun_data.f = f;
+    calfun_data.f_data = f_data;
+
+    /* SGJ, 2009: compute rhoend from NLopt stop info */
     rhoend = stop->xtol_rel * (rhobeg);
     for (j = 0; j < n; ++j)
-	 if (rhoend < stop->xtol_abs[j])
-	      rhoend = stop->xtol_abs[j];
+	 if (rhoend < stop->xtol_abs[j] / s[j])
+	      rhoend = stop->xtol_abs[j] / s[j];
 
 
 /*     This subroutine seeks the least value of a function of many variables, */
@@ -3120,13 +3163,13 @@ nlopt_result bobyqa(int n, int npt, double *x,
     /* Parameter adjustments */
     --xu;
     --xl;
-    --x;
 
     /* Function Body */
     np = n + 1;
     if (npt < n + 2 || npt > (n + 2) * np / 2) {
       /* Return from BOBYQA because NPT is not in the required interval */
-      return NLOPT_INVALID_ARGS;
+      ret = NLOPT_INVALID_ARGS;
+      goto done;
     }
 
 /*     Partition the working space array, so that different parts of it can */
@@ -3152,9 +3195,9 @@ nlopt_result bobyqa(int n, int npt, double *x,
     ivl = id + n;
     iw = ivl + ndim;
 
-    w = (double *) malloc(sizeof(double) * ((npt+5)*(npt+n)+3*n*(n+5)/2));
-    if (!w) return NLOPT_OUT_OF_MEMORY;
-    --w;
+    w0 = (double *) malloc(sizeof(double) * U((npt+5)*(npt+n)+3*n*(n+5)/2));
+    if (!w0) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+    w = w0 - 1;
 
 /*   Return if there is insufficient space between the bounds. Modify the */
 /*   initial X if necessary in order to avoid conflicts between the bounds */
@@ -3170,8 +3213,8 @@ nlopt_result bobyqa(int n, int npt, double *x,
 	if (temp < rhobeg + rhobeg) {
 	  /* Return from BOBYQA because one of the differences
 	     XU(I)-XL(I)s is less than 2*RHOBEG. */
-  	  free(w+1);
-	  return NLOPT_INVALID_ARGS;
+	     ret = NLOPT_INVALID_ARGS;
+	     goto done;
 	}
 	jsl = isl + j - 1;
 	jsu = jsl + n;
@@ -3208,11 +3251,18 @@ nlopt_result bobyqa(int n, int npt, double *x,
 /*     Make the call of BOBYQB. */
 
     ret = bobyqb_(&n, &npt, &x[1], &xl[1], &xu[1], &rhobeg, &rhoend,
-		  stop, calfun, calfun_data, minf,
+		  stop, rescale_fun, &calfun_data, minf,
 		  &w[ixb], &w[ixp], &w[ifv], &w[ixo], &w[igo], &w[ihq], &w[ipq], 
 		  &w[ibmat], &w[izmat], &ndim, &w[isl], &w[isu], &w[ixn], &w[ixa],
 		  &w[id], &w[ivl], &w[iw]);
-    free(w+1);
+
+done:
+    free(w0);
+    free(sxl);
+    free(sxu);
+    free(xs);
+    ++x; nlopt_unscale(U(n), s, x, x);
+    free(s);
     return ret;
 } /* bobyqa_ */
 
