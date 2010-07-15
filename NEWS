@@ -1,4 +1,4 @@
-NLopt 2.2
+NLopt 2.2 (15 July 2010)
 
 * Added SLSQP algorithm for gradient-based local optimization with
   nonlinear constraints via sequential quadratic programming, based
