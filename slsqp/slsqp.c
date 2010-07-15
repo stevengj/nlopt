@@ -1377,9 +1377,11 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
 	dcopy___(n, &w[ip - 1 + i__], 0, &w[ip - 1 + i__], m1);
 /* L40: */
     }
-    w[ip] = one;
     i__1 = m1 + 1;
-    dcopy___(n, &w[ip], 0, &w[ip], i__1);
+    /* SGJ, 2010: skip constraints for infinite bounds */
+    for (i__ = 1; i__ <= *n; ++i__)
+	 if (!nlopt_isinf(xl[i__])) w[(ip - i__1) + i__ * i__1] = +1.0;
+    /* Old code: w[ip] = one; dcopy___(n, &w[ip], 0, &w[ip], i__1); */
     im = ip + *n;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
@@ -1387,9 +1389,11 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
 	dcopy___(n, &w[im - 1 + i__], 0, &w[im - 1 + i__], m1);
 /* L50: */
     }
-    w[im] = -one;
     i__1 = m1 + 1;
-    dcopy___(n, &w[im], 0, &w[im], i__1);
+    /* SGJ, 2010: skip constraints for infinite bounds */
+    for (i__ = 1; i__ <= *n; ++i__)
+	 if (!nlopt_isinf(xu[i__])) w[(im - i__1) + i__ * i__1] = -1.0;
+    /* Old code: w[im] = -one;  dcopy___(n, &w[im], 0, &w[im], i__1); */
     ih = ig + m1 * *n;
     if (mineq > 0) {
 /*  RECOVER H FROM LOWER PART OF B */
@@ -1399,11 +1403,15 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
     }
 /*  AUGMENT VECTOR H BY XL AND XU */
     il = ih + mineq;
-    dcopy___(n, &xl[1], 1, &w[il], 1);
     iu = il + *n;
-    dcopy___(n, &xu[1], 1, &w[iu], 1);
-    d__1 = -one;
-    dscal_sl__(n, &d__1, &w[iu], 1);
+    /* SGJ, 2010: skip constraints for infinite bounds */
+    for (i__ = 1; i__ <= *n; ++i__) {
+	 w[(il-1) + i__] = nlopt_isinf(xl[i__]) ? 0 : xl[i__];
+	 w[(iu-1) + i__] = nlopt_isinf(xu[i__]) ? 0 : -xu[i__];
+    }
+    /* Old code: dcopy___(n, &xl[1], 1, &w[il], 1);
+                 dcopy___(n, &xu[1], 1, &w[iu], 1);
+		 d__1 = -one; dscal_sl__(n, &d__1, &w[iu], 1); */
     iw = iu + *n;
     i__1 = max(1,*meq);
     lsei_(&w[ic], &w[id], &w[ie], &w[if__], &w[ig], &w[ih], &i__1, meq, n, n, 

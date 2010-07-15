@@ -35,7 +35,9 @@ Since roundoff errors sometimes pushed SLSQP's parameters slightly
 outside the bound constraints (not allowed by NLopt), we added checks
 to force the parameters within the bounds.  Fixed a bug in LSEI (use
 of uninitialized variables) for the case where the number of equality
-constraints equals the dimension of the problem.
+constraints equals the dimension of the problem.  The LSQ subroutine
+was modified to handle infinite lower/upper bounds (in which case
+those constraints are omitted).
 
 The exact line-search option is currently disabled; if we want to
 re-enable this (although exact line-search is usually overkill in
