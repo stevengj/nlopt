@@ -40,9 +40,9 @@
 /* return time in seconds since some arbitrary point in the past */
 double nlopt_seconds(void)
 {
-     static int start_inited = 0; /* whether start time has been initialized */
+     static THREADLOCAL int start_inited = 0; /* whether start time has been initialized */
 #if defined(HAVE_GETTIMEOFDAY)
-     static struct timeval start;
+     static THREADLOCAL struct timeval start;
      struct timeval tv;
      if (!start_inited) {
 	  start_inited = 1;
@@ -53,7 +53,7 @@ double nlopt_seconds(void)
 #elif defined(HAVE_TIME)
      return time(NULL);
 #elif defined(_WIN32) || defined(__WIN32__)
-     static ULONGLONG start;
+     static THREADLOCAL ULONGLONG start;
      FILETIME ft;
      if (!start_inited) {
 	  start_inited = 1;
@@ -65,7 +65,7 @@ double nlopt_seconds(void)
 #else
      /* use clock() as a fallback... this is somewhat annoying
 	because clock() may wrap around with a fairly short period */
-     static clock_t start;
+     static THREADLOCAL clock_t start;
      if (!start_inited) {
 	  start_inited = 1;
 	  start = clock();
