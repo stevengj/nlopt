@@ -14,6 +14,8 @@ NLopt 2.2 (15 July 2010)
 * Added GUILE_INSTALL_DIR variable to allow the user to change the
   Guile installation directory.
 
+* Added Fortran interface for vector-valued constraints.
+
 * Throw correct exceptions in Python for the add_*constraint functions;
   thanks to Dmitrey Kroshko for the bug report.
 
