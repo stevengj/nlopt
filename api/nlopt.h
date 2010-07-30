@@ -45,7 +45,11 @@
    Windows importing nonsense. */
 #if defined(NLOPT_DLL) && (defined(_WIN32) || defined(__WIN32__)) && !defined(__LCC__)
 /* annoying Windows syntax for calling functions in a DLL */
-#  define NLOPT_EXTERN(T) extern __declspec(dllimport) T NLOPT_STDCALL
+#  if defined(NLOPT_DLL_EXPORT)
+#    define NLOPT_EXTERN(T) extern __declspec(dllexport) T NLOPT_STDCALL
+#  else
+#    define NLOPT_EXTERN(T) extern __declspec(dllimport) T NLOPT_STDCALL
+#  endif
 #else
 #  define NLOPT_EXTERN(T) extern T NLOPT_STDCALL
 #endif
