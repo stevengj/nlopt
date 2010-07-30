@@ -371,9 +371,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GD_MLSL:
 	 case NLOPT_GN_MLSL_LDS:
 	 case NLOPT_GD_MLSL_LDS: {
-	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      nlopt_opt local_opt = opt->local_opt;
 	      nlopt_result ret;
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
 	      if (!local_opt && (algorithm == NLOPT_G_MLSL 
 				 || algorithm == NLOPT_G_MLSL_LDS))
 		   return NLOPT_INVALID_ARGS;

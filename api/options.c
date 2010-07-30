@@ -116,6 +116,7 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
      nlopt_opt nopt = NULL;
      unsigned i;
      if (opt) {
+	  nlopt_munge munge;
 	  nopt = (nlopt_opt) malloc(sizeof(struct nlopt_opt_s));
 	  *nopt = *opt;
 	  nopt->lb = nopt->ub = nopt->xtol_abs = NULL;
@@ -126,7 +127,7 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
 	  nopt->work = NULL;
 	  opt->force_stop_child = NULL;
 
-	  nlopt_munge munge = nopt->munge_on_copy;
+	  munge = nopt->munge_on_copy;
 	  if (munge && nopt->f_data)
 	       if (!(nopt->f_data = munge(nopt->f_data))) goto oom;
 
