@@ -35,6 +35,11 @@
 #  define HUGE_VAL REPLACEMENT_HUGE_VAL
 #endif
 
+#ifndef HAVE_COPYSIGN
+   /* not quite right for y == -0, but good enough for us */
+#  define copysign(x, y) ((y) < 0 ? -fabs(x) : fabs(x))
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {

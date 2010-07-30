@@ -86,6 +86,14 @@ if test "$ok" = "yes"; then
 fi
 AC_MSG_RESULT(${ok})
 
+AC_MSG_CHECKING([for copysign])
+AC_TRY_LINK([#include <math.h>
+], [double x = copysign(3.14159, -2.7183);], ok=yes, ok=no)
+if test "$ok" = "yes"; then
+	AC_DEFINE(HAVE_COPYSIGN,1,[Define if the copysign function/macro is available.])
+fi
+AC_MSG_RESULT(${ok})
+
 dnl -----------------------------------------------------------------------
 
 if test "x$with_cxx" = xyes; then
