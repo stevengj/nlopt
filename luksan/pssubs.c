@@ -2,8 +2,8 @@
 #include "luksan.h"
 
 #define FALSE_ 0
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
+#define MAX2(a,b) ((a) > (b) ? (a) : (b))
+#define MIN2(a,b) ((a) < (b) ? (a) : (b))
 #define iabs(a) ((a) < 0 ? -(a) : (a))
 
 /*     subroutines extracted from pssubs.for */
@@ -48,13 +48,13 @@ void luksan_pcbs04__(int *nf, double *x, int *ix,
 /* Computing MAX */
 	    d__2 = (d__1 = xl[i__], fabs(d__1));
 	    if ((ixi == 1 || ixi == 3 || ixi == 4) && x[i__] <= xl[i__] + *
-		    eps9 * max(d__2,temp)) {
+		    eps9 * MAX2(d__2,temp)) {
 		x[i__] = xl[i__];
 	    }
 /* Computing MAX */
 	    d__2 = (d__1 = xu[i__], fabs(d__1));
 	    if ((ixi == 2 || ixi == 3 || ixi == 4) && x[i__] >= xu[i__] - *
-		    eps9 * max(d__2,temp)) {
+		    eps9 * MAX2(d__2,temp)) {
 		x[i__] = xu[i__];
 	    }
 /* L1: */
@@ -172,10 +172,10 @@ void luksan_pnint1__(double *rl, double *ru, double *fl,
 	    *r__ = *rl + (*ru - *rl) / den;
 /* Computing MAX */
 	    d__1 = *r__, d__2 = *ru * 1.1;
-	    *r__ = max(d__1,d__2);
+	    *r__ = MAX2(d__1,d__2);
 /* Computing MIN */
 	    d__1 = *r__, d__2 = *ru * 1e3;
-	    *r__ = min(d__1,d__2);
+	    *r__ = MIN2(d__1,d__2);
 	    return;
 	} else if (*mode == 2 && den > 1.) {
 
@@ -185,15 +185,15 @@ void luksan_pnint1__(double *rl, double *ru, double *fl,
 	    if (*rl == 0.) {
 /* Computing MAX */
 		d__1 = *r__, d__2 = *rl + (*ru - *rl) * .01;
-		*r__ = max(d__1,d__2);
+		*r__ = MAX2(d__1,d__2);
 	    } else {
 /* Computing MAX */
 		d__1 = *r__, d__2 = *rl + (*ru - *rl) * .1;
-		*r__ = max(d__1,d__2);
+		*r__ = MAX2(d__1,d__2);
 	    }
 /* Computing MIN */
 	    d__1 = *r__, d__2 = *rl + (*ru - *rl) * .9;
-	    *r__ = min(d__1,d__2);
+	    *r__ = MIN2(d__1,d__2);
 	    return;
 	}
 L1:
@@ -316,7 +316,7 @@ void luksan_ps1l01__(double *r__, double *rp,
     } else {
 /* Computing MAX */
 	d__1 = *f - *fp, d__2 = *minf - *f;
-	rtemp = max(d__1,d__2);
+	rtemp = MAX2(d__1,d__2);
     }
     init1 = iabs(*inits);
     *rp = 0.;
@@ -328,16 +328,16 @@ void luksan_ps1l01__(double *r__, double *rp,
     } else if (init1 == 2) {
 /* Computing MIN */
 	d__1 = 1., d__2 = rtemp * 4. / *po;
-	*r__ = min(d__1,d__2);
+	*r__ = MIN2(d__1,d__2);
     } else if (init1 == 3) {
 /* Computing MIN */
 	d__1 = 1., d__2 = rtemp * 2. / *po;
-	*r__ = min(d__1,d__2);
+	*r__ = MIN2(d__1,d__2);
     } else if (init1 == 4) {
 	*r__ = rtemp * 2. / *po;
     }
-    *r__ = max(*r__,*rmin);
-    *r__ = min(*r__,*rmax);
+    *r__ = MAX2(*r__,*rmin);
+    *r__ = MIN2(*r__,*rmax);
     mode = 0;
     ru = 0.;
     fu = *fo;
@@ -352,7 +352,7 @@ L2:
 	goto L4;
     } else if (mode == 1) {
 	--(*nred);
-	*r__ = min(*r__,*rmax);
+	*r__ = MIN2(*r__,*rmax);
     } else if (mode == 2) {
 	++(*nred);
     }
@@ -424,7 +424,7 @@ L3:
 	*rp = *r__;
 	*fp = *f;
 	*pp = *p;
-	mode = max(mode,1);
+	mode = MAX2(mode,1);
 	mtyp = iabs(*mes);
 	if (*f >= *maxf) {
 	    mtyp = 1;
@@ -544,22 +544,22 @@ void luksan_pulsp3__(int *n, int *m, int *mf,
 	    d__1 = 0., d__2 = 1. - aa / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((max(d__1,d__2))) / (sqrt((max(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
 		    pom;
 	} else {
 /* Computing MAX */
 	    d__1 = 0., d__2 = *sig * ah / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((max(d__1,d__2))) / (sqrt((max(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
 		    pom;
 	}
 /* Computing MAX */
 	d__1 = *sig, d__2 = pom * .2;
-	*sig = max(d__1,d__2);
+	*sig = MAX2(d__1,d__2);
 /* Computing MIN */
 	d__1 = *sig, d__2 = pom * .8;
-	*sig = min(d__1,d__2);
+	*sig = MIN2(d__1,d__2);
     } else {
 	*sig = pom * .25;
     }
@@ -687,22 +687,22 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
 	    d__1 = 0., d__2 = 1. - aa / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((max(d__1,d__2))) / (sqrt((max(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
 		    pom;
 	} else {
 /* Computing MAX */
 	    d__1 = 0., d__2 = *sig * ah / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((max(d__1,d__2))) / (sqrt((max(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
 		    pom;
 	}
 /* Computing MAX */
 	d__1 = *sig, d__2 = pom * .2;
-	*sig = max(d__1,d__2);
+	*sig = MAX2(d__1,d__2);
 /* Computing MIN */
 	d__1 = *sig, d__2 = pom * .8;
-	*sig = min(d__1,d__2);
+	*sig = MIN2(d__1,d__2);
     } else {
 	*sig = pom * .25;
     }
@@ -892,7 +892,7 @@ void luksan_pyfut1__(int *n, double *f, double *fo, double *umax,
     if (*nit <= 0) {
 /* Computing MIN */
 	d__1 = sqrt((fabs(*f))), d__2 = fabs(*f) / 10.;
-	*fo = *f + min(d__1,d__2);
+	*fo = *f + MIN2(d__1,d__2);
     }
     if (nlopt_stop_forced(stop)) {
 	*iterm = -999;
@@ -945,7 +945,7 @@ L1:
     }
     *iterm = 0;
     if (*n > 0 && *nit - *kit >= *ires1 * *n + *ires2) {
-	*irest = max(*irest,1);
+	*irest = MAX2(*irest,1);
     }
     ++(*nit);
     return;
@@ -998,7 +998,7 @@ void luksan_pyrmc0__(int *nf, int *n, int *ix,
 		    ++(*iold);
 /* Computing MIN */
 		    i__3 = (i__2 = ix[i__], iabs(i__2));
-		    ix[i__] = min(i__3,3);
+		    ix[i__] = MIN2(i__3,3);
 		    if (*rmax == 0.) {
 			goto L2;
 		    }
@@ -1007,7 +1007,7 @@ void luksan_pyrmc0__(int *nf, int *n, int *ix,
 	    }
 L2:
 	    if (*iold > 1) {
-		*irest = max(*irest,1);
+		*irest = MAX2(*irest,1);
 	    }
 	}
     }
@@ -1091,8 +1091,8 @@ void luksan_pytrcd__(int *nf, double *x, int *ix,
 /* Computing MAX */
 /* Computing MAX */
 	d__5 = (d__2 = x[i__], fabs(d__2));
-	d__3 = *dmax__, d__4 = (d__1 = xo[i__], fabs(d__1)) / max(d__5,1.);
-	*dmax__ = max(d__3,d__4);
+	d__3 = *dmax__, d__4 = (d__1 = xo[i__], fabs(d__1)) / MAX2(d__5,1.);
+	*dmax__ = MAX2(d__3,d__4);
 L1:
 	;
     }
@@ -1146,7 +1146,7 @@ void luksan_pytrcg__(int *nf, int *n, int *ix,
 	    if (ix[i__] >= 0) {
 /* Computing MAX */
 		d__1 = *gmax, d__2 = fabs(temp);
-		*gmax = max(d__1,d__2);
+		*gmax = MAX2(d__1,d__2);
 	    } else if (ix[i__] <= -5) {
 	    } else if ((ix[i__] == -1 || ix[i__] == -3) && *umax + temp >= 0.)
 		     {
@@ -1236,14 +1236,14 @@ void luksan_pytrcs__(int *nf, double *x, int *ix,
 		    if (s[i__] < -1. / *eta9) {
 /* Computing MIN */
 			d__1 = *rmax, d__2 = (xl[i__] - x[i__]) / s[i__];
-			*rmax = min(d__1,d__2);
+			*rmax = MIN2(d__1,d__2);
 		    }
 		}
 		if (ix[i__] == 2 || ix[i__] >= 3) {
 		    if (s[i__] > 1. / *eta9) {
 /* Computing MIN */
 			d__1 = *rmax, d__2 = (xu[i__] - x[i__]) / s[i__];
-			*rmax = min(d__1,d__2);
+			*rmax = MIN2(d__1,d__2);
 		    }
 		}
 	    }

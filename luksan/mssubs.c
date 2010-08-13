@@ -1,7 +1,7 @@
 #include <math.h>
 #include "luksan.h"
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
+#define MAX2(a,b) ((a) > (b) ? (a) : (b))
 #define iabs(a) ((a) < 0 ? -(a) : (a))
 
 /*     subroutines extracted from mssubs.for */
@@ -34,7 +34,7 @@ double luksan_mxvmax__(int *n, double *x)
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* Computing MAX */
 	d__2 = mxvmax, d__3 = (d__1 = x[i__], fabs(d__1));
-	mxvmax = max(d__2,d__3);
+	mxvmax = MAX2(d__2,d__3);
 /* L1: */
     }
     return mxvmax;

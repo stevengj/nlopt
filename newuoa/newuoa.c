@@ -32,8 +32,8 @@
 
 #include "newuoa.h"
 
-#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))
+#define MIN2(a,b) ((a) <= (b) ? (a) : (b))
+#define MAX2(a,b) ((a) >= (b) ? (a) : (b))
 
 /*************************************************************************/
 /* trsapp.f */
@@ -267,10 +267,10 @@ L50:
 	if (iterc == 1) {
 	    *crvmin = temp;
 	}
-	*crvmin = min(*crvmin,temp);
+	*crvmin = MIN2(*crvmin,temp);
 /* Computing MIN */
 	d__1 = alpha, d__2 = gg / dhd;
-	alpha = min(d__1,d__2);
+	alpha = MIN2(d__1,d__2);
     }
     qadd = alpha * (gg - half * alpha * dhd);
     qred += qadd;
@@ -939,7 +939,7 @@ L70:
 	goto L340;
     }
     if (iterc > 1) {
-	densav = max(densav,denold);
+	densav = MAX2(densav,denold);
     }
     if (fabs(denmax) <= fabs(densav) * 1.1) {
 	goto L340;
@@ -1851,7 +1851,7 @@ L100:
     }
 /* Computing MIN */
     d__1 = delta, d__2 = sqrt(dsq);
-    dnorm = min(d__1,d__2);
+    dnorm = MIN2(d__1,d__2);
     if (dnorm < half * rho) {
 	knew = -1;
 	delta = tenth * delta;
@@ -1864,8 +1864,8 @@ L100:
 	}
 	temp = crvmin * .125 * rho * rho;
 /* Computing MAX */
-	d__1 = max(diffa,diffb);
-	if (temp <= max(d__1,diffc)) {
+	d__1 = MAX2(diffa,diffb);
+	if (temp <= MAX2(d__1,diffc)) {
 	    goto L460;
 	}
 	goto L490;
@@ -2188,11 +2188,11 @@ L310:
     } else if (ratio <= .7) {
 /* Computing MAX */
 	d__1 = half * delta;
-	delta = max(d__1,dnorm);
+	delta = MAX2(d__1,dnorm);
     } else {
 /* Computing MAX */
 	d__1 = half * delta, d__2 = dnorm + dnorm;
-	delta = max(d__1,d__2);
+	delta = MAX2(d__1,d__2);
     }
     if (delta <= rho * 1.5) {
 	delta = rho;
@@ -2203,7 +2203,7 @@ L310:
 /* Computing MAX */
     d__2 = tenth * delta;
 /* Computing 2nd power */
-    d__1 = max(d__2,rho);
+    d__1 = MAX2(d__2,rho);
     rhosq = d__1 * d__1;
     ktemp = 0;
     detrat = zero;
@@ -2414,15 +2414,15 @@ L460:
 /* Computing MAX */
 /* Computing MIN */
 	d__2 = tenth * sqrt(distsq), d__3 = half * delta;
-	d__1 = min(d__2,d__3);
-	dstep = max(d__1,rho);
+	d__1 = MIN2(d__2,d__3);
+	dstep = MAX2(d__1,rho);
 	dsq = dstep * dstep;
 	goto L120;
     }
     if (ratio > zero) {
 	goto L100;
     }
-    if (max(delta,dnorm) > rho) {
+    if (MAX2(delta,dnorm) > rho) {
 	goto L100;
     }
 
@@ -2440,7 +2440,7 @@ L490:
 	} else {
 	    rho = tenth * rho;
 	}
-	delta = max(delta,rho);
+	delta = MAX2(delta,rho);
 	goto L90;
     }
 

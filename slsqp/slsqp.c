@@ -159,8 +159,8 @@ static const int c__0 = 0;
 static const int c__1 = 1;
 static const int c__2 = 2;
 
-#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))
+#define MIN2(a,b) ((a) <= (b) ? (a) : (b))
+#define MAX2(a,b) ((a) >= (b) ? (a) : (b))
 
 static void h12_(const int *mode, int *lpivot, int *l1, 
 		 int *m, double *u, const int *iue, double *up, 
@@ -225,7 +225,7 @@ static void h12_(const int *mode, int *lpivot, int *l1,
     for (j = *l1; j <= i__1; ++j) {
 	sm = (d__1 = u[j * u_dim1 + 1], fabs(d__1));
 /* L10: */
-	cl = max(sm,cl);
+	cl = MAX2(sm,cl);
     }
     if (cl <= 0.0) {
 	goto L80;
@@ -456,7 +456,7 @@ L160:
 	h12_(&c__2, &nsetp, &npp1, m, &a[j * a_dim1 + 1], &c__1, &up, &a[jj * 
 		a_dim1 + 1], &c__1, mda, &c__1);
     }
-    k = min(npp1,*mda);
+    k = MIN2(npp1,*mda);
     w[j] = 0.0;
     i__2 = *m - nsetp;
     dcopy___(&i__2, &w[j], 0, &a[k + j * a_dim1], 1);
@@ -546,7 +546,7 @@ L250:
     goto L180;
 /* STEP TWELVE (SOLUTION) */
 L280:
-    k = min(npp1,*m);
+    k = MIN2(npp1,*m);
     i__2 = *m - nsetp;
     *rnorm = dnrm2___(&i__2, &b[k], 1);
     if (npp1 > *m) {
@@ -751,7 +751,7 @@ static void lsi_(double *e, double *f, double *g,
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* Computing MIN */
 	i__2 = i__ + 1;
-	j = min(i__2,*n);
+	j = MIN2(i__2,*n);
 	i__2 = i__ + 1;
 	i__3 = *n - i__;
 	h12_(&c__1, &i__, &i__2, me, &e[i__ * e_dim1 + 1], &c__1, &t, &e[j * 
@@ -789,7 +789,7 @@ static void lsi_(double *e, double *f, double *g,
     for (i__ = *n; i__ >= 1; --i__) {
 /* Computing MIN */
 	i__2 = i__ + 1;
-	j = min(i__2,*n);
+	j = MIN2(i__2,*n);
 /* L40: */
 	i__2 = *n - i__;
 	x[i__] = (x[i__] - ddot_sl__(&i__2, &e[i__ + j * e_dim1], *le, &x[j], 1))
@@ -797,7 +797,7 @@ static void lsi_(double *e, double *f, double *g,
     }
 /* Computing MIN */
     i__2 = *n + 1;
-    j = min(i__2,*me);
+    j = MIN2(i__2,*me);
     i__2 = *me - *n;
     t = dnrm2___(&i__2, &f[j], 1);
     *xnorm = sqrt(*xnorm * *xnorm + t * t);
@@ -866,7 +866,7 @@ static void hfti_(double *a, int *mda, int *m, int *
 
     /* Function Body */
     k = 0;
-    ldiag = min(*m,*n);
+    ldiag = MIN2(*m,*n);
     if (ldiag <= 0) {
 	goto L270;
     }
@@ -927,7 +927,7 @@ L50:
 L70:
 /* Computing MIN */
 	i__2 = j + 1;
-	i__ = min(i__2,*n);
+	i__ = MIN2(i__2,*n);
 	i__2 = j + 1;
 	i__3 = *n - j;
 	h12_(&c__1, &j, &i__2, m, &a[j * a_dim1 + 1], &c__1, &h__[j], &a[i__ *
@@ -988,7 +988,7 @@ L180:
 	for (i__ = k; i__ >= 1; --i__) {
 /* Computing MIN */
 	    i__1 = i__ + 1;
-	    j = min(i__1,*n);
+	    j = MIN2(i__1,*n);
 /* L210: */
 	    i__1 = k - i__;
 	    b[i__ + jb * b_dim1] = (b[i__ + jb * b_dim1] - ddot_sl__(&i__1, &
@@ -1118,7 +1118,7 @@ static void lsei_(double *c__, double *d__, double *e,
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* Computing MIN */
 	i__2 = i__ + 1;
-	j = min(i__2,*lc);
+	j = MIN2(i__2,*lc);
 	i__2 = i__ + 1;
 	i__3 = *mc - i__;
 	h12_(&c__1, &i__, &i__2, n, &c__[i__ + c_dim1], lc, &w[iw + i__], &
@@ -1171,7 +1171,7 @@ static void lsei_(double *c__, double *d__, double *e,
     }
 /*  SOLVE LS WITHOUT INEQUALITY CONSTRAINTS */
     *mode = 7;
-    k = max(*le,*n);
+    k = MAX2(*le,*n);
     t = sqrt(epmach);
     hfti_(&w[ie], me, me, &l, &w[if__], &k, &c__1, &t, &krank, xnrm, &w[1], &
 	    w[l + 1], &jw[1]);
@@ -1220,7 +1220,7 @@ L50:
     for (i__ = *mc; i__ >= 1; --i__) {
 /* Computing MIN */
 	i__2 = i__ + 1;
-	j = min(i__2,*lc);
+	j = MIN2(i__2,*lc);
 	i__2 = *mc - i__;
 	w[i__] = (d__[i__] - ddot_sl__(&i__2, &c__[j + i__ * c_dim1], 1, &
 		w[j], 1)) / c__[i__ + i__ * c_dim1];
@@ -1413,7 +1413,7 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
                  dcopy___(n, &xu[1], 1, &w[iu], 1);
 		 d__1 = -one; dscal_sl__(n, &d__1, &w[iu], 1); */
     iw = iu + *n;
-    i__1 = max(1,*meq);
+    i__1 = MAX2(1,*meq);
     lsei_(&w[ic], &w[id], &w[ie], &w[if__], &w[ig], &w[ih], &i__1, meq, n, n, 
 	    &m1, &m1, n, &x[1], &xnorm, &w[iw], &jw[1], mode);
     if (*mode == 1) {
@@ -1933,7 +1933,7 @@ L130:
 	    } else {
 /* Computing MAX */
 		d__1 = -c__[j];
-		a[j + n1 * a_dim1] = max(d__1,0.0);
+		a[j + n1 * a_dim1] = MAX2(d__1,0.0);
 	    }
 /* L140: */
 	}
@@ -1983,11 +1983,11 @@ L150:
 	}
 /* Computing MAX */
 	d__1 = -c__[j];
-	h2 += max(d__1,h3);
+	h2 += MAX2(d__1,h3);
 	h3 = (d__1 = r__[j], fabs(d__1));
 /* Computing MAX */
 	d__1 = h3, d__2 = (mu[j] + h3) / two;
-	mu[j] = max(d__1,d__2);
+	mu[j] = MAX2(d__1,d__2);
 	h1 += h3 * (d__1 = c__[j], fabs(d__1));
 /* L170: */
     }
@@ -2006,7 +2006,7 @@ L150:
 	}
 /* Computing MAX */
 	d__1 = -c__[j];
-	h1 += mu[j] * max(d__1,h3);
+	h1 += mu[j] * MAX2(d__1,h3);
 /* L180: */
     }
     t0 = *f + h1;
@@ -2048,7 +2048,7 @@ L200:
     }
 /* Computing MAX */
     d__1 = h3 / (two * (h3 - h1));
-    alpha = max(d__1,alfmin);
+    alpha = MAX2(d__1,alfmin);
     goto L190;
 /*   EXACT LINESEARCH */
 L210:
@@ -2079,7 +2079,7 @@ L220:
 	}
 /* Computing MAX */
 	d__1 = -c__[j];
-	t += mu[j] * max(d__1,h1);
+	t += mu[j] * MAX2(d__1,h1);
 /* L230: */
     }
     h1 = t - t0;
@@ -2099,7 +2099,7 @@ L240:
 	}
 /* Computing MAX */
 	d__1 = -c__[j];
-	h3 += max(d__1,h1);
+	h3 += MAX2(d__1,h1);
 /* L250: */
     }
     if (((d__1 = *f - f0, fabs(d__1)) < *acc || dnrm2___(n, &s[1], 1) < *
@@ -2396,19 +2396,19 @@ static void slsqp(int *m, int *meq, int *la, int *n,
 	    << 1) + *n * 3 + (n1 << 2) + 1;
 /* Computing MAX */
     i__1 = mineq, i__2 = n1 - *meq;
-    im = max(i__1,i__2);
+    im = MAX2(i__1,i__2);
     if (*l_w__ < il || *l_jw__ < im) {
-	*mode = max(10,il) * 1000;
-	*mode += max(10,im);
+	*mode = MAX2(10,il) * 1000;
+	*mode += MAX2(10,im);
 	return;
     }
 /*   PREPARE DATA FOR CALLING SQPBDY  -  INITIAL ADDRESSES IN W */
     im = 1;
-    il = im + max(1,*m);
+    il = im + MAX2(1,*m);
     il = im + *la;
     ix = il + n1 * *n / 2 + 1;
     ir = ix + *n;
-    is = ir + *n + *n + max(1,*m);
+    is = ir + *n + *n + MAX2(1,*m);
     is = ir + *n + *n + *la;
     iu = is + n1;
     iv = iu + n1;
@@ -2452,7 +2452,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
      double infeasibility = HUGE_VAL, infeasibility_cur = HUGE_VAL;
      unsigned max_cdim;
      
-     max_cdim = max(nlopt_max_constraint_dim(m, fc),
+     max_cdim = MAX2(nlopt_max_constraint_dim(m, fc),
 		    nlopt_max_constraint_dim(p, h));
      length_work(&len_w, &len_jw, mpi, pi, ni);
 
@@ -2504,7 +2504,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 			     ret = NLOPT_FORCED_STOP; goto done; }
 			for (k = 0; k < h[i].m; ++k, ++ii) {
 			     infeasibility_cur = 
-				  max(infeasibility_cur, fabs(c[ii]));
+				  MAX2(infeasibility_cur, fabs(c[ii]));
 			     feasible_cur = 
 				  feasible_cur && fabs(c[ii]) <= h[i].tol[k];
 			     for (j = 0; j < n; ++ j)
@@ -2518,7 +2518,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 			     ret = NLOPT_FORCED_STOP; goto done; }
 			for (k = 0; k < fc[i].m; ++k, ++ii) {
 			     infeasibility_cur = 
-				  max(infeasibility_cur, c[ii]);
+				  MAX2(infeasibility_cur, c[ii]);
 			     feasible_cur = 
 				  feasible_cur && c[ii] <= fc[i].tol[k];
 			     for (j = 0; j < n; ++ j)
@@ -2542,7 +2542,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 			     ret = NLOPT_FORCED_STOP; goto done; }
 			for (k = 0; k < h[i].m; ++k, ++ii) {
 			     infeasibility_cur = 
-				  max(infeasibility_cur, fabs(c[ii]));
+				  MAX2(infeasibility_cur, fabs(c[ii]));
 			     feasible_cur = 
 				  feasible_cur && fabs(c[ii]) <= h[i].tol[k];
 			}
@@ -2554,7 +2554,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 			     ret = NLOPT_FORCED_STOP; goto done; }
 			for (k = 0; k < fc[i].m; ++k, ++ii) {
 			     infeasibility_cur = 
-				  max(infeasibility_cur, c[ii]);
+				  MAX2(infeasibility_cur, c[ii]);
 			     feasible_cur = 
 				  feasible_cur && c[ii] <= fc[i].tol[k];
 			     c[ii] = -c[ii]; /* slsqp sign convention */

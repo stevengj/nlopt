@@ -54,9 +54,8 @@ static char const rcsid[] =
    problem */
 #define ENFORCE_BOUNDS 1
 
-#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-#define abs(x) ((x) >= 0 ? (x) : -(x))
+#define MIN2(a,b) ((a) <= (b) ? (a) : (b))
+#define MAX2(a,b) ((a) >= (b) ? (a) : (b))
 
 #define U(n) ((unsigned) (n))
 
@@ -511,7 +510,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   --lb; --ub;
 
   /* Function Body */
-  iptem = min(*n,4);
+  iptem = MIN2(*n,4);
   iptemp = iptem + 1;
   np = *n + 1;
   mp = *m + 1;
@@ -583,7 +582,7 @@ L40:
     i__1 = *m;
     for (k = 1; k <= i__1; ++k) {
       d__1 = resmax, d__2 = -con[k];
-      resmax = max(d__1,d__2);
+      resmax = MAX2(d__1,d__2);
       if (d__2 > state->con_tol[k-1])
 	   feasible = 0; /* SGJ, 2010 */
     }
@@ -737,8 +736,8 @@ L140:
       for (k = 1; k <= i__3; ++k) if (sim[k + j * sim_dim1] != 0) {
         temp += simi[i__ + k * simi_dim1] * sim[k + j * sim_dim1];
       }
-      d__1 = error, d__2 = abs(temp);
-      error = max(d__1,d__2);
+      d__1 = error, d__2 = fabs(temp);
+      error = MAX2(d__1,d__2);
     }
   }
   if (error > .1) {
@@ -843,9 +842,9 @@ L140:
     if (k < mp) {
       temp = datmat[k + np * datmat_dim1];
       d__1 = cvmaxp, d__2 = -sum - temp;
-      cvmaxp = max(d__1,d__2);
+      cvmaxp = MAX2(d__1,d__2);
       d__1 = cvmaxm, d__2 = sum - temp;
-      cvmaxm = max(d__1,d__2);
+      cvmaxm = MAX2(d__1,d__2);
     }
   }
   dxsign = 1.;
@@ -951,7 +950,7 @@ L370:
       sum -= a[i__ + k * a_dim1] * dx[i__];
     }
     if (k < mp) {
-      resnew = max(resnew,sum);
+      resnew = MAX2(resnew,sum);
     }
   }
 
@@ -1025,7 +1024,7 @@ L440:
     for (i__ = 1; i__ <= i__2; ++i__) {
       temp += simi[j + i__ * simi_dim1] * dx[i__];
     }
-    temp = abs(temp);
+    temp = fabs(temp);
     if (temp > ratio) {
       jdrop = j;
       ratio = temp;
@@ -1147,16 +1146,16 @@ L550:
         i__2 = *n;
         for (i__ = 1; i__ <= i__2; ++i__) {
           d__1 = cmin, d__2 = datmat[k + i__ * datmat_dim1];
-          cmin = min(d__1,d__2);
+          cmin = MIN2(d__1,d__2);
           d__1 = cmax, d__2 = datmat[k + i__ * datmat_dim1];
-          cmax = max(d__1,d__2);
+          cmax = MAX2(d__1,d__2);
         }
         if (k <= *m && cmin < cmax * .5) {
-          temp = max(cmax,0.) - cmin;
+          temp = MAX2(cmax,0.) - cmin;
           if (denom <= 0.) {
             denom = temp;
           } else {
-            denom = min(denom,temp);
+            denom = MIN2(denom,temp);
           }
         }
       }
@@ -1406,10 +1405,10 @@ L100:
     for (i__ = 1; i__ <= i__1; ++i__) {
       temp = z__[i__ + k * z_dim1] * dxnew[i__];
       sp += temp;
-      spabs += abs(temp);
+      spabs += fabs(temp);
     }
-    acca = spabs + abs(sp) * .1;
-    accb = spabs + abs(sp) * .2;
+    acca = spabs + fabs(sp) * .1;
+    accb = spabs + fabs(sp) * .2;
     if (spabs >= acca || acca >= accb) {
       sp = 0.;
     }
@@ -1461,10 +1460,10 @@ L130:
   for (i__ = 1; i__ <= i__1; ++i__) {
     temp = z__[i__ + k * z_dim1] * dxnew[i__];
     zdotv += temp;
-    zdvabs += abs(temp);
+    zdvabs += fabs(temp);
   }
-  acca = zdvabs + abs(zdotv) * .1;
-  accb = zdvabs + abs(zdotv) * .2;
+  acca = zdvabs + fabs(zdotv) * .1;
+  accb = zdvabs + fabs(zdotv) * .2;
   if (zdvabs < acca && acca < accb) {
     temp = zdotv / zdota[k];
     if (temp > 0. && iact[k] <= *m) {
@@ -1500,7 +1499,7 @@ L130:
   i__1 = nact;
   for (k = 1; k <= i__1; ++k) {
     d__1 = 0., d__2 = vmultc[k] - ratio * vmultd[k];
-    vmultc[k] = max(d__1,d__2);
+    vmultc[k] = MAX2(d__1,d__2);
   }
   if (icon < nact) {
     isave = iact[icon];
@@ -1681,7 +1680,7 @@ L340:
   ss = 0.;
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
-    if ((d__1 = dx[i__], abs(d__1)) >= *rho * 1e-6f) {
+    if ((d__1 = dx[i__], fabs(d__1)) >= *rho * 1e-6f) {
       d__2 = dx[i__];
       dd -= d__2 * d__2;
     }
@@ -1693,7 +1692,7 @@ L340:
     goto L490;
   }
   temp = sqrt(ss * dd);
-  if (abs(sd) >= temp * 1e-6f) {
+  if (fabs(sd) >= temp * 1e-6f) {
     temp = sqrt(ss * dd + sd * sd);
   }
   stpful = dd / (temp + sd);
@@ -1704,7 +1703,7 @@ L340:
     if (step >= acca || acca >= accb) {
       goto L480;
     }
-    step = min(step,resmax);
+    step = MIN2(step,resmax);
   }
 
   /* SGJ, 2010: check for error here */
@@ -1730,7 +1729,7 @@ L340:
       for (i__ = 1; i__ <= i__2; ++i__) {
         temp -= a[i__ + kk * a_dim1] * dxnew[i__];
       }
-      resmax = max(resmax,temp);
+      resmax = MAX2(resmax,temp);
     }
   }
 
@@ -1747,10 +1746,10 @@ L390:
   for (i__ = 1; i__ <= i__1; ++i__) {
     temp = z__[i__ + k * z_dim1] * dxnew[i__];
     zdotw += temp;
-    zdwabs += abs(temp);
+    zdwabs += fabs(temp);
   }
-  acca = zdwabs + abs(zdotw) * .1;
-  accb = zdwabs + abs(zdotw) * .2;
+  acca = zdwabs + fabs(zdotw) * .1;
+  accb = zdwabs + fabs(zdotw) * .2;
   if (zdwabs >= acca || acca >= accb) {
     zdotw = 0.;
   }
@@ -1766,7 +1765,7 @@ L390:
   }
   if (mcon > *m) {
     d__1 = 0., d__2 = vmultd[nact];
-    vmultd[nact] = max(d__1,d__2);
+    vmultd[nact] = MAX2(d__1,d__2);
   }
 
 /* Complete VMULTC by finding the new constraint residuals. */
@@ -1781,15 +1780,15 @@ L390:
     for (k = kl; k <= i__1; ++k) {
       kk = iact[k];
       sum = resmax - b[kk];
-      sumabs = resmax + (d__1 = b[kk], abs(d__1));
+      sumabs = resmax + (d__1 = b[kk], fabs(d__1));
       i__2 = *n;
       for (i__ = 1; i__ <= i__2; ++i__) {
         temp = a[i__ + kk * a_dim1] * dxnew[i__];
         sum += temp;
-        sumabs += abs(temp);
+        sumabs += fabs(temp);
       }
-      acca = sumabs + abs(sum) * .1f;
-      accb = sumabs + abs(sum) * .2f;
+      acca = sumabs + fabs(sum) * .1f;
+      accb = sumabs + fabs(sum) * .2f;
       if (sumabs >= acca || acca >= accb) {
         sum = 0.f;
       }
@@ -1822,7 +1821,7 @@ L390:
   i__1 = mcon;
   for (k = 1; k <= i__1; ++k) {
     d__1 = 0., d__2 = temp * vmultc[k] + ratio * vmultd[k];
-    vmultc[k] = max(d__1,d__2);
+    vmultc[k] = MAX2(d__1,d__2);
   }
   if (mcon == *m) {
     resmax = resold + ratio * (resmax - resold);

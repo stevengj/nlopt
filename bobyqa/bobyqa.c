@@ -11,9 +11,9 @@
 
 typedef double (*bobyqa_func)(int n, const double *x, void *func_data);
 
-#define min(a,b) ((a) <= (b) ? (a) : (b))
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-#define iabs(x) ((x) < 0 ? -(x) : (x))
+#define MIN2(a,b) ((a) <= (b) ? (a) : (b))
+#define MAX2(a,b) ((a) >= (b) ? (a) : (b))
+#define IABS(x) ((x) < 0 ? -(x) : (x))
 
 static void update_(int *n, int *npt, double *bmat, 
 	double *zmat, int *ndim, double *vlag, double *beta, 
@@ -63,7 +63,7 @@ static void update_(int *n, int *npt, double *bmat,
 /* L10: */
 /* Computing MAX */
 	    d__2 = ztest, d__3 = (d__1 = zmat[k + j * zmat_dim1], fabs(d__1));
-	    ztest = max(d__2,d__3);
+	    ztest = MAX2(d__2,d__3);
 	}
     }
     ztest *= 1e-20;
@@ -264,7 +264,7 @@ static nlopt_result rescue_(int *n, int *npt, const double *xl, const double *xu
 	}
 	sumpq += pq[k];
 	w[*ndim + k] = distsq;
-	winc = max(winc,distsq);
+	winc = MAX2(winc,distsq);
 	i__2 = nptm;
 	for (j = 1; j <= i__2; ++j) {
 /* L20: */
@@ -303,10 +303,10 @@ static nlopt_result rescue_(int *n, int *npt, const double *xl, const double *xu
 	xopt[j] = zero;
 /* Computing MIN */
 	d__1 = *delta, d__2 = su[j];
-	ptsaux[(j << 1) + 1] = min(d__1,d__2);
+	ptsaux[(j << 1) + 1] = MIN2(d__1,d__2);
 /* Computing MAX */
 	d__1 = -(*delta), d__2 = sl[j];
-	ptsaux[(j << 1) + 2] = max(d__1,d__2);
+	ptsaux[(j << 1) + 2] = MAX2(d__1,d__2);
 	if (ptsaux[(j << 1) + 1] + ptsaux[(j << 1) + 2] < zero) {
 	    temp = ptsaux[(j << 1) + 1];
 	    ptsaux[(j << 1) + 1] = ptsaux[(j << 1) + 2];
@@ -571,7 +571,7 @@ L120:
 /* Computing 2nd power */
 	d__3 = vlag[k];
 	d__1 = vlmxsq, d__2 = d__3 * d__3;
-	vlmxsq = max(d__1,d__2);
+	vlmxsq = MAX2(d__1,d__2);
     }
     if (denom <= vlmxsq * .01) {
 	w[*ndim + knew] = -w[*ndim + knew] - winc;
@@ -638,7 +638,7 @@ L260:
 	    ihq = (iq + iq * iq) / 2;
 	    vquad += xq * (gopt[iq] + half * xq * hq[ihq]);
 	    if (ip > 0) {
-		iw = max(ihp,ihq) - (i__3 = ip - iq, iabs(i__3));
+		iw = MAX2(ihp,ihq) - (i__3 = ip - iq, IABS(i__3));
 		vquad += xp * xq * hq[iw];
 	    }
 	}
@@ -664,8 +664,8 @@ L260:
 /* Computing MIN */
 /* Computing MAX */
 	    d__3 = xl[i__], d__4 = xbase[i__] + xpt[kpt + i__ * xpt_dim1];
-	    d__1 = max(d__3,d__4), d__2 = xu[i__];
-	    w[i__] = min(d__1,d__2);
+	    d__1 = MAX2(d__3,d__4), d__2 = xu[i__];
+	    w[i__] = MIN2(d__1,d__2);
 	    if (xpt[kpt + i__ * xpt_dim1] == sl[i__]) {
 		w[i__] = xl[i__];
 	    }
@@ -725,7 +725,7 @@ L260:
 /* Computing 2nd power */
 			d__1 = ptsaux[(iq << 1) + 1];
 			hq[ihq] += temp * (d__1 * d__1);
-			iw = max(ihp,ihq) - (i__2 = iq - ip, iabs(i__2));
+			iw = MAX2(ihp,ihq) - (i__2 = iq - ip, IABS(i__2));
 			hq[iw] += temp * ptsaux[(ip << 1) + 1] * ptsaux[(iq <<
 				 1) + 1];
 		    }
@@ -887,7 +887,7 @@ static void altmov_(int *n, int *npt, double *xpt,
 	slbd = -subd;
 	ilbd = 0;
 	iubd = 0;
-	sumin = min(one,subd);
+	sumin = MIN2(one,subd);
 
 /*     Revise SLBD and SUBD if necessary because of the bounds in SL and SU. */
 
@@ -902,7 +902,7 @@ static void altmov_(int *n, int *npt, double *xpt,
 		if (subd * temp > su[i__] - xopt[i__]) {
 /* Computing MAX */
 		    d__1 = sumin, d__2 = (su[i__] - xopt[i__]) / temp;
-		    subd = max(d__1,d__2);
+		    subd = MAX2(d__1,d__2);
 		    iubd = i__;
 		}
 	    } else if (temp < zero) {
@@ -913,7 +913,7 @@ static void altmov_(int *n, int *npt, double *xpt,
 		if (subd * temp < sl[i__] - xopt[i__]) {
 /* Computing MAX */
 		    d__1 = sumin, d__2 = (sl[i__] - xopt[i__]) / temp;
-		    subd = max(d__1,d__2);
+		    subd = MAX2(d__1,d__2);
 		    iubd = -i__;
 		}
 	    }
@@ -991,8 +991,8 @@ L80:
 /* Computing MAX */
 /* Computing MIN */
 	d__3 = su[i__];
-	d__1 = sl[i__], d__2 = min(d__3,temp);
-	xnew[i__] = max(d__1,d__2);
+	d__1 = sl[i__], d__2 = MIN2(d__3,temp);
+	xnew[i__] = MAX2(d__1,d__2);
     }
     if (ibdsav < 0) {
 	xnew[-ibdsav] = sl[-ibdsav];
@@ -1015,10 +1015,10 @@ L100:
 	w[i__] = zero;
 /* Computing MIN */
 	d__1 = xopt[i__] - sl[i__], d__2 = glag[i__];
-	tempa = min(d__1,d__2);
+	tempa = MIN2(d__1,d__2);
 /* Computing MAX */
 	d__1 = xopt[i__] - su[i__], d__2 = glag[i__];
-	tempb = max(d__1,d__2);
+	tempb = MAX2(d__1,d__2);
 	if (tempa > zero || tempb < zero) {
 	    w[i__] = bigstp;
 /* Computing 2nd power */
@@ -1078,8 +1078,8 @@ L120:
 /* Computing MAX */
 /* Computing MIN */
 	    d__3 = su[i__], d__4 = xopt[i__] + w[i__];
-	    d__1 = sl[i__], d__2 = min(d__3,d__4);
-	    xalt[i__] = max(d__1,d__2);
+	    d__1 = sl[i__], d__2 = MIN2(d__3,d__4);
+	    xalt[i__] = MAX2(d__1,d__2);
 	} else if (w[i__] == zero) {
 	    xalt[i__] = xopt[i__];
 	} else if (glag[i__] > zero) {
@@ -1120,8 +1120,8 @@ L120:
 /* Computing MAX */
 /* Computing MIN */
 	    d__3 = su[i__];
-	    d__1 = sl[i__], d__2 = min(d__3,temp);
-	    xalt[i__] = max(d__1,d__2);
+	    d__1 = sl[i__], d__2 = MIN2(d__3,temp);
+	    xalt[i__] = MAX2(d__1,d__2);
 	}
 /* Computing 2nd power */
 	d__1 = half * gw * scale;
@@ -1352,7 +1352,7 @@ L50:
     if (shs > zero) {
 /* Computing MIN */
 	d__1 = blen, d__2 = gredsq / shs;
-	stplen = min(d__1,d__2);
+	stplen = MIN2(d__1,d__2);
     }
 
 /*     Reduce STPLEN if necessary in order to preserve the simple bounds, */
@@ -1383,7 +1383,7 @@ L50:
 	++iterc;
 	temp = shs / stepsq;
 	if (iact == 0 && temp > zero) {
-	    *crvmin = min(*crvmin,temp);
+	    *crvmin = MIN2(*crvmin,temp);
 	    if (*crvmin == onemin) {
 		*crvmin = temp;
 	    }
@@ -1403,7 +1403,7 @@ L50:
 	}
 /* Computing MAX */
 	d__1 = stplen * (ggsav - half * stplen * shs);
-	sdec = max(d__1,zero);
+	sdec = MAX2(d__1,zero);
 	qred += sdec;
     }
 
@@ -1643,8 +1643,8 @@ L190:
 /* Computing MAX */
 /* Computing MIN */
 	d__3 = xopt[i__] + d__[i__], d__4 = su[i__];
-	d__1 = min(d__3,d__4), d__2 = sl[i__];
-	xnew[i__] = max(d__1,d__2);
+	d__1 = MIN2(d__3,d__4), d__2 = sl[i__];
+	xnew[i__] = MAX2(d__1,d__2);
 	if (xbdi[i__] == onemin) {
 	    xnew[i__] = sl[i__];
 	}
@@ -1837,12 +1837,12 @@ L50:
 	    if (sl[nfx] == zero) {
 /* Computing MIN */
 		d__1 = two * *rhobeg, d__2 = su[nfx];
-		stepb = min(d__1,d__2);
+		stepb = MIN2(d__1,d__2);
 	    }
 	    if (su[nfx] == zero) {
 /* Computing MAX */
 		d__1 = -two * *rhobeg, d__2 = sl[nfx];
-		stepb = max(d__1,d__2);
+		stepb = MAX2(d__1,d__2);
 	    }
 	    xpt[nf + nfx * xpt_dim1] = stepb;
 	}
@@ -1867,8 +1867,8 @@ L50:
 /* Computing MIN */
 /* Computing MAX */
 	d__3 = xl[j], d__4 = xbase[j] + xpt[nf + j * xpt_dim1];
-	d__1 = max(d__3,d__4), d__2 = xu[j];
-	x[j] = min(d__1,d__2);
+	d__1 = MAX2(d__3,d__4), d__2 = xu[j];
+	x[j] = MIN2(d__1,d__2);
 	if (xpt[nf + j * xpt_dim1] == sl[j]) {
 	    x[j] = xl[j];
 	}
@@ -2155,7 +2155,7 @@ L60:
 	     &w[np + (*n << 1)], &w[np + *n * 3], &dsq, &crvmin);
 /* Computing MIN */
     d__1 = delta, d__2 = sqrt(dsq);
-    dnorm = min(d__1,d__2);
+    dnorm = MIN2(d__1,d__2);
     if (dnorm < half * rho) {
 	ntrits = -1;
 /* Computing 2nd power */
@@ -2172,8 +2172,8 @@ L60:
 /*     of likely improvements to the model within distance HALF*RHO of XOPT. */
 
 /* Computing MAX */
-	d__1 = max(diffa,diffb);
-	errbig = max(d__1,diffc);
+	d__1 = MAX2(diffa,diffb);
+	errbig = MAX2(d__1,diffc);
 	frhosq = rho * .125 * rho;
 	if (crvmin > zero && errbig > frhosq * crvmin) {
 	    goto L650;
@@ -2525,7 +2525,7 @@ L230:
 /* Computing 2nd power */
 	    d__3 = distsq / delsq;
 	    d__1 = one, d__2 = d__3 * d__3;
-	    temp = max(d__1,d__2);
+	    temp = MAX2(d__1,d__2);
 	    if (temp * den > scaden) {
 		scaden = temp * den;
 		knew = k;
@@ -2535,7 +2535,7 @@ L230:
 /* Computing 2nd power */
 	    d__3 = vlag[k];
 	    d__1 = biglsq, d__2 = temp * (d__3 * d__3);
-	    biglsq = max(d__1,d__2);
+	    biglsq = MAX2(d__1,d__2);
 L350:
 	    ;
 	}
@@ -2563,8 +2563,8 @@ L360:
 /* Computing MIN */
 /* Computing MAX */
 	d__3 = xl[i__], d__4 = xbase[i__] + xnew[i__];
-	d__1 = max(d__3,d__4), d__2 = xu[i__];
-	x[i__] = min(d__1,d__2);
+	d__1 = MAX2(d__3,d__4), d__2 = xu[i__];
+	x[i__] = MIN2(d__1,d__2);
 	if (xnew[i__] == sl[i__]) {
 	    x[i__] = xl[i__];
 	}
@@ -2641,15 +2641,15 @@ L360:
 	if (ratio <= tenth) {
 /* Computing MIN */
 	    d__1 = half * delta;
-	    delta = min(d__1,dnorm);
+	    delta = MIN2(d__1,dnorm);
 	} else if (ratio <= .7) {
 /* Computing MAX */
 	    d__1 = half * delta;
-	    delta = max(d__1,dnorm);
+	    delta = MAX2(d__1,dnorm);
 	} else {
 /* Computing MAX */
 	    d__1 = half * delta, d__2 = dnorm + dnorm;
-	    delta = max(d__1,d__2);
+	    delta = MAX2(d__1,d__2);
 	}
 	if (delta <= rho * 1.5) {
 	    delta = rho;
@@ -2689,7 +2689,7 @@ L360:
 /* Computing 2nd power */
 		d__3 = distsq / delsq;
 		d__1 = one, d__2 = d__3 * d__3;
-		temp = max(d__1,d__2);
+		temp = MAX2(d__1,d__2);
 		if (temp * den > scaden) {
 		    scaden = temp * den;
 		    knew = k;
@@ -2700,7 +2700,7 @@ L360:
 /* Computing 2nd power */
 		d__3 = vlag[k];
 		d__1 = biglsq, d__2 = temp * (d__3 * d__3);
-		biglsq = max(d__1,d__2);
+		biglsq = MAX2(d__1,d__2);
 	    }
 	    if (scaden <= half * biglsq) {
 		knew = ksav;
@@ -2875,19 +2875,19 @@ L360:
 /* Computing MIN */
 		d__2 = zero, d__3 = gopt[i__];
 /* Computing 2nd power */
-		d__1 = min(d__2,d__3);
+		d__1 = MIN2(d__2,d__3);
 		gqsq += d__1 * d__1;
 /* Computing 2nd power */
-		d__1 = min(zero,sum);
+		d__1 = MIN2(zero,sum);
 		gisq += d__1 * d__1;
 	    } else if (xopt[i__] == su[i__]) {
 /* Computing MAX */
 		d__2 = zero, d__3 = gopt[i__];
 /* Computing 2nd power */
-		d__1 = max(d__2,d__3);
+		d__1 = MAX2(d__2,d__3);
 		gqsq += d__1 * d__1;
 /* Computing 2nd power */
-		d__1 = max(zero,sum);
+		d__1 = MAX2(zero,sum);
 		gisq += d__1 * d__1;
 	    } else {
 /* Computing 2nd power */
@@ -2907,7 +2907,7 @@ L360:
 	    itest = 0;
 	}
 	if (itest >= 3) {
-	    i__1 = max(*npt,nh);
+	    i__1 = MAX2(*npt,nh);
 	    for (i__ = 1; i__ <= i__1; ++i__) {
 		if (i__ <= *n) {
 		    gopt[i__] = vlag[*npt + i__];
@@ -2944,7 +2944,7 @@ L360:
 /* Computing 2nd power */
     d__4 = ten * rho;
     d__1 = d__3 * d__3, d__2 = d__4 * d__4;
-    distsq = max(d__1,d__2);
+    distsq = MAX2(d__1,d__2);
 L650:
     knew = 0;
     i__1 = *npt;
@@ -2975,7 +2975,7 @@ L650:
 	if (ntrits == -1) {
 /* Computing MIN */
 	    d__1 = tenth * delta, d__2 = half * dist;
-	    delta = min(d__1,d__2);
+	    delta = MIN2(d__1,d__2);
 	    if (delta <= rho * 1.5) {
 		delta = rho;
 	    }
@@ -2984,8 +2984,8 @@ L650:
 /* Computing MAX */
 /* Computing MIN */
 	d__2 = tenth * dist;
-	d__1 = min(d__2,delta);
-	adelt = max(d__1,rho);
+	d__1 = MIN2(d__2,delta);
+	adelt = MAX2(d__1,rho);
 	dsq = adelt * adelt;
 	goto L90;
     }
@@ -2995,7 +2995,7 @@ L650:
     if (ratio > zero) {
 	goto L60;
     }
-    if (max(delta,dnorm) > rho) {
+    if (MAX2(delta,dnorm) > rho) {
 	goto L60;
     }
 
@@ -3013,7 +3013,7 @@ L680:
 	} else {
 	    rho = tenth * rho;
 	}
-	delta = max(delta,rho);
+	delta = MAX2(delta,rho);
 	ntrits = 0;
 	nfsav = stop->nevals;
 	goto L60;
@@ -3038,8 +3038,8 @@ L720:
 /* Computing MIN */
 /* Computing MAX */
 	    d__3 = xl[i__], d__4 = xbase[i__] + xopt[i__];
-	    d__1 = max(d__3,d__4), d__2 = xu[i__];
-	    x[i__] = min(d__1,d__2);
+	    d__1 = MAX2(d__3,d__4), d__2 = xu[i__];
+	    x[i__] = MIN2(d__1,d__2);
 	    if (xopt[i__] == sl[i__]) {
 		x[i__] = xl[i__];
 	    }
@@ -3230,7 +3230,7 @@ nlopt_result bobyqa(int n, int npt, double *x,
 		w[jsl] = -(rhobeg);
 /* Computing MAX */
 		d__1 = xu[j] - x[j];
-		w[jsu] = max(d__1,rhobeg);
+		w[jsu] = MAX2(d__1,rhobeg);
 	    }
 	} else if (w[jsu] <= rhobeg) {
 	    if (w[jsu] <= zero) {
@@ -3241,7 +3241,7 @@ nlopt_result bobyqa(int n, int npt, double *x,
 		x[j] = xu[j] - rhobeg;
 /* Computing MIN */
 		d__1 = xl[j] - x[j], d__2 = -(rhobeg);
-		w[jsl] = min(d__1,d__2);
+		w[jsl] = MIN2(d__1,d__2);
 		w[jsu] = rhobeg;
 	    }
 	}

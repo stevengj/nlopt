@@ -4,8 +4,8 @@
 #include <string.h>
 #include "luksan.h"
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
+#define MAX2(a,b) ((a) > (b) ? (a) : (b))
+#define MIN2(a,b) ((a) < (b) ? (a) : (b))
 
 /* *********************************************************************** */
 /* SUBROUTINE PLIP               ALL SYSTEMS                   01/09/22 */
@@ -299,7 +299,7 @@ L11130:
     if (irest > 0) {
 	nn = 0;
 	par = 1.;
-	ld = min(ld,1);
+	ld = MIN2(ld,1);
 	if (kit < stat_1->nit) {
 	    ++stat_1->nres;
 	    kit = stat_1->nit;
@@ -340,14 +340,14 @@ L11130:
 /*     TEST ON DESCENT DIRECTION */
 
 	if (snorm <= 0.) {
-	    irest = max(irest,1);
+	    irest = MAX2(irest,1);
 	} else if (p + told * gnorm * snorm <= 0.) {
 	    irest = 0;
 	} else {
 
 /*     UNIFORM DESCENT CRITERION */
 
-	    irest = max(irest,1);
+	    irest = MAX2(irest,1);
 	}
 	if (irest == 0) {
 
@@ -357,7 +357,7 @@ L11130:
 	    rmin = alf1 * gnorm / snorm;
 /* Computing MIN */
 	    d__1 = alf2 * gnorm / snorm, d__2 = *xmax / snorm;
-	    rmax = min(d__1,d__2);
+	    rmax = MIN2(d__1,d__2);
 	}
     }
     if (*iterm != 0) {
@@ -393,7 +393,7 @@ L11174:
 	p = po;
 	luksan_mxvcop__(nf, &xo[1], &x[1]);
 	luksan_mxvcop__(nf, &go[1], &gf[1]);
-	irest = max(irest,1);
+	irest = MAX2(irest,1);
 	ld = kd;
 	goto L11130;
     }
@@ -411,7 +411,7 @@ L11174:
     }
 L11175:
     if (iterh != 0) {
-	irest = max(irest,1);
+	irest = MAX2(irest,1);
     }
     if (kbf > 0) {
 	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
@@ -451,13 +451,13 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 	and we'll assume that the main limiting factor is the memory.
 	We'll assume that at least MEMAVAIL memory, or 4*n memory, whichever
 	is bigger, is available. */
-     mf = max(MEMAVAIL/n, 4);
+     mf = MAX2(MEMAVAIL/n, 4);
      if (stop->maxeval && stop->maxeval <= mf)
-	  mf = max(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
+	  mf = MAX2(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
 
  retry_alloc:
-     work = (double*) malloc(sizeof(double) * (n * 7 + max(n,n*mf) + 
-					       max(n,mf)*2));
+     work = (double*) malloc(sizeof(double) * (n * 7 + MAX2(n,n*mf) + 
+					       MAX2(n,mf)*2));
      if (!work) { 
 	  if (mf > 0) {
 	       mf = 0; /* allocate minimal memory */
@@ -470,7 +470,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
      xl = work; xu = xl + n;
      gf = xu + n; s = gf + n; xo = s + n; go = xo + n; so = go + n;
      xm = so + n;
-     xr = xm + max(n*mf,n); gr = xr + max(n,mf);
+     xr = xm + MAX2(n*mf,n); gr = xr + MAX2(n,mf);
 
      for (i = 0; i < n; ++i) {
 	  int lbu = lb[i] <= -0.99 * HUGE_VAL; /* lb unbounded */
@@ -484,7 +484,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 	original Fortran code, but it is used upon
 	input to plip if mf > 0 ... perhaps ALLOCATE initializes
 	arrays to zero by default? */
-     memset(xo, 0, sizeof(double) * max(n,n*mf));
+     memset(xo, 0, sizeof(double) * MAX2(n,n*mf));
 
      plip_(&n, &nb, x, ix, xl, xu, 
 	   gf, s, xo, go, so, xm, xr, gr,

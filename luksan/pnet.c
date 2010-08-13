@@ -4,8 +4,8 @@
 #include <string.h>
 #include "luksan.h"
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
+#define MAX2(a,b) ((a) > (b) ? (a) : (b))
+#define MIN2(a,b) ((a) < (b) ? (a) : (b))
 
 /* Table of constant values */
 
@@ -317,7 +317,7 @@ L11020:
 	luksan_pyrmc0__(nf, &n, &ix[1], &gn[1], &eps8, &umax, gmax, &rmax, &
 		iold, &irest);
 	if (umax > eps8 * *gmax) {
-	    irest = max(irest,1);
+	    irest = MAX2(irest,1);
 	}
     }
     luksan_mxvcop__(nf, &x[1], &xo[1]);
@@ -348,11 +348,11 @@ L11040:
     gnorm = sqrt(rho1);
 /* Computing MIN */
     d__1 = eps, d__2 = sqrt(gnorm);
-    par = min(d__1,d__2);
+    par = MIN2(d__1,d__2);
     if (par > .01) {
 /* Computing MIN */
 	d__1 = par, d__2 = 1. / (double) stat_1->nit;
-	par = min(d__1,d__2);
+	par = MIN2(d__1,d__2);
     }
     par *= par;
 
@@ -480,14 +480,14 @@ L12560:
 /*     TEST ON DESCENT DIRECTION */
 
 	if (snorm <= 0.) {
-	    irest = max(irest,1);
+	    irest = MAX2(irest,1);
 	} else if (p + told * gnorm * snorm <= 0.) {
 	    irest = 0;
 	} else {
 
 /*     UNIFORM DESCENT CRITERION */
 
-	    irest = max(irest,1);
+	    irest = MAX2(irest,1);
 	}
 	if (irest == 0) {
 
@@ -497,7 +497,7 @@ L12560:
 	    rmin = alf1 * gnorm / snorm;
 /* Computing MIN */
 	    d__1 = alf2 * gnorm / snorm, d__2 = *xmax / snorm;
-	    rmax = min(d__1,d__2);
+	    rmax = MIN2(d__1,d__2);
 	}
     }
     ld = kd;
@@ -535,7 +535,7 @@ L11064:
 	p = po;
 	luksan_mxvcop__(nf, &xo[1], &x[1]);
 	luksan_mxvcop__(nf, &go[1], &gf[1]);
-	irest = max(irest,1);
+	irest = MAX2(irest,1);
 	ld = kd;
 	goto L11040;
     }
@@ -545,7 +545,7 @@ L11064:
     if (*mos2 > 1) {
 /* Computing MIN */
 	i__1 = mx + 1;
-	mx = min(i__1,*mf);
+	mx = MIN2(i__1,*mf);
 	luksan_mxdrsu__(nf, &mx, &xm[1], &gm[1], &u1[1]);
 	luksan_mxvcop__(nf, &xo[1], &xm[1]);
 	luksan_mxvcop__(nf, &go[1], &gm[1]);
@@ -554,7 +554,7 @@ L11075:
     if (kbf > 0) {
 	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
 	if (inew > 0) {
-	    irest = max(irest,1);
+	    irest = MAX2(irest,1);
 	}
     }
     goto L11020;
@@ -593,13 +593,13 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 	and we'll assume that the main limiting factor is the memory.
 	We'll assume that at least MEMAVAIL memory, or 4*n memory, whichever
 	is bigger, is available. */
-     mf = max(MEMAVAIL/n, 4);
+     mf = MAX2(MEMAVAIL/n, 4);
      if (stop->maxeval && stop->maxeval <= mf)
-	  mf = max(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
+	  mf = MAX2(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
 
  retry_alloc:
-     work = (double*) malloc(sizeof(double) * (n * 9 + max(n,n*mf)*2 + 
-					       max(n,mf)*2));
+     work = (double*) malloc(sizeof(double) * (n * 9 + MAX2(n,n*mf)*2 + 
+					       MAX2(n,mf)*2));
      if (!work) { 
 	  if (mf > 0) {
 	       mf = 0; /* allocate minimal memory */
@@ -612,8 +612,8 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
      xl = work; xu = xl + n;
      gf = xu + n; gn = gf + n; s = gn + n; 
      xo = s + n; go = xo + n; xs = go + n; gs = xs + n;
-     xm = gs + n; gm = xm + max(n*mf,n);
-     u1 = gm + max(n*mf,n); u2 = u1 + max(n,mf);
+     xm = gs + n; gm = xm + MAX2(n*mf,n);
+     u1 = gm + MAX2(n*mf,n); u2 = u1 + MAX2(n,mf);
 
      for (i = 0; i < n; ++i) {
 	  int lbu = lb[i] <= -0.99 * HUGE_VAL; /* lb unbounded */
@@ -627,7 +627,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 	original Fortran code, but it is used upon
 	input to pnet if mf > 0 ... perhaps ALLOCATE initializes
 	arrays to zero by default? */
-     memset(xo, 0, sizeof(double) * max(n,n*mf));
+     memset(xo, 0, sizeof(double) * MAX2(n,n*mf));
 
      pnet_(&n, &nb, x, ix, xl, xu, 
 	   gf, gn, s, xo, go, xs, gs, xm, gm, u1, u2,

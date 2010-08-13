@@ -71,9 +71,8 @@ typedef int integer;
 
 typedef subplex_func D_fp;
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#define abs(x) fabs(x)
+#define MAX2(a,b) ((a) > (b) ? (a) : (b))
+#define MIN2(a,b) ((a) < (b) ? (a) : (b))
 
 /****************************************************************************/
 /****************************************************************************/
@@ -122,7 +121,7 @@ static doublereal dasum_(integer *n, doublereal *dx, integer *incx)
     }
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	dtemp += (d__1 = dx[ix], abs(d__1));
+	dtemp += (d__1 = dx[ix], fabs(d__1));
 	ix += *incx;
 /* L10: */
     }
@@ -141,7 +140,7 @@ L20:
     }
     i__1 = m;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	dtemp += (d__1 = dx[i__], abs(d__1));
+	dtemp += (d__1 = dx[i__], fabs(d__1));
 /* L30: */
     }
     if (*n < 6) {
@@ -151,10 +150,10 @@ L40:
     mp1 = m + 1;
     i__1 = *n;
     for (i__ = mp1; i__ <= i__1; i__ += 6) {
-	dtemp = dtemp + (d__1 = dx[i__], abs(d__1)) + (d__2 = dx[i__ + 1], 
-		abs(d__2)) + (d__3 = dx[i__ + 2], abs(d__3)) + (d__4 = dx[i__ 
-		+ 3], abs(d__4)) + (d__5 = dx[i__ + 4], abs(d__5)) + (d__6 = 
-		dx[i__ + 5], abs(d__6));
+	dtemp = dtemp + (d__1 = dx[i__], fabs(d__1)) + (d__2 = dx[i__ + 1], 
+		fabs(d__2)) + (d__3 = dx[i__ + 2], fabs(d__3)) + (d__4 = dx[i__ 
+		+ 3], fabs(d__4)) + (d__5 = dx[i__ + 4], fabs(d__5)) + (d__6 = 
+		dx[i__ + 5], fabs(d__6));
 /* L50: */
     }
 L60:
@@ -457,7 +456,7 @@ static doublereal dist_(integer *n, doublereal *x, doublereal *y)
     --x;
 
     /* Function Body */
-    absxmy = (d__1 = x[1] - y[1], abs(d__1));
+    absxmy = (d__1 = x[1] - y[1], fabs(d__1));
     if (absxmy <= 1.) {
 	sum = absxmy * absxmy;
 	scale = 1.;
@@ -467,7 +466,7 @@ static doublereal dist_(integer *n, doublereal *x, doublereal *y)
     }
     i__1 = *n;
     for (i__ = 2; i__ <= i__1; ++i__) {
-	absxmy = (d__1 = x[i__] - y[i__], abs(d__1));
+	absxmy = (d__1 = x[i__] - y[i__], fabs(d__1));
 	if (absxmy <= scale) {
 /* Computing 2nd power */
 	    d__1 = absxmy / scale;
@@ -750,7 +749,7 @@ L20:
 /* L30: */
 	}
 	gapmax = -1.;
-	i__1 = min(usubc_1.nsmax,nleft);
+	i__1 = MIN2(usubc_1.nsmax,nleft);
 	for (ns1 = usubc_1.nsmin; ns1 <= i__1; ++ns1) {
 	    as1 += absdx[ip[nused + ns1]];
 	    ns2 = nleft - ns1;
@@ -1118,12 +1117,12 @@ static int fstats_(doublereal *fx, integer *ifxwt, logical *reset)
 	usubc_1.nfxe += *ifxwt;
 	usubc_1.fxstat[0] += *ifxwt * (*fx - usubc_1.fxstat[0]) / 
 		usubc_1.nfxe;
-	usubc_1.fxstat[1] = max(usubc_1.fxstat[1],*fx);
-	usubc_1.fxstat[2] = min(usubc_1.fxstat[2],*fx);
+	usubc_1.fxstat[1] = MAX2(usubc_1.fxstat[1],*fx);
+	usubc_1.fxstat[2] = MIN2(usubc_1.fxstat[2],*fx);
 /* Computing MAX */
-	d__1 = abs(usubc_1.fxstat[1]), d__2 = abs(usubc_1.fxstat[2]), d__1 = 
-		max(d__1,d__2);
-	fscale = max(d__1,1.);
+	d__1 = fabs(usubc_1.fxstat[1]), d__2 = fabs(usubc_1.fxstat[2]), d__1 = 
+		MAX2(d__1,d__2);
+	fscale = MAX2(d__1,1.);
 /* Computing 2nd power */
 	d__1 = usubc_1.fxstat[3] / fscale;
 /* Computing 2nd power */
@@ -1463,7 +1462,7 @@ L20:
 	stop->nevals++;
 /* Computing MIN */
 	d__1 = fr, d__2 = fs[ih];
-	if (fc < min(d__1,d__2)) {
+	if (fc < MIN2(d__1,d__2)) {
 	    dcopy_(ns, &s[itemp * s_dim1 + 1], &c__1, &s[ih * s_dim1 + 1], &
 		    c__1);
 	    fs[ih] = fc;
@@ -1602,11 +1601,11 @@ static int subopt_(integer *n)
 
 /* nsmin  - subspace dimension minimum */
 
-    usubc_1.nsmin = min(2,*n);
+    usubc_1.nsmin = MIN2(2,*n);
 
 /* nsmax  - subspace dimension maximum */
 
-    usubc_1.nsmax = min(5,*n);
+    usubc_1.nsmax = MIN2(5,*n);
 
 /* *********************************************************** */
 /* subplex method special cases */
@@ -1773,8 +1772,8 @@ static int setstp_(integer *nsubs, integer *n, doublereal *deltax,
 /* Computing MIN */
 /* Computing MAX */
 	d__3 = dasum_(n, &deltax[1], &c__1) / dasum_(n, &step[1], &c__1);
-	d__1 = max(d__3,usubc_1.omega), d__2 = 1. / usubc_1.omega;
-	stpfac = min(d__1,d__2);
+	d__1 = MAX2(d__3,usubc_1.omega), d__2 = 1. / usubc_1.omega;
+	stpfac = MIN2(d__1,d__2);
     } else {
 	stpfac = usubc_1.psi;
     }
@@ -1947,7 +1946,7 @@ static int subplx_(D_fp f, void *fdata, integer *n,
 /* L10: */
 	    }
 	} else {
-	    scl = abs(scale[1]);
+	    scl = fabs(scale[1]);
 	    i__1 = *n;
 	    for (i__ = 1; i__ <= i__1; ++i__) {
 		xpscl = x[i__] + scl;
@@ -2068,7 +2067,7 @@ static int subplx_(D_fp f, void *fdata, integer *n,
 L40:
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	work[i__] = (d__1 = work[i__], abs(d__1));
+	work[i__] = (d__1 = work[i__], fabs(d__1));
 /* L50: */
     }
     sortd_(n, &work[1], &iwork[1]);
@@ -2119,11 +2118,11 @@ L90:
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* Computing MAX */
-	d__4 = (d__2 = work[i__], abs(d__2)), d__5 = (d__1 = work[istep], abs(
+	d__4 = (d__2 = work[i__], fabs(d__2)), d__5 = (d__1 = work[istep], fabs(
 		d__1)) * usubc_1.psi;
 /* Computing MAX */
-	d__6 = (d__3 = x[i__], abs(d__3));
-	if (max(d__4,d__5) / max(d__6,1.) > stop->xtol_rel) {
+	d__6 = (d__3 = x[i__], fabs(d__3));
+	if (MAX2(d__4,d__5) / MAX2(d__6,1.) > stop->xtol_rel) {
 	    setstp_(&nsubs, n, &work[1], &work[istptr]);
 	    goto L40;
 	}
@@ -2194,8 +2193,8 @@ int nlopt_subplex(subplex_func f, double *minf, double *x, int n, void *fdata,
      int mode = 0, *iwork, nsmax, nsmin, errflag, nfe;
      double *work;
 
-     nsmax = min(5,n);
-     nsmin = min(2,n);
+     nsmax = MIN2(5,n);
+     nsmin = MIN2(2,n);
      work = (double*) malloc(sizeof(double) * (3*n + nsmax*(nsmax+4) + 1));
      if (!work)
 	  return -200;
