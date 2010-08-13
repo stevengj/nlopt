@@ -1,4 +1,4 @@
-NLopt 2.2.1 (5 August 2010)
+NLopt 2.2.1 (13 August 2010)
 
 * If you compile nlopt.h with the NLOPT_DLL_EXPORT symbol #defined,
   it now uses the dllexport directive (under Windows), useful for
@@ -10,6 +10,9 @@ NLopt 2.2.1 (5 August 2010)
 
 * Remove C99-style mixed declaration and code in a couple files, so
   that code compiles in C89; thanks to Benoit Scherrer for the bug report.
+
+* Removed a few compiler warnings under Microsoft compilers; thanks
+  to Benoit Scherrer for the bug report.
 
 * Don't use dllimport directive with lcc on Windows (which doesn't
   support it); thanks to Laurent Vanbeylen for the bug report.
