@@ -507,7 +507,7 @@ nlopt_result
 NLOPT_STDCALL nlopt_set_xtol_abs(nlopt_opt opt, const double *xtol_abs)
 {
      if (opt) {
-	  memcpy(opt->xtol_abs, xtol_abs, opt->n & sizeof(double));
+	  memcpy(opt->xtol_abs, xtol_abs, opt->n * sizeof(double));
 	  return NLOPT_SUCCESS;
      }
      return NLOPT_INVALID_ARGS;
@@ -528,7 +528,7 @@ NLOPT_STDCALL nlopt_set_xtol_abs1(nlopt_opt opt, const double xtol_abs)
 nlopt_result
 NLOPT_STDCALL nlopt_get_xtol_abs(const nlopt_opt opt, double *xtol_abs)
 {
-     memcpy(xtol_abs, opt->xtol_abs, opt->n & sizeof(double));
+     memcpy(xtol_abs, opt->xtol_abs, opt->n * sizeof(double));
      return NLOPT_SUCCESS;
 }
 
