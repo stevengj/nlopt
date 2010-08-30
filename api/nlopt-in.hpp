@@ -504,27 +504,27 @@ namespace nlopt {
 
   //////////////////////////////////////////////////////////////////////
 
-  void srand(unsigned long seed) { nlopt_srand(seed); }
-  void srand_time() { nlopt_srand_time(); }
-  void version(int &major, int &minor, int &bugfix) {
+  inline void srand(unsigned long seed) { nlopt_srand(seed); }
+  inline void srand_time() { nlopt_srand_time(); }
+  inline void version(int &major, int &minor, int &bugfix) {
     nlopt_version(&major, &minor, &bugfix);
   }
-  int version_major() {
+  inline int version_major() {
     int major, minor, bugfix;
     nlopt_version(&major, &minor, &bugfix);
     return major;
   }
-  int version_minor() {
+  inline int version_minor() {
     int major, minor, bugfix;
     nlopt_version(&major, &minor, &bugfix);
     return minor;
   }
-  int version_bugfix() {
+  inline int version_bugfix() {
     int major, minor, bugfix;
     nlopt_version(&major, &minor, &bugfix);
     return bugfix;
   }
-  const char *algorithm_name(algorithm a) {
+  inline const char *algorithm_name(algorithm a) {
     return nlopt_algorithm_name(nlopt_algorithm(a));
   }
 
