@@ -33,12 +33,12 @@ static int relstop(double vold, double vnew, double reltol, double abstol)
 	    || (reltol > 0 && vnew == vold)); /* catch vnew == vold == 0 */
 }
 
-int nlopt_stop_ftol(const nlopt_stopping *s, const double f, double oldf)
+int nlopt_stop_ftol(const nlopt_stopping *s, double f, double oldf)
 {
      return (relstop(oldf, f, s->ftol_rel, s->ftol_abs));
 }
 
-int nlopt_stop_f(const nlopt_stopping *s, const double f, double oldf)
+int nlopt_stop_f(const nlopt_stopping *s, double f, double oldf)
 {
      return (f <= s->minf_max || nlopt_stop_ftol(s, f, oldf));
 }

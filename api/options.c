@@ -264,7 +264,7 @@ NLOPT_STDCALL nlopt_set_lower_bounds1(nlopt_opt opt, double lb)
 }
 
 nlopt_result
-NLOPT_STDCALL nlopt_get_lower_bounds(nlopt_opt opt, double *lb)
+NLOPT_STDCALL nlopt_get_lower_bounds(const nlopt_opt opt, double *lb)
 {
      if (opt && (opt->n == 0 || lb)) {
 	  memcpy(lb, opt->lb, sizeof(double) * (opt->n));
@@ -296,7 +296,7 @@ NLOPT_STDCALL nlopt_set_upper_bounds1(nlopt_opt opt, double ub)
 }
 
 nlopt_result
-NLOPT_STDCALL nlopt_get_upper_bounds(nlopt_opt opt, double *ub)
+NLOPT_STDCALL nlopt_get_upper_bounds(const nlopt_opt opt, double *ub)
 {
      if (opt && (opt->n == 0 || ub)) {
 	  memcpy(ub, opt->ub, sizeof(double) * (opt->n));
@@ -514,7 +514,7 @@ NLOPT_STDCALL nlopt_set_xtol_abs(nlopt_opt opt, const double *xtol_abs)
 }
 
 nlopt_result
-NLOPT_STDCALL nlopt_set_xtol_abs1(nlopt_opt opt, const double xtol_abs)
+NLOPT_STDCALL nlopt_set_xtol_abs1(nlopt_opt opt, double xtol_abs)
 {
      if (opt) {
 	  unsigned i;

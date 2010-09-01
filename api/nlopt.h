@@ -251,14 +251,14 @@ NLOPT_EXTERN(nlopt_result) nlopt_get_xtol_abs(const nlopt_opt opt,
 					     double *tol);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_maxeval(nlopt_opt opt, int maxeval);
-NLOPT_EXTERN(int) nlopt_get_maxeval(nlopt_opt opt);
+NLOPT_EXTERN(int) nlopt_get_maxeval(const nlopt_opt opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_maxtime(nlopt_opt opt, double maxtime);
-NLOPT_EXTERN(double) nlopt_get_maxtime(nlopt_opt opt);
+NLOPT_EXTERN(double) nlopt_get_maxtime(const nlopt_opt opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_force_stop(nlopt_opt opt);
 NLOPT_EXTERN(nlopt_result) nlopt_set_force_stop(nlopt_opt opt, int val);
-NLOPT_EXTERN(int) nlopt_get_force_stop(nlopt_opt opt);
+NLOPT_EXTERN(int) nlopt_get_force_stop(const nlopt_opt opt);
 
 /* more algorithm-specific parameters */
 
