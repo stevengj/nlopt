@@ -146,7 +146,7 @@ typedef enum {
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 
-extern const char *nlopt_algorithm_name(nlopt_algorithm a);
+NLOPT_EXTERN(const char *) nlopt_algorithm_name(nlopt_algorithm a);
 
 typedef enum {
      NLOPT_FAILURE = -1, /* generic failure code */

@@ -98,7 +98,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Sequential Quadratic Programming (SQP) (local, derivative)",
 };
 
-const char *nlopt_algorithm_name(nlopt_algorithm a)
+const char * NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)
 {
      if (((int) a) < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
      return nlopt_algorithm_names[a];
