@@ -19,6 +19,9 @@ endif
 nlopt_optimize.oct: nlopt_optimize-oct.cc nlopt_optimize_usage.h $(top_builddir)/.libs/libnlopt@NLOPT_SUFFIX@.la
 	$(MKOCTFILE) -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(srcdir)/nlopt_optimize-oct.cc $(LDFLAGS) -L$(top_builddir)/.libs -lnlopt@NLOPT_SUFFIX@
 
+BUILT_SOURCES = nlopt_optimize_usage.h
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+
 nlopt_optimize_usage.h: $(srcdir)/nlopt_optimize.m
 	echo "#define NLOPT_OPTIMIZE_USAGE \\" > $@
 	sed 's/\"/\\"/g' $(srcdir)/nlopt_optimize.m | sed 's,^% ,\",;s,^%,\",;s,$$,\\n\" \\,' >> $@
@@ -35,6 +38,6 @@ nlopt_optimize.$(MEXSUFF): nlopt_optimize-mex.c $(top_builddir)/.libs/libnlopt@N
 
 #######################################################################
 
-EXTRA_DIST = nlopt_optimize-oct.cc nlopt_optimize-mex.c $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m nlopt_optimize.m
+EXTRA_DIST = nlopt_optimize-oct.cc nlopt_optimize-mex.c $(MFILES) nlopt_minimize.m nlopt_minimize_constrained.m nlopt_optimize.m nlopt_optimize_usage.h
 
 CLEANFILES = nlopt_optimize.oct nlopt_optimize.h nlopt_optimize.$(MEXSUFF) nlopt_optimize-oct.o
