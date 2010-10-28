@@ -44,7 +44,7 @@
 /* |   Lipschitz continues. However, DIRECT has proven to be effective on  | */
 /* |   more complex problems than these.                                   | */
 /* +-----------------------------------------------------------------------+ */
-/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, int *force_stop, doublereal *minf, doublereal *l, 
+/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, double starttime, double maxtime, int *force_stop, doublereal *minf, doublereal *l, 
 	doublereal *u, integer *algmethod, integer *ierror, FILE *logfile, 
 	doublereal *fglobal, doublereal *fglper, doublereal *volper, 
 	doublereal *sigmaper, void *fcn_data)
@@ -406,7 +406,7 @@
 	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
 	    minf, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
 	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones,
-	     force_stop);
+		    starttime, maxtime, force_stop);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
 /* +-----------------------------------------------------------------------+ */
@@ -423,6 +423,7 @@
 	}
 	if (*ierror == -102) goto L100;
     }
+    else if (*ierror == DIRECT_MAXTIME_EXCEEDED) goto L100;
     numfunc = maxi + 1 + maxi;
     actmaxdeep = 1;
     oldpos = 0;
@@ -549,6 +550,10 @@
 				   fcn_data, force_stop);
 		if (force_stop && *force_stop) {
 		     *ierror = -102;
+		     goto L100;
+		}
+		if (nlopt_stop_time_(starttime, maxtime)) {
+		     *ierror = DIRECT_MAXTIME_EXCEEDED;
 		     goto L100;
 		}
 		if (oops > 0) {

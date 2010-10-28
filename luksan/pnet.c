@@ -301,6 +301,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
     ++stop->nevals;
     ++stat_1->nfg;
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11080; }
     ld = kd;
 L11020:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
@@ -659,6 +660,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 	 case 4: return NLOPT_SUCCESS; /* gradient tolerance reached */
 	 case 6: return NLOPT_SUCCESS;
 	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
+	 case 100: return NLOPT_MAXTIME_REACHED;
 	 case -999: return NLOPT_FORCED_STOP;
 	 default: return NLOPT_FAILURE;
      }

@@ -2100,8 +2100,10 @@ L290:
     ++nf;
 L310:
     if (nlopt_stop_forced(stop)) rc = NLOPT_FORCED_STOP;
-    else if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
-    else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
+    else if (stop->nevals > 0) {
+	 if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
+	 else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
+    }
     if (rc != NLOPT_SUCCESS) goto L530;
 
     stop->nevals++;

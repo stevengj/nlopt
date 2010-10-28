@@ -277,10 +277,10 @@ static void plip_(int *nf, int *nb, double *x, int *
     if (*iterm != 0) {
 	goto L11190;
     }
-    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
     ++stop->nevals;
     ++stat_1->nfg;
+    if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
 L11120:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
     luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg, 
@@ -516,6 +516,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 	 case 4: return NLOPT_SUCCESS; /* gradient tolerance reached */
 	 case 6: return NLOPT_SUCCESS;
 	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
+	 case 100: return NLOPT_MAXTIME_REACHED;
 	 case -999: return NLOPT_FORCED_STOP;
 	 default: return NLOPT_FAILURE;
      }

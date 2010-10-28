@@ -28,6 +28,7 @@ typedef enum {
      DIRECT_GLOBAL_FOUND = 3,
      DIRECT_VOLTOL = 4,
      DIRECT_SIGMATOL = 5,
+     DIRECT_MAXTIME_EXCEEDED = 6,
 
      DIRECT_OUT_OF_MEMORY = -100,
      DIRECT_INVALID_ARGS = -101,
@@ -44,7 +45,8 @@ extern direct_return_code direct_optimize(
 
      double *x, double *minf, 
 
-     int max_feval, int max_iter,
+     int max_feval, int max_iter, 
+     double start, double maxtime,
      double magic_eps, double magic_eps_abs,
      double volume_reltol, double sigma_reltol,
      int *force_stop,

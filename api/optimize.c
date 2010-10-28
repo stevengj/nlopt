@@ -227,7 +227,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 								    opt->fc));
 	      if (!opt->work) return NLOPT_OUT_OF_MEMORY;
 	      dret = direct_optimize(f_direct, opt, ni, lb, ub, x, minf,
-				     stop.maxeval, -1, 0.0, 0.0,
+				     stop.maxeval, -1,
+				     stop.start, stop.maxtime,
+				     0.0, 0.0,
 				     pow(stop.xtol_rel, (double) n), -1.0,
 				     stop.force_stop,
 				     stop.minf_max, 0.0,
@@ -248,6 +250,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		  case DIRECT_MAXFEVAL_EXCEEDED:
 		  case DIRECT_MAXITER_EXCEEDED:
 		       return NLOPT_MAXEVAL_REACHED;
+		  case DIRECT_MAXTIME_EXCEEDED:
+		       return NLOPT_MAXTIME_REACHED;
 		  case DIRECT_GLOBAL_FOUND:
 		       return NLOPT_MINF_MAX_REACHED;
 		  case DIRECT_VOLTOL:
@@ -271,7 +275,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   return NLOPT_FAILURE;
 	      break;
 #else
-	      return NLOPT_FAILURE;
+	      return NLOPT_INVALID_ARGS;
 #endif
 
 #if 0

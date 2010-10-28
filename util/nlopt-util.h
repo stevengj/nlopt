@@ -92,6 +92,7 @@ extern int nlopt_stop_xs(const nlopt_stopping *stop,
 			 const double *xs, const double *oldxs,
 			 const double *scale_min, const double *scale_max);
 extern int nlopt_stop_evals(const nlopt_stopping *stop);
+extern int nlopt_stop_time_(double start, double maxtime);
 extern int nlopt_stop_time(const nlopt_stopping *stop);
 extern int nlopt_stop_evalstime(const nlopt_stopping *stop);
 extern int nlopt_stop_forced(const nlopt_stopping *stop);

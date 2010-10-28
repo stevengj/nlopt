@@ -48,6 +48,7 @@ direct_return_code direct_optimize(
      double *x, double *minf, 
 
      int max_feval, int max_iter,
+     double start, double maxtime,
      double magic_eps, double magic_eps_abs,
      double volume_reltol, double sigma_reltol,
      int *force_stop,
@@ -86,7 +87,8 @@ direct_return_code direct_optimize(
      }
      
      direct_direct_(f, x, &dimension, &magic_eps, magic_eps_abs,
-		    &max_feval, &max_iter, force_stop,
+		    &max_feval, &max_iter, 
+		    start, maxtime, force_stop,
 		    minf,
 		    l, u,
 		    &algmethod,

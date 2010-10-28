@@ -86,9 +86,14 @@ int nlopt_stop_evals(const nlopt_stopping *s)
      return (s->maxeval > 0 && s->nevals >= s->maxeval);
 }
 
+int nlopt_stop_time_(double start, double maxtime)
+{
+     return (maxtime > 0 && nlopt_seconds() - start >= maxtime);
+}
+
 int nlopt_stop_time(const nlopt_stopping *s)
 {
-     return (s->maxtime > 0 && nlopt_seconds() - s->start >= s->maxtime);
+     return nlopt_stop_time_(s->start, s->maxtime);
 }
 
 int nlopt_stop_evalstime(const nlopt_stopping *stop)

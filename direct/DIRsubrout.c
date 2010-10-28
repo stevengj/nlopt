@@ -1144,7 +1144,7 @@ L50:
 	doublereal *thirds, doublereal *levels, integer *maxfunc, const integer *
 	maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfeasible, integer *ierror, void *fcndata,
-				      integer jones, int *force_stop)
+	integer jones, double starttime, double maxtime, int *force_stop)
 {
     /* System generated locals */
     integer c_dim1, c_offset, length_dim1, length_offset, list2_dim1, 
@@ -1262,6 +1262,10 @@ L50:
     point[1] = 0;
     *free = 2;
     delta = thirds[1];
+    if (nlopt_stop_time_(starttime, maxtime)) {
+	 *ierror = DIRECT_MAXTIME_EXCEEDED;
+	 return;
+    }
     direct_dirget_i__(&length[length_offset], &c__1, &arrayi[1], maxi, n, maxfunc);
     new__ = *free;
     direct_dirsamplepoints_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &
@@ -1286,6 +1290,10 @@ L50:
 	    force_stop);
     if (force_stop && *force_stop) {
 	 *ierror = -102;
+	 return;
+    }
+    if (nlopt_stop_time_(starttime, maxtime)) {
+	 *ierror = DIRECT_MAXTIME_EXCEEDED;
 	 return;
     }
 /* +-----------------------------------------------------------------------+ */
