@@ -61,7 +61,8 @@ GETSET_EXCEPT(force_stop, int)
 
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_local_optimizer(const opt &lo);
 
-GETSET_EXCEPT(local_population, unsigned)
+GETSET_EXCEPT(population, unsigned)
+GETSET_EXCEPT(subspace_dim, unsigned)
 GETSETVEC_EXCEPT(initial_step)
 
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_default_initial_step(const std::vector<double> &x);

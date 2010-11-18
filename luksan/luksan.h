@@ -13,13 +13,15 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
                   const double *lb, const double *ub, /* bounds */
                   double *x, /* in: initial guess, out: minimizer */
                   double *minf,
-                  nlopt_stopping *stop);
+		  nlopt_stopping *stop,
+			 int mf);
 
 nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* in: initial guess, out: minimizer */
 			 double *minf,
 			 nlopt_stopping *stop,
+			 int mf,
 			 int method);
 
 nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
@@ -27,6 +29,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 			 double *x, /* in: initial guess, out: minimizer */
 			 double *minf, 
 			 nlopt_stopping *stop,
+			 int mf,
 			 int mos1, int mos2);
 
 /*****************************  internal routines *************************/

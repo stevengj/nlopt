@@ -177,6 +177,7 @@ nlopt_opt make_opt(Octave_map &opts, int n)
   nlopt_set_maxtime(opt, struct_val_default(opts, "maxtime", 0.0));
 
   nlopt_set_population(opt, struct_val_default(opts, "population", 0));
+  nlopt_set_subspace_dim(opt, struct_val_default(opts, "subspace_dim", 0));
 
   if (opts.contains("initial_step")) {
     Matrix zeros(1, n, 0.0);

@@ -349,18 +349,21 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #endif
 
 	 case NLOPT_LD_LBFGS: 
-	      return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop);
+	      return luksan_plis(ni, f, f_data, lb, ub, x, minf, 
+				 &stop, opt->subspace_dim);
 
 	 case NLOPT_LD_VAR1: 
 	 case NLOPT_LD_VAR2: 
-	      return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop,
-		   algorithm == NLOPT_LD_VAR1 ? 1 : 2);
+	      return luksan_plip(ni, f, f_data, lb, ub, x, minf, 
+				 &stop, opt->subspace_dim,
+				 algorithm == NLOPT_LD_VAR1 ? 1 : 2);
 
 	 case NLOPT_LD_TNEWTON: 
 	 case NLOPT_LD_TNEWTON_RESTART: 
 	 case NLOPT_LD_TNEWTON_PRECOND: 
 	 case NLOPT_LD_TNEWTON_PRECOND_RESTART: 
-	      return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop,
+	      return luksan_pnet(ni, f, f_data, lb, ub, x, minf,
+				 &stop, opt->subspace_dim,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) % 2,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
 

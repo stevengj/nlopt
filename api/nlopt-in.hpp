@@ -476,6 +476,7 @@ namespace nlopt {
     }
 
     NLOPT_GETSET(unsigned, population)
+    NLOPT_GETSET(unsigned, subspace_dim)
     NLOPT_GETSET_VEC(initial_step)
 
     void set_default_initial_step(const std::vector<double> &x) {

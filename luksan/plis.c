@@ -422,7 +422,8 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 		  const double *lb, const double *ub, /* bounds */
 		  double *x, /* in: initial guess, out: minimizer */
 		  double *minf,
-		  nlopt_stopping *stop)
+		  nlopt_stopping *stop,
+			 int mf) /* subspace dimension, 0 for default */
 {
      int i, *ix, nb = 1;
      double *work, *xl, *xu, *xo, *gf, *s, *go, *uo, *vo;
@@ -434,7 +435,6 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
      int mfv = stop->maxeval;
      stat_common stat;
      int iterm;
-     int mf;
 
      ix = (int*) malloc(sizeof(int) * n);
      if (!ix) return NLOPT_OUT_OF_MEMORY;
@@ -446,9 +446,11 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 	and we'll assume that the main limiting factor is the memory.
 	We'll assume that at least MEMAVAIL memory, or 4*n memory, whichever
 	is bigger, is available. */
-     mf = MAX2(MEMAVAIL/n, 4);
-     if (stop->maxeval && stop->maxeval <= mf)
-	  mf = MAX2(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
+     if (mf <= 0) {
+	  mf = MAX2(MEMAVAIL/n, 4);
+	  if (stop->maxeval && stop->maxeval <= mf)
+	       mf = MAX2(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
+     }
 
  retry_alloc:
      work = (double*) malloc(sizeof(double) * (n * 4 + MAX2(n,n*mf)*2 + 
