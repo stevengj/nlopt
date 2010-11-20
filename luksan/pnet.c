@@ -587,17 +587,10 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
      ix = (int*) malloc(sizeof(int) * n);
      if (!ix) return NLOPT_OUT_OF_MEMORY;
 
-     /* FIXME: what should we set mf to?  The example program tlis.for
-        sets it to zero as far as I can tell, but it seems to greatly
-	improve convergence to make it > 0.  The computation time
-	per iteration, and of course the memory, seem to go as O(n * mf),
-	and we'll assume that the main limiting factor is the memory.
-	We'll assume that at least MEMAVAIL memory, or 4*n memory, whichever
-	is bigger, is available. */
      if (mf <= 0) {
-	  mf = MAX2(MEMAVAIL/n, 4);
+	  mf = MAX2(MEMAVAIL/n, 10);
 	  if (stop->maxeval && stop->maxeval <= mf)
-	       mf = MAX2(stop->maxeval - 5, 1); /* mf > maxeval seems not good */
+	       mf = MAX2(stop->maxeval, 1);
      }
 
  retry_alloc:
