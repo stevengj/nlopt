@@ -268,8 +268,8 @@ NLOPT_EXTERN(nlopt_result) nlopt_set_local_optimizer(nlopt_opt opt,
 NLOPT_EXTERN(nlopt_result) nlopt_set_population(nlopt_opt opt, unsigned pop);
 NLOPT_EXTERN(unsigned) nlopt_get_population(const nlopt_opt opt);
 
-NLOPT_EXTERN(nlopt_result) nlopt_set_subspace_dim(nlopt_opt opt, unsigned dim);
-NLOPT_EXTERN(unsigned) nlopt_get_subspace_dim(const nlopt_opt opt);
+NLOPT_EXTERN(nlopt_result) nlopt_set_vector_storage(nlopt_opt opt, unsigned dim);
+NLOPT_EXTERN(unsigned) nlopt_get_vector_storage(const nlopt_opt opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_default_initial_step(nlopt_opt opt, 
 							 const double *x);

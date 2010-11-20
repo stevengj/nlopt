@@ -88,7 +88,7 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
 
 	  opt->local_opt = NULL;
 	  opt->stochastic_population = 0;
-	  opt->subspace_dim = 0;
+	  opt->vector_storage = 0;
 	  opt->dx = NULL;
 	  opt->work = NULL;
 
@@ -589,7 +589,7 @@ NLOPT_STDCALL nlopt_set_local_optimizer(nlopt_opt opt,
 /*************************************************************************/
 
 GETSET(population, unsigned, stochastic_population)
-GETSET(subspace_dim, unsigned, subspace_dim)
+GETSET(vector_storage, unsigned, vector_storage)
 
 /*************************************************************************/
 

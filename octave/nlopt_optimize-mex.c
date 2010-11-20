@@ -151,7 +151,7 @@ nlopt_opt make_opt(const mxArray *opts, unsigned n)
      nlopt_set_maxtime(opt, struct_val_default(opts, "maxtime", 0.0));
 
      nlopt_set_population(opt, struct_val_default(opts, "population", 0));
-     nlopt_set_subspace_dim(opt, struct_val_default(opts, "subspace_dim", 0));
+     nlopt_set_vector_storage(opt, struct_val_default(opts, "vector_storage", 0));
 
      if (struct_arrval(opts, "initial_step", n, NULL))
 	  nlopt_set_initial_step(opt,

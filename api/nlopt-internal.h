@@ -69,7 +69,7 @@ struct nlopt_opt_s {
      nlopt_opt local_opt; /* local optimizer */
      unsigned stochastic_population; /* population size for stochastic algs */
      double *dx; /* initial step sizes (length n) for nonderivative algs */
-     unsigned subspace_dim; /* max subspace dimension (0 for default) */
+     unsigned vector_storage; /* max subspace dimension (0 for default) */
 
      double *work; /* algorithm-specific workspace during optimization */
 };
