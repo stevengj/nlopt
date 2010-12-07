@@ -119,7 +119,7 @@ NLOPT_STDCALL nlopt_minimize_econstrained(
 
      ret = nlopt_set_xtol_rel(opt, xtol_rel);
      if (ret != NLOPT_SUCCESS) { nlopt_destroy(opt); return ret; }
-     ret = nlopt_set_xtol_abs(opt, xtol_abs);
+     if (xtol_abs) ret = nlopt_set_xtol_abs(opt, xtol_abs);
      if (ret != NLOPT_SUCCESS) { nlopt_destroy(opt); return ret; }
      
      ret = nlopt_set_maxeval(opt, maxeval);
