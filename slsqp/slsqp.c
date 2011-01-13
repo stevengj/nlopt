@@ -2494,6 +2494,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 		   eval_f_and_grad:
 		   feasible_cur = 1; infeasibility_cur = 0;
 		   fcur = f(n, xcur, grad, f_data);
+		   stop->nevals++;
 		   if (nlopt_stop_forced(stop)) { 
 			fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
 		   ii = 0;
@@ -2532,6 +2533,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	      case 1: /* objective evaluation only (no gradient) */
 		   feasible_cur = 1; infeasibility_cur = 0;
 		   fcur = f(n, xcur, NULL, f_data);
+		   stop->nevals++;
 		   if (nlopt_stop_forced(stop)) { 
 			fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
 		   ii = 0;
@@ -2616,7 +2618,6 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	  }
 
 	  /* do some additional termination tests */
-	  stop->nevals++;
 	  if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	  else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
 	  else if (feasible && *minf < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
