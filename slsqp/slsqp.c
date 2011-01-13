@@ -1775,6 +1775,7 @@ typedef struct {
     double alpha;
     int iexact;
     int incons, ireset, itermx;
+    double *x0;
 } slsqpb_state;
 
 #define SS(var) state->var = var
@@ -2416,6 +2417,7 @@ static void slsqp(int *m, int *meq, int *la, int *n,
     slsqpb_(m, meq, la, n, &x[1], &xl[1], &xu[1], f, &c__[1], &g[1], &a[
 	    a_offset], acc, iter, mode, &w[ir], &w[il], &w[ix], &w[im], &w[is]
 	    , &w[iu], &w[iv], &w[iw], &jw[1], state);
+    state->x0 = &w[ix];
     return;
 } /* slsqp_ */
 
@@ -2436,7 +2438,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 			 double *x, double *minf,
 			 nlopt_stopping *stop)
 {
-     slsqpb_state state = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+     slsqpb_state state = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL};
      unsigned mtot = nlopt_count_constraints(m, fc);
      unsigned ptot = nlopt_count_constraints(p, h);
      double *work, *cgrad, *c, *grad, *w, 
@@ -2565,17 +2567,22 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 		   break;
 	      case 8: /* positive directional derivative for linesearch */
 		   /* relaxed convergence check for a feasible_cur point,
-		      as in the SLSQP code */
+		      as in the SLSQP code (except xtol as well as ftol) */
 		   ret = NLOPT_ROUNDOFF_LIMITED; /* usually why deriv>0 */
 		   if (feasible_cur) {
 			double save_ftol_rel = stop->ftol_rel;
+			double save_xtol_rel = stop->xtol_rel;
 			double save_ftol_abs = stop->ftol_abs;
 			stop->ftol_rel *= 10;
 			stop->ftol_abs *= 10;
+			stop->xtol_rel *= 10;
 			if (nlopt_stop_ftol(stop, fcur, state.f0))
 			     ret = NLOPT_FTOL_REACHED;
+			else if (nlopt_stop_x(stop, xcur, state.x0))
+			     ret = NLOPT_XTOL_REACHED;
 			stop->ftol_rel = save_ftol_rel;
 			stop->ftol_abs = save_ftol_abs;
+			stop->xtol_rel = save_xtol_rel;
 		   }
 		   goto done;
 	      case 5: /* singular matrix E in LSQ subproblem */
