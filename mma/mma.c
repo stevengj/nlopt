@@ -96,6 +96,11 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 	             (v/u) sigma^2 (-1 + sqrt(1 - (u / v sigma)^2))
              (which goes to zero as u -> 0). */
 
+	  if (sigma[j] == 0) { /* special case for lb[i] == ub[i] dims, dx=0 */
+	       xcur[j] = x[j];
+	       continue;
+	  }
+
 	  u = dfdx[j];
 	  v = fabs(dfdx[j]) * sigma[j] + 0.5 * rho;
 	  for (i = 0; i < m; ++i) if (!isnan(fcval[i])) {
