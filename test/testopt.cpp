@@ -51,6 +51,16 @@ static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
 static int force_constraints = 0;
+static int fix_bounds[100] = {0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0,
+			      0,0,0,0,0,0,0,0,0,0};
 
 static void listalgs(FILE *f)
 {
@@ -137,6 +147,11 @@ static int test_function(int ifunc)
   printf("]\n");
   memcpy(lb, func.lb, func.n * sizeof(double));
   memcpy(ub, func.ub, func.n * sizeof(double));
+  for (i = 0; i < func.n; ++i) if (fix_bounds[i]) {
+      printf("fixing bounds for dim[%d] to xmin[%d]=%g\n",
+	     i, i, func.xmin[i]);
+      lb[i] = ub[i] = func.xmin[i];
+  }
   if (force_constraints) {
     for (i = 0; i < func.n; ++i) {
       if (nlopt_iurand(2) == 0)
@@ -258,6 +273,7 @@ static void usage(FILE *f)
 	  " -a <n> : use optimization algorithm <n>\n"
 	  " -o <n> : use objective function <n>\n"
 	  " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
+	  " -b <dim0,dim1,...>: eliminate given dims by equating bounds\n"
 	  "     -c : starting guess at center of cell\n"
 	  "     -C : put optimum outside of bound constraints\n"
 	  " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
@@ -286,7 +302,7 @@ int main(int argc, char **argv)
   feenableexcept(FE_INVALID);
 #endif
   
-  while ((c = getopt(argc, argv, "hLvCc0:r:a:o:i:e:t:x:X:f:F:m:")) != -1)
+  while ((c = getopt(argc, argv, "hLvCc0:r:a:o:i:e:t:x:X:f:F:m:b:")) != -1)
     switch (c) {
     case 'h':
       usage(stdout);
@@ -348,6 +364,19 @@ int main(int argc, char **argv)
       center_start = 0;
       xinit_tol = atof(optarg);
       break;
+    case 'b': {
+      const char *s = optarg;
+      while (s && *s) {
+	int b = atoi(s);
+	if (b < 0 || b >= 100) { 
+	  fprintf(stderr, "invalid -b argument");
+	  return EXIT_FAILURE;
+	}
+	fix_bounds[b] = 1;
+	s = strchr(s, ','); if (s) ++s;
+      }
+      break;
+    }
     default:
       fprintf(stderr, "harminv: invalid argument -%c\n", c);
       usage(stderr);
