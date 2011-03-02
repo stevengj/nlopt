@@ -105,7 +105,7 @@ extern nlopt_result nlopt_optimize_limited(nlopt_opt opt,
 /* data structure for nonlinear inequality or equality constraint
    (f <= 0 or f = 0, respectively).  tol (>= 0) is a tolerance
    that is used for stopping criteria -- the point is considered
-   "feasible" for purposes of stopping of the constraint is violated
+   "feasible" for purposes of stopping if the constraint is violated
    by at most tol. */
 typedef struct {
      unsigned m; /* dimensional of constraint: mf maps R^n -> R^m */
