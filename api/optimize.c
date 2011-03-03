@@ -138,6 +138,202 @@ static int finite_domain(unsigned n, const double *lb, const double *ub)
 }
 
 /*********************************************************************/
+/* wrapper functions, only for derivative-free methods, that
+   eliminate dimensions with lb == ub.   (The gradient-based methods
+   should handle this case directly, since they operate on much
+   larger vectors where I am loathe to make copies unnecessarily.) */
+
+typedef struct {
+     nlopt_func f;
+     nlopt_mfunc mf;
+     void *f_data;
+     unsigned n; /* true dimension */
+     double *x; /* scratch vector of length n */
+     const double *lb, *ub; /* bounds, of length n */
+} elimdim_data;
+
+static void *elimdim_makedata(nlopt_func f, nlopt_mfunc mf, void *f_data,
+			      unsigned n, double *x, const double *lb,
+			      const double *ub)
+{
+     elimdim_data *d = (elimdim_data *) malloc(sizeof(elimdim_data));
+     if (!d) return NULL;
+     d->f = f; d->mf = mf; d->f_data = f_data; d->n = n; d->x = x;
+     d->lb = lb; d->ub = ub;
+     return d;
+}
+
+static double elimdim_func(unsigned n0, const double *x0, double *grad, void *d_)
+{
+     elimdim_data *d = (elimdim_data *) d_;
+     double *x = d->x;
+     const double *lb = d->lb, *ub = d->ub;
+     unsigned n = d->n, i, j;
+
+     (void) n0; /* unused */
+     (void) grad; /* assert: grad == NULL */
+     for (i = j = 0; i < n; ++i) {
+	  if (lb[i] == ub[i])
+	       x[i] = lb[i];
+	  else /* assert: j < n0 */
+	       x[i] = x0[j++];
+     }
+     return d->f(n, x, NULL, d->f_data);
+}
+
+
+static void elimdim_mfunc(unsigned m, double *result,
+			  unsigned n0, const double *x0, double *grad, void *d_)
+{
+     elimdim_data *d = (elimdim_data *) d_;
+     double *x = d->x;
+     const double *lb = d->lb, *ub = d->ub;
+     unsigned n = d->n, i, j;
+
+     (void) n0; /* unused */
+     (void) grad; /* assert: grad == NULL */
+     for (i = j = 0; i < n; ++i) {
+	  if (lb[i] == ub[i])
+	       x[i] = lb[i];
+	  else /* assert: j < n0 */
+	       x[i] = x0[j++];
+     }
+     d->mf(m, result, n, x, NULL, d->f_data);
+}
+
+/* compute the eliminated dimension: number of dims with lb[i] != ub[i] */
+static unsigned elimdim_dimension(unsigned n, const double *lb, const double *ub)
+{
+     unsigned n0 = 0, i;
+     for (i = 0; i < n; ++i) n0 += lb[i] != ub[i] ? 1U : 0;
+     return n0;
+}
+
+/* modify v to "shrunk" version, with dimensions for lb[i] == ub[i] eliminated */
+static void elimdim_shrink(unsigned n, double *v,
+			   const double *lb, const double *ub)
+{
+     unsigned i, j;
+     if (v)
+	  for (i = j = 0; i < n; ++i)
+	       if (lb[i] != ub[i])
+		    v[j++] = v[i];
+}
+
+/* inverse of elimdim_shrink */
+static void elimdim_expand(unsigned n, double *v,
+			   const double *lb, const double *ub)
+{
+     unsigned i, j;
+     if (v && n > 0) {
+	  j = elimdim_dimension(n, lb, ub) - 1;
+	  for (i = n - 1; i > 0; --i) {
+	       if (lb[i] != ub[i])
+		    v[i] = v[j--];
+	       else
+		    v[i] = lb[i];
+	  }
+	  if (lb[0] == ub[0])
+	       v[0] = lb[0];
+     }
+}
+
+/* given opt, create a new opt with equal-constraint dimensions eliminated */
+static nlopt_opt elimdim_create(nlopt_opt opt)
+{
+     nlopt_opt opt0 = nlopt_copy(opt);
+     double *x;
+     unsigned i;
+     
+     if (!opt0) return NULL;
+     x = (double *) malloc(sizeof(double) * opt->n);
+     if (opt->n && !x) { nlopt_destroy(opt0); return NULL; }
+
+     opt0->n = elimdim_dimension(opt->n, opt->lb, opt->ub);
+     elimdim_shrink(opt->n, opt0->lb, opt->lb, opt->ub);
+     elimdim_shrink(opt->n, opt0->ub, opt->lb, opt->ub);
+     elimdim_shrink(opt->n, opt0->xtol_abs, opt->lb, opt->ub);
+     elimdim_shrink(opt->n, opt0->dx, opt->lb, opt->ub);
+
+     opt0->munge_on_destroy = opt0->munge_on_copy = NULL;
+
+     opt0->f = elimdim_func;
+     opt0->f_data = elimdim_makedata(opt->f, NULL, opt->f_data,
+				     opt->n, x, opt->lb, opt->ub);
+     if (!opt0->f_data) goto bad;
+
+     for (i = 0; i < opt->m; ++i) {
+	  opt0->fc[i].f = elimdim_func;
+	  opt0->fc[i].mf = elimdim_mfunc;
+	  opt0->fc[i].f_data = elimdim_makedata(opt->fc[i].f, opt->fc[i].mf,
+						opt->fc[i].f_data,
+						opt->n, x, opt->lb, opt->ub);
+	  if (!opt0->fc[i].f_data) goto bad;
+     }
+
+     for (i = 0; i < opt->p; ++i) {
+	  opt0->h[i].f = elimdim_func;
+	  opt0->h[i].mf = elimdim_mfunc;
+	  opt0->h[i].f_data = elimdim_makedata(opt->h[i].f, opt->h[i].mf,
+					       opt->h[i].f_data,
+					       opt->n, x, opt->lb, opt->ub);
+	  if (!opt0->h[i].f_data) goto bad;
+     }
+
+     return opt0;
+bad:
+     free(x);
+     nlopt_destroy(opt0);
+     return NULL;
+}
+
+/* like nlopt_destroy, but also frees elimdim_data */
+static void elimdim_destroy(nlopt_opt opt)
+{
+     unsigned i;
+     if (!opt) return;
+
+     free(((elimdim_data*) opt->f_data)->x);
+     free(opt->f_data); opt->f_data = NULL;
+
+     for (i = 0; i < opt->m; ++i) {
+	  free(opt->fc[i].f_data);
+	  opt->fc[i].f_data = NULL;
+     }
+     for (i = 0; i < opt->p; ++i) {
+	  free(opt->h[i].f_data);
+	  opt->h[i].f_data = NULL;
+     }
+
+     nlopt_destroy(opt);
+}
+
+/* return whether to use elimdim wrapping. */
+static int elimdim_wrapcheck(nlopt_opt opt)
+{
+     if (!opt) return 0;
+     if (elimdim_dimension(opt->n, opt->lb, opt->ub) == opt->n) return 0;
+     switch (opt->algorithm) {
+	 case NLOPT_GN_DIRECT:
+	 case NLOPT_GN_DIRECT_L: 
+	 case NLOPT_GN_DIRECT_L_RAND: 
+	 case NLOPT_GN_DIRECT_NOSCAL:
+	 case NLOPT_GN_DIRECT_L_NOSCAL: 
+	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
+	 case NLOPT_GN_ORIG_DIRECT:
+	 case NLOPT_GN_ORIG_DIRECT_L:
+	 case NLOPT_LN_COBYLA:
+	 case NLOPT_LN_NEWUOA:
+	 case NLOPT_LN_NEWUOA_BOUND:
+	 case NLOPT_LN_BOBYQA:
+	 case NLOPT_GN_ISRES:
+	      return 1;
+	  
+	 default: return 0;
+     }
+}
+
+/*********************************************************************/
 
 #define POP(defaultpop) (opt->stochastic_population > 0 ?		\
                          opt->stochastic_population :			\
@@ -607,8 +803,23 @@ NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
 	  opt->maximize = 0;
      }
 
-     ret = nlopt_optimize_(opt, x, opt_f);
+     { /* possibly eliminate lb == ub dimensions for some algorithms */
+	  nlopt_opt elim_opt = opt;
+	  if (elimdim_wrapcheck(opt)) {
+	       elim_opt = elimdim_create(opt);
+	       if (!elim_opt) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+	       elimdim_shrink(opt->n, x, opt->lb, opt->ub);
+	  }
 
+	  ret = nlopt_optimize_(elim_opt, x, opt_f);
+
+	  if (elim_opt != opt) {
+	       elimdim_destroy(elim_opt);
+	       elimdim_expand(opt->n, x, opt->lb, opt->ub);
+	  }
+     }
+
+done:
      if (maximize) { /* restore original signs */
 	  opt->maximize = maximize;
 	  opt->stopval = -opt->stopval;
