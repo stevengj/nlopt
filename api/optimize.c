@@ -209,7 +209,7 @@ static unsigned elimdim_dimension(unsigned n, const double *lb, const double *ub
      return n0;
 }
 
-/* modify v to "shrunk" version, with dimensions for lb[i] == ub[i] eliminated */
+/* modify v to "shrunk" version, with dimensions for lb[i] == ub[i] elim'ed */
 static void elimdim_shrink(unsigned n, double *v,
 			   const double *lb, const double *ub)
 {
@@ -322,10 +322,13 @@ static int elimdim_wrapcheck(nlopt_opt opt)
 	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L:
+	 case NLOPT_LN_PRAXIS:
 	 case NLOPT_LN_COBYLA:
 	 case NLOPT_LN_NEWUOA:
 	 case NLOPT_LN_NEWUOA_BOUND:
 	 case NLOPT_LN_BOBYQA:
+	 case NLOPT_LN_NELDERMEAD:
+	 case NLOPT_LN_SBPLX:
 	 case NLOPT_GN_ISRES:
 	      return 1;
 	  
