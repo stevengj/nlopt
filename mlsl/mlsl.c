@@ -213,7 +213,8 @@ static int is_potential_minimizer(mlsl_data *mlsl, pt *p,
 	  return 0;
 
      for (i = 0; i < n; ++i)
-	  if (x[i] - lb[i] <= dbound_min || ub[i] - x[i] <= dbound_min)
+	  if ((x[i] - lb[i] <= dbound_min || ub[i] - x[i] <= dbound_min)
+	      && ub[i] - lb[i] > dbound_min)
 	       return 0;
 
      return 1;
