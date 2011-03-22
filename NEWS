@@ -1,3 +1,24 @@
+NLopt 2.2.2
+
+* Added set_vector_storage API to modify the memory usage and the 
+  subspace dimension for low-storage quasi-Newton methods.
+
+* Fixed missing support for maxtime stopping criteria in Luksan and
+  ORIG_DIRECT algorithms; thanks to Jurgen Werner for the bug report.
+
+* Fixed algorithms to support the case where the lower and upper bounds
+  are equal for some variables (which effectively eliminates those
+  variables from optimization).
+
+* Added missing xtol check to SLSQP, which caused erroneous ROUNDOFF_LIMITED
+  error codes to be returned; thanks to Alexander Riess for the bug report.
+
+* Fixed slight overcounting of function evaluations for maxeval check
+  in SLSQP.
+
+* Fixed deprecated API to support xtol_abs == NULL for backward
+  compatibility (thanks to Francesco Biscani for the bug report).
+
 NLopt 2.2.1 (6 September 2010)
 
 * If you compile nlopt.h with the NLOPT_DLL_EXPORT symbol #defined,
