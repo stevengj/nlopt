@@ -414,7 +414,7 @@ static nlopt_result divide_good_rects(params *p)
 	  if (im >= 0)
 	       K1 = (hull[i][1] - hull[im][1]) / (hull[i][0] - hull[im][0]);
 	  if (ip < nhull)
-	       K1 = (hull[i][1] - hull[ip][1]) / (hull[i][0] - hull[ip][0]);
+	       K2 = (hull[i][1] - hull[ip][1]) / (hull[i][0] - hull[ip][0]);
 	  K = MAX(K1, K2);
 	  if (hull[i][1] - K * hull[i][0]
 	      <= p->minf - magic_eps * fabs(p->minf) || ip == nhull) {
