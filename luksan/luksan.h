@@ -32,6 +32,11 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 			 int mf,
 			 int mos1, int mos2);
 
+typedef struct {
+     double fl, fu, pl, rl, pu, ru;
+     int mes1, mes2, mes3, mode;
+} ps1l01_state;
+
 /*****************************  internal routines *************************/
 
 /* mssubs.c: */
@@ -88,7 +93,7 @@ void luksan_ps1l01__(double *r__, double *rp,
 		     tolp, double *par1, double *par2, int *kd, int *ld, 
 		     int *nit, int *kit, int *nred, int *mred, int *
 		     maxst, int *iest, int *inits, int *iters, int *kters, 
-		     int *mes, int *isys);
+		     int *mes, int *isys, ps1l01_state *state);
 void luksan_pulsp3__(int *n, int *m, int *mf, 
 		     double *xm, double *gr, double *xo, double *go, 
 		     double *r__, double *po, double *sig, int *iterh, 

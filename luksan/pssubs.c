@@ -202,6 +202,16 @@ L1:
     return;
 } /* luksan_pnint1__ */
 
+/* save and restore state, replacing old non-reeentrant implementation
+   that used static local variables */
+#define SS(var) state->var = var
+#define SAVE_STATE SS(fl); SS(fu); SS(pl); SS(rl); SS(pu); SS(ru); \
+                   SS(mes1); SS(mes2); SS(mes3); SS(mode)
+#define RS(var) var = state->var
+#define RESTORE_STATE RS(fl); RS(fu); RS(pl); RS(rl); RS(pu); RS(ru); \
+                      RS(mes1); RS(mes2); RS(mes3); RS(mode)
+
+
 /* cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc */
 /* SUBROUTINE PS1L01                ALL SYSTEMS                97/12/01
 * PURPOSE :
@@ -276,19 +286,21 @@ void luksan_ps1l01__(double *r__, double *rp,
 	tolp, double *par1, double *par2, int *kd, int *ld, 
 	int *nit, int *kit, int *nred, int *mred, int *
 	maxst, int *iest, int *inits, int *iters, int *kters, 
-	int *mes, int *isys)
+	int *mes, int *isys, ps1l01_state *state)
 {
     /* System generated locals */
     double d__1, d__2;
 
     /* Local variables */
     unsigned l1, l2, l3, m1, l5, m2, l7, m3;
-    static double fl, fu, pl, rl, pu, ru;
-    static int mes1, mes2, mes3, mode;
+    double fl, fu, pl, rl, pu, ru;
+    int mes1, mes2, mes3, mode;
     int merr;
     static int mtyp;
     int init1;
     double rtemp;
+
+    RESTORE_STATE;
 
     if (*isys == 1) {
 	goto L3;
@@ -363,6 +375,7 @@ L2:
     *kd = 1;
     *ld = -1;
     *isys = 1;
+    SAVE_STATE;
     return;
 L3:
     if (mode == 0) {
@@ -463,6 +476,7 @@ L3:
     goto L2;
 L4:
     *isys = 0;
+    SAVE_STATE;
     return;
 } /* luksan_ps1l01__ */
 

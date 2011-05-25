@@ -153,6 +153,7 @@ static void plip_(int *nf, int *nb, double *x, int *
     int iters, irest, inits, kters, maxst;
     double snorm;
     int mtesx, ntesx;
+    ps1l01_state state;
 
 /*     INITIATION */
 
@@ -375,7 +376,8 @@ L11130:
 L11170:
     luksan_ps1l01__(&r__, &rp, f, &fo, &fp, &p, &po, &pp, minf_est, &maxf, &rmin, 
 	    &rmax, &tols, &tolp, &par1, &par2, &kd, &ld, &stat_1->nit, &kit, &
-	    nred, &mred, &maxst, iest, &inits, &iters, &kters, &mes, &isys);
+	    nred, &mred, &maxst, iest, &inits, &iters, &kters, &mes,
+		    &isys, &state);
     if (isys == 0) {
 	goto L11174;
     }
