@@ -149,17 +149,19 @@ typedef struct {
      void *f_data;
      unsigned n; /* true dimension */
      double *x; /* scratch vector of length n */
+     double *grad; /* optional scratch vector of length n */
      const double *lb, *ub; /* bounds, of length n */
 } elimdim_data;
 
 static void *elimdim_makedata(nlopt_func f, nlopt_mfunc mf, void *f_data,
 			      unsigned n, double *x, const double *lb,
-			      const double *ub)
+			      const double *ub, double *grad)
 {
      elimdim_data *d = (elimdim_data *) malloc(sizeof(elimdim_data));
      if (!d) return NULL;
      d->f = f; d->mf = mf; d->f_data = f_data; d->n = n; d->x = x;
      d->lb = lb; d->ub = ub;
+     d->grad = grad;
      return d;
 }
 
@@ -168,17 +170,24 @@ static double elimdim_func(unsigned n0, const double *x0, double *grad, void *d_
      elimdim_data *d = (elimdim_data *) d_;
      double *x = d->x;
      const double *lb = d->lb, *ub = d->ub;
+     double val;
      unsigned n = d->n, i, j;
 
      (void) n0; /* unused */
-     (void) grad; /* assert: grad == NULL */
      for (i = j = 0; i < n; ++i) {
 	  if (lb[i] == ub[i])
 	       x[i] = lb[i];
 	  else /* assert: j < n0 */
 	       x[i] = x0[j++];
      }
-     return d->f(n, x, NULL, d->f_data);
+     val = d->f(n, x, grad ? d->grad : NULL, d->f_data);
+     if (grad) {
+	  /* assert: d->grad != NULL */
+	  for (i = j = 0; i < n; ++i)
+	       if (lb[i] != ub[i])
+		    grad[j++] = d->grad[i];
+     }
+     return val;
 }
 
 
@@ -242,12 +251,18 @@ static void elimdim_expand(unsigned n, double *v,
 static nlopt_opt elimdim_create(nlopt_opt opt)
 {
      nlopt_opt opt0 = nlopt_copy(opt);
-     double *x;
+     double *x, *grad = NULL;
      unsigned i;
      
      if (!opt0) return NULL;
      x = (double *) malloc(sizeof(double) * opt->n);
      if (opt->n && !x) { nlopt_destroy(opt0); return NULL; }
+
+     if (opt->algorithm == NLOPT_GD_STOGO
+         || opt->algorithm == NLOPT_GD_STOGO_RAND) {
+	  grad = (double *) malloc(sizeof(double) * opt->n);
+	  if (opt->n && !grad) goto bad;
+     }
 
      opt0->n = elimdim_dimension(opt->n, opt->lb, opt->ub);
      elimdim_shrink(opt->n, opt0->lb, opt->lb, opt->ub);
@@ -259,7 +274,7 @@ static nlopt_opt elimdim_create(nlopt_opt opt)
 
      opt0->f = elimdim_func;
      opt0->f_data = elimdim_makedata(opt->f, NULL, opt->f_data,
-				     opt->n, x, opt->lb, opt->ub);
+				     opt->n, x, opt->lb, opt->ub, grad);
      if (!opt0->f_data) goto bad;
 
      for (i = 0; i < opt->m; ++i) {
@@ -267,7 +282,8 @@ static nlopt_opt elimdim_create(nlopt_opt opt)
 	  opt0->fc[i].mf = elimdim_mfunc;
 	  opt0->fc[i].f_data = elimdim_makedata(opt->fc[i].f, opt->fc[i].mf,
 						opt->fc[i].f_data,
-						opt->n, x, opt->lb, opt->ub);
+						opt->n, x, opt->lb, opt->ub,
+						NULL);
 	  if (!opt0->fc[i].f_data) goto bad;
      }
 
@@ -276,12 +292,14 @@ static nlopt_opt elimdim_create(nlopt_opt opt)
 	  opt0->h[i].mf = elimdim_mfunc;
 	  opt0->h[i].f_data = elimdim_makedata(opt->h[i].f, opt->h[i].mf,
 					       opt->h[i].f_data,
-					       opt->n, x, opt->lb, opt->ub);
+					       opt->n, x, opt->lb, opt->ub,
+					       NULL);
 	  if (!opt0->h[i].f_data) goto bad;
      }
 
      return opt0;
 bad:
+     free(grad);
      free(x);
      nlopt_destroy(opt0);
      return NULL;
@@ -294,6 +312,7 @@ static void elimdim_destroy(nlopt_opt opt)
      if (!opt) return;
 
      free(((elimdim_data*) opt->f_data)->x);
+     free(((elimdim_data*) opt->f_data)->grad);
      free(opt->f_data); opt->f_data = NULL;
 
      for (i = 0; i < opt->m; ++i) {
@@ -330,8 +349,10 @@ static int elimdim_wrapcheck(nlopt_opt opt)
 	 case NLOPT_LN_NELDERMEAD:
 	 case NLOPT_LN_SBPLX:
 	 case NLOPT_GN_ISRES:
+	 case NLOPT_GD_STOGO:
+         case NLOPT_GD_STOGO_RAND:
 	      return 1;
-	  
+
 	 default: return 0;
      }
 }
