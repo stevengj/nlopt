@@ -214,6 +214,7 @@ static int test_function(int ifunc)
       }
     }
     
+    testfuncs_counter = 0;
     ret = nlopt_minimize(algorithm,
 			 func.n, bounds_wrap_func, &bw,
 			 lb, ub,
