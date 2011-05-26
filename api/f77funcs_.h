@@ -157,7 +157,7 @@ void F77_(nlo_force_stop,NLO_FORCE_STOP)(int *ret, nlopt_opt *opt) {
 
 F77_SET(local_optimizer, LOCAL_OPTIMIZER, nlopt_opt)
 F77_GETSET(population, POPULATION, unsigned)
-F77_GETSET(vector_storage, SUBSPACE_DIM, unsigned)
+F77_GETSET(vector_storage, vector_storage, unsigned)
 
 F77_SETA(default_initial_step, DEFAULT_INITIAL_STEP, double)
 F77_SETA(initial_step, INITIAL_STEP, double)
