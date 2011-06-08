@@ -206,10 +206,10 @@ L1:
    that used static local variables */
 #define SS(var) state->var = var
 #define SAVE_STATE SS(fl); SS(fu); SS(pl); SS(rl); SS(pu); SS(ru); \
-                   SS(mes1); SS(mes2); SS(mes3); SS(mode)
+                   SS(mes1); SS(mes2); SS(mes3); SS(mode); SS(mtyp)
 #define RS(var) var = state->var
 #define RESTORE_STATE RS(fl); RS(fu); RS(pl); RS(rl); RS(pu); RS(ru); \
-                      RS(mes1); RS(mes2); RS(mes3); RS(mode)
+                      RS(mes1); RS(mes2); RS(mes3); RS(mode); RS(mtyp)
 
 
 /* cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc */
@@ -296,7 +296,7 @@ void luksan_ps1l01__(double *r__, double *rp,
     double fl, fu, pl, rl, pu, ru;
     int mes1, mes2, mes3, mode;
     int merr;
-    static int mtyp;
+    int mtyp;
     int init1;
     double rtemp;
 

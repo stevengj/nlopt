@@ -34,7 +34,7 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 
 typedef struct {
      double fl, fu, pl, rl, pu, ru;
-     int mes1, mes2, mes3, mode;
+     int mes1, mes2, mes3, mode, mtyp;
 } ps1l01_state;
 
 /*****************************  internal routines *************************/
