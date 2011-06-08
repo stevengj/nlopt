@@ -1,3 +1,11 @@
+NLopt 2.2.3 (8 June 2011)
+
+* Fixed additional re-entrancy problem in Luksan algorithms missed
+  in the previous version; thanks to Gert Wollny for the bug report.
+
+* Fixed set/get vector_storage in Fortran interface for Fortran
+  compilers with all-uppercase linkage.
+
 NLopt 2.2.2 (26 May 2011)
 
 * Added set_vector_storage API to modify the memory usage and the 
