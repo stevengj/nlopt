@@ -1,3 +1,8 @@
+NLopt 2.2.4 (9 June 2011)
+
+* Fixed linking problem for C++ and Python shared libraries on MacOS X;
+  thanks to Volker Lorrmann for the bug report.
+
 NLopt 2.2.3 (8 June 2011)
 
 * Fixed additional re-entrancy problem in Luksan algorithms missed
