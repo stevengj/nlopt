@@ -23,7 +23,11 @@ cobyla/libcobyla.la newuoa/libnewuoa.la neldermead/libneldermead.la	\
 auglag/libauglag.la bobyqa/libbobyqa.la isres/libisres.la		\
 slsqp/libslsqp.la api/libapi.la util/libutil.la
 
+if WITH_CXX
+libnlopt@NLOPT_SUFFIX@_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+else
 libnlopt@NLOPT_SUFFIX@_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = nlopt.pc
