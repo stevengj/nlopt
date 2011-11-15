@@ -49,7 +49,7 @@ double nlopt_seconds(void)
 	  gettimeofday(&start, NULL);
      }
      gettimeofday(&tv, NULL);
-     return (tv.tv_sec - start.tv_sec) + 1.e-6 * (tv.tv_usec - start.tv_sec);
+     return (tv.tv_sec - start.tv_sec) + 1.e-6 * (tv.tv_usec - start.tv_usec);
 #elif defined(HAVE_TIME)
      return time(NULL);
 #elif defined(_WIN32) || defined(__WIN32__)
