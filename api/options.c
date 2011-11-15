@@ -342,13 +342,17 @@ static nlopt_result add_constraint(unsigned *m, unsigned *m_alloc,
      double *tolcopy;
      unsigned i;
 
-     if ((fc && mfc) || (fc && fm != 1) || (!fc && !mfc) || !tol)
+     if ((fc && mfc) || (fc && fm != 1) || (!fc && !mfc))
 	  return NLOPT_INVALID_ARGS;
-     for (i = 0; i < fm; ++i) if (tol[i] < 0) return NLOPT_INVALID_ARGS;
+     if (tol) 
+	  for (i = 0; i < fm; ++i) if (tol[i] < 0) return NLOPT_INVALID_ARGS;
      
      tolcopy = (double *) malloc(sizeof(double) * fm);
      if (fm && !tolcopy) return NLOPT_OUT_OF_MEMORY;
-     memcpy(tolcopy, tol, sizeof(double) * fm);
+     if (tol)
+	  memcpy(tolcopy, tol, sizeof(double) * fm);
+     else
+	  for (i = 0; i < fm; ++i) tolcopy[i] = 0;
 
      *m += 1;
      if (*m > *m_alloc) {
