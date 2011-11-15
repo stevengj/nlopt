@@ -111,6 +111,7 @@ typedef struct {
      unsigned m; /* dimensional of constraint: mf maps R^n -> R^m */
      nlopt_func f; /* one-dimensional constraint, requires m == 1 */
      nlopt_mfunc mf;
+     nlopt_precond pre; /* preconditioner for f (NULL if none or if mf) */
      void *f_data;
      double *tol;
 } nlopt_constraint;

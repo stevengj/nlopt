@@ -212,8 +212,7 @@ nlopt_result ccsa_quadratic_minimize(
      unsigned n, nlopt_func f, void *f_data,
      unsigned m, nlopt_constraint *fc,
 
-     nlopt_precond pre, void *pre_data, /* for f */
-     nlopt_precond *prec, void **prec_data, /* length = # constraints */
+     nlopt_precond pre, 
 
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
@@ -264,14 +263,30 @@ nlopt_result ccsa_quadratic_minimize(
      dd.rhoc = rhoc;
      dd.xcur = xcur;
      dd.gcval = gcval;
-     dd.pre = pre; dd.pre_data = pre_data;
-     dd.prec = prec; dd.prec_data = prec_data;
+     dd.pre = pre; dd.pre_data = f_data;
+     dd.prec = NULL; dd.prec_data = NULL;
      dd.scratch = NULL;
 
+     if (m) {
+	  dd.prec = (nlopt_precond *) malloc(sizeof(nlopt_precond) * m);
+	  dd.prec_data = (void **) malloc(sizeof(void *) * m);
+	  if (!dd.prec || !dd.prec_data) {
+	       ret = NLOPT_OUT_OF_MEMORY;
+	       goto done;
+	  }
+	  for (i = ifc = 0; ifc < mfc; ++ifc) {
+	       unsigned inext = i + fc[ifc].m;
+	       for (; i < inext; ++i) {
+		    dd.prec[i] = fc[ifc].pre;
+		    dd.prec_data[i] = fc[ifc].f_data;
+	       }
+	  }
+     }
+
      no_precond = pre == NULL;
-     if (prec)
+     if (dd.prec)
 	  for (i = 0; i < m; ++i)
-	       no_precond = no_precond && prec[i] == NULL;
+	       no_precond = no_precond && dd.prec[i] == NULL;
 
      if (!no_precond) {
 	  dd.scratch = (double*) malloc(sizeof(double) * (2*n));
@@ -430,15 +445,14 @@ nlopt_result ccsa_quadratic_minimize(
 	       }
 	       for (i = ifc = 0; ifc < mfc; ++ifc) {
 		    unsigned i0 = i, inext = i + fc[ifc].m;
-		    for (; i < inext; ++i)
-			 if (!isnan(fcval_cur[i])) {
-			      feasible_cur = feasible_cur 
-				   && fcval_cur[i] <= fc[ifc].tol[i-i0];
-			      inner_done = inner_done && 
-				   (dd.gcval[i] >= fcval_cur[i]);
-			      if (fcval_cur[i] > infeasibility_cur)
-				   infeasibility_cur = fcval_cur[i];
-			 }
+		    for (; i < inext; ++i) {
+			 feasible_cur = feasible_cur 
+			      && fcval_cur[i] <= fc[ifc].tol[i-i0];
+			 inner_done = inner_done && 
+			      (dd.gcval[i] >= fcval_cur[i]);
+			 if (fcval_cur[i] > infeasibility_cur)
+			      infeasibility_cur = fcval_cur[i];
+		    }
 	       }
 
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
@@ -525,6 +539,10 @@ nlopt_result ccsa_quadratic_minimize(
  done:
      nlopt_destroy(pre_opt);
      if (dd.scratch) free(dd.scratch);
+     if (m) {
+	  free(dd.prec_data);
+	  free(dd.prec);
+     }
      free(sigma);
      return ret;
 }

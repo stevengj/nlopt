@@ -38,6 +38,7 @@ struct nlopt_opt_s {
      unsigned n; /* the dimension of the problem (immutable) */
 
      nlopt_func f; void *f_data; /* objective function to minimize */
+     nlopt_precond pre; /* optional preconditioner for f (NULL if none) */
      int maximize; /* nonzero if we are maximizing, not minimizing */
 
      double *lb, *ub; /* lower and upper bounds (length n) */

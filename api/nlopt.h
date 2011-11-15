@@ -68,10 +68,10 @@ typedef void (*nlopt_mfunc)(unsigned m, double *result,
 			     double *gradient, /* NULL if not needed */
 			     void *func_data);
 
-/* a preconditioner, which computes the approximate Hessian H(x) at x.
-   In particular, it returns Hdx = H(x) * dx.    [Array lengths = n.] */
-typedef void (*nlopt_precond)(unsigned n, const double *x, const double *dx,
-			      double *Hdx, void *data);
+/* A preconditioner, which preconditions v at x to return vpre. 
+   (The meaning of "preconditioning" is algorithm-dependent.) */
+typedef void (*nlopt_precond)(unsigned n, const double *x, const double *v,
+			      double *vpre, void *data);
 
 typedef enum {
      /* Naming conventions:
@@ -202,6 +202,9 @@ NLOPT_EXTERN(nlopt_result) nlopt_set_min_objective(nlopt_opt opt, nlopt_func f,
 NLOPT_EXTERN(nlopt_result) nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, 
 						  void *f_data);
 
+NLOPT_EXTERN(nlopt_result) nlopt_set_precond_min_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
+NLOPT_EXTERN(nlopt_result) nlopt_set_precond_max_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
+
 NLOPT_EXTERN(nlopt_algorithm) nlopt_get_algorithm(const nlopt_opt opt);
 NLOPT_EXTERN(unsigned) nlopt_get_dimension(const nlopt_opt opt);
 
@@ -223,6 +226,9 @@ NLOPT_EXTERN(nlopt_result) nlopt_add_inequality_constraint(nlopt_opt opt,
 							  nlopt_func fc,
 							  void *fc_data,
 							  double tol);
+NLOPT_EXTERN(nlopt_result) nlopt_add_precond_inequality_constraint(
+     nlopt_opt opt, nlopt_func fc, nlopt_precond pre, void *fc_data,
+     double tol);
 NLOPT_EXTERN(nlopt_result) nlopt_add_inequality_mconstraint(nlopt_opt opt,
 							    unsigned m,
 							    nlopt_mfunc fc,
@@ -234,6 +240,9 @@ NLOPT_EXTERN(nlopt_result) nlopt_add_equality_constraint(nlopt_opt opt,
 							nlopt_func h,
 							void *h_data,
 							double tol);
+NLOPT_EXTERN(nlopt_result) nlopt_add_precond_equality_constraint(
+     nlopt_opt opt, nlopt_func h, nlopt_precond pre, void *h_data,
+     double tol);
 NLOPT_EXTERN(nlopt_result) nlopt_add_equality_mconstraint(nlopt_opt opt,
 							  unsigned m,
 							  nlopt_mfunc h,

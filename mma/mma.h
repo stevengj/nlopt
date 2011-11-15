@@ -45,8 +45,7 @@ nlopt_result ccsa_quadratic_minimize(
      unsigned n, nlopt_func f, void *f_data,
      unsigned m, nlopt_constraint *fc,
 
-     nlopt_precond pre, void *pre_data, /* for f */
-     nlopt_precond *prec, void **prec_data, /* length = # constraints */
+     nlopt_precond pre,
 
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
