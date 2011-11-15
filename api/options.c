@@ -379,7 +379,7 @@ static nlopt_result add_constraint(unsigned *m, unsigned *m_alloc,
 
 static int inequality_ok(nlopt_algorithm algorithm) {
      /* nonlinear constraints are only supported with some algorithms */
-     return (algorithm == NLOPT_LD_MMA 
+     return (algorithm == NLOPT_LD_MMA || algorithm == NLOPT_LD_CCSAQ 
 	     || algorithm == NLOPT_LD_SLSQP
 	     || algorithm == NLOPT_LN_COBYLA
 	     || AUGLAG_ALG(algorithm) 

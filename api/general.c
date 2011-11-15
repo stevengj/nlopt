@@ -96,6 +96,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Multi-level single-linkage (MLSL), random (global, needs sub-algorithm)",
      "Multi-level single-linkage (MLSL), quasi-random (global, needs sub-algorithm)",
      "Sequential Quadratic Programming (SQP) (local, derivative)",
+     "CCSA (Conservative Convex Separable Approximations) with simple quadratic approximations (local, derivative)",
 };
 
 const char * NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)

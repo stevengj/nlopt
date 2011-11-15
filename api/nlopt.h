@@ -68,6 +68,11 @@ typedef void (*nlopt_mfunc)(unsigned m, double *result,
 			     double *gradient, /* NULL if not needed */
 			     void *func_data);
 
+/* a preconditioner, which computes the approximate Hessian H(x) at x.
+   In particular, it returns Hdx = H(x) * dx.    [Array lengths = n.] */
+typedef void (*nlopt_precond)(unsigned n, const double *x, const double *dx,
+			      double *Hdx, void *data);
+
 typedef enum {
      /* Naming conventions:
 
@@ -142,6 +147,8 @@ typedef enum {
      NLOPT_G_MLSL_LDS,
 
      NLOPT_LD_SLSQP,
+
+     NLOPT_LD_CCSAQ,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
