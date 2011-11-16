@@ -173,7 +173,7 @@ static double gfunc(unsigned n, double f, const double *dfdx,
 	       val += 0.5 * dx[j] * Hdx[j];
 	  if (grad)
 	       for (j = 0; j < n; ++j)
-		    grad[j] = Hdx[j];
+		    grad[j] += Hdx[j];
      }
 
      return val;
@@ -289,13 +289,13 @@ nlopt_result ccsa_quadratic_minimize(
 	       no_precond = no_precond && dd.prec[i] == NULL;
 
      if (!no_precond) {
-	  dd.scratch = (double*) malloc(sizeof(double) * (2*n));
+	  dd.scratch = (double*) malloc(sizeof(double) * (4*n));
 	  if (!dd.scratch) {
 	       free(sigma);
 	       return NLOPT_OUT_OF_MEMORY;
 	  }
-	  pre_lb = dual_lb;
-	  pre_ub = dual_ub;
+	  pre_lb = dd.scratch + 2*n;
+	  pre_ub = pre_lb + n;
 
 	  pre_opt = nlopt_create(NLOPT_LD_CCSAQ, n);
 	  if (!pre_opt) { ret = NLOPT_FAILURE; goto done; }
