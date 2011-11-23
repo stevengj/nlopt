@@ -837,7 +837,8 @@ NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
 	flips the sign of everything */
      if ((maximize = opt->maximize)) {
 	  fmd.f = f; fmd.f_data = f_data; fmd.pre = pre;
-	  opt->f = f_max; opt->f_data = &fmd; opt->pre = pre_max;
+	  opt->f = f_max; opt->f_data = &fmd; 
+	  if (opt->pre) opt->pre = pre_max;
 	  opt->stopval = -opt->stopval;
 	  opt->maximize = 0;
      }
