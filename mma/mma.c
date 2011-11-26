@@ -94,7 +94,9 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 	     and it follows that the only dx solution with |dx| <= sigma
 	     is given by:
 	             (v/u) sigma^2 (-1 + sqrt(1 - (u / v sigma)^2))
-             (which goes to zero as u -> 0). */
+		     = (u/v) / (-1 - sqrt(1 - (u / v sigma)^2))
+             (which goes to zero as u -> 0).  The latter expression
+	     is less susceptible to roundoff error. */
 
 	  if (sigma[j] == 0) { /* special case for lb[i] == ub[i] dims, dx=0 */
 	       xcur[j] = x[j];
@@ -108,12 +110,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 	       v += (fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i]) * y[i];
 	  }
 	  u *= (sigma2 = sqr(sigma[j]));
-	  if (fabs(u) < 1e-3 * (v*sigma[j])) { /* Taylor exp. for small u */
-	       double a = u / (v*sigma[j]);
-	       dx = -sigma[j] * (0.5 * a + 0.125 * a*a*a);
-	  }
-	  else
-	       dx = (v/u)*sigma2 * (-1 + sqrt(fabs(1 - sqr(u/(v*sigma[j])))));
+	  dx = (u/v) / (-1 - sqrt(fabs(1 - sqr(u/(v*sigma[j])))));
 	  xcur[j] = x[j] + dx;
 	  if (xcur[j] > ub[j]) xcur[j] = ub[j];
 	  else if (xcur[j] < lb[j]) xcur[j] = lb[j];
