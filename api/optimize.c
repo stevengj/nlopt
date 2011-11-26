@@ -651,7 +651,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				      nlopt_count_constraints(opt->m,
 							      opt->fc));
 	      if (!dual_opt) return NLOPT_FAILURE;
-	      nlopt_set_ftol_rel(dual_opt, LO(ftol_rel, 1e-12));
+	      nlopt_set_ftol_rel(dual_opt, LO(ftol_rel, 1e-14));
 	      nlopt_set_ftol_abs(dual_opt, LO(ftol_abs, 0.0));
 	      nlopt_set_maxeval(dual_opt, LO(maxeval, 100000));
 #undef LO
