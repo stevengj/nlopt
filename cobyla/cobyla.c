@@ -746,7 +746,7 @@ L140:
     if (*iprint >= 1) {
       fprintf(stderr, "cobyla: rounding errors are becoming damaging.\n");
     }
-    rc = NLOPT_FAILURE;
+    rc = NLOPT_ROUNDOFF_LIMITED;
     goto L600;
   }
 
