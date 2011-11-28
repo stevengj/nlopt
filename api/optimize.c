@@ -818,7 +818,7 @@ static void pre_max(unsigned n, const double *x, const double *v,
 {
      f_max_data *d = (f_max_data *) data;
      unsigned i;
-     d->pre(n, x, v, vpre, data);
+     d->pre(n, x, v, vpre, d->f_data);
      for (i = 0; i < n; ++i) vpre[i] = -vpre[i];
 }
 
