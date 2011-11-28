@@ -297,15 +297,17 @@ nlopt_result ccsa_quadratic_minimize(
 	  pre_lb = dd.scratch + 2*n;
 	  pre_ub = pre_lb + n;
 
-	  pre_opt = nlopt_create(NLOPT_LD_CCSAQ, n);
+	  pre_opt = nlopt_create(nlopt_get_algorithm(dual_opt), n);
 	  if (!pre_opt) { ret = NLOPT_FAILURE; goto done; }
 	  ret = nlopt_set_min_objective(pre_opt, g0, &dd);
 	  if (ret < 0) goto done;
 	  ret = nlopt_add_inequality_mconstraint(pre_opt, m, gi, &dd, NULL);
 	  if (ret < 0) goto done;
-	  ret = nlopt_set_ftol_rel(pre_opt, 1e-12);
+	  ret = nlopt_set_ftol_rel(pre_opt, nlopt_get_ftol_rel(dual_opt));
 	  if (ret < 0) goto done;
-	  ret = nlopt_set_maxeval(pre_opt, 100000);
+	  ret = nlopt_set_ftol_abs(pre_opt, nlopt_get_ftol_abs(dual_opt));
+	  if (ret < 0) goto done;
+	  ret = nlopt_set_maxeval(pre_opt, nlopt_get_maxeval(dual_opt));
 	  if (ret < 0) goto done;
      }
      
