@@ -84,6 +84,7 @@ typedef struct user_function_data_s {
      int xrhs, nrhs;
      int verbose, neval;
      struct user_function_data_s *dpre;
+     nlopt_opt opt;
 } user_function_data;
 
 static double user_function(unsigned n, const double *x,
@@ -115,6 +116,7 @@ static double user_function(unsigned n, const double *x,
   }
   d->neval++;
   if (d->verbose) mexPrintf("nlopt_optimize eval #%d: %g\n", d->neval, f);
+  if (mxIsNaN(f)) nlopt_force_stop(d->opt);
   return f;
 }
 
@@ -222,6 +224,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
      d.neval = 0;
      d.verbose = (int) struct_val_default(prhs[0], "verbose", 0);
+     d.opt = opt;
 
      /* function f = prhs[1] */
      mx = struct_funcval(prhs[0], "min_objective");
@@ -257,6 +260,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	       dpre.xrhs = 1;
 	  }
 	  dpre.verbose = d.verbose > 2;
+	  dpre.opt = opt;
 	  dpre.neval = 0;
 	  dpre.prhs[dpre.xrhs] = d.prhs[d.xrhs];
 	  dpre.prhs[d.xrhs+1] = mxCreateDoubleMatrix(1, n, mxREAL);
@@ -301,6 +305,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		    dfc[j].xrhs = 1;
 	       }
 	       dfc[j].verbose = d.verbose > 1;
+	       dfc[j].opt = opt;
 	       dfc[j].neval = 0;
 	       dfc[j].prhs[dfc[j].xrhs] = d.prhs[d.xrhs];
 	       CHECK(nlopt_add_inequality_constraint(opt, user_function,
@@ -337,6 +342,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 		    dh[j].xrhs = 1;
 	       }
 	       dh[j].verbose = d.verbose > 1;
+	       dh[j].opt = opt;
 	       dh[j].neval = 0;
 	       dh[j].prhs[dh[j].xrhs] = d.prhs[d.xrhs];
 	       CHECK(nlopt_add_equality_constraint(opt, user_function,

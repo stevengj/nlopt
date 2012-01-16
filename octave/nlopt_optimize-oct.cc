@@ -66,6 +66,7 @@ static Matrix struct_val_default(Octave_map &m, const std::string& k,
 typedef struct {
   octave_function *f;
   int neval, verbose;
+  nlopt_opt opt;
 } user_function_data;
 
 static double user_function(unsigned n, const double *x,
@@ -98,7 +99,9 @@ static double user_function(unsigned n, const double *x,
     data->neval++;
     if (data->verbose) printf("nlopt_optimize eval #%d: %g\n", 
 			      data->neval, res(0).double_value());
-    return res(0).double_value();
+    double f = res(0).double_value();
+    if (f != f /* isnan(f) */) nlopt_force_stop(data->opt);
+    return f;
   }
   return 0;
 }				 
@@ -226,6 +229,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
   user_function_data d;
   d.neval = 0;
   d.verbose = struct_val_default(opts, "verbose", 0);
+  d.opt = opt;
   if (opts.contains("min_objective")) {
     CHECK(opts.contents("min_objective").length() == 1 
 	  && (opts.contents("min_objective"))(0).is_function_handle(),
