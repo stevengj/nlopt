@@ -434,11 +434,14 @@ criteria/tolerances for the local searches, by
 with or without derivatives, and determines whether the objective
 function needs gradients.)
 .TP
-.B NLOPT_LD_MMA
+\fBNLOPT_LD_MMA\fR, \fBNLOPT_LD_CCSAQ\fR 
 Local (L) gradient-based (D) optimization using the method of moving
 asymptotes (MMA), or rather a refined version of the algorithm as
 published by Svanberg (2002).  (NLopt uses an independent
-free-software/open-source implementation of Svanberg's algorithm.)
+free-software/open-source implementation of Svanberg's algorithm.) CCSAQ
+is a related algorithm from Svanberg's paper which uses a local quadratic
+approximation rather than the more-complicated MMA model; the two usually
+have similar convergence rates.
 The
 .B NLOPT_LD_MMA
 algorithm supports both bound-constrained and unconstrained
