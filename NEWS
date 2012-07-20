@@ -1,3 +1,24 @@
+NLopt 2.3 (20 July 2012)
+
+* In Matlab/Octave interface, make returning NaN from the objective
+  equivalent to nlopt_force_stop; thanks to Norman Violet for the suggestion.
+
+* Added CCSA-quadratic (NLOPT_LD_CCSAQ), similar to MMA.
+
+* Added interface for supplying a preconditioner (approximate Hessian);
+  currently only supported in CCSAQ.
+
+* When adding mconstraints, allow tol==NULL as synonym for zero tolerances.
+
+* Added missing NLOPT_LD_SLSQP constant in Matlab/Octave.
+
+* Lower tolerance for dual optimization in MMA/CCSAQ; thanks to
+  Christophe Leruste for the problem report
+
+* Fixed bug in timer, thanks to William Vaughn for the patch.
+
+* Bug fix to convergence test in sbplx; thanks to Douglas Bates.
+
 NLopt 2.2.4 (9 June 2011)
 
 * Fixed linking problem for C++ and Python shared libraries on MacOS X;
