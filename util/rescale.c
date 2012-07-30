@@ -66,3 +66,17 @@ double *nlopt_new_rescaled(unsigned n, const double *s, const double *x)
      nlopt_rescale(n, s, x, xs);
      return xs;
 }
+
+/* since rescaling can flip the signs of the x components and the bounds,
+   we may have to re-order the bounds in order to ensure that they
+   remain in the correct order */
+void nlopt_reorder_bounds(unsigned n, double *lb, double *ub)
+{
+     unsigned i;
+     for (i = 0; i < n; ++i)
+	  if (lb[i] > ub[i]) {
+	       double t = lb[i];
+	       lb[i] = ub[i];
+	       ub[i] = t;
+	  }
+}

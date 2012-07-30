@@ -203,16 +203,17 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      if (!s.lb) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
      s.ub = nlopt_new_rescaled(n, s.scale, ub);
      if (!s.ub) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+     nlopt_reorder_bounds(n, s.lb, s.ub);
 
      s.xtmp = (double *) malloc(sizeof(double) * n);
      if (!s.xtmp) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 
      /* SGJ, 2008: compute rhoend from NLopt stop info */
-     rhobeg = dx[0] / s.scale[0];
+     rhobeg = fabs(dx[0] / s.scale[0]);
      rhoend = stop->xtol_rel * (rhobeg);
      for (j = 0; j < n; ++j)
-	  if (rhoend < stop->xtol_abs[j] / s.scale[j])
-	       rhoend = stop->xtol_abs[j] / s.scale[j];
+	  if (rhoend < stop->xtol_abs[j] / fabs(s.scale[j]))
+	       rhoend = stop->xtol_abs[j] / fabs(s.scale[j]);
 
      /* each equality constraint gives two inequality constraints */
      m = nlopt_count_constraints(m, fc) + 2 * nlopt_count_constraints(p, h);

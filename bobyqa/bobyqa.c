@@ -3108,8 +3108,9 @@ nlopt_result bobyqa(int n, int npt, double *x,
     sxu = nlopt_new_rescaled(U(n), s, xu);
     if (!sxu) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
     xu = sxu;
+    nlopt_reorder_bounds(n, sxl, sxu);
 
-    rhobeg = dx[0] / s[0]; /* equals all other dx[i] after rescaling */
+    rhobeg = fabs(dx[0] / s[0]); /* equals all other dx[i] after rescaling */
 
     calfun_data.s = s;
     calfun_data.xs = xs;
@@ -3119,8 +3120,8 @@ nlopt_result bobyqa(int n, int npt, double *x,
     /* SGJ, 2009: compute rhoend from NLopt stop info */
     rhoend = stop->xtol_rel * (rhobeg);
     for (j = 0; j < n; ++j)
-	 if (rhoend < stop->xtol_abs[j] / s[j])
-	      rhoend = stop->xtol_abs[j] / s[j];
+	 if (rhoend < stop->xtol_abs[j] / fabs(s[j]))
+	      rhoend = stop->xtol_abs[j] / fabs(s[j]);
 
 
 /*     This subroutine seeks the least value of a function of many variables, */
