@@ -89,16 +89,17 @@ static double f_noderiv(int n, const double *x, void *data_)
 static double f_direct(int n, const double *x, int *undefined, void *data_)
 {
      nlopt_opt data = (nlopt_opt) data_;
+     double *work = (double*) data->work;
      double f;
      unsigned i, j;
      f = data->f((unsigned) n, x, NULL, data->f_data);
      *undefined = isnan(f) || nlopt_isinf(f);
      if (nlopt_get_force_stop(data)) return f;
      for (i = 0; i < data->m && !*undefined; ++i) {
-	  nlopt_eval_constraint(data->work, NULL, data->fc+i, (unsigned) n, x);
+	  nlopt_eval_constraint(work, NULL, data->fc+i, (unsigned) n, x);
 	  if (nlopt_get_force_stop(data)) return f;
 	  for (j = 0; j < data->fc[i].m; ++j)
-	       if (data->work[j] > 0)
+	       if (work[j] > 0)
 		    *undefined = 1;
      }
      return f;
@@ -442,9 +443,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	 case NLOPT_GN_ORIG_DIRECT_L: {
 	      direct_return_code dret;
 	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
-	      opt->work = (double*) malloc(sizeof(double) *
-					   nlopt_max_constraint_dim(opt->m,
-								    opt->fc));
+	      opt->work = malloc(sizeof(double) *
+				 nlopt_max_constraint_dim(opt->m,
+							  opt->fc));
 	      if (!opt->work) return NLOPT_OUT_OF_MEMORY;
 	      dret = direct_optimize(f_direct, opt, ni, lb, ub, x, minf,
 				     stop.maxeval, -1,

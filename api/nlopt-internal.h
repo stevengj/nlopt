@@ -72,7 +72,7 @@ struct nlopt_opt_s {
      double *dx; /* initial step sizes (length n) for nonderivative algs */
      unsigned vector_storage; /* max subspace dimension (0 for default) */
 
-     double *work; /* algorithm-specific workspace during optimization */
+     void *work; /* algorithm-specific workspace during optimization */
 };
 
 /*********************************************************************/
