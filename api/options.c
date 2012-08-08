@@ -231,7 +231,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_precond_min_objective(nlopt_opt opt,
 nlopt_result NLOPT_STDCALL nlopt_set_min_objective(nlopt_opt opt,
 						   nlopt_func f, void *f_data)
 {
-     nlopt_set_precond_min_objective(opt, f, NULL, f_data);
+     return nlopt_set_precond_min_objective(opt, f, NULL, f_data);
 }
 
 nlopt_result NLOPT_STDCALL nlopt_set_precond_max_objective(nlopt_opt opt, 
@@ -253,7 +253,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_precond_max_objective(nlopt_opt opt,
 nlopt_result NLOPT_STDCALL nlopt_set_max_objective(nlopt_opt opt,
 						   nlopt_func f, void *f_data)
 {
-     nlopt_set_precond_max_objective(opt, f, NULL, f_data);
+     return nlopt_set_precond_max_objective(opt, f, NULL, f_data);
 }
 
 /*************************************************************************/
