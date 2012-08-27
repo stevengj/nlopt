@@ -1193,8 +1193,8 @@ L550:
     }
     goto L140;
   }
-  else
-       rc = NLOPT_XTOL_REACHED;
+  else /* rho <= rhoend */
+       rc = rhoend > 0 ? NLOPT_XTOL_REACHED : NLOPT_ROUNDOFF_LIMITED;
 
 /* Return the best calculated values of the variables. */
 
