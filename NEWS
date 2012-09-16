@@ -1,3 +1,13 @@
+NLopt 2.3.1 (16 September 2012)
+
+* Bug fix: COBLYA should return ROUNDOFF_LIMITED rather than XTOL_REACHED
+  if the trust-region radius underflows to zero; thanks to David Liu.
+
+* Bug fix: incorrect return value from set min/max objective.
+
+* Handle case of negative rescalings (from negative dx) in COBYLA and BOBYQA;
+  thanks to Alexander Law for the bug report
+
 NLopt 2.3 (20 July 2012)
 
 * In Matlab/Octave interface, make returning NaN from the objective
