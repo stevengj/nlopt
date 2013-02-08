@@ -150,6 +150,8 @@ typedef enum {
 
      NLOPT_LD_CCSAQ,
 
+     NLOPT_GN_ESCH,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 

@@ -411,6 +411,7 @@ AC_CONFIG_FILES([
    bobyqa/Makefile
    isres/Makefile
    slsqp/Makefile
+   esch/Makefile
    test/Makefile
    swig/Makefile
    swig/nlopt.scm

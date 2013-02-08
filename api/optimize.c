@@ -60,6 +60,7 @@ static int my_isnan(double x) { return x != x; }
 #include "auglag.h"
 #include "bobyqa.h"
 #include "isres.h"
+#include "esch.h"
 #include "slsqp.h"
 
 /*********************************************************************/
@@ -350,6 +351,7 @@ static int elimdim_wrapcheck(nlopt_opt opt)
 	 case NLOPT_LN_NELDERMEAD:
 	 case NLOPT_LN_SBPLX:
 	 case NLOPT_GN_ISRES:
+	 case NLOPT_GN_ESCH:
 	 case NLOPT_GD_STOGO:
          case NLOPT_GD_STOGO_RAND:
 	      return 1;
@@ -779,6 +781,13 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				    (int) (opt->p), opt->h,
 				    lb, ub, x, minf, &stop,
 				    (int) POP(0));
+
+	case NLOPT_GN_ESCH:
+	      if (!finite_domain(n, lb, ub)) return NLOPT_INVALID_ARGS;
+	      return chevolutionarystrategy(n, f, f_data, 
+					    lb, ub, x, minf, &stop,
+					    (unsigned) POP(0),
+					    (unsigned) (POP(0)*1.5));
 
 	 case NLOPT_LD_SLSQP:
 	      return nlopt_slsqp(n, f, f_data,
