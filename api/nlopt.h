@@ -305,6 +305,9 @@ typedef void* (*nlopt_munge)(void *p);
 NLOPT_EXTERN(void) nlopt_set_munge(nlopt_opt opt,
 				  nlopt_munge munge_on_destroy,
 				  nlopt_munge munge_on_copy);
+typedef void* (*nlopt_munge2)(void *p, void *data);
+NLOPT_EXTERN(void) nlopt_munge_data(nlopt_opt opt,
+                                    nlopt_munge2 munge, void *data);
 
 /*************************** DEPRECATED API **************************/
 /* The new "object-oriented" API is preferred, since it allows us to

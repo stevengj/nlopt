@@ -1,3 +1,11 @@
+NLopt 2.4
+
+* New genetic algorithm ESCH, thanks to Carlos Henrique da Silva Santos.
+
+* Fix swig dir for VPATH builds, thanks to Sandro Vitenti for the bug report.
+
+* Bugfix in copy constructor for C++ and Python interfaces.
+
 NLopt 2.3.1 (16 September 2012)
 
 * Bug fix: COBLYA should return ROUNDOFF_LIMITED rather than XTOL_REACHED
