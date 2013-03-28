@@ -23,7 +23,7 @@ The "..." indicates any number of calls to NLopt functions, below, to
 set parameters of the optimization, constraints, and stopping
 criteria.  Here, \fBnlopt_set_ftol_rel\fR is merely an example of a
 possible stopping criterion.  You should link the resulting program
-with the linker flags -lnlopt -lm on Unix.
+with the linker flags \-lnlopt \-lm on Unix.
 .fi
 .SH DESCRIPTION
 NLopt is a library for nonlinear optimization.  It attempts to
@@ -177,7 +177,7 @@ If a lower/upper bound is not set, the default is no bound
 (unconstrained, i.e. a bound of infinity); it is possible to have
 lower bounds but not upper bounds or vice versa.  Alternatively, the
 user can call one of the above functions and explicitly pass a lower
-bound of -HUGE_VAL and/or an upper bound of +HUGE_VAL for some design
+bound of \-HUGE_VAL and/or an upper bound of +HUGE_VAL for some design
 variables to make them have no lower/upper bound, respectively.
 (HUGE_VAL is the standard C constant for a floating-point infinity,
 found in the math.h header file.)
@@ -350,7 +350,7 @@ is supported.  There is also another variant of this algorithm,
 .BR NLOPT_GD_STOGO_RAND ,
 which is a randomized version of the StoGO search scheme.  The StoGO
 algorithms are only available if NLopt is compiled with C++ code
-enabled, and should be linked via -lnlopt_cxx instead of -lnlopt (via
+enabled, and should be linked via \-lnlopt_cxx instead of \-lnlopt (via
 a C++ compiler, in order to link the C++ standard libraries).
 .TP 
 .B NLOPT_LN_NELDERMEAD
@@ -520,7 +520,7 @@ Stop when an objective value of at least
 .I stopval
 is found: stop minimizing when a value <= \fIstopval\fR is found, or
 stop maximizing when a value >= \fIstopval\fR is found.  (Setting
-\fIstopval\fR to -HUGE_VAL for minimizing or +HUGE_VAL for maximizing
+\fIstopval\fR to \-HUGE_VAL for minimizing or +HUGE_VAL for maximizing
 disables this stopping criterion.)
 .TP
 .BI "nlopt_result nlopt_set_ftol_rel(nlopt_opt " "opt" ,
