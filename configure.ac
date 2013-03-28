@@ -162,10 +162,18 @@ else
 dnl Python:
 AM_PATH_PYTHON([],[have_python=yes],[have_python=no])
 if test $have_python = yes; then
-  AC_MSG_CHECKING([for Python include directory])
-  pinc=`echo "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()" | $PYTHON - 2>/dev/null`
+  AC_ARG_VAR([PYTHON_CONFIG], [python-config program])
+  AC_PATH_PROGS([PYTHON_CONFIG], [python$PYTHON_VERSION-config python-config],
+                [unknown], [`dirname $PYTHON`:$PATH])
+  AC_MSG_CHECKING([for Python include flags])
+  if test "x$PYTHON_CONFIG" = "xunknown"; then
+      pinc=-I`echo "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()" | $PYTHON - 2>/dev/null`
+      test "x$pinc" = "x-I" && pinc=""
+  else
+      pinc=`$PYTHON_CONFIG --includes 2>/dev/null`
+  fi
   AC_MSG_RESULT([${pinc:-unknown}])
-  test -n "$pinc" && PYTHON_INCLUDES="-I$pinc"
+  PYTHON_INCLUDES="$pinc"
   save_CPPFLAGS=$CPPFLAGS
   CPPFLAGS="$CPPFLAGS $PYTHON_INCLUDES"
   AC_CHECK_HEADER([Python.h], [], [AC_MSG_WARN([disabling Python wrappers]) 

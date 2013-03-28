@@ -4,6 +4,10 @@ NLopt 2.4
 
 * Fix swig dir for VPATH builds, thanks to Sandro Vitenti for the bug report.
 
+* Use python-config program in the configure script to find the include
+  directories for Python, if possible (may be overridden by PYTHON_CONFIG
+  environment variable).
+
 * Bugfix in copy constructor for C++ and Python interfaces.
 
 NLopt 2.3.1 (16 September 2012)
