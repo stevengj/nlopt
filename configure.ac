@@ -95,16 +95,6 @@ fi
 AC_MSG_RESULT(${ok})
 
 dnl -----------------------------------------------------------------------
-
-if test "x$with_cxx" = xyes; then
-  test -r $srcdir/lbfgs/ap.cpp && test -r $srcdir/lbfgs/ap.h && test -r $srcdir/lbfgs/l-bfgs-b.cpp && test -r $srcdir/lbfgs/l-bfgs-b.h && have_lbfgs=yes
-fi
-AM_CONDITIONAL(WITH_NOCEDAL, test -n "$have_lbfgs")
-if test -n "$have_lbfgs"; then
-   AC_DEFINE(WITH_NOCEDAL, [1], [Define if we have the non-free Nocedal LBFGS code])
-fi
-
-dnl -----------------------------------------------------------------------
 dnl SWIG wrappers
 
 AC_ARG_WITH(guile,
@@ -407,7 +397,6 @@ AC_CONFIG_FILES([
    cdirect/Makefile
    stogo/Makefile
    praxis/Makefile
-   lbfgs/Makefile
    luksan/Makefile
    crs/Makefile
    mlsl/Makefile

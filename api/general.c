@@ -61,11 +61,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "StoGO (NOT COMPILED)",
      "StoGO randomized (NOT COMPILED)",
 #endif
-#ifdef WITH_NOCEDAL_LBFGS
-     "original NON-FREE L-BFGS code by Nocedal et al. (local, deriv.-based)",
-#else
-     "original NON-FREE L-BFGS code by Nocedal et al. (NOT COMPILED)",
-#endif
+     "original L-BFGS code by Nocedal et al. (NOT COMPILED)",
      "Limited-memory BFGS (L-BFGS) (local, derivative-based)",
      "Principal-axis, praxis (local, no-derivative)",
      "Limited-memory variable-metric, rank 1 (local, derivative-based)",
