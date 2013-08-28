@@ -367,10 +367,10 @@ dnl add gcc warnings, in debug/maintainer mode only
 if test "$enable_debug" = yes || test "$USE_MAINTAINER_MODE" = yes; then
 if test $ac_cv_prog_gcc = yes; then
    if test "$ac_test_CFLAGS" != "set"; then
-      CFLAGS="$CFLAGS -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -pedantic -Wshadow -Wbad-function-cast -Wwrite-strings -Wstrict-prototypes -Wredundant-decls -Wnested-externs -Wundef -Wconversion -Wmissing-prototypes -Wmissing-declarations"
+      CFLAGS="$CFLAGS -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wno-long-long -pedantic -Wshadow -Wbad-function-cast -Wwrite-strings -Wstrict-prototypes -Wredundant-decls -Wnested-externs -Wundef -Wconversion -Wmissing-prototypes -Wmissing-declarations"
    fi
    if test "$ac_test_CXXFLAGS" != "set"; then
-      CXXFLAGS="$CXXFLAGS -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -pedantic -Wshadow -Wwrite-strings -Wredundant-decls -Wundef -Wconversion"
+      CXXFLAGS="$CXXFLAGS -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wno-long-long -pedantic -Wshadow -Wwrite-strings -Wredundant-decls -Wundef -Wconversion"
    fi
    if test "x$with_cxx" = xyes; then
       CFLAGS=$CXXFLAGS

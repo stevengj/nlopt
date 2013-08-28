@@ -1,5 +1,14 @@
 // -*- C++ -*-
 
+%{
+// work around obsolete stuff used by swig guile
+#if SCM_MAJOR_VERSION >= 2
+#  define gh_symbol2scm scm_from_latin1_symbol
+#else
+#  define gh_symbol2scm scm_str2symbol
+#endif
+%}
+
 %typemap(throws) std::runtime_error %{
   scm_throw(gh_symbol2scm("runtime-error"), 
 	    scm_list_1(scm_from_locale_string(($1).what())));
