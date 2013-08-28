@@ -44,6 +44,7 @@ configure
 config.*
 autom4te.cache
 INSTALL
+README
 aclocal.m4
 depcomp
 missing
