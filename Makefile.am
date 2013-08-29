@@ -31,6 +31,6 @@ pkgconfig_DATA = nlopt.pc
 if MAINTAINER_MODE
 
 README: README.md
-	cp -f README.md $@
+	cp -f $(srcdir)/README.md $@
 
 endif
