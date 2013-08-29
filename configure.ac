@@ -157,7 +157,7 @@ if test $have_python = yes; then
                 [unknown], [`dirname $PYTHON`:$PATH])
   AC_MSG_CHECKING([for Python include flags])
   if test "x$PYTHON_CONFIG" = "xunknown"; then
-      pinc=-I`echo "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()" | $PYTHON - 2>/dev/null`
+      pinc=-I`echo "import distutils.sysconfig; print (distutils.sysconfig.get_python_inc())" | $PYTHON - 2>/dev/null`
       test "x$pinc" = "x-I" && pinc=""
   else
       pinc=`$PYTHON_CONFIG --includes 2>/dev/null`
@@ -170,7 +170,7 @@ if test $have_python = yes; then
                                    have_python=no])
   if test $have_python = yes; then
     AC_MSG_CHECKING([for Numpy include directory])
-    pinc=`echo "import numpy; print numpy.get_include()" | $PYTHON - 2>/dev/null`
+    pinc=`echo "import numpy; print (numpy.get_include())" | $PYTHON - 2>/dev/null`
     AC_MSG_RESULT([${pinc:-unknown}])
     test -n "$pinc" && PYTHON_INCLUDES="$PYTHON_INCLUDES -I$pinc"
     CPPFLAGS="$save_CPPFLAGS $PYTHON_INCLUDES"
