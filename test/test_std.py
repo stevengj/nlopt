@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import nlopt
 import numpy as np
 
@@ -21,9 +22,11 @@ x = (lb+ub)/2.
 opt.set_lower_bounds(lb)
 opt.set_upper_bounds(ub)
 opt.set_xtol_rel(1e-3)
-opt.set_xtol_rel(1e-3)
+opt.set_ftol_rel(1e-3)
 xopt = opt.optimize(x)
+
 opt_val = opt.last_optimum_value()
 result = opt.last_optimize_result()
 print ('opt_result='+str(result))
+print ('optimizer='+str(xopt))
 print ('opt_val='+str(opt_val))
