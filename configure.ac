@@ -140,7 +140,7 @@ if test "x$GUILE" = xunknown; then
 elif test x"$GUILE_INSTALL_DIR" = "x"; then
    AC_CHECK_PROGS(GUILE_CONFIG, guile-config, echo)
    AC_MSG_CHECKING(guile prefix)
-   GUILE_PREFIX=`guile-config info prefix`
+   GUILE_PREFIX=`$GUILE_CONFIG info prefix`
    AC_MSG_RESULT($GUILE_PREFIX)
    AC_MSG_CHECKING([for Guile installation directory])
    GUILE_INSTALL_DIR=`guile -c '(display (%site-dir))'`
@@ -225,13 +225,13 @@ elif test x"$OCT_INSTALL_DIR" = "x"; then
 	AC_CHECK_PROGS(OCTAVE_CONFIG, octave-config, echo)
 	
 	AC_MSG_CHECKING(octave prefix)
-	OCTAVE_PREFIX=`octave-config --print PREFIX 2> /dev/null`
+	OCTAVE_PREFIX=`$OCTAVE_CONFIG --print PREFIX 2> /dev/null`
 	AC_MSG_RESULT($OCTAVE_PREFIX)
 	
 	AC_MSG_CHECKING(where octave plugins go)
-	OCT_INSTALL_DIR=`octave-config --oct-site-dir 2> /dev/null | grep '/'`
+	OCT_INSTALL_DIR=`$OCTAVE_CONFIG --oct-site-dir 2> /dev/null | grep '/'`
 	if test -z "$OCT_INSTALL_DIR"; then
-		OCT_INSTALL_DIR=`octave-config --print OCTFILEDIR 2> /dev/null | grep '/'`
+		OCT_INSTALL_DIR=`$OCTAVE_CONFIG --print OCTFILEDIR 2> /dev/null | grep '/'`
 	fi
 	if test -z "$OCT_INSTALL_DIR"; then
 		OCT_INSTALL_DIR=`echo "path" | $OCTAVE -q 2> /dev/null | grep "/oct/" | head -1`
@@ -251,9 +251,9 @@ elif test x"$OCT_INSTALL_DIR" = "x"; then
 	fi
 
 	AC_MSG_CHECKING(where octave scripts go)
-	M_INSTALL_DIR=`octave-config --m-site-dir 2> /dev/null | grep '/'`
+	M_INSTALL_DIR=`$OCTAVE_CONFIG --m-site-dir 2> /dev/null | grep '/'`
 	if test -z "$M_INSTALL_DIR"; then
-		M_INSTALL_DIR=`octave-config --print FCNFILEDIR 2> /dev/null | grep '/'`
+		M_INSTALL_DIR=`$OCTAVE_CONFIG --print FCNFILEDIR 2> /dev/null | grep '/'`
 	fi
 	if test -z "$M_INSTALL_DIR"; then
 		M_INSTALL_DIR=`echo "path" | $OCTAVE -q 2> /dev/null | grep "/m" | head -1`
