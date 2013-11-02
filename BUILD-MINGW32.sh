@@ -1,20 +1,25 @@
 #!/bin/sh
-set -e
+set -ev
 
-rm -rf mingw
+rm -rf mingw32
+make distclean || true
 
-./configure --prefix=`pwd`/mingw --host=i586-mingw32msvc --enable-shared --disable-static --without-matlab --without-octave --without-python --without-guile --without-threadlocal && make -j4 && make install
+echo "COMPILING..."
 
-cd mingw/bin
+./configure --prefix=`pwd`/mingw32 --host=i686-w64-mingw32 --enable-shared --disable-static --without-matlab --without-octave --without-python --without-guile --without-threadlocal && make -j4 && make install
+
+echo "POST-PROCESSING..."
+
+cd mingw32/bin
 for dll in *.dll; do
     def=`basename $dll .dll`.def
     echo "LIBRARY $dll" > $def
     echo EXPORTS >> $def
-    i586-mingw32msvc-nm $dll | grep ' T _' | sed 's/.* T _//' | egrep 'nlopt|nlo_' >> $def
+    i686-w64-mingw32-nm $dll | grep ' T _' | sed 's/.* T _//' | egrep 'nlopt|nlo_' >> $def
 done
 cd ../..
 
-perl -pi -e 's,^ * #define NLOPT_DLL,*/\n#define NLOPT_DLL\n/*,' mingw/include/nlopt.h
+perl -pi -e 's,^ * #define NLOPT_DLL,*/\n#define NLOPT_DLL\n/*,' mingw32/include/nlopt.h
 
 cat > README-WINDOWS <<EOF
 This .zip archive contains DLL libraries and the associated header (.h)
@@ -35,22 +40,22 @@ installed), do:
 
 They were compiled by the GNU C compiler for MinGW, specifically:
 EOF
-i586-mingw32msvc-gcc --version |head -1 >> README-WINDOWS
+i686-w64-mingw32-gcc --version |head -1 >> README-WINDOWS
 
-# grep -v "nlopt-util.h" octave/nlopt_minimize_constrained-mex.c > mingw/nlopt_minimize_constrained.c
+# grep -v "nlopt-util.h" octave/nlopt_minimize_constrained-mex.c > mingw32/nlopt_minimize_constrained.c
 
 nlopt_vers=`grep PACKAGE_VERSION config.h |cut -d" " -f3 |tr -d \"`
 
-mkdir mingw/matlab
+mkdir mingw32/matlab
 cd octave
-cp `grep 'MFILES =' Makefile.am | cut -d= -f2` ../mingw/matlab
-cp `grep 'm_DATA =' Makefile.am | cut -d\) -f2` ../mingw/matlab
-cp nlopt_optimize-mex.c ../mingw/matlab/nlopt_optimize.c
+cp `grep 'MFILES =' Makefile.am | cut -d= -f2` ../mingw32/matlab
+cp `grep 'm_DATA =' Makefile.am | cut -d\) -f2` ../mingw32/matlab
+cp nlopt_optimize-mex.c ../mingw32/matlab/nlopt_optimize.c
 cd ..
 
-mkdir mingw/python
-cp swig/nlopt.py swig/nlopt-python.cpp mingw/python
-cat > mingw/python/setup.py <<EOF
+mkdir mingw32/python
+cp swig/nlopt.py swig/nlopt-python.cpp mingw32/python
+cat > mingw32/python/setup.py <<EOF
 from distutils.core import setup, Extension
 nlopt_module = Extension('_nlopt',
                            sources=['nlopt-python.cpp'],
@@ -68,10 +73,12 @@ setup (name = 'nlopt',
 EOF
 
 nlopt_vers=`grep PACKAGE_VERSION config.h |cut -d" " -f3 |tr -d \"`
-zip=nlopt-${nlopt_vers}-dll.zip
+zip=nlopt-${nlopt_vers}-dll32.zip
 rm -f $zip
-zip -vj $zip mingw/bin/*.dll mingw/bin/*.exe
-zip -vjgl $zip mingw/bin/*.def mingw/include/* mingw/python/* README COPYING COPYRIGHT NEWS README-WINDOWS
+zip -vj $zip mingw32/bin/*.dll mingw32/bin/*.exe
+zip -vjgl $zip mingw32/bin/*.def mingw32/include/* mingw32/python/* README COPYING COPYRIGHT NEWS README-WINDOWS
+
+echo "PACKAGING $zip..."
 
 cd mingw
 zip -vgl ../$zip matlab/*

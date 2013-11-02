@@ -1,16 +1,21 @@
 #!/bin/sh
-set -e
+set -ev
 
 rm -rf mingw64
+make distclean || true
 
-./configure --prefix=`pwd`/mingw64 --host=amd64-mingw32msvc --enable-shared --disable-static --without-matlab --without-octave --without-python --without-guile --without-threadlocal && make -j4 && make install
+echo "COMPILING..."
+
+./configure --prefix=`pwd`/mingw64 --host=x86_64-w64-mingw32 --enable-shared --disable-static --without-matlab --without-octave --without-python --without-guile --without-threadlocal && make -j4 && make install
+
+echo "POST-PROCESSING..."
 
 cd mingw64/bin
 for dll in *.dll; do
     def=`basename $dll .dll`.def
     echo "LIBRARY $dll" > $def
     echo EXPORTS >> $def
-    amd64-mingw32msvc-nm $dll | grep ' T _' | sed 's/.* T _//' | egrep 'nlopt|nlo_' >> $def
+    x86_64-w64-mingw32-nm $dll | grep ' T ' | sed 's/.* T //' | egrep 'nlopt|nlo_' >> $def
 done
 cd ../..
 
@@ -35,7 +40,7 @@ installed), do:
 
 They were compiled by the GNU C compiler for MinGW, specifically:
 EOF
-amd64-mingw32msvc-gcc --version |head -1 >> README-WINDOWS
+x86_64-w64-mingw32-gcc --version |head -1 >> README-WINDOWS
 
 # grep -v "nlopt-util.h" octave/nlopt_minimize_constrained-mex.c > mingw64/nlopt_minimize_constrained.c
 
@@ -72,6 +77,8 @@ zip=nlopt-${nlopt_vers}-dll64.zip
 rm -f $zip
 zip -vj $zip mingw64/bin/*.dll mingw64/bin/*.exe
 zip -vjgl $zip mingw64/bin/*.def mingw64/include/* mingw64/python/* README COPYING COPYRIGHT NEWS README-WINDOWS
+
+echo "PACKAGING $zip..."
 
 cd mingw64
 zip -vgl ../$zip matlab/*

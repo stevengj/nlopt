@@ -9,6 +9,7 @@
 *.dSYM
 *.mex*
 *.oct
+*.zip
 
 # generated code
 api/nlopt.f
@@ -21,6 +22,9 @@ swig/nlopt-python.cpp
 swig/nlopt.py
 swig/nlopt.scm
 swig/nlopt.scm.in
+README-WINDOWS
+mingw32
+mingw64
 
 # executables
 test/testopt
