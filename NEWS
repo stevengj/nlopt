@@ -10,6 +10,15 @@ NLopt 2.4 (2 November 2013)
 
 * Bugfix in copy constructor for C++ and Python interfaces.
 
+* Bugfix in return value for setting min/max objective.
+
+* Handle negative rescalings in COBYLA and BOBYQA.
+
+* Plugin installation honors the configure --prefix, if any
+  (thanks to xantares@github).
+
+* Various compilation fixes for compatibility with recent software.
+
 NLopt 2.3.1 (16 September 2012)
 
 * Bug fix: COBLYA should return ROUNDOFF_LIMITED rather than XTOL_REACHED
