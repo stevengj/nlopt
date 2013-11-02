@@ -60,7 +60,6 @@ ExceptionSubclass(RoundoffLimited,
 
 %{
 #define SWIG_FILE_WITH_INIT
-#define array_stride(a,i)        (((PyArrayObject *)a)->strides[i])
 %}
 %include "numpy.i"
 %init %{
@@ -118,6 +117,11 @@ ExceptionSubclass(RoundoffLimited,
 %{
 static void *free_pyfunc(void *p) { Py_DECREF((PyObject*) p); return p; }
 static void *dup_pyfunc(void *p) { Py_INCREF((PyObject*) p); return p; }
+
+#if NPY_API_VERSION < 0x00000007
+#  define NPY_ARRAY_C_CONTIGUOUS NPY_C_CONTIGUOUS
+#  define NPY_ARRAY_ALIGNED NPY_ALIGNED
+#endif
 
 static double func_python(unsigned n, const double *x, double *grad, void *f)
 {

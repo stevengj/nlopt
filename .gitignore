@@ -49,3 +49,4 @@ aclocal.m4
 depcomp
 missing
 py-compile
+compile
