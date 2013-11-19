@@ -80,6 +80,6 @@ zip -vjgl $zip mingw32/bin/*.def mingw32/include/* mingw32/python/* README COPYI
 
 echo "PACKAGING $zip..."
 
-cd mingw
+cd mingw32
 zip -vgl ../$zip matlab/*
 cd ..
