@@ -25,9 +25,8 @@
 
 #include <stddef.h> /* for ptrdiff_t and size_t */
 
-/* use stdcall convention under Windows, since this seems to
-   be more standard there and is important for calling from .NET */
-#if defined(_WIN32) || defined(__WIN32__)
+/* Change 0 to 1 to use stdcall convention under Win32 */
+#if 0 && (defined(_WIN32) || defined(__WIN32__))
 #  if defined(__GNUC__)
 #    define NLOPT_STDCALL __attribute__((stdcall))
 #  elif defined(_MSC_VER) || defined(_ICC) || defined(_STDCALL_SUPPORTED)
