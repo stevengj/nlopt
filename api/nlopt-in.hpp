@@ -28,6 +28,8 @@
 
 #include <nlopt.h>
 
+#include <map>
+#include <utility>
 #include <vector>
 #include <stdexcept>
 #include <new>
@@ -49,7 +51,11 @@ namespace nlopt {
   //////////////////////////////////////////////////////////////////////
 
   typedef nlopt_func func; // nlopt::func synoynm
-  typedef nlopt_mfunc mfunc; // nlopt::mfunc synoynm
+
+  // alternative to nlopt_mfunc that takes std::vector<double>
+  // ... unfortunately requires a data copy
+  typedef void   (*mfunc)(std::vector<double> &result, const std::vector<double> &x,
+                          std::vector<double> &grad, void *data);
 
   // alternative to nlopt_func that takes std::vector<double>
   // ... unfortunately requires a data copy
@@ -141,14 +147,39 @@ namespace nlopt {
       d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
       return HUGE_VAL;
     }
-
+      
+    std::vector<double> xtmp, gradtmp, gradtmp0; // scratch for myvfunc
+    std::map<unsigned, std::vector<double> > resulttmp, mgradtmp; // additional scratch for mymfunc
+      
     // nlopt_mfunc wrapper that catches exceptions
     static void mymfunc(unsigned m, double *result,
 			unsigned n, const double *x, double *grad, void *d_) {
       myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
       try {
-	d->mf(m, result, n, x, grad, d->f_data);
-	return;
+            
+        if ( d->o->resulttmp.find(m) == d->o->resulttmp.end() ) {
+           d->o->resulttmp.insert(std::make_pair(m, std::vector<double>(m)));
+        }
+        if ( (grad!=NULL) && (m*n!=0) && (d->o->mgradtmp.find(m*n) == d->o->mgradtmp.end()) ) {
+           d->o->mgradtmp.insert(std::make_pair(m*n, std::vector<double>(m*n)));
+        }
+        std::vector<double> &xv      = d->o->xtmp;
+        std::vector<double> &resultv = d->o->resulttmp[m];
+        std::vector<double> &mgradv  = (grad==NULL || m*n==0 ) ? d->o->gradtmp0 :  d->o->mgradtmp[m*n];
+            
+        if (n) {
+          std::memcpy(&xv[0], x, n * sizeof(double));
+        }
+            
+        d->mf(resultv, xv, mgradv, d->f_data);
+          
+        if (!mgradv.empty()) {
+          std::memcpy(grad, &mgradv[0], m * n * sizeof(double));
+        }
+        if (m) {
+          std::memcpy(result, &resultv[0], m * sizeof(double));
+        }
+        return;
       }
       catch (std::bad_alloc&)
 	{ d->o->forced_stop_reason = NLOPT_OUT_OF_MEMORY; }
@@ -164,7 +195,6 @@ namespace nlopt {
       for (unsigned i = 0; i < m; ++i) result[i] = HUGE_VAL;
     }
 
-    std::vector<double> xtmp, gradtmp, gradtmp0; // scratch for myvfunc
 
     // nlopt_func wrapper, using std::vector<double>
     static double myvfunc(unsigned n, const double *x, double *grad, void *d_){
