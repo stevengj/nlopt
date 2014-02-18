@@ -32,18 +32,18 @@ static double randcauchy(const double params[7]) {
      double valor;
      double min = params[1], max = params[2], mi = params[3],
 	  t = params[4], band = params[5];
-     limit_inf = mi - (band/2);
-     limit_sup = mi + (band/2);
+     limit_inf = mi - (band*0.5);
+     limit_sup = mi + (band*0.5);
      do {
 	  na_unif = nlopt_urand(0,1); // ran2(0,1);
-	  cauchy_mit = t*tan((na_unif-(1/2))*M_PI) + mi;
+	  cauchy_mit = t*tan((na_unif-0.5)*3.14159265358979323846) + mi;
      } while ( (cauchy_mit<limit_inf) || (cauchy_mit>limit_sup) );   
      
      if (cauchy_mit < 0)
 	  cauchy_mit = -cauchy_mit;
      else
-	  cauchy_mit = cauchy_mit + (band/2);
-     valor  = (cauchy_mit*100/band)/100;
+	  cauchy_mit = cauchy_mit + (band*0.5);
+     valor  = cauchy_mit/band;
      valor = min+(max-min)*valor;   
      return valor;  
 }
@@ -57,7 +57,7 @@ typedef struct IndividualStructure {
 } Individual; 
 
 static int CompareIndividuals(void *unused, const void *a_, const void *b_) {
-     (void) unused;
+     // (void) unused;
      const Individual *a = (const Individual *) a_;
      const Individual *b = (const Individual *) b_;
      return a->fitness < b->fitness ? -1 : (a->fitness > b->fitness ? +1 : 0);
