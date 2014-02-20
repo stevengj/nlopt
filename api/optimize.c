@@ -339,6 +339,7 @@ static int elimdim_wrapcheck(nlopt_opt opt)
 	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L:
+         case NLOPT_GN_CRS2_LM:
 	 case NLOPT_LN_PRAXIS:
 	 case NLOPT_LN_COBYLA:
 	 case NLOPT_LN_NEWUOA:
