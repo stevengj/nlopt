@@ -84,8 +84,54 @@ MESSAGE(STATUS "NLOPT: Version number ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSI
 # CREATE config.h
 #==============================================================================
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
+CONFIGURE_FILE(config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
 
+#==============================================================================
+# CREATE nlopt.hpp
+#==============================================================================
+
+# parse nlopt.h
+file(STRINGS api/nlopt.h nlopth_lines)
+foreach(nlopth_line ${nlopth_lines})
+  set (typedef 0)
+  if ("${nlopth_line}" MATCHES "typedef enum")
+    set (typedef 1)
+    set (enum_lines)
+    set (state record)
+  elseif ("${nlopth_line}" MATCHES "} nlopt_algorithm;")
+    set (nlopt_algorithms ${enum_lines})
+    set (state)
+  elseif ("${nlopth_line}" MATCHES "} nlopt_result;")
+    set (nlopt_results ${enum_lines})
+    set (state)
+  endif ()
+  if (${state} MATCHES "record" AND NOT ${typedef})
+    string(REPLACE "NLOPT_" "" new_nlopth_line "${nlopth_line}")
+    list (APPEND enum_lines ${new_nlopth_line})
+  endif ()
+endforeach()
+
+# write nlopt.hpp
+file(STRINGS api/nlopt-in.hpp nlopthpp_lines)
+set (nlopthpp ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp)
+file(WRITE ${nlopthpp} "")
+foreach(nlopthpp_line ${nlopthpp_lines})
+  if ("${nlopthpp_line}" MATCHES "GEN_ENUMS_HERE")
+    # algorithm
+    file(APPEND ${nlopthpp} "enum algorithm {\n")
+    foreach(enum_line ${nlopt_algorithms})
+      file(APPEND ${nlopthpp} "${enum_line}\n")
+    endforeach()
+    file(APPEND ${nlopthpp} "};\n")
+    # result
+    file(APPEND ${nlopthpp} "enum result {\n")
+    foreach(enum_line ${nlopt_results})
+      file(APPEND ${nlopthpp} "${enum_line}\n")
+    endforeach()
+    file(APPEND ${nlopthpp} "};\n")
+  endif ()
+  file(APPEND ${nlopthpp} "${nlopthpp_line}\n")
+endforeach()
 
 #==============================================================================
 # INCLUDE DIRECTORIES
@@ -134,7 +180,7 @@ SET ( NLOPT_SOURCES
 	isres/isres.c isres/isres.h 
 	slsqp/slsqp.c slsqp/slsqp.h 
 	esch/esch.c esch/esch.h
-	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
+	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp api/nlopt-in.hpp
 	util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c 
 	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
