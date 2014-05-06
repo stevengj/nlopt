@@ -164,6 +164,10 @@ INCLUDE_DIRECTORIES (
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
+SET ( NLOPT_HEADERS 
+  api/nlopt.h ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp
+)
+
 SET ( NLOPT_SOURCES   
 	direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
 	cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
@@ -180,7 +184,7 @@ SET ( NLOPT_SOURCES
 	isres/isres.c isres/isres.h 
 	slsqp/slsqp.c slsqp/slsqp.h 
 	esch/esch.c esch/esch.h
-	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp api/nlopt-in.hpp
+	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt-in.hpp
 	util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c 
 	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
@@ -194,3 +198,10 @@ ENDIF(BUILD_SHARED_LIBS)
 
 ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
 
+INSTALL ( TARGETS nlopt
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib${LIB_SUFFIX}
+          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+        )
+
+INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
