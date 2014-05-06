@@ -139,17 +139,15 @@ SET ( NLOPT_SOURCES
 	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
 
-OPTION(NLOPT_BUILD_SHARED "Build NLOPT as a shared library" OFF )
+OPTION(BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF )
 
-IF(NLOPT_BUILD_SHARED)
+IF(BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DNLOPT_DLL)
   ADD_DEFINITIONS(-DNLOPT_DLL_EXPORT )
-  ADD_LIBRARY (nlopt SHARED ${NLOPT_SOURCES} )
-ELSE(NLOPT_BUILD_SHARED)
-  ADD_LIBRARY (nlopt STATIC ${NLOPT_SOURCES} )
-ENDIF(NLOPT_BUILD_SHARED)
+ENDIF(BUILD_SHARED_LIBS)
+
 
 SET_TARGET_PROPERTIES(nlopt PROPERTIES VERSION 0.8.1 SOVERSION 0)
 
-
-
+ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
+    
