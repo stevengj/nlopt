@@ -150,4 +150,7 @@ ELSE(NLOPT_BUILD_SHARED)
 ENDIF(NLOPT_BUILD_SHARED)
 
 
-
+find_package(SWIG)
+if (SWIG_FOUND)
+  add_subdirectory(swig)
+endif ()

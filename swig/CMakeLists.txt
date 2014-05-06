@@ -1,0 +1,15 @@
+
+include ( UseSWIG )
+set_source_files_properties ( nlopt.i PROPERTIES CPLUSPLUS ON )
+
+find_package(PythonLibs)
+if ( PYTHONLIBS_FOUND )
+  include_directories ( ${PYTHON_INCLUDE_DIRS} )
+  swig_add_module( nlopt python nlopt.i )
+  if ( NOT DEFINED PYTHON_SITE_DIR )
+    string ( REGEX REPLACE "([0-9]\\.[0-9]).*" "\\1" PYBASEVER ${PYTHONLIBS_VERSION_STRING} )    
+    set ( PYTHON_SITE_DIR lib${LIB_SUFFIX}/python${PYBASEVER}/site-packages )
+  endif ()
+  install ( TARGETS ${SWIG_MODULE_nlopt_REAL_NAME} DESTINATION ${PYTHON_SITE_DIR} )
+  install ( FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION ${PYTHON_SITE_DIR} )
+endif ()
