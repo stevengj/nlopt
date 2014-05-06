@@ -87,15 +87,13 @@ MESSAGE(STATUS "NLOPT: Version number ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSI
 CONFIGURE_FILE(config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
 
 #==============================================================================
-# CREATE nlopt.hpp
+# CREATE nlopt.hpp, nlopt.f
 #==============================================================================
 
 # parse nlopt.h
 file(STRINGS api/nlopt.h nlopth_lines)
 foreach(nlopth_line ${nlopth_lines})
-  set (typedef 0)
   if ("${nlopth_line}" MATCHES "typedef enum")
-    set (typedef 1)
     set (enum_lines)
     set (state record)
   elseif ("${nlopth_line}" MATCHES "} nlopt_algorithm;")
@@ -105,9 +103,8 @@ foreach(nlopth_line ${nlopth_lines})
     set (nlopt_results ${enum_lines})
     set (state)
   endif ()
-  if (${state} MATCHES "record" AND NOT ${typedef})
-    string(REPLACE "NLOPT_" "" new_nlopth_line "${nlopth_line}")
-    list (APPEND enum_lines ${new_nlopth_line})
+  if (${state} MATCHES "record" AND "${nlopth_line}" MATCHES "^     NLOPT_")
+    list (APPEND enum_lines ${nlopth_line})
   endif ()
 endforeach()
 
@@ -120,17 +117,36 @@ foreach(nlopthpp_line ${nlopthpp_lines})
     # algorithm
     file(APPEND ${nlopthpp} "enum algorithm {\n")
     foreach(enum_line ${nlopt_algorithms})
-      file(APPEND ${nlopthpp} "${enum_line}\n")
+      string(REPLACE "NLOPT_" "" new_enum_line "${enum_line}")
+      file(APPEND ${nlopthpp} "${new_enum_line}\n")
     endforeach()
     file(APPEND ${nlopthpp} "};\n")
     # result
     file(APPEND ${nlopthpp} "enum result {\n")
     foreach(enum_line ${nlopt_results})
-      file(APPEND ${nlopthpp} "${enum_line}\n")
+      string(REPLACE "NLOPT_" "" new_enum_line "${enum_line}")
+      file(APPEND ${nlopthpp} "${new_enum_line}\n")
     endforeach()
     file(APPEND ${nlopthpp} "};\n")
   endif ()
   file(APPEND ${nlopthpp} "${nlopthpp_line}\n")
+endforeach()
+
+# write nlopt.f
+set (nloptf ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.f)
+file(WRITE ${nloptf} "")
+set (value 0)
+foreach(enum_line ${nlopt_algorithms})
+  string(REGEX REPLACE "[ ]+([A-Z_]+).*" "\\1" nlopt_key "${enum_line}")
+  file(APPEND ${nloptf} "     integer ${nlopt_key}\n")
+  file(APPEND ${nloptf} "     parameter(${nlopt_key} = ${value})\n")
+  math(EXPR value "${value} + 1")
+endforeach()
+foreach(enum_line ${nlopt_results})
+  string(REGEX REPLACE "[ ]+([A-Z_]+).*" "\\1" nlopt_key "${enum_line}")
+  string(REGEX REPLACE "[ ]+[A-Z_]+ = (-?[0-9]).*" "\\1" value "${enum_line}") 
+  file(APPEND ${nloptf} "     integer ${nlopt_key}\n")
+  file(APPEND ${nloptf} "     parameter(${nlopt_key} = ${value})\n")
 endforeach()
 
 #==============================================================================
@@ -165,7 +181,7 @@ INCLUDE_DIRECTORIES (
 #==============================================================================
 
 SET ( NLOPT_HEADERS 
-  api/nlopt.h ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp
+  api/nlopt.h ${nlopthpp} ${nloptf}
 )
 
 SET ( NLOPT_SOURCES   
