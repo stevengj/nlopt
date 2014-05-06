@@ -84,8 +84,70 @@ MESSAGE(STATUS "NLOPT: Version number ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSI
 # CREATE config.h
 #==============================================================================
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
+CONFIGURE_FILE(config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
 
+#==============================================================================
+# CREATE nlopt.hpp, nlopt.f
+#==============================================================================
+
+# parse nlopt.h
+file(STRINGS api/nlopt.h nlopth_lines)
+foreach(nlopth_line ${nlopth_lines})
+  if ("${nlopth_line}" MATCHES "typedef enum")
+    set (enum_lines)
+    set (state record)
+  elseif ("${nlopth_line}" MATCHES "} nlopt_algorithm;")
+    set (nlopt_algorithms ${enum_lines})
+    set (state)
+  elseif ("${nlopth_line}" MATCHES "} nlopt_result;")
+    set (nlopt_results ${enum_lines})
+    set (state)
+  endif ()
+  if (${state} MATCHES "record" AND "${nlopth_line}" MATCHES "^     NLOPT_")
+    list (APPEND enum_lines ${nlopth_line})
+  endif ()
+endforeach()
+
+# write nlopt.hpp
+file(STRINGS api/nlopt-in.hpp nlopthpp_lines)
+set (nlopthpp ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp)
+file(WRITE ${nlopthpp} "")
+foreach(nlopthpp_line ${nlopthpp_lines})
+  if ("${nlopthpp_line}" MATCHES "GEN_ENUMS_HERE")
+    # algorithm
+    file(APPEND ${nlopthpp} "enum algorithm {\n")
+    foreach(enum_line ${nlopt_algorithms})
+      string(REPLACE "NLOPT_" "" new_enum_line "${enum_line}")
+      file(APPEND ${nlopthpp} "${new_enum_line}\n")
+    endforeach()
+    file(APPEND ${nlopthpp} "};\n")
+    # result
+    file(APPEND ${nlopthpp} "enum result {\n")
+    foreach(enum_line ${nlopt_results})
+      string(REPLACE "NLOPT_" "" new_enum_line "${enum_line}")
+      file(APPEND ${nlopthpp} "${new_enum_line}\n")
+    endforeach()
+    file(APPEND ${nlopthpp} "};\n")
+  endif ()
+  file(APPEND ${nlopthpp} "${nlopthpp_line}\n")
+endforeach()
+
+# write nlopt.f
+set (nloptf ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.f)
+file(WRITE ${nloptf} "")
+set (value 0)
+foreach(enum_line ${nlopt_algorithms})
+  string(REGEX REPLACE "[ ]+([A-Z_]+).*" "\\1" nlopt_key "${enum_line}")
+  file(APPEND ${nloptf} "     integer ${nlopt_key}\n")
+  file(APPEND ${nloptf} "     parameter(${nlopt_key} = ${value})\n")
+  math(EXPR value "${value} + 1")
+endforeach()
+foreach(enum_line ${nlopt_results})
+  string(REGEX REPLACE "[ ]+([A-Z_]+).*" "\\1" nlopt_key "${enum_line}")
+  string(REGEX REPLACE "[ ]+[A-Z_]+ = (-?[0-9]).*" "\\1" value "${enum_line}") 
+  file(APPEND ${nloptf} "     integer ${nlopt_key}\n")
+  file(APPEND ${nloptf} "     parameter(${nlopt_key} = ${value})\n")
+endforeach()
 
 #==============================================================================
 # INCLUDE DIRECTORIES
@@ -118,6 +180,10 @@ INCLUDE_DIRECTORIES (
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
+SET ( NLOPT_HEADERS 
+  api/nlopt.h ${nlopthpp} ${nloptf}
+)
+
 SET ( NLOPT_SOURCES   
 	direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
 	cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
@@ -134,20 +200,24 @@ SET ( NLOPT_SOURCES
 	isres/isres.c isres/isres.h 
 	slsqp/slsqp.c slsqp/slsqp.h 
 	esch/esch.c esch/esch.h
-	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
+	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt-in.hpp
 	util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c 
 	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
 
-OPTION(NLOPT_BUILD_SHARED "Build NLOPT as a shared library" OFF )
+OPTION(BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF )
 
-IF(NLOPT_BUILD_SHARED)
+IF(BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DNLOPT_DLL)
   ADD_DEFINITIONS(-DNLOPT_DLL_EXPORT )
-  ADD_LIBRARY (nlopt SHARED ${NLOPT_SOURCES} )
-ELSE(NLOPT_BUILD_SHARED)
-  ADD_LIBRARY (nlopt STATIC ${NLOPT_SOURCES} )
-ENDIF(NLOPT_BUILD_SHARED)
+ENDIF(BUILD_SHARED_LIBS)
 
+ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
 
+INSTALL ( TARGETS nlopt
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib${LIB_SUFFIX}
+          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+        )
 
+INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
