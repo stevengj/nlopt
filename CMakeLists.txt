@@ -118,6 +118,10 @@ INCLUDE_DIRECTORIES (
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
+SET ( NLOPT_HEADERS 
+  api/nlopt.h api/nlopt.hpp api/nlopt.f
+)
+
 SET ( NLOPT_SOURCES   
 	direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
 	cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
@@ -146,5 +150,15 @@ IF(BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DNLOPT_DLL_EXPORT )
 ENDIF(BUILD_SHARED_LIBS)
 
+INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
+
 ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
+
+INSTALL ( TARGETS nlopt
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib${LIB_SUFFIX}
+          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+        )
+
+
     
