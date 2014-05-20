@@ -1,5 +1,5 @@
 /* Copyright (c) 2004 M. J. D. Powell (mjdp@cam.ac.uk)
- * Copyright (c) 2007-2012 Massachusetts Institute of Technology
+ * Copyright (c) 2007-2014 Massachusetts Institute of Technology
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
