@@ -1,3 +1,11 @@
+NLopt 2.4.2 (20 May 2014)
+
+* Fix CRS for empty dimensions (where lower == upper bound) (issue #13).
+
+* Improvements to CMake (thanks to @xantares) and Windows builds (issue #12).
+
+* Fix guile2 compatibility (issue #21).
+
 NLopt 2.4.1 (19 November 2013)
 
 * Use cdecl calling convention instead of stdcall on Win32, to
