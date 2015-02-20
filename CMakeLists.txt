@@ -172,5 +172,4 @@ INSTALL ( TARGETS nlopt
           ARCHIVE DESTINATION lib${LIB_SUFFIX}
         )
 
-
-    
+add_subdirectory (swig)
