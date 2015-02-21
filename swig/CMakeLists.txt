@@ -2,18 +2,31 @@ option (BUILD_PYTHON "build python bindings" ON)
 
 find_package (PythonInterp)
 find_package (PythonLibs)
-find_package (SWIG)
 
-if (BUILD_PYTHON AND PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND SWIG_FOUND AND BUILD_SHARED_LIBS)
-  include (UseSWIG)
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)
+  find_package (SWIG)
+endif ()
+
+if (BUILD_PYTHON AND PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)) AND BUILD_SHARED_LIBS)
+
   include_directories (${CMAKE_SOURCE_DIR}/api)
   include_directories (${PYTHON_INCLUDE_DIRS})
 
-  set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
-  set (SWIG_MODULE_nlopt_EXTRA_DEPS nlopt-python.i numpy.i ${CMAKE_SOURCE_DIR}/api/nlopt.hpp)
+  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)
+    set (SWIG_MODULE_nlopt_REAL_NAME _nlopt)
+    add_library (${SWIG_MODULE_nlopt_REAL_NAME} MODULE nlopt-python.cpp)
+    set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES PREFIX "")
+    if (NOT CMAKE_SOURCE_DIR MATCHES CMAKE_BINARY_DIR)
+      execute_process (COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.py ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py)
+    endif ()
+  else ()
+    include (UseSWIG)
+    set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
+    set (SWIG_MODULE_nlopt_EXTRA_DEPS nlopt-python.i numpy.i ${CMAKE_SOURCE_DIR}/api/nlopt.hpp)
 
-  swig_add_module (nlopt python nlopt.i)
-  swig_link_libraries (nlopt nlopt)
+    swig_add_module (nlopt python nlopt.i)
+    swig_link_libraries (nlopt nlopt)
+  endif ()
 
   execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
                     OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
