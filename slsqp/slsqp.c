@@ -2490,115 +2490,115 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 		&state);
 
 	  switch (mode) {
-	      case -1:  /* objective & gradient evaluation */
-		   if (prev_mode == -2) break; /* just evaluated this point */
-	      case -2:
-		   eval_f_and_grad:
-		   feasible_cur = 1; infeasibility_cur = 0;
-		   fcur = f(n, xcur, grad, f_data);
-		   stop->nevals++;
-		   if (nlopt_stop_forced(stop)) { 
-			fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
-		   ii = 0;
-		   for (i = 0; i < p; ++i) {
-			unsigned j, k;
-			nlopt_eval_constraint(c+ii, cgradtmp, h+i, n, xcur);
-			if (nlopt_stop_forced(stop)) { 
-			     ret = NLOPT_FORCED_STOP; goto done; }
-			for (k = 0; k < h[i].m; ++k, ++ii) {
-			     infeasibility_cur = 
-				  MAX2(infeasibility_cur, fabs(c[ii]));
-			     feasible_cur = 
-				  feasible_cur && fabs(c[ii]) <= h[i].tol[k];
-			     for (j = 0; j < n; ++ j)
-				  cgrad[j*U(mpi1) + ii] = cgradtmp[k*n + j];
-			}
-		   }
-		   for (i = 0; i < m; ++i) {
-			unsigned j, k;
-			nlopt_eval_constraint(c+ii, cgradtmp, fc+i, n, xcur);
-			if (nlopt_stop_forced(stop)) { 
-			     ret = NLOPT_FORCED_STOP; goto done; }
-			for (k = 0; k < fc[i].m; ++k, ++ii) {
-			     infeasibility_cur = 
-				  MAX2(infeasibility_cur, c[ii]);
-			     feasible_cur = 
-				  feasible_cur && c[ii] <= fc[i].tol[k];
-			     for (j = 0; j < n; ++ j)
-				  cgrad[j*U(mpi1) + ii] = -cgradtmp[k*n + j];
-			     c[ii] = -c[ii]; /* slsqp sign convention */
-			}
-		   }
-		   break;
-	      case 0: /* required accuracy for solution obtained */
-		   goto done;
-	      case 1: /* objective evaluation only (no gradient) */
-		   feasible_cur = 1; infeasibility_cur = 0;
-		   fcur = f(n, xcur, NULL, f_data);
-		   stop->nevals++;
-		   if (nlopt_stop_forced(stop)) { 
-			fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
-		   ii = 0;
-		   for (i = 0; i < p; ++i) {
-			unsigned k;
-			nlopt_eval_constraint(c+ii, NULL, h+i, n, xcur);
-			if (nlopt_stop_forced(stop)) { 
-			     ret = NLOPT_FORCED_STOP; goto done; }
-			for (k = 0; k < h[i].m; ++k, ++ii) {
-			     infeasibility_cur = 
-				  MAX2(infeasibility_cur, fabs(c[ii]));
-			     feasible_cur = 
-				  feasible_cur && fabs(c[ii]) <= h[i].tol[k];
-			}
-		   }
-		   for (i = 0; i < m; ++i) {
-			unsigned k;
-			nlopt_eval_constraint(c+ii, NULL, fc+i, n, xcur);
-			if (nlopt_stop_forced(stop)) { 
-			     ret = NLOPT_FORCED_STOP; goto done; }
-			for (k = 0; k < fc[i].m; ++k, ++ii) {
-			     infeasibility_cur = 
-				  MAX2(infeasibility_cur, c[ii]);
-			     feasible_cur = 
-				  feasible_cur && c[ii] <= fc[i].tol[k];
-			     c[ii] = -c[ii]; /* slsqp sign convention */
-			}
-		   }
-		   break;
-	      case 8: /* positive directional derivative for linesearch */
-		   /* relaxed convergence check for a feasible_cur point,
-		      as in the SLSQP code (except xtol as well as ftol) */
-		   ret = NLOPT_ROUNDOFF_LIMITED; /* usually why deriv>0 */
-		   if (feasible_cur) {
-			double save_ftol_rel = stop->ftol_rel;
-			double save_xtol_rel = stop->xtol_rel;
-			double save_ftol_abs = stop->ftol_abs;
-			stop->ftol_rel *= 10;
-			stop->ftol_abs *= 10;
-			stop->xtol_rel *= 10;
-			if (nlopt_stop_ftol(stop, fcur, state.f0))
-			     ret = NLOPT_FTOL_REACHED;
-			else if (nlopt_stop_x(stop, xcur, state.x0))
-			     ret = NLOPT_XTOL_REACHED;
-			stop->ftol_rel = save_ftol_rel;
-			stop->ftol_abs = save_ftol_abs;
-			stop->xtol_rel = save_xtol_rel;
-		   }
-		   goto done;
-	      case 5: /* singular matrix E in LSQ subproblem */
-	      case 6: /* singular matrix C in LSQ subproblem */
-	      case 7: /* rank-deficient equality constraint subproblem HFTI */
-		   ret = NLOPT_ROUNDOFF_LIMITED;
-		   goto done;
-	      case 4: /* inequality constraints incompatible */
-	      case 3: /* more than 3*n iterations in LSQ subproblem */
-	      case 9: /* more than iter iterations in SQP */
-		   ret = NLOPT_FAILURE;
-		   goto done;
-	      case 2: /* number of equality constraints > n */
-	      default: /* >= 10: working space w or jw too small */
-		   ret = NLOPT_INVALID_ARGS;
-		   goto done;
+	  case -1:  /* objective & gradient evaluation */
+	      if (prev_mode == -2) break; /* just evaluated this point */
+	  case -2:
+	      eval_f_and_grad:
+	      feasible_cur = 1; infeasibility_cur = 0;
+	      fcur = f(n, xcur, grad, f_data);
+	      stop->nevals++;
+	      if (nlopt_stop_forced(stop)) { 
+		  fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
+	      ii = 0;
+	      for (i = 0; i < p; ++i) {
+		  unsigned j, k;
+		  nlopt_eval_constraint(c+ii, cgradtmp, h+i, n, xcur);
+		  if (nlopt_stop_forced(stop)) { 
+		      ret = NLOPT_FORCED_STOP; goto done; }
+		  for (k = 0; k < h[i].m; ++k, ++ii) {
+		      infeasibility_cur = 
+			  MAX2(infeasibility_cur, fabs(c[ii]));
+		      feasible_cur = 
+			  feasible_cur && fabs(c[ii]) <= h[i].tol[k];
+		      for (j = 0; j < n; ++ j)
+			  cgrad[j*U(mpi1) + ii] = cgradtmp[k*n + j];
+		  }
+	      }
+	      for (i = 0; i < m; ++i) {
+		  unsigned j, k;
+		  nlopt_eval_constraint(c+ii, cgradtmp, fc+i, n, xcur);
+		  if (nlopt_stop_forced(stop)) { 
+		      ret = NLOPT_FORCED_STOP; goto done; }
+		  for (k = 0; k < fc[i].m; ++k, ++ii) {
+		      infeasibility_cur = 
+			  MAX2(infeasibility_cur, c[ii]);
+		      feasible_cur = 
+			  feasible_cur && c[ii] <= fc[i].tol[k];
+		      for (j = 0; j < n; ++ j)
+			  cgrad[j*U(mpi1) + ii] = -cgradtmp[k*n + j];
+		      c[ii] = -c[ii]; /* slsqp sign convention */
+		  }
+	      }
+	      break;
+	  case 0: /* required accuracy for solution obtained */
+	      goto done;
+	  case 1: /* objective evaluation only (no gradient) */
+	      feasible_cur = 1; infeasibility_cur = 0;
+	      fcur = f(n, xcur, NULL, f_data);
+	      stop->nevals++;
+	      if (nlopt_stop_forced(stop)) { 
+		  fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
+	      ii = 0;
+	      for (i = 0; i < p; ++i) {
+		  unsigned k;
+		  nlopt_eval_constraint(c+ii, NULL, h+i, n, xcur);
+		  if (nlopt_stop_forced(stop)) { 
+		      ret = NLOPT_FORCED_STOP; goto done; }
+		  for (k = 0; k < h[i].m; ++k, ++ii) {
+		      infeasibility_cur = 
+			  MAX2(infeasibility_cur, fabs(c[ii]));
+		      feasible_cur = 
+			  feasible_cur && fabs(c[ii]) <= h[i].tol[k];
+		  }
+	      }
+	      for (i = 0; i < m; ++i) {
+		  unsigned k;
+		  nlopt_eval_constraint(c+ii, NULL, fc+i, n, xcur);
+		  if (nlopt_stop_forced(stop)) { 
+		      ret = NLOPT_FORCED_STOP; goto done; }
+		  for (k = 0; k < fc[i].m; ++k, ++ii) {
+		      infeasibility_cur = 
+			  MAX2(infeasibility_cur, c[ii]);
+		      feasible_cur = 
+			  feasible_cur && c[ii] <= fc[i].tol[k];
+		      c[ii] = -c[ii]; /* slsqp sign convention */
+		  }
+	      }
+	      break;
+	  case 8: /* positive directional derivative for linesearch */
+	      /* relaxed convergence check for a feasible_cur point,
+		 as in the SLSQP code (except xtol as well as ftol) */
+	      ret = NLOPT_ROUNDOFF_LIMITED; /* usually why deriv>0 */
+	      if (feasible_cur) {
+		  double save_ftol_rel = stop->ftol_rel;
+		  double save_xtol_rel = stop->xtol_rel;
+		  double save_ftol_abs = stop->ftol_abs;
+		  stop->ftol_rel *= 10;
+		  stop->ftol_abs *= 10;
+		  stop->xtol_rel *= 10;
+		  if (nlopt_stop_ftol(stop, fcur, state.f0))
+		      ret = NLOPT_FTOL_REACHED;
+		  else if (nlopt_stop_x(stop, xcur, state.x0))
+		      ret = NLOPT_XTOL_REACHED;
+		  stop->ftol_rel = save_ftol_rel;
+		  stop->ftol_abs = save_ftol_abs;
+		  stop->xtol_rel = save_xtol_rel;
+	      }
+	      goto done;
+	  case 5: /* singular matrix E in LSQ subproblem */
+	  case 6: /* singular matrix C in LSQ subproblem */
+	  case 7: /* rank-deficient equality constraint subproblem HFTI */
+	      ret = NLOPT_ROUNDOFF_LIMITED;
+	      goto done;
+	  case 4: /* inequality constraints incompatible */
+	  case 3: /* more than 3*n iterations in LSQ subproblem */
+	  case 9: /* more than iter iterations in SQP */
+	      ret = NLOPT_FAILURE;
+	      goto done;
+	  case 2: /* number of equality constraints > n */
+	  default: /* >= 10: working space w or jw too small */
+	      ret = NLOPT_INVALID_ARGS;
+	      goto done;
 	  }
 	  prev_mode = mode;
 
