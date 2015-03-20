@@ -46,6 +46,7 @@ extern "C"
 #endif /* __cplusplus */
 
 int nlopt_isinf(double x);
+int nlopt_isfinite(double x);
 
 /* re-entrant qsort */
 extern void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk,
