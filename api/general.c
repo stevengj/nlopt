@@ -34,6 +34,11 @@ int nlopt_isinf(double x) {
 #endif
 	  ;
 }
+
+int nlopt_isfinite(double x) {
+    return fabs(x) <= DBL_MAX;
+}
+
 /*************************************************************************/
 
 void NLOPT_STDCALL nlopt_version(int *major, int *minor, int *bugfix)

@@ -641,11 +641,11 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   if (nlopt_set_default_initial_step(opt, x) != NLOPT_SUCCESS)
 			return NLOPT_OUT_OF_MEMORY;
 	      }
-	      return cobyla_minimize(n, f, f_data, 
-				     opt->m, opt->fc,
-				     opt->p, opt->h,
-				     lb, ub, x, minf, &stop,
-				     opt->dx);
+	      ret = cobyla_minimize(n, f, f_data, 
+                                    opt->m, opt->fc,
+                                    opt->p, opt->h,
+                                    lb, ub, x, minf, &stop,
+                                    opt->dx);
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      return ret;
 	 }

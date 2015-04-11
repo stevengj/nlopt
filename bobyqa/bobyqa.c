@@ -3101,6 +3101,7 @@ nlopt_result bobyqa(int n, int npt, double *x,
     nlopt_rescale(U(n), s, x, x); --x;
 
     xs = (double *) malloc(sizeof(double) * (U(n)));
+    if (!xs) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 
     sxl = nlopt_new_rescaled(U(n), s, xl);
     if (!sxl) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
