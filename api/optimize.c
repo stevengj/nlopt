@@ -248,10 +248,15 @@ static void elimdim_expand(unsigned n, double *v,
 /* given opt, create a new opt with equal-constraint dimensions eliminated */
 static nlopt_opt elimdim_create(nlopt_opt opt)
 {
-     nlopt_opt opt0 = nlopt_copy(opt);
+     nlopt_opt opt0;
+     nlopt_munge munge_copy_save = opt->munge_on_copy;
      double *x, *grad = NULL;
      unsigned i;
      
+     opt->munge_on_copy = 0; /* hack: since this is an internal copy,
+                                we can leave it un-munged; see issue #26 */
+     opt0 = nlopt_copy(opt);
+     opt->munge_on_copy = munge_copy_save;
      if (!opt0) return NULL;
      x = (double *) malloc(sizeof(double) * opt->n);
      if (opt->n && !x) { nlopt_destroy(opt0); return NULL; }
