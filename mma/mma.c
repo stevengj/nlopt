@@ -166,7 +166,11 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      unsigned mfc;
 
      m = nlopt_count_constraints(mfc = m, fc);
-     if (nlopt_get_dimension(dual_opt) != m) return NLOPT_INVALID_ARGS;
+     if (nlopt_get_dimension(dual_opt) != m) {
+         nlopt_stop_msg(stop, "dual optimizer has wrong dimension %d != %d",
+                        nlopt_get_dimension(dual_opt), m);
+         return NLOPT_INVALID_ARGS;
+     }
      sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*7));
      if (!sigma) return NLOPT_OUT_OF_MEMORY;
      dfdx = sigma + n;

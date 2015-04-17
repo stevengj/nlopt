@@ -177,8 +177,11 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
      }
      else
 	  d->N = population;
-     if (d->N < n + 1) /* population must be big enough for a simplex */
-	  return NLOPT_INVALID_ARGS;
+     if (d->N < n + 1) { /* population must be big enough for a simplex */
+          nlopt_stop_msg(stop, "population %d should be >= dimension + 1 = %d",
+                         d->N, n+1);
+          return NLOPT_INVALID_ARGS;
+     }
 
      d->n = n;
      d->stop = stop;

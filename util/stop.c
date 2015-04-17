@@ -21,6 +21,9 @@
  */
 
 #include <math.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 #include "nlopt-util.h"
 
 /* utility routines to implement the various stopping criteria */
@@ -131,4 +134,32 @@ void nlopt_eval_constraint(double *result, double *grad,
 	  result[0] = c->f(n, x, grad, c->f_data);
      else
 	  c->mf(c->m, result, n, x, grad, c->f_data);
+}
+
+char *nlopt_vsprintf(char *p, const char *format, va_list ap)
+{
+    size_t len = strlen(format) + 128;
+    int ret;
+
+    p = (char *) realloc(p, len);
+    if (!p) abort();
+    
+    while ((ret = vsnprintf(p, len, format, ap)) < 0 || (size_t)ret >= len) {
+        /* C99 vsnprintf returns the required number of bytes (excluding \0)
+           if the buffer is too small; older versions (e.g. MS) return -1 */
+        len = ret >= 0 ? (size_t)(ret + 1) : (len*3)>>1;
+        p = realloc(p, len);
+        if (!p) abort();
+    }
+    return p;
+}
+
+void nlopt_stop_msg(const nlopt_stopping *s, const char *format, ...)
+{
+    va_list ap;
+    if (s->stop_msg) {
+        va_start(ap, format);
+        *(s->stop_msg) = nlopt_vsprintf(*(s->stop_msg), format, ap);
+        va_end(ap);
+    }
 }

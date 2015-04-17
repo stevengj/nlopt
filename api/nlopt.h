@@ -209,6 +209,8 @@ NLOPT_EXTERN(nlopt_result) nlopt_set_precond_max_objective(nlopt_opt opt, nlopt_
 NLOPT_EXTERN(nlopt_algorithm) nlopt_get_algorithm(const nlopt_opt opt);
 NLOPT_EXTERN(unsigned) nlopt_get_dimension(const nlopt_opt opt);
 
+NLOPT_EXTERN(const char*) nlopt_get_errmsg(nlopt_opt opt);
+
 /* constraints: */
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bounds(nlopt_opt opt, 

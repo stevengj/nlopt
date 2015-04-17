@@ -2580,10 +2580,12 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	      case 4: /* inequality constraints incompatible */
 	      case 3: /* more than 3*n iterations in LSQ subproblem */
 	      case 9: /* more than iter iterations in SQP */
+                  nlopt_stop_msg(stop, "bug: more than iter SQP iterations");
 		  ret = NLOPT_FAILURE;
 		  goto done;
 	      case 2: /* number of equality constraints > n */
 	      default: /* >= 10: working space w or jw too small */
+                  nlopt_stop_msg(stop, "bug: workspace is too small");
 		  ret = NLOPT_INVALID_ARGS;
 		  goto done;
 	  }

@@ -292,7 +292,10 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 	  d.N = 4; /* FIXME: what is good number of samples per iteration? */
      else
 	  d.N = Nsamples;
-     if (d.N < 1) return NLOPT_INVALID_ARGS;
+     if (d.N < 1) {
+         nlopt_stop_msg(stop, "population %d is too small", d.N);
+         return NLOPT_INVALID_ARGS;
+     }
 
      d.n = n;
      d.lb = lb; d.ub = ub;

@@ -2519,8 +2519,13 @@ nlopt_result newuoa(int n, int npt, double *x,
     /* Function Body */
     np = n + 1;
     nptm = npt - np;
-    if (n < 2 || npt < n + 2 || npt > (n + 2) * np / 2) {
-	 return NLOPT_INVALID_ARGS;
+    if (n < 2) {
+        nlopt_stop_msg(stop, "dimension %d must be >= 2", n);
+        return NLOPT_INVALID_ARGS;
+    }
+    if (npt < n + 2 || npt > (n + 2) * np / 2) {
+        nlopt_stop_msg(stop, "invalid # of interpolation conditions %d", npt);
+        return NLOPT_INVALID_ARGS;
     }
     ndim = npt + n;
     ixb = 1;

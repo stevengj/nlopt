@@ -73,6 +73,8 @@ struct nlopt_opt_s {
      unsigned vector_storage; /* max subspace dimension (0 for default) */
 
      void *work; /* algorithm-specific workspace during optimization */
+
+     char *errmsg; /* description of most recent error */
 };
 
 /*********************************************************************/
@@ -85,6 +87,20 @@ extern nlopt_algorithm nlopt_local_search_alg_deriv;
 extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
 extern int nlopt_local_search_maxeval;
 extern unsigned nlopt_stochastic_population;
+
+/*********************************************************************/
+
+#define RETURN_ERR(err, opt, msg) do {          \
+    nlopt_set_errmsg(opt, msg);                 \
+    return err;                                 \
+} while (0)
+
+extern const char *nlopt_set_errmsg(nlopt_opt opt, const char *format, ...)
+#ifdef __GNUC__
+__attribute__ ((format (printf, 2, 3)))
+#endif
+;
+extern void nlopt_unset_errmsg(nlopt_opt opt);
 
 /*********************************************************************/
 

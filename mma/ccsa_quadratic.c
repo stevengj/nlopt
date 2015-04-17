@@ -234,7 +234,11 @@ nlopt_result ccsa_quadratic_minimize(
      nlopt_opt pre_opt = NULL;
 
      m = nlopt_count_constraints(mfc = m, fc);
-     if (nlopt_get_dimension(dual_opt) != m) return NLOPT_INVALID_ARGS;
+     if (nlopt_get_dimension(dual_opt) != m) {
+         nlopt_stop_msg(stop, "dual optimizer has wrong dimension %d != %d",
+                        nlopt_get_dimension(dual_opt), m);
+         return NLOPT_INVALID_ARGS;
+     }
      sigma = (double *) malloc(sizeof(double) * (6*n + 2*m*n + m*7));
      if (!sigma) return NLOPT_OUT_OF_MEMORY;
      dfdx = sigma + n;
@@ -298,7 +302,11 @@ nlopt_result ccsa_quadratic_minimize(
 	  pre_ub = pre_lb + n;
 
 	  pre_opt = nlopt_create(nlopt_get_algorithm(dual_opt), n);
-	  if (!pre_opt) { ret = NLOPT_FAILURE; goto done; }
+	  if (!pre_opt) { 
+              nlopt_stop_msg(stop, "failure creating precond. optimizer");
+              ret = NLOPT_FAILURE;
+              goto done;
+          }
 	  ret = nlopt_set_min_objective(pre_opt, g0, &dd);
 	  if (ret < 0) goto done;
 	  ret = nlopt_add_inequality_mconstraint(pre_opt, m, gi, &dd, NULL);

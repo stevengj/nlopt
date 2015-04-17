@@ -25,6 +25,7 @@
 #include <math.h>
 #include <string.h>
 #include <float.h>
+#include <stdarg.h>
 
 #include "nlopt-internal.h"
 
@@ -53,6 +54,7 @@ void NLOPT_STDCALL nlopt_destroy(nlopt_opt opt)
 	  nlopt_destroy(opt->local_opt);
 	  free(opt->dx);
 	  free(opt->work);
+	  free(opt->errmsg);
 	  free(opt);
      }
 }
@@ -91,6 +93,7 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->vector_storage = 0;
 	  opt->dx = NULL;
 	  opt->work = NULL;
+	  opt->errmsg = NULL;
 
 	  if (n > 0) {
 	       opt->lb = (double *) malloc(sizeof(double) * (n));
@@ -126,7 +129,8 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
 	  nopt->local_opt = NULL;
 	  nopt->dx = NULL;
 	  nopt->work = NULL;
-	  opt->force_stop_child = NULL;
+	  nopt->errmsg = NULL;
+	  nopt->force_stop_child = NULL;
 
 	  munge = nopt->munge_on_copy;
 	  if (munge && nopt->f_data)
@@ -748,6 +752,28 @@ void NLOPT_STDCALL nlopt_munge_data(nlopt_opt opt,
           for (i = 0; i < opt->p; ++i)
                opt->h[i].f_data = munge(opt->h[i].f_data, data);
      }
+}
+
+/*************************************************************************/
+
+const char *nlopt_set_errmsg(nlopt_opt opt, const char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    opt->errmsg = nlopt_vsprintf(opt->errmsg, format, ap);
+    va_end(ap);
+    return opt->errmsg;
+}
+
+void nlopt_unset_errmsg(nlopt_opt opt)
+{
+    free(opt->errmsg);
+    opt->errmsg = NULL;
+}
+
+const char *nlopt_get_errmsg(nlopt_opt opt)
+{
+    return opt->errmsg;
 }
 
 /*************************************************************************/

@@ -24,6 +24,7 @@
 #define NLOPT_UTIL_H
 
 #include <stdlib.h>
+#include <stdarg.h>
 #include <math.h>
 #include "config.h"
 
@@ -82,6 +83,7 @@ typedef struct {
      int nevals, maxeval;
      double maxtime, start;
      int *force_stop;
+     char **stop_msg; /* pointer to msg string to update */
 } nlopt_stopping;
 extern int nlopt_stop_f(const nlopt_stopping *stop, double f, double oldf);
 extern int nlopt_stop_ftol(const nlopt_stopping *stop, double f, double oldf);
@@ -97,6 +99,14 @@ extern int nlopt_stop_time_(double start, double maxtime);
 extern int nlopt_stop_time(const nlopt_stopping *stop);
 extern int nlopt_stop_evalstime(const nlopt_stopping *stop);
 extern int nlopt_stop_forced(const nlopt_stopping *stop);
+
+/* like vsprintf, but reallocs p to whatever size is needed */
+extern char *nlopt_vsprintf(char *p, const char *format, va_list ap);
+extern void nlopt_stop_msg(const nlopt_stopping *s, const char *format, ...)
+#ifdef __GNUC__
+__attribute__ ((format (printf, 2, 3)))
+#endif
+;
 
 /* for local optimizations, temporarily setting eval/time limits */
 extern nlopt_result nlopt_optimize_limited(nlopt_opt opt, 

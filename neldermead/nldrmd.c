@@ -153,7 +153,12 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 					   ub[i] : lb[i]) + x[i]);
 	       }
 	  }
-	  if (close(pt[1+i], x[i])) { ret=NLOPT_FAILURE; goto done; }
+	  if (close(pt[1+i], x[i])) { 
+              nlopt_stop_msg(stop, "starting step size led to simplex that was too small in dimension %d: %g is too close to x[%d]=%g",
+                             i, pt[1+i], i, x[i]);
+              ret=NLOPT_FAILURE;
+              goto done; 
+          }
 	  pt[0] = f(n, pt+1, NULL, f_data);
 	  CHECK_EVAL(pt+1, pt[0]);
      }

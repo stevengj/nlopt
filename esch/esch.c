@@ -95,7 +95,10 @@ nlopt_result chevolutionarystrategy(
      // -------------------------------
      if (!np) np = 40;
      if (!no) no = 60;     
-     if ((np < 1)||(no<1)) return NLOPT_INVALID_ARGS;
+     if ((np < 1)||(no<1)) {
+         nlopt_stop_msg(stop, "populations %d, %d are too small", np, no);
+         return NLOPT_INVALID_ARGS;
+     }
      esparents    = (Individual*) malloc(sizeof(Individual) * np);
      esoffsprings = (Individual*) malloc(sizeof(Individual) * no);
      estotal 	 = (Individual*) malloc(sizeof(Individual) * (np+no));
