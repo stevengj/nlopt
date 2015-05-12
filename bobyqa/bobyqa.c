@@ -3096,6 +3096,11 @@ nlopt_result bobyqa(int n, int npt, double *x,
                  equal in all directions */
     s = nlopt_compute_rescaling(U(n), dx);
     if (!s) return NLOPT_OUT_OF_MEMORY;
+    for (j = 0; j < n; ++j)
+        if (s[j] == 0 || !nlopt_isfinite(s[j])) {
+            nlopt_stop_msg(stop, "invalid scaling %g of dimension %d: possible over/underflow?", s[j], j);
+            ret = NLOPT_INVALID_ARGS; goto done;
+        }
 
     /* this statement must go before goto done, so that --x occurs */
     nlopt_rescale(U(n), s, x, x); --x;
@@ -3171,6 +3176,7 @@ nlopt_result bobyqa(int n, int npt, double *x,
     if (npt < n + 2 || npt > (n + 2) * np / 2) {
       /* Return from BOBYQA because NPT is not in the required interval */
       ret = NLOPT_INVALID_ARGS;
+      nlopt_stop_msg(stop, "invalid number of sampling points");
       goto done;
     }
 
@@ -3216,6 +3222,8 @@ nlopt_result bobyqa(int n, int npt, double *x,
 	  /* Return from BOBYQA because one of the differences
 	     XU(I)-XL(I)s is less than 2*RHOBEG. */
 	     ret = NLOPT_INVALID_ARGS;
+             nlopt_stop_msg(stop, "insufficient space between the bounds: %g - %g < %g",
+                            xu[j], xl[j], rhobeg+rhobeg);
 	     goto done;
 	}
 	jsl = isl + j - 1;

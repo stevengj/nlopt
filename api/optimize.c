@@ -28,13 +28,6 @@
 
 /*********************************************************************/
 
-#ifndef HAVE_ISNAN
-static int my_isnan(double x) { return x != x; }
-#  define isnan my_isnan
-#endif
-
-/*********************************************************************/
-
 #include "praxis.h"
 #include "direct.h"
 
@@ -74,7 +67,7 @@ static double f_bound(int n, const double *x, void *data_)
 	       return HUGE_VAL;
 
      f = data->f((unsigned) n, x, NULL, data->f_data);
-     return (isnan(f) || nlopt_isinf(f) ? HUGE_VAL : f);
+     return (nlopt_isnan(f) || nlopt_isinf(f) ? HUGE_VAL : f);
 }
 
 static double f_noderiv(int n, const double *x, void *data_)
@@ -90,7 +83,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
      double f;
      unsigned i, j;
      f = data->f((unsigned) n, x, NULL, data->f_data);
-     *undefined = isnan(f) || nlopt_isinf(f);
+     *undefined = nlopt_isnan(f) || nlopt_isinf(f);
      if (nlopt_get_force_stop(data)) return f;
      for (i = 0; i < data->m && !*undefined; ++i) {
 	  nlopt_eval_constraint(work, NULL, data->fc+i, (unsigned) n, x);

@@ -48,6 +48,8 @@ extern "C"
 
 int nlopt_isinf(double x);
 int nlopt_isfinite(double x);
+int nlopt_istiny(double x);
+int nlopt_isnan(double x);
 
 /* re-entrant qsort */
 extern void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk,

@@ -86,6 +86,14 @@ if test "$ok" = "yes"; then
 fi
 AC_MSG_RESULT(${ok})
 
+AC_MSG_CHECKING([for fpclassify])
+AC_TRY_LINK([#include <math.h>
+], [if (!fpclassify(3.14159)) fpclassify(2.7183);], ok=yes, ok=no)
+if test "$ok" = "yes"; then
+	AC_DEFINE(HAVE_FPCLASSIFY,1,[Define if the fpclassify() function/macro is available.])
+fi
+AC_MSG_RESULT(${ok})
+
 AC_MSG_CHECKING([for copysign])
 AC_TRY_LINK([#include <math.h>
 ], [double x = copysign(3.14159, -2.7183);], ok=yes, ok=no)

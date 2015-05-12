@@ -198,6 +198,11 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
 
      s.scale = nlopt_compute_rescaling(n, dx);
      if (!s.scale) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
+     for (j = 0; j < n; ++j)
+         if (s.scale[j] == 0 || !nlopt_isfinite(s.scale[j])) {
+             nlopt_stop_msg(stop, "invalid scaling %g of dimension %d: possible over/underflow?", s.scale[j], j);
+             ret = NLOPT_INVALID_ARGS; goto done;
+         }
 
      s.lb = nlopt_new_rescaled(n, s.scale, lb);
      if (!s.lb) { ret = NLOPT_OUT_OF_MEMORY; goto done; }

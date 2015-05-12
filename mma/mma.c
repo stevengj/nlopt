@@ -33,11 +33,6 @@ unsigned mma_verbose = 0; /* > 0 for verbose output */
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
-#ifndef HAVE_ISNAN
-static int my_isnan(double x) { return x != x; }
-#  define isnan my_isnan
-#endif
-
 /* magic minimum value for rho in MMA ... the 2002 paper says it should
    be a "fixed, strictly positive `small' number, e.g. 1e-5"
    ... grrr, I hate these magic numbers, which seem like they
@@ -80,7 +75,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
      val = d->gval = fval;
      d->wval = 0;
      for (i = 0; i < m; ++i) 
-	  val += y[i] * (gcval[i] = isnan(fcval[i]) ? 0 : fcval[i]);
+	  val += y[i] * (gcval[i] = nlopt_isnan(fcval[i]) ? 0 : fcval[i]);
 
      for (j = 0; j < n; ++j) {
 	  double u, v, dx, denominv, c, sigma2, dx2;
@@ -105,7 +100,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 
 	  u = dfdx[j];
 	  v = fabs(dfdx[j]) * sigma[j] + 0.5 * rho;
-	  for (i = 0; i < m; ++i) if (!isnan(fcval[i])) {
+	  for (i = 0; i < m; ++i) if (!nlopt_isnan(fcval[i])) {
 	       u += dfcdx[i*n + j] * y[i];
 	       v += (fabs(dfcdx[i*n + j]) * sigma[j] + 0.5 * rhoc[i]) * y[i];
 	  }
@@ -128,7 +123,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 	  d->gval += (dfdx[j] * c + (fabs(dfdx[j])*sigma[j] + 0.5*rho) * dx2)
 	       * denominv;
 	  d->wval += 0.5 * dx2 * denominv;
-	  for (i = 0; i < m; ++i) if (!isnan(fcval[i]))
+	  for (i = 0; i < m; ++i) if (!nlopt_isnan(fcval[i]))
 	       gcval[i] += (dfcdx[i*n+j] * c + (fabs(dfcdx[i*n+j])*sigma[j] 
 						+ 0.5*rhoc[i]) * dx2)
 		    * denominv;
@@ -226,7 +221,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	  if (nlopt_stop_forced(stop)) { ret = NLOPT_FORCED_STOP; goto done; }
      }
      for (i = 0; i < m; ++i) {
-	  feasible = feasible && (fcval[i] <= 0 || isnan(fcval[i]));
+	  feasible = feasible && (fcval[i] <= 0 || nlopt_isnan(fcval[i]));
 	  if (fcval[i] > infeasibility) infeasibility = fcval[i];
      }
      /* For non-feasible initial points, set a finite (large)
@@ -308,10 +303,10 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	       for (i = ifc = 0; ifc < mfc; ++ifc) {
 		    unsigned i0 = i, inext = i + fc[ifc].m;
 		    for (; i < inext; ++i)
-			 if (!isnan(fcval_cur[i])) {
+			 if (!nlopt_isnan(fcval_cur[i])) {
 			      feasible_cur = feasible_cur 
 				   && (fcval_cur[i] <= fc[ifc].tol[i-i0]);
-			      if (!isnan(fcval[i]))
+			      if (!nlopt_isnan(fcval[i]))
 				   inner_done = inner_done && 
 					(dd.gcval[i] >= fcval_cur[i]);
 			      else if (fcval_cur[i] > 0)
@@ -359,7 +354,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	       if (fcur > dd.gval)
 		    rho = MIN(10*rho, 1.1 * (rho + (fcur-dd.gval) / dd.wval));
 	       for (i = 0; i < m; ++i)
-		    if (!isnan(fcval_cur[i]) && fcval_cur[i] > dd.gcval[i])
+		    if (!nlopt_isnan(fcval_cur[i]) && fcval_cur[i] > dd.gcval[i])
 			 rhoc[i] = 
 			      MIN(10*rhoc[i], 
 				  1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i]) 
