@@ -287,8 +287,8 @@ NLOPT_STDCALL nlopt_set_lower_bounds1(nlopt_opt opt, double lb)
      nlopt_unset_errmsg(opt);
      if (opt) {
 	  unsigned i;
-	  for (i = 0; i < opt->n; ++i)
-              opt->lb[i] = lb; {
+	  for (i = 0; i < opt->n; ++i) {
+              opt->lb[i] = lb;
               if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
                   opt->lb[i] = opt->ub[i];
           }
