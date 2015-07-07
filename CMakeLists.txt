@@ -173,3 +173,10 @@ INSTALL ( TARGETS nlopt
         )
 
 add_subdirectory (swig)
+
+# Tests
+add_subdirectory (test)
+enable_testing ()
+add_test (NAME test_lfbgs COMMAND new_test lfbgs)
+add_test (NAME test_mma COMMAND new_test mma)
+
