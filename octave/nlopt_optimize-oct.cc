@@ -29,6 +29,11 @@
 #include "nlopt.h"
 #include "nlopt_optimize_usage.h"
 
+#include <octave/version.h>
+#if OCTAVE_MAJOR_VERSION < 3 || (OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 8)
+#  define octave_map Octave_map
+#endif
+
 static int struct_val_default(octave_map &m, const std::string& k,
 				 int dflt)
 {
