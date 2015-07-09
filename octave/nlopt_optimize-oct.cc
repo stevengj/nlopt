@@ -29,7 +29,7 @@
 #include "nlopt.h"
 #include "nlopt_optimize_usage.h"
 
-static int struct_val_default(Octave_map &m, const std::string& k,
+static int struct_val_default(octave_map &m, const std::string& k,
 				 int dflt)
 {
   if (m.contains(k)) {
@@ -39,7 +39,7 @@ static int struct_val_default(Octave_map &m, const std::string& k,
   return dflt;
 }
 
-static double struct_val_default(Octave_map &m, const std::string& k,
+static double struct_val_default(octave_map &m, const std::string& k,
 				 double dflt)
 {
   if (m.contains(k)) {
@@ -49,7 +49,7 @@ static double struct_val_default(Octave_map &m, const std::string& k,
   return dflt;
 }
 
-static Matrix struct_val_default(Octave_map &m, const std::string& k,
+static Matrix struct_val_default(octave_map &m, const std::string& k,
 				 Matrix &dflt)
 {
   if (m.contains(k)) {
@@ -140,7 +140,7 @@ static double user_function1(unsigned n, const double *x,
 
 #define CHECK1(cond, msg) if (!(cond)) { fprintf(stderr, msg "\n\n"); nlopt_destroy(opt); nlopt_destroy(local_opt); return NULL; }
 
-nlopt_opt make_opt(Octave_map &opts, int n)
+nlopt_opt make_opt(octave_map &opts, int n)
 {
   nlopt_opt opt = NULL, local_opt = NULL;
 
@@ -195,7 +195,7 @@ nlopt_opt make_opt(Octave_map &opts, int n)
     CHECK1(opts.contents("local_optimizer").length() == 1 
 	  && (opts.contents("local_optimizer"))(0).is_map(),
 	  "opt.local_optimizer must be a structure");
-    Octave_map local_opts = (opts.contents("local_optimizer"))(0).map_value();
+    octave_map local_opts = (opts.contents("local_optimizer"))(0).map_value();
     CHECK1((local_opt = make_opt(local_opts, n)), 
 	  "error initializing local optimizer");
     nlopt_set_local_optimizer(opt, local_opt);
@@ -216,7 +216,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
   CHECK(args.length() == 2 && nargout <= 3, "wrong number of args");
 
   CHECK(args(0).is_map(), "opt must be structure")
-  Octave_map opts = args(0).map_value();
+  octave_map opts = args(0).map_value();
 
   CHECK(args(1).is_real_matrix() || args(1).is_real_scalar(),
 	"x must be real vector");
