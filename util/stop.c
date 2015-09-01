@@ -148,7 +148,7 @@ char *nlopt_vsprintf(char *p, const char *format, va_list ap)
         /* C99 vsnprintf returns the required number of bytes (excluding \0)
            if the buffer is too small; older versions (e.g. MS) return -1 */
         len = ret >= 0 ? (size_t)(ret + 1) : (len*3)>>1;
-        p = realloc(p, len);
+        p = (char *) realloc(p, len);
         if (!p) abort();
     }
     return p;
