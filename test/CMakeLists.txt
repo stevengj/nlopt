@@ -1,7 +1,7 @@
 add_custom_target (tests)
 
 add_executable (testopt EXCLUDE_FROM_ALL testfuncs.c testfuncs.h testopt.cpp)
-target_link_libraries (testopt nlopt)
+target_link_libraries (testopt ${nlopt_lib})
 add_dependencies (tests testopt)
 
 foreach (algo_index RANGE 29)# 42

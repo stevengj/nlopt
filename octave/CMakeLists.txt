@@ -13,7 +13,7 @@ file (APPEND ${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h "\n")
 
 include_directories (${OCTAVE_INCLUDE_DIRS})
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
-octave_add_oct (nlopt_optimize SOURCES nlopt_optimize-oct.cc ${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h)
+octave_add_oct (nlopt_optimize SOURCES nlopt_optimize-oct.cc ${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h LINK_LIBRARIES ${nlopt_lib})
 
 file (RELATIVE_PATH PKG_OCTAVE_OCT_SITE_DIR ${OCTAVE_ROOT_DIR} ${OCTAVE_OCT_SITE_DIR})
 install (TARGETS nlopt_optimize DESTINATION ${PKG_OCTAVE_OCT_SITE_DIR})

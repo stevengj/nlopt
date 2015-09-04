@@ -31,7 +31,7 @@
 #  install (
 #    TARGETS target_name
 #    DESTINATION ${PKG_OCTAVE_OCT_SITE_DIR}
-# )
+#)
 
 
 #=============================================================================
@@ -64,7 +64,7 @@
 
 find_program(OCTAVE_CONFIG_EXECUTABLE
               NAMES octave-config
-           )
+          )
 
 
 if (OCTAVE_CONFIG_EXECUTABLE)
@@ -115,25 +115,25 @@ endif ()
 find_program(OCTAVE_EXECUTABLE
               HINTS ${OCTAVE_BIN_PATHS}
               NAMES octave
-           )
+          )
 
 find_program(OCTAVE_MKOCTFILE
               HINTS ${OCTAVE_BIN_PATHS}
               NAMES mkoctfile
-           )
+          )
 	
 find_library(OCTAVE_OCTINTERP_LIBRARY
               NAMES octinterp liboctinterp
               HINTS ${OCTAVE_LIBRARIES_PATHS}
-           )
+          )
 find_library(OCTAVE_OCTAVE_LIBRARY
               NAMES octave liboctave
               HINTS ${OCTAVE_LIBRARIES_PATHS}
-           )
+          )
 find_library(OCTAVE_CRUFT_LIBRARY
               NAMES cruft libcruft
               HINTS ${OCTAVE_LIBRARIES_PATHS}
-           )
+          )
 
 set (OCTAVE_LIBRARIES ${OCTAVE_OCTINTERP_LIBRARY})
 list (APPEND OCTAVE_LIBRARIES ${OCTAVE_OCTAVE_LIBRARY}) 
@@ -143,7 +143,7 @@ find_path (OCTAVE_INCLUDE_DIR
             NAMES mex.h
             HINTS ${OCTAVE_INCLUDE_PATHS}
             "${OCTAVE_INCLUDE_PATHS}/octave"
-         )
+        )
 
 set (OCTAVE_INCLUDE_DIRS ${OCTAVE_INCLUDE_DIR})
 
@@ -157,14 +157,14 @@ macro (octave_add_oct FUNCTIONNAME)
   foreach (_ARG ${ARGN})
     if (${_ARG} MATCHES SOURCES)
       set (_CMD SOURCES)
-    elseif (${_ARG} MATCHES LINK_LIBRARIES )
-      set (_CMD LINK_LIBRARIES )
+    elseif (${_ARG} MATCHES LINK_LIBRARIES)
+      set (_CMD LINK_LIBRARIES)
     elseif (${_ARG} MATCHES EXTENSION)
       set (_CMD EXTENSION)
     else ()
       if (${_CMD} MATCHES SOURCES)
         list (APPEND _SOURCES "${_ARG}")
-      elseif (${_CMD} MATCHES LINK_LIBRARIES )
+      elseif (${_CMD} MATCHES LINK_LIBRARIES)
         list (APPEND _LINK_LIBRARIES "${_ARG}")
       elseif (${_CMD} MATCHES EXTENSION)
         set (_OCT_EXTENSION ${_ARG})
@@ -176,7 +176,7 @@ macro (octave_add_oct FUNCTIONNAME)
   set_target_properties (${FUNCTIONNAME} PROPERTIES
     PREFIX ""
     SUFFIX  ".${_OCT_EXTENSION}"
- )
+)
 endmacro ()
 
 

@@ -26,6 +26,12 @@ option (WITH_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
 option (BUILD_PYTHON "build python bindings" ON)
 option (BUILD_OCTAVE "build octave bindings" ON)
+option (BUILD_GUILE "build guile bindings" ON)
+
+set (NLOPT_SUFFIX)
+if (WITH_CXX)
+  set (NLOPT_SUFFIX _cxx)
+endif ()
 
 if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
@@ -212,7 +218,8 @@ endif ()
 
 INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
 
-ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
+set (nlopt_lib nlopt${NLOPT_SUFFIX})
+add_library (${nlopt_lib} ${NLOPT_SOURCES})
 
 # pass -fPIC in case swig module is built with static library
 if (NOT BUILD_SHARED_LIBS)
@@ -224,18 +231,18 @@ if (NOT BUILD_SHARED_LIBS)
 endif ()
 
 # parse configure.ac for lib version
-STRING( REGEX MATCH "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:[0-9]+\"" _VERSION_INFO_LINE "${CONFIG_AUTOMAKE}") 
-IF (_VERSION_INFO_LINE)
-  STRING( REGEX REPLACE "SHARED_VERSION_INFO=\"([0-9]+):[0-9]+:[0-9]+\"" "\\1" _VERSION_INFO_CURRENT "${_VERSION_INFO_LINE}") 
-  STRING( REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:([0-9]+):[0-9]+\"" "\\1" _VERSION_INFO_REVISION "${_VERSION_INFO_LINE}") 
-  STRING( REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:([0-9]+)\"" "\\1" _VERSION_INFO_AGE "${_VERSION_INFO_LINE}") 
-  MATH(EXPR _INFO_SOVERSION "${_VERSION_INFO_CURRENT} - ${_VERSION_INFO_AGE} ")
-  SET(_INFO_VERSION "${_INFO_SOVERSION}.${_VERSION_INFO_AGE}.${_VERSION_INFO_REVISION}")
-  SET_TARGET_PROPERTIES(nlopt PROPERTIES SOVERSION ${_INFO_SOVERSION})
-  SET_TARGET_PROPERTIES(nlopt PROPERTIES VERSION ${_INFO_VERSION} )
-ENDIF ()
+string (REGEX MATCH "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:[0-9]+\"" _VERSION_INFO_LINE "${CONFIG_AUTOMAKE}") 
+if (_VERSION_INFO_LINE)
+  string (REGEX REPLACE "SHARED_VERSION_INFO=\"([0-9]+):[0-9]+:[0-9]+\"" "\\1" _VERSION_INFO_CURRENT "${_VERSION_INFO_LINE}") 
+  string (REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:([0-9]+):[0-9]+\"" "\\1" _VERSION_INFO_REVISION "${_VERSION_INFO_LINE}") 
+  string (REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:([0-9]+)\"" "\\1" _VERSION_INFO_AGE "${_VERSION_INFO_LINE}") 
+  math (EXPR _INFO_SOVERSION "${_VERSION_INFO_CURRENT} - ${_VERSION_INFO_AGE} ")
+  set (_INFO_VERSION "${_INFO_SOVERSION}.${_VERSION_INFO_AGE}.${_VERSION_INFO_REVISION}")
+  set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${_INFO_SOVERSION})
+  set_target_properties (${nlopt_lib} PROPERTIES VERSION ${_INFO_VERSION} )
+endif ()
 
-INSTALL ( TARGETS nlopt
+install ( TARGETS ${nlopt_lib}
           RUNTIME DESTINATION bin
           LIBRARY DESTINATION lib${LIB_SUFFIX}
           ARCHIVE DESTINATION lib${LIB_SUFFIX}
@@ -256,6 +263,10 @@ if (PYTHONINTERP_FOUND)
 
   set (PYTHON_MODULE_PATH ${_REL_PYTHON_MODULE_PATH})
 
+endif ()
+
+if (BUILD_GUILE)
+  find_package (Guile)
 endif ()
 
 add_subdirectory (swig)
