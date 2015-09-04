@@ -25,23 +25,26 @@
 /* Define to 1 if you have the `BSDgettimeofday' function. */
 #undef HAVE_BSDGETTIMEOFDAY
 
+/* Define if the copysign function/macro is available. */
+#cmakedefine HAVE_COPYSIGN
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
+#cmakedefine HAVE_DLFCN_H
+
+/* Define if the fpclassify() function/macro is available. */
+#cmakedefine HAVE_FPCLASSIFY
 
 /* Define to 1 if you have the <getopt.h> header file. */
-#undef HAVE_GETOPT_H
+#cmakedefine HAVE_GETOPT_H
 
 /* Define to 1 if you have the `getpid' function. */
-#undef HAVE_GETPID
+#cmakedefine HAVE_GETPID
 
 /* Define if syscall(SYS_gettid) available. */
 #undef HAVE_GETTID_SYSCALL
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #cmakedefine HAVE_GETTIMEOFDAY
-
-/* Define if the copysign function/macro is available. */
-#cmakedefine HAVE_COPYSIGN
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H
@@ -78,6 +81,9 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#cmakedefine HAVE_SYS_TIME_H
 
 /* Define to 1 if you have the `time' function. */
 #cmakedefine HAVE_TIME
@@ -126,26 +132,23 @@
 #define SIZEOF_UNSIGNED_INT @SIZEOF_UNSIGNED_INT@
 
 /* The size of `unsigned long', as computed by sizeof. */
-#undef SIZEOF_UNSIGNED_LONG
+#define SIZEOF_UNSIGNED_LONG @SIZEOF_UNSIGNED_LONG@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Define to C thread-local keyword, or to nothing if this is not supported in
    your compiler. */
-#define THREADLOCAL
+#define THREADLOCAL @THREADLOCAL@
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
+#cmakedefine TIME_WITH_SYS_TIME
 
 /* Version number of package */
 #undef VERSION
 
 /* Define if compiled including C++-based routines */
 #cmakedefine WITH_CXX
-
-/* Define if we have the non-free Nocedal LBFGS code */
-#undef WITH_NOCEDAL
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
@@ -155,5 +158,3 @@
 #ifndef __cplusplus
 #undef inline
 #endif
-
-
