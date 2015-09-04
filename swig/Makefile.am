@@ -1,5 +1,5 @@
 SWIG_SRC = nlopt.i nlopt-exceptions.i nlopt-enum-renames.i
-EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt-python.i nlopt.scm.in nlopt.py numpy.i
+EXTRA_DIST = $(SWIG_SRC) nlopt-guile.i nlopt-python.i nlopt.scm.in nlopt.py numpy.i CMakeLists.txt
 
 BUILT_SOURCES = nlopt-guile.cpp nlopt-python.cpp nlopt-enum-renames.i nlopt.scm.in
 

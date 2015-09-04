@@ -21,6 +21,7 @@ endif ()
 project (nlopt C)
 
 option (WITH_CXX "enable cxx routines" OFF)
+option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
 
 if (WITH_CXX)
   enable_language (CXX)
@@ -29,7 +30,7 @@ endif ()
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckTypeSize)
-
+include (CheckCCompilerFlag)
 
 #==============================================================================
 # COMPILATION CHECKINGS and CONFIGURATION GENERATION
@@ -156,8 +157,6 @@ if (WITH_CXX)
 endif ()
 
 
-OPTION(BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF )
-
 if (BUILD_SHARED_LIBS)
   ADD_DEFINITIONS(-DNLOPT_DLL)
   ADD_DEFINITIONS(-DNLOPT_DLL_EXPORT )
@@ -171,6 +170,19 @@ endif ()
 INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
 
 ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
+
+# pass -fPIC in case swig module is built with static library
+if (NOT BUILD_SHARED_LIBS)
+  if (CMAKE_VERSION VERSION_LESS 2.8.9)
+    check_c_compiler_flag (-fPIC HAS_FPIC)
+    if (HAS_FPIC)
+      set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
+      set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
+    endif ()
+  else ()
+    set_target_properties (${nlopt_library} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  endif ()
+endif ()
 
 # parse configure.ac for lib version
 STRING( REGEX MATCH "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:[0-9]+\"" _VERSION_INFO_LINE "${CONFIG_AUTOMAKE}") 
