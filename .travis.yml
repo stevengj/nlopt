@@ -1,0 +1,24 @@
+language: cpp
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - swig
+    - python-dev
+    - python-numpy
+    - guile-2.0-dev
+    - octave3.2-headers
+    - cmake
+
+script:
+  - ./autogen.sh --no-configure
+  - mkdir build && pushd build
+  - ../configure --prefix=$HOME/.local --enable-shared --enable-maintainer-mode --enable-cxx
+  - make -j2
+  - make install
+  - python ../test/test_std.py
+  - rm -rf * ~/.local
+  - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBUILD_SHARED_LIBS=ON ..
+  - make install -j2
+  - python ../test/test_std.py

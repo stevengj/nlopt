@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/stevengj/nlopt.svg?branch=master)](https://travis-ci.org/stevengj/nlopt)
+
 NLopt is a library for nonlinear local and global optimization, for
 functions with and without gradient information.  It is designed as
 as simple, unified interface and packaging of several free/open-source
