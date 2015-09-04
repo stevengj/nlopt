@@ -24,7 +24,7 @@ option (WITH_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
 option (BUILD_PYTHON "build python bindings" ON)
 
-if (WITH_CXX)
+if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
 endif ()
 
@@ -174,14 +174,10 @@ ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
 
 # pass -fPIC in case swig module is built with static library
 if (NOT BUILD_SHARED_LIBS)
-  if (CMAKE_VERSION VERSION_LESS 2.8.9)
-    check_c_compiler_flag (-fPIC HAS_FPIC)
-    if (HAS_FPIC)
-      set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
-      set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
-    endif ()
-  else ()
-    set_target_properties (${nlopt_library} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  check_c_compiler_flag (-fPIC HAS_FPIC)
+  if (HAS_FPIC)
+    set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
   endif ()
 endif ()
 
