@@ -21,4 +21,5 @@ script:
   - rm -rf * ~/.local
   - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DBUILD_SHARED_LIBS=ON ..
   - make install -j2
-  - python ../test/test_std.py
+  - make tests -j2
+  - ctest -j2 --output-on-failure

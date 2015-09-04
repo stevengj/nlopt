@@ -1,13 +1,9 @@
-option (BUILD_PYTHON "build python bindings" ON)
-
-find_package (PythonInterp)
-find_package (PythonLibs)
 
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)
   find_package (SWIG)
 endif ()
 
-if (BUILD_PYTHON AND PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)))
+if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)))
 
   include_directories (${CMAKE_SOURCE_DIR}/api)
   include_directories (${PYTHON_INCLUDE_DIRS})
@@ -30,14 +26,6 @@ if (BUILD_PYTHON AND PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR 
     swig_link_libraries (nlopt nlopt)
     swig_link_libraries (nlopt ${PYTHON_LIBRARIES})
   endif ()
-  execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
-                    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
-                    OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-  get_filename_component (_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
-  file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
-
-  set (PYTHON_MODULE_PATH ${_REL_PYTHON_MODULE_PATH})
 
   install ( FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION ${PYTHON_MODULE_PATH} )
   install ( TARGETS ${SWIG_MODULE_nlopt_REAL_NAME} LIBRARY DESTINATION ${PYTHON_MODULE_PATH} )

@@ -22,6 +22,7 @@ project (nlopt C)
 
 option (WITH_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
+option (BUILD_PYTHON "build python bindings" ON)
 
 if (WITH_CXX)
   enable_language (CXX)
@@ -202,4 +203,24 @@ INSTALL ( TARGETS nlopt
           ARCHIVE DESTINATION lib${LIB_SUFFIX}
         )
 
+if (BUILD_PYTHON)
+  find_package (PythonInterp)
+  find_package (PythonLibs)
+endif ()
+
+if (PYTHONINTERP_FOUND)
+  execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
+                    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE )
+
+  get_filename_component (_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
+  file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
+
+  set (PYTHON_MODULE_PATH ${_REL_PYTHON_MODULE_PATH})
+
+endif ()
+
 add_subdirectory (swig)
+
+enable_testing ()
+add_subdirectory (test)
