@@ -20,9 +20,12 @@ endif ()
 
 project (nlopt C)
 
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 option (WITH_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
 option (BUILD_PYTHON "build python bindings" ON)
+option (BUILD_OCTAVE "build octave bindings" ON)
 
 if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
@@ -256,6 +259,14 @@ if (PYTHONINTERP_FOUND)
 endif ()
 
 add_subdirectory (swig)
+
+if (BUILD_OCTAVE)
+  find_package (Octave)
+endif ()
+
+if (OCTAVE_FOUND)
+  add_subdirectory (octave)
+endif ()
 
 enable_testing ()
 add_subdirectory (test)
