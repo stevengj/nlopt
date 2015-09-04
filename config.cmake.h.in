@@ -142,7 +142,7 @@
 #undef VERSION
 
 /* Define if compiled including C++-based routines */
-#undef WITH_CXX
+#cmakedefine WITH_CXX
 
 /* Define if we have the non-free Nocedal LBFGS code */
 #undef WITH_NOCEDAL
