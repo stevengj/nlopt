@@ -16,7 +16,6 @@ endif ()
 
 if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)))
 
-  include_directories (${CMAKE_SOURCE_DIR}/api)
   include_directories (${PYTHON_INCLUDE_DIRS})
 
   if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)
@@ -31,7 +30,7 @@ if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_C
   else ()
     include (UseSWIG)
     set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
-    set (SWIG_MODULE_nlopt_EXTRA_DEPS nlopt-python.i numpy.i ${CMAKE_SOURCE_DIR}/api/nlopt.hpp)
+    set (SWIG_MODULE_nlopt_EXTRA_DEPS nlopt-python.i numpy.i)
 
     swig_add_module (nlopt python nlopt.i)
     swig_link_libraries (nlopt ${nlopt_lib})
@@ -59,7 +58,7 @@ if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXI
 
     set (guile_cpp_source ${CMAKE_CURRENT_BINARY_DIR}/nlopt-guile.cpp)
     add_custom_command (OUTPUT ${guile_cpp_source} nlopt.scm.in
-                        COMMAND ${SWIG_EXECUTABLE} -I${CMAKE_SOURCE_DIR}/api -outdir ${CMAKE_CURRENT_BINARY_DIR} -c++ -guile -scmstub -o ${guile_cpp_source} ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i
+                        COMMAND ${SWIG_EXECUTABLE} -I${CMAKE_BINARY_DIR}/api -outdir ${CMAKE_CURRENT_BINARY_DIR} -c++ -guile -scmstub -o ${guile_cpp_source} ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i
                         COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm.in
                         COMMAND ${CMAKE_COMMAND} -DINFILE=${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm.in -DOUTFILE=${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm -DNLOPT_SUFFIX=${NLOPT_SUFFIX} -P ${CMAKE_CURRENT_BINARY_DIR}/GenericConfigureFile.cmake)
   endif ()

@@ -149,28 +149,28 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION lib/pkgconfig)
 #==============================================================================
 # INCLUDE DIRECTORIES
 #==============================================================================
-SET(${INCLUDE_DIRECTORIES} "")
-INCLUDE_DIRECTORIES (
-	${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-	stogo 
-	util 
-	direct 
-	cdirect 
-	praxis 
-	luksan 
-	crs 
-	mlsl 
-	mma 
-	cobyla 
-	newuoa 
-	neldermead 
-	auglag 
-	bobyqa 
-	isres 
-	slsqp
-        esch
-	api   )
+set (${INCLUDE_DIRECTORIES} "")
+include_directories (
+  ${CMAKE_BINARY_DIR}/api
+  ${CMAKE_BINARY_DIR}
+  stogo 
+  util 
+  direct 
+  cdirect 
+  praxis 
+  luksan 
+  crs 
+  mlsl 
+  mma 
+  cobyla 
+  newuoa 
+  neldermead 
+  auglag 
+  bobyqa 
+  isres 
+  slsqp
+  esch
+  api)
 
 
 #==============================================================================
@@ -178,7 +178,7 @@ INCLUDE_DIRECTORIES (
 #==============================================================================
 
 SET ( NLOPT_HEADERS 
-  api/nlopt.h api/nlopt.hpp api/nlopt.f
+  api/nlopt.h ${CMAKE_BINARY_DIR}/api/nlopt.hpp ${CMAKE_BINARY_DIR}/api/nlopt.f
 )
 
 SET ( NLOPT_SOURCES   
@@ -216,7 +216,7 @@ if (BUILD_SHARED_LIBS)
   endif ()
 endif ()
 
-INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
+install (FILES ${NLOPT_HEADERS} DESTINATION include)
 
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
@@ -247,6 +247,8 @@ install ( TARGETS ${nlopt_lib}
           LIBRARY DESTINATION lib${LIB_SUFFIX}
           ARCHIVE DESTINATION lib${LIB_SUFFIX}
         )
+
+add_subdirectory (api)
 
 if (BUILD_PYTHON)
   find_package (PythonInterp)
