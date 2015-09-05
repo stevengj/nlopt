@@ -281,3 +281,18 @@ endif ()
 
 enable_testing ()
 add_subdirectory (test)
+
+set (CPACK_PACKAGE_NAME          "${CMAKE_PROJECT_NAME}")
+set (CPACK_PACKAGE_VERSION_MAJOR "${NLOPT_MAJOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_MINOR "${NLOPT_MINOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_PATCH "${NLOPT_BUGFIX_VERSION}")
+set (CPACK_SOURCE_GENERATOR      "TBZ2;TGZ"    )
+set (CPACK_BINARY_STGZ           "OFF"        )
+set (CPACK_BINARY_TBZ2           "ON"         )
+set (CPACK_BINARY_TGZ            "ON"         )
+set (CPACK_BINARY_TZ             "OFF"        )
+set (CPACK_SOURCE_IGNORE_FILES ".git;/build;.*~;${CPACK_SOURCE_IGNORE_FILES}")
+
+set (CPACK_SOURCE_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${NLOPT_VERSION_STRING})
+
+include (CPack)
