@@ -1508,7 +1508,7 @@ L130:
   
 /* This pragma fixes a known problem compiling with VS2013 or VS2015 in Release */
 /* see https://connect.microsoft.com/VisualStudio/feedback/details/1028781/c1001-on-release-build */
-#if defined(_MSC_VER) && (_MSC_VER == 1800 || _MSC_VER == 1900)
+#if defined(_MSC_VER) && _MSC_VER >= 1800
   #pragma loop(no_vector)
 #endif
   for (k = 1; k <= i__1; ++k) {
