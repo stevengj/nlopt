@@ -23,10 +23,9 @@ endif
 # Python wrapper
 
 _nlopt_la_SOURCES = nlopt-python.cpp
-_nlopt_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
+_nlopt_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la $(PYTHON_LIBS)
 _nlopt_la_LDFLAGS = -module -version-info @SHARED_VERSION_INFO@
 _nlopt_la_CPPFLAGS = $(PYTHON_INCLUDES) -I$(top_srcdir)/api
-
 if WITH_PYTHON
 python_PYTHON = nlopt.py
 pyexec_LTLIBRARIES = _nlopt.la
