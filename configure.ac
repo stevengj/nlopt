@@ -181,6 +181,7 @@ if test $have_python = yes; then
   fi
   AC_MSG_RESULT([${pinc:-unknown}])
   PYTHON_INCLUDES="$pinc"
+  PYTHON_LIBS=`$PYTHON_CONFIG --libs 2>/dev/null`
   save_CPPFLAGS=$CPPFLAGS
   CPPFLAGS="$CPPFLAGS $PYTHON_INCLUDES"
   AC_CHECK_HEADER([Python.h], [], [AC_MSG_WARN([disabling Python wrappers]) 
@@ -206,6 +207,7 @@ AC_SUBST(GUILE_INSTALL_DIR)
 AC_SUBST(GUILE_CPPFLAGS)
 AC_SUBST(GUILE_LIBS)
 AC_SUBST(PYTHON_INCLUDES)
+AC_SUBST(PYTHON_LIBS)
 AM_CONDITIONAL(WITH_GUILE, test x"$GUILE_CONFIG" != "xunknown")
 AM_CONDITIONAL(WITH_PYTHON, test x"$have_python" = "xyes")
 
