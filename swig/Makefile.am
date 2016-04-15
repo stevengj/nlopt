@@ -9,7 +9,7 @@ HDR = $(top_srcdir)/api/nlopt.hpp
 # Guile wrapper
 
 libnlopt@NLOPT_SUFFIX@_guile_la_SOURCES = nlopt-guile.cpp
-libnlopt@NLOPT_SUFFIX@_guile_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la
+libnlopt@NLOPT_SUFFIX@_guile_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la @GUILE_LIBS@
 libnlopt@NLOPT_SUFFIX@_guile_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 libnlopt@NLOPT_SUFFIX@_guile_la_CPPFLAGS = $(GUILE_CPPFLAGS) -I$(top_srcdir)/api
 
@@ -23,7 +23,7 @@ endif
 # Python wrapper
 
 _nlopt_la_SOURCES = nlopt-python.cpp
-_nlopt_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la $(PYTHON_LIBS)
+_nlopt_la_LIBADD = ../libnlopt@NLOPT_SUFFIX@.la @PYTHON_LIBS@
 _nlopt_la_LDFLAGS = -module -version-info @SHARED_VERSION_INFO@
 _nlopt_la_CPPFLAGS = $(PYTHON_INCLUDES) -I$(top_srcdir)/api
 if WITH_PYTHON
