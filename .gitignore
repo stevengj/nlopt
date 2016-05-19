@@ -27,6 +27,7 @@ mingw32
 mingw64
 
 # executables
+octave/dummy
 test/testopt
 util/redblack_test
 
