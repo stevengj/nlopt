@@ -20,6 +20,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckTypeSize)
+INCLUDE(GNUInstallDirs)
 
 
 #==============================================================================
@@ -155,7 +156,7 @@ if (BUILD_SHARED_LIBS)
   endif ()
 endif ()
 
-INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
+INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
 
 ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
 
@@ -172,9 +173,9 @@ IF (_VERSION_INFO_LINE)
 ENDIF ()
 
 INSTALL ( TARGETS nlopt
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib${LIB_SUFFIX}
-          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
 add_subdirectory (swig)
