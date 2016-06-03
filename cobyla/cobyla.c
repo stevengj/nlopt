@@ -1505,6 +1505,7 @@ L130:
 /* new value of ZDOTA(NACT) and branch if it is not acceptable. */
 
   i__1 = nact;
+  #pragma loop(no_vector)
   for (k = 1; k <= i__1; ++k) {
     d__1 = 0., d__2 = vmultc[k] - ratio * vmultd[k];
     vmultc[k] = MAX2(d__1,d__2);
