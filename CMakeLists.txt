@@ -20,6 +20,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckTypeSize)
+INCLUDE(GNUInstallDirs)
 
 
 #==============================================================================
@@ -86,6 +87,56 @@ MESSAGE(STATUS "NLOPT: Version number ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSI
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
 
+#==============================================================================
+# CREATE nlopt.hpp and nlopt.f
+#==============================================================================
+
+FILE(READ ${CMAKE_CURRENT_SOURCE_DIR}/api/nlopt.h NLOPT_H_FILE)
+
+#------------------------------------------------------------------------------
+# CREATE nlopt.hpp
+#------------------------------------------------------------------------------
+
+STRING(REGEX MATCHALL "NLOPT_[LG][DN][_A-Z0-9]*[ = 0]*,*|NLOPT_AUGLAG[_A-Z0-9]*,*|NLOPT_G_MLSL[_A-Z0-9]*,*|NLOPT_NUM_ALGORITHMS,*" NLOPT_H_FILE_ALGORITHMS "${NLOPT_H_FILE}")
+SET(GEN_ENUMS_HERE "  // GEN_ENUMS_HERE\n  enum algorithm {\n")
+FOREACH(NLOPT_H_FILE_ALGORITHM ${NLOPT_H_FILE_ALGORITHMS})
+    STRING(REPLACE "NLOPT_" "" NLOPT_H_FILE_ALGORITHM ${NLOPT_H_FILE_ALGORITHM})
+	SET(GEN_ENUMS_HERE "${GEN_ENUMS_HERE}     ${NLOPT_H_FILE_ALGORITHM}\n")
+ENDFOREACH()
+SET(GEN_ENUMS_HERE "${GEN_ENUMS_HERE}  };\n")
+
+STRING(REGEX MATCHALL "NLOPT_[^LG][A-Z_]* = -*[0-9],*" NLOPT_H_FILE_RESULTS "${NLOPT_H_FILE}")
+SET(GEN_ENUMS_HERE "${GEN_ENUMS_HERE}  enum result {\n")
+FOREACH(NLOPT_H_FILE_RESULT ${NLOPT_H_FILE_RESULTS})
+    STRING(REPLACE "NLOPT_" "" NLOPT_H_FILE_RESULT ${NLOPT_H_FILE_RESULT})
+	SET(GEN_ENUMS_HERE "${GEN_ENUMS_HERE}     ${NLOPT_H_FILE_RESULT}\n")
+ENDFOREACH()
+SET(GEN_ENUMS_HERE "${GEN_ENUMS_HERE}  };\n  // GEN_ENUMS_HERE")
+
+FILE(READ ${CMAKE_CURRENT_SOURCE_DIR}/api/nlopt-in.hpp NLOPT_IN_HPP_FILE)
+STRING(REPLACE "  // GEN_ENUMS_HERE" "${GEN_ENUMS_HERE}" NLOPT_HPP_FILE "${NLOPT_IN_HPP_FILE}")
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp "${NLOPT_HPP_FILE}")
+
+#------------------------------------------------------------------------------
+# CREATE nlopt.f
+#------------------------------------------------------------------------------
+
+STRING(REGEX MATCHALL "NLOPT_[LG][DN][_A-Z0-9]*|NLOPT_AUGLAG[_A-Z0-9]*|NLOPT_G_MLSL[_A-Z0-9]*" NLOPT_H_FILE_ALGORITHMS "${NLOPT_H_FILE}")
+SET(NLOPT_H_FILE_ALGORITHM_INDEX 0)
+FOREACH(NLOPT_H_FILE_ALGORITHM ${NLOPT_H_FILE_ALGORITHMS})
+    SET(NLOPT_F_FILE "${NLOPT_F_FILE}      integer ${NLOPT_H_FILE_ALGORITHM}\n")
+    SET(NLOPT_F_FILE "${NLOPT_F_FILE}      parameter (${NLOPT_H_FILE_ALGORITHM}=${NLOPT_H_FILE_ALGORITHM_INDEX})\n")
+    MATH(EXPR NLOPT_H_FILE_ALGORITHM_INDEX "${NLOPT_H_FILE_ALGORITHM_INDEX} + 1")
+ENDFOREACH()
+
+STRING(REGEX MATCHALL "NLOPT_[^LG][A-Z_]* = -*[0-9]" NLOPT_H_FILE_RESULTS "${NLOPT_H_FILE}")
+FOREACH(NLOPT_H_FILE_RESULT ${NLOPT_H_FILE_RESULTS})
+	STRING(REGEX MATCH "(NLOPT_[^LG][A-Z_]*) = (-*[0-9])" NLOPT_H_FILE_RESULT_MATCH ${NLOPT_H_FILE_RESULT})
+    SET(NLOPT_F_FILE "${NLOPT_F_FILE}      integer ${CMAKE_MATCH_1}\n")
+    SET(NLOPT_F_FILE "${NLOPT_F_FILE}      parameter (${CMAKE_MATCH_1}=${CMAKE_MATCH_2})\n")
+ENDFOREACH()
+
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.f "${NLOPT_F_FILE}")
 
 #==============================================================================
 # INCLUDE DIRECTORIES
@@ -119,7 +170,7 @@ INCLUDE_DIRECTORIES (
 #==============================================================================
 
 SET ( NLOPT_HEADERS 
-  api/nlopt.h api/nlopt.hpp api/nlopt.f
+  api/nlopt.h ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.hpp ${CMAKE_CURRENT_BINARY_DIR}/api/nlopt.f
 )
 
 SET ( NLOPT_SOURCES   
@@ -155,7 +206,7 @@ if (BUILD_SHARED_LIBS)
   endif ()
 endif ()
 
-INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
+INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
 
 ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
 
@@ -172,9 +223,9 @@ IF (_VERSION_INFO_LINE)
 ENDIF ()
 
 INSTALL ( TARGETS nlopt
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib${LIB_SUFFIX}
-          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
 add_subdirectory (swig)
