@@ -248,7 +248,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      nlopt_opt opt = NULL;
 
      /* [x, fval, exitflag, output] = nlopt_optimize(opt, x0) */
-     CHECK(nrhs == 2 && nlhs <= 4, "wrong number of arguments");
+     if (nrhs == 0 && nlhs == 0) {
+     	for (j = 0; j < NLOPT_NUM_ALGORITHMS; ++j)
+     		mexPrintf("%2d = %s\n", j,
+     			nlopt_algorithm_name((nlopt_algorithm) j));
+     	return;
+     }
+     else
+     	CHECK(nrhs == 2 && nlhs <= 4, "wrong number of arguments");
 
      /* x0 */
      CHECK(mxIsDouble(prhs[1]) && !mxIsComplex(prhs[1])
