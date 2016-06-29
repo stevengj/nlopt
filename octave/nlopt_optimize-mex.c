@@ -262,6 +262,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      opt = make_opt(prhs[0], n);
      CHECK(opt, "error initializing nlopt options");
 
+     /* random seed */
+     if (struct_val(prhs[0], "seed", -1) >= 0)
+	   nlopt_srand((unsigned long) struct_val(prhs[0], "seed", 0));
+
      /* objective function */
      mx = struct_funcval(prhs[0], "min_objective");
      if (!mx) mx = struct_funcval(prhs[0], "max_objective");
