@@ -43,6 +43,9 @@ typedef struct user_function_data_s {
     nlopt_opt opt;
 } user_function_data;
 
+static const char *output_fields[] = {
+    "algorithm", "funcCount", "iterations", "message"};
+
 static double struct_val(const mxArray *s, const char *name, double dflt)
 {
      mxArray *val = mxGetField(s, 0, name);
@@ -217,6 +220,24 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
      return opt;
 }
 
+static const char *translate_result(nlopt_result ret)
+{
+    switch (ret) {
+        case NLOPT_FAILURE: return "NLOPT_FAILURE";
+        case NLOPT_INVALID_ARGS: return "NLOPT_INVALID_ARGS";
+        case NLOPT_OUT_OF_MEMORY: return "NLOPT_OUT_OF_MEMORY";
+        case NLOPT_ROUNDOFF_LIMITED: return "NLOPT_ROUNDOFF_LIMITED";
+        case NLOPT_FORCED_STOP: return "NLOPT_FORCED_STOP";
+        case NLOPT_SUCCESS: return "NLOPT_SUCCESS";
+        case NLOPT_STOPVAL_REACHED: return "NLOPT_STOPVAL_REACHED";
+        case NLOPT_FTOL_REACHED: return "NLOPT_FTOL_REACHED";
+        case NLOPT_XTOL_REACHED: return "NLOPT_XTOL_REACHED";
+        case NLOPT_MAXEVAL_REACHED: return "NLOPT_MAXEVAL_REACHED";
+        case NLOPT_MAXTIME_REACHED: return "NLOPT_MAXTIME_REACHED";
+        default: return "";
+    }
+}
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
      unsigned n, j, m;
@@ -226,8 +247,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      user_function_data d, dpre, *dfc = NULL, *dh = NULL;
      nlopt_opt opt = NULL;
 
-     /* [x, fval, exitflag] = nlopt_optimize(opt, x0) */
-     CHECK(nrhs == 2 && nlhs <= 3, "wrong number of arguments");
+     /* [x, fval, exitflag, output] = nlopt_optimize(opt, x0) */
+     CHECK(nrhs == 2 && nlhs <= 4, "wrong number of arguments");
 
      /* x0 */
      CHECK(mxIsDouble(prhs[1]) && !mxIsComplex(prhs[1])
@@ -368,6 +389,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      /* assign ouput arguments */
      if (nlhs > 1) plhs[1] = mxCreateDoubleScalar(opt_f);
      if (nlhs > 2) plhs[2] = mxCreateDoubleScalar((int) ret);
+     if (nlhs > 3) {
+         plhs[3] = mxCreateStructMatrix(1, 1, 4, output_fields);
+         mxSetField(plhs[3], 0, "algorithm",
+             mxCreateString(nlopt_algorithm_name(nlopt_get_algorithm(opt))));
+         /* TODO: also separately return neval from: pre, fc, h, c, ceq */
+         mxSetField(plhs[3], 0, "funcCount", mxCreateDoubleScalar(d.neval));
+         /* TODO: is there a way to get number of iterations? */
+         /*mxSetField(plhs[3], 0, "iterations", mxCreateDoubleScalar(0));*/
+         mxSetField(plhs[3], 0, "message",
+             mxCreateString(translate_result(ret)));
+     }
 
      /* cleanup */
      mxFree(dh);
