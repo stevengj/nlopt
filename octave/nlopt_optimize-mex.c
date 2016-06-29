@@ -29,7 +29,7 @@
 #include "nlopt.h"
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
-#define CHECK1(cond, msg) if (!(cond)) { mxFree(tmp); nlopt_destroy(opt); nlopt_destroy(local_opt); mexWarnMsgTxt(msg); return NULL; };
+#define CHECK1(cond, msg) if (!(cond)) { nlopt_destroy(opt); mexWarnMsgTxt(msg); return NULL; };
 #define CHECK(cond, msg) if (!(cond)) { mxFree(dh); mxFree(dfc); nlopt_destroy(opt); mexErrMsgTxt(msg); }
 
 #define NAMELENGTHMAX 64 /* TMW_NAME_LENGTH_MAX: max length of varname */
@@ -87,13 +87,6 @@ static mxArray *cell_funcval(const mxArray *c, unsigned i)
 	  return val;
      }
      return NULL;
-}
-
-static double *fill(double *arr, unsigned n, double val)
-{
-     unsigned i;
-     for (i = 0; i < n; ++i) arr[i] = val;
-     return arr;
 }
 
 static double user_function(unsigned n, const double *x,
@@ -175,25 +168,30 @@ static nlopt_opt make_opt(const mxArray *opts, unsigned n)
      opt = nlopt_create(algorithm, n);
      CHECK1(opt, "nlopt: out of memory");
 
-     tmp = (double *) mxCalloc(n, sizeof(double));
-
      /* bound constraints */
-     fill(tmp, n, -HUGE_VAL);
-     nlopt_set_lower_bounds(opt, struct_arrval(opts, "lower_bounds", n, tmp));
-     fill(tmp, n, +HUGE_VAL);
-     nlopt_set_upper_bounds(opt, struct_arrval(opts, "upper_bounds", n, tmp));
+     tmp = struct_arrval(opts, "lower_bounds", n, NULL);
+     if (tmp)
+         nlopt_set_lower_bounds(opt, tmp);
+     else
+         nlopt_set_lower_bounds1(opt, -HUGE_VAL);
+     tmp = struct_arrval(opts, "upper_bounds", n, NULL);
+     if (tmp)
+         nlopt_set_upper_bounds(opt, tmp);
+     else
+         nlopt_set_upper_bounds1(opt, +HUGE_VAL);
 
      /* stopping criteria */
-     fill(tmp, n, 0.0);
      nlopt_set_stopval(opt, struct_val(opts, "stopval", -HUGE_VAL));
      nlopt_set_ftol_rel(opt, struct_val(opts, "ftol_rel", 0.0));
      nlopt_set_ftol_abs(opt, struct_val(opts, "ftol_abs", 0.0));
      nlopt_set_xtol_rel(opt, struct_val(opts, "xtol_rel", 0.0));
-     nlopt_set_xtol_abs(opt, struct_arrval(opts, "xtol_abs", n, tmp));
+     tmp = struct_arrval(opts, "xtol_abs", n, NULL);
+     if (tmp)
+         nlopt_set_xtol_abs(opt, tmp);
+     else
+         nlopt_set_xtol_abs1(opt, 0.0);
      nlopt_set_maxeval(opt, (int) struct_val(opts, "maxeval", 0));
      nlopt_set_maxtime(opt, struct_val(opts, "maxtime", 0.0));
-
-     mxFree(tmp);
 
      /* stochastic population */
      nlopt_set_population(opt, (unsigned) struct_val(opts, "population", 0));
