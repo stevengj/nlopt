@@ -220,6 +220,57 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
      return opt;
 }
 
+static void debug_opt(const nlopt_opt opt, const double *x)
+{
+    unsigned i, n;
+    int version[3];
+    double *tmp;
+
+    n = nlopt_get_dimension(opt);
+    tmp = (double *) mxCalloc(n, sizeof(double));
+
+    nlopt_version(version+0, version+1, version+2);
+    mexPrintf("NLOpt v%d.%d.%d\n", version[0], version[1], version[2]);
+
+    mexPrintf(" dimension = %u\n", n);
+
+    mexPrintf(" algorithm = %s\n",
+        nlopt_algorithm_name(nlopt_get_algorithm(opt)));
+
+    nlopt_get_lower_bounds(opt, tmp);
+    mexPrintf(" lower_bounds = [");
+    for (i = 0; i < n; ++i) mexPrintf("%g, ", tmp[i]);
+    mexPrintf("]\n");
+
+    nlopt_get_upper_bounds(opt, tmp);
+    mexPrintf(" upper_bounds = [");
+    for (i = 0; i < n; ++i) mexPrintf("%g, ", tmp[i]);
+    mexPrintf("]\n");
+
+    mexPrintf(" stopval = %g\n", nlopt_get_stopval(opt));
+    mexPrintf(" ftol_rel = %g\n", nlopt_get_ftol_rel(opt));
+    mexPrintf(" ftol_abs = %g\n", nlopt_get_ftol_abs(opt));
+    mexPrintf(" xtol_rel = %g\n", nlopt_get_xtol_rel(opt));
+
+    nlopt_get_xtol_abs(opt, tmp);
+    mexPrintf(" xtol_abs = [");
+    for (i = 0; i < n; ++i) mexPrintf("%g, ", tmp[i]);
+    mexPrintf("]\n");
+
+    mexPrintf(" maxeval = %d\n", nlopt_get_maxeval(opt));
+    mexPrintf(" maxtime = %g\n", nlopt_get_maxtime(opt));
+
+    nlopt_get_initial_step(opt, x, tmp);
+    mexPrintf(" initial_step = [");
+    for (i = 0; i < n; ++i) mexPrintf("%g, ", tmp[i]);
+    mexPrintf("]\n");
+
+    mexPrintf(" population = %u\n", nlopt_get_population(opt));
+    mexPrintf(" vector_storage = %u\n", nlopt_get_vector_storage(opt));
+
+    mxFree(tmp);
+}
+
 static const char *translate_result(nlopt_result ret)
 {
     switch (ret) {
@@ -395,6 +446,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      x = mxGetPr(plhs[0]);
 
      /* optimize */
+     if (d.verbose > 3) debug_opt(opt, x);
      ret = nlopt_optimize(opt, x, &opt_f);
 
      /* assign ouput arguments */
