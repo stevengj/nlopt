@@ -152,66 +152,66 @@ static void user_pre(unsigned n, const double *x, const double *v,
   if (d->verbose) mexPrintf("nlopt_optimize precond eval #%d\n", d->neval);
 }
 
-static nlopt_opt make_opt(const mxArray *opts, unsigned n)
+static nlopt_opt make_opt(const mxArray *s, unsigned n)
 {
-     nlopt_opt opt = NULL, local_opt = NULL;
-     nlopt_algorithm algorithm;
-     double *tmp = NULL;
+     nlopt_opt opt = NULL;
+     nlopt_algorithm alg;
+     double *tmp;
+     const mxArray *s_local;
 
      /* algorithm */
-     algorithm = (nlopt_algorithm)
-	  struct_val(opts, "algorithm", NLOPT_NUM_ALGORITHMS);
-     CHECK1(((int)algorithm) >= 0 && algorithm < NLOPT_NUM_ALGORITHMS,
-	    "invalid opt.algorithm");
+     alg = (nlopt_algorithm) struct_val(s, "algorithm", NLOPT_NUM_ALGORITHMS);
+     CHECK1(alg >= 0 && alg < NLOPT_NUM_ALGORITHMS, "invalid opt.algorithm");
 
      /* create object */
-     opt = nlopt_create(algorithm, n);
+     opt = nlopt_create(alg, n);
      CHECK1(opt, "nlopt: out of memory");
 
      /* bound constraints */
-     tmp = struct_arrval(opts, "lower_bounds", n, NULL);
+     tmp = struct_arrval(s, "lower_bounds", n, NULL);
      if (tmp)
          nlopt_set_lower_bounds(opt, tmp);
      else
          nlopt_set_lower_bounds1(opt, -HUGE_VAL);
-     tmp = struct_arrval(opts, "upper_bounds", n, NULL);
+     tmp = struct_arrval(s, "upper_bounds", n, NULL);
      if (tmp)
          nlopt_set_upper_bounds(opt, tmp);
      else
          nlopt_set_upper_bounds1(opt, +HUGE_VAL);
 
      /* stopping criteria */
-     nlopt_set_stopval(opt, struct_val(opts, "stopval", -HUGE_VAL));
-     nlopt_set_ftol_rel(opt, struct_val(opts, "ftol_rel", 0.0));
-     nlopt_set_ftol_abs(opt, struct_val(opts, "ftol_abs", 0.0));
-     nlopt_set_xtol_rel(opt, struct_val(opts, "xtol_rel", 0.0));
-     tmp = struct_arrval(opts, "xtol_abs", n, NULL);
+     nlopt_set_stopval(opt, struct_val(s, "stopval", -HUGE_VAL));
+     nlopt_set_ftol_rel(opt, struct_val(s, "ftol_rel", 0.0));
+     nlopt_set_ftol_abs(opt, struct_val(s, "ftol_abs", 0.0));
+     nlopt_set_xtol_rel(opt, struct_val(s, "xtol_rel", 0.0));
+     tmp = struct_arrval(s, "xtol_abs", n, NULL);
      if (tmp)
          nlopt_set_xtol_abs(opt, tmp);
      else
          nlopt_set_xtol_abs1(opt, 0.0);
-     nlopt_set_maxeval(opt, (int) struct_val(opts, "maxeval", 0));
-     nlopt_set_maxtime(opt, struct_val(opts, "maxtime", 0.0));
+     nlopt_set_maxeval(opt, (int) struct_val(s, "maxeval", 0));
+     nlopt_set_maxtime(opt, struct_val(s, "maxtime", 0.0));
 
      /* stochastic population */
-     nlopt_set_population(opt, (unsigned) struct_val(opts, "population", 0));
+     nlopt_set_population(opt, (unsigned) struct_val(s, "population", 0));
 
      /* vector storage */
      nlopt_set_vector_storage(opt,
-     	(unsigned) struct_val(opts, "vector_storage", 0));
+     	(unsigned) struct_val(s, "vector_storage", 0));
 
      /* initial step size */
-	 nlopt_set_initial_step(opt, struct_arrval(opts, "initial_step", n, NULL));
+	 nlopt_set_initial_step(opt, struct_arrval(s, "initial_step", n, NULL));
 
      /* local optimization algorithm */
-     if (mxGetField(opts, 0, "local_optimizer")) {
-	  const mxArray *local_opts = mxGetField(opts, 0, "local_optimizer");
-	  CHECK1(mxIsStruct(local_opts) && mxIsScalar(local_opts),
+	 s_local = mxGetField(s, 0, "local_optimizer");
+     if (s_local) {
+	  nlopt_opt opt_local = NULL;
+	  CHECK1(mxIsStruct(s_local) && mxIsScalar(s_local),
 		 "opt.local_optimizer must be a structure");
-	  local_opt = make_opt(local_opts, n);
-	  CHECK1(local_opt, "error initializing local optimizer");
-	  nlopt_set_local_optimizer(opt, local_opt);
-	  nlopt_destroy(local_opt);
+	  opt_local = make_opt(s_local, n);
+	  CHECK1(opt_local, "error initializing local optimizer");
+	  nlopt_set_local_optimizer(opt, opt_local);
+	  nlopt_destroy(opt_local);
      }
 
      return opt;
@@ -241,10 +241,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      opt = make_opt(prhs[0], n);
      CHECK(opt, "error initializing nlopt options");
 
-     d.verbose = (int) struct_val(prhs[0], "verbose", 0);
-     d.neval = 0;
-     d.opt = opt;
-
      /* objective function */
      mx = struct_funcval(prhs[0], "min_objective");
      if (!mx) mx = struct_funcval(prhs[0], "max_objective");
@@ -261,6 +257,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  d.nrhs = 2;
 	  d.xrhs = 1;
      }
+     d.verbose = (int) struct_val(prhs[0], "verbose", 0);
+     d.neval = 0;
+     d.opt = opt;
      d.prhs[d.xrhs] = mxCreateDoubleMatrix(1, n, mxREAL);
 
      /* preconditioned objective function */
