@@ -263,7 +263,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	  dpre.opt = opt;
 	  dpre.neval = 0;
 	  dpre.prhs[dpre.xrhs] = d.prhs[d.xrhs];
-	  dpre.prhs[d.xrhs+1] = mxCreateDoubleMatrix(1, n, mxREAL);
+	  dpre.prhs[dpre.xrhs+1] = mxCreateDoubleMatrix(1, n, mxREAL);
 	  d.dpre = &dpre;
 
 	  if (struct_funcval(prhs[0], "min_objective"))
@@ -362,7 +362,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
      mxFree(dh);
      mxFree(dfc);
      mxDestroyArray(d.prhs[d.xrhs]);
-     if (dpre.nrhs > 0) mxDestroyArray(dpre.prhs[d.xrhs+1]);
+     if (dpre.nrhs > 0) mxDestroyArray(dpre.prhs[dpre.xrhs+1]);
      nlopt_destroy(opt);
 
      plhs[0] = x_mx;
