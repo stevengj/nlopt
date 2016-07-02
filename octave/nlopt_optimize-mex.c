@@ -166,6 +166,16 @@ static double arr_max(const double *x, unsigned n)
 	return mx;
 }
 
+static bool arr_all_isnan(const double *x, unsigned n)
+{
+	unsigned i;
+	for (i = 0; i < n; ++i) {
+		if (!mxIsNaN(x[i]))
+			return false;
+	}
+	return true;
+}
+
 static double user_function(unsigned n, const double *x,
 			    double *grad, void *data)
 {
@@ -245,6 +255,7 @@ static void user_mfunction(unsigned m, double *result,
 		mexPrintf("%13s eval #%-3d: max(c(x)) = %12g\n",
 			d->type, d->neval, arr_max(result,m));
 	}
+	if (arr_all_isnan(result, m)) nlopt_force_stop(d->opt);
 }
 
 static void user_pre(unsigned n, const double *x, const double *v,
