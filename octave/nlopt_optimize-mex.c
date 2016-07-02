@@ -89,6 +89,14 @@ static bool mx_isvector_len(const mxArray *arr, unsigned n)
     return (mx_isvector(arr) && mxGetNumberOfElements(arr) == n);
 }
 
+static bool mx_ismatrix_len(const mxArray *arr, unsigned r, unsigned c)
+{
+    return (arr && mxIsDouble(arr) && !mxIsComplex(arr) && !mxIsSparse(arr) &&
+        mxGetNumberOfDimensions(arr) == 2 &&
+        mxGetNumberOfElements(arr) == r*c &&
+        mxGetM(arr) == r && mxGetN(arr) == c);
+}
+
 static bool mx_isfunction(const mxArray *arr)
 {
     return arr && (mxIsFunctionHandle(arr) || (mxIsChar(arr) &&
@@ -154,6 +162,17 @@ static double arr_norm_inf(const double *x, unsigned n)
 	return mx;
 }
 
+static double arr_max(const double *x, unsigned n)
+{
+	unsigned i;
+	double mx = -HUGE_VAL;
+	for (i = 0; i < n; ++i) {
+		if (x[i] > mx)
+			mx = x[i];
+	}
+	return mx;
+}
+
 static double user_function(unsigned n, const double *x,
 			    double *grad, void *data)
 {
@@ -191,6 +210,48 @@ static double user_function(unsigned n, const double *x,
   }
   if (mxIsNaN(f)) nlopt_force_stop(d->opt);
   return f;
+}
+
+static void user_mfunction(unsigned m, double *result,
+		       unsigned n, const double *x, double *grad, void *data)
+{
+	user_function_data *d = (user_function_data *) data;
+
+	/* x */
+	memcpy(mxGetPr(d->prhs[d->xrhs]), x, n * sizeof(double));
+
+	/* [result, grad] = feval(conFunc, x) */
+	d->plhs[0] = d->plhs[1] = NULL;
+	if (mexCallMATLAB(grad ? 2 : 1, d->plhs, d->nrhs, d->prhs, d->func) != 0)
+		mexErrMsgIdAndTxt(ERRID,
+			"error calling %s constraint function", d->type);
+
+	/* result */
+	if (!mx_isvector_len(d->plhs[0], m))
+		mexErrMsgIdAndTxt(ERRID,
+			"%s constraint function must return a vector of length %u",
+			d->type, m);
+	memcpy(result, mxGetPr(d->plhs[0]), m * sizeof(double));
+	mxDestroyArray(d->plhs[0]);
+
+	/* grad */
+	/* NOTE: MATLAB arrays are column-major while C is row-major, so we ask
+		the user function to return a transposed jacobian matrix n-by-m,
+		so that memcpy() works directly. */
+	if (grad) {
+		if (!mx_ismatrix_len(d->plhs[1], n, m))
+			mexErrMsgIdAndTxt(ERRID,
+				"%s constraint function must return a jacobian matrix of size (%u,%u)",
+				d->type, n, m);
+		memcpy(grad, mxGetPr(d->plhs[1]), n * m * sizeof(double));
+		mxDestroyArray(d->plhs[1]);
+	}
+
+	d->neval++;
+	if (d->verbose) {
+		mexPrintf("%13s eval #%-3d: max(c(x)) = %12g\n",
+			d->type, d->neval, arr_max(result,m));
+	}
 }
 
 static void user_pre(unsigned n, const double *x, const double *v,
@@ -381,7 +442,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      double *x, opt_f, *tol;
      nlopt_result ret;
      mxArray *mx;
-     user_function_data d, dpre, *dfc = NULL, *dh = NULL;
+     user_function_data d = {0}, dpre = {0}, dc = {0}, dceq = {0},
+         *dfc = NULL, *dh = NULL;
      nlopt_opt opt = NULL;
      bool ismin;
 
@@ -530,6 +592,66 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		     tol ? tol[j] : 0.0);
 	       CHECK3(ret, "error adding equality constraint opt.h");
 	  }
+     }
+
+     /* vector-valued nonlinear inequality constraints */
+     mx = struct_funcval(prhs[0], "c");
+     if (mx) {
+        const mxArray *mx_tol = mxGetField(prhs[0], 0, "c_tol");
+        CHECK2(mx_tol && mx_isvector(mx_tol),
+            "opt.c_tol must be a real vector of length m (dim of opt.c)");
+        m = (unsigned) mxGetNumberOfElements(mx_tol);
+        tol = mxGetPr(mx_tol);
+        if (mxIsChar(mx)) {
+            CHECK2(mxGetString(mx, dc.func, NAMELENGTHMAX) == 0,
+                "error reading function name string from opt.c");
+            dc.nrhs = 1;
+            dc.xrhs = 0;
+        }
+        else {
+            dc.prhs[0] = mx;
+            strcpy(dc.func, "feval");
+            dc.nrhs = 2;
+            dc.xrhs = 1;
+        }
+        dc.verbose = d.verbose > 1;
+        dc.neval = 0;
+        dc.opt = opt;
+        dc.prhs[dc.xrhs] = d.prhs[d.xrhs];
+        strcpy(dc.type, "c");
+        ret = nlopt_add_inequality_mconstraint(
+            opt, m, user_mfunction, &dc, tol);
+        CHECK3(ret, "error adding vector-valued inequality constraint opt.c");
+     }
+
+     /* vector-valued nonlinear equality constraints */
+     mx = struct_funcval(prhs[0], "ceq");
+     if (mx) {
+        const mxArray *mx_tol = mxGetField(prhs[0], 0, "ceq_tol");
+        CHECK2(mx_tol && mx_isvector(mx_tol),
+            "opt.ceq_tol must be a real vector of length m (dim of opt.c)");
+        m = (unsigned) mxGetNumberOfElements(mx_tol);
+        tol = mxGetPr(mx_tol);
+        if (mxIsChar(mx)) {
+            CHECK2(mxGetString(mx, dceq.func, NAMELENGTHMAX) == 0,
+                "error reading function name string from opt.ceq");
+            dceq.nrhs = 1;
+            dceq.xrhs = 0;
+        }
+        else {
+            dceq.prhs[0] = mx;
+            strcpy(dceq.func, "feval");
+            dceq.nrhs = 2;
+            dceq.xrhs = 1;
+        }
+        dceq.verbose = d.verbose > 1;
+        dceq.neval = 0;
+        dceq.opt = opt;
+        dceq.prhs[dceq.xrhs] = d.prhs[d.xrhs];
+        strcpy(dceq.type, "ceq");
+        ret = nlopt_add_equality_mconstraint(
+            opt, m, user_mfunction, &dceq, tol);
+        CHECK3(ret, "error adding vector-valued equality constraint opt.ceq");
      }
 
      /* x = x0 */
