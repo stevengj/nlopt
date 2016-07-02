@@ -29,10 +29,34 @@
 #include "nlopt.h"
 
 #define ERRID "nlopt:error"
-#define CHECK1(cond, msg) if (!(cond)) { nlopt_destroy(opt); mexWarnMsgTxt(msg); return NULL; };
-#define CHECK(cond, msg) if (!(cond)) { mxFree(dh); mxFree(dfc); nlopt_destroy(opt); mexErrMsgIdAndTxt(ERRID, msg); }
 
+#define CHECK1(cond, msg)               \
+    if (!(cond)) {                      \
+        nlopt_destroy(opt);             \
+        mexWarnMsgIdAndTxt(ERRID, msg); \
+        return NULL;                    \
+    }
+
+#define CHECK2(cond, msg)              \
+    if (!(cond)) {                     \
+        mxFree(dh);                    \
+        mxFree(dfc);                   \
+        nlopt_destroy(opt);            \
+        mexErrMsgIdAndTxt(ERRID, msg); \
+    }
+
+#define CHECK3(ret, msg)                          \
+    if ((ret) != NLOPT_SUCCESS) {                 \
+        const char *buf = ret_msg(ret, opt, msg); \
+        mxFree(dh);                               \
+        mxFree(dfc);                              \
+        nlopt_destroy(opt);                       \
+        mexErrMsgIdAndTxt(ERRID, buf);            \
+    }
+
+#define BUFSIZE 256      /* length of buffer used for error messages */
 #define NAMELENGTHMAX 64 /* TMW_NAME_LENGTH_MAX: max length of varname */
+
 typedef struct user_function_data_s {
     char func[NAMELENGTHMAX];
     char type[NAMELENGTHMAX];
@@ -49,13 +73,13 @@ static const char *output_fields[] = {
 
 static bool mx_isscalar(const mxArray *arr)
 {
-    return (mxIsDouble(arr) && !mxIsComplex(arr) && !mxIsSparse(arr) &&
+    return (arr && mxIsDouble(arr) && !mxIsComplex(arr) && !mxIsSparse(arr) &&
         mxIsScalar(arr));
 }
 
 static bool mx_isvector(const mxArray *arr)
 {
-    return (mxIsDouble(arr) && !mxIsComplex(arr) && !mxIsSparse(arr) &&
+    return (arr && mxIsDouble(arr) && !mxIsComplex(arr) && !mxIsSparse(arr) &&
         mxGetNumberOfDimensions(arr) == 2 &&
         (mxGetM(arr) == 1 || mxGetN(arr) == 1));
 }
@@ -67,7 +91,7 @@ static bool mx_isvector_len(const mxArray *arr, unsigned n)
 
 static bool mx_isfunction(const mxArray *arr)
 {
-    return (mxIsFunctionHandle(arr) || (mxIsChar(arr) &&
+    return arr && (mxIsFunctionHandle(arr) || (mxIsChar(arr) &&
         mxGetNumberOfDimensions(arr) == 2 && mxGetM(arr) == 1));
 }
 
@@ -198,6 +222,7 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
 {
      nlopt_opt opt = NULL;
      nlopt_algorithm alg;
+     nlopt_result ret;
      double *tmp;
      const mxArray *s_local;
 
@@ -213,38 +238,46 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
 
      /* bound constraints */
      tmp = struct_arrval(s, "lower_bounds", n, NULL);
-     if (tmp)
-         nlopt_set_lower_bounds(opt, tmp);
-     else
+     ret = (tmp) ? nlopt_set_lower_bounds(opt, tmp) :
          nlopt_set_lower_bounds1(opt, -HUGE_VAL);
+     CHECK1(ret, "error setting opt.lower_bounds");
      tmp = struct_arrval(s, "upper_bounds", n, NULL);
-     if (tmp)
-         nlopt_set_upper_bounds(opt, tmp);
-     else
+     ret = (tmp) ? nlopt_set_upper_bounds(opt, tmp) :
          nlopt_set_upper_bounds1(opt, +HUGE_VAL);
+     CHECK1(ret, "error setting opt.upper_bounds");
 
      /* stopping criteria */
-     nlopt_set_stopval(opt, struct_val(s, "stopval", -HUGE_VAL));
-     nlopt_set_ftol_rel(opt, struct_val(s, "ftol_rel", 0.0));
-     nlopt_set_ftol_abs(opt, struct_val(s, "ftol_abs", 0.0));
-     nlopt_set_xtol_rel(opt, struct_val(s, "xtol_rel", 0.0));
+     ret = nlopt_set_stopval(opt, struct_val(s, "stopval", -HUGE_VAL));
+     CHECK1(ret, "error setting opt.stopval");
+     ret = nlopt_set_ftol_rel(opt, struct_val(s, "ftol_rel", 0.0));
+     CHECK1(ret, "error setting opt.ftol_rel");
+     ret = nlopt_set_ftol_abs(opt, struct_val(s, "ftol_abs", 0.0));
+     CHECK1(ret, "error setting opt.ftol_abs");
+     ret = nlopt_set_xtol_rel(opt, struct_val(s, "xtol_rel", 0.0));
+     CHECK1(ret, "error setting opt.xtol_rel");
      tmp = struct_arrval(s, "xtol_abs", n, NULL);
-     if (tmp)
-         nlopt_set_xtol_abs(opt, tmp);
-     else
+     ret = (tmp) ? nlopt_set_xtol_abs(opt, tmp) :
          nlopt_set_xtol_abs1(opt, 0.0);
-     nlopt_set_maxeval(opt, (int) struct_val(s, "maxeval", 0));
-     nlopt_set_maxtime(opt, struct_val(s, "maxtime", 0.0));
+     CHECK1(ret, "error setting opt.xtol_abs");
+     ret = nlopt_set_maxeval(opt, (int) struct_val(s, "maxeval", 0));
+     CHECK1(ret, "error setting opt.maxeval");
+     ret = nlopt_set_maxtime(opt, struct_val(s, "maxtime", 0.0));
+     CHECK1(ret, "error setting opt.maxtime");
 
      /* stochastic population */
-     nlopt_set_population(opt, (unsigned) struct_val(s, "population", 0));
+     ret = nlopt_set_population(opt,
+    	(unsigned) struct_val(s, "population", 0));
+     CHECK1(ret, "error setting opt.population");
 
      /* vector storage */
-     nlopt_set_vector_storage(opt,
-     	(unsigned) struct_val(s, "vector_storage", 0));
+     ret = nlopt_set_vector_storage(opt,
+         (unsigned) struct_val(s, "vector_storage", 0));
+     CHECK1(ret, "error setting opt.vector_storage");
 
      /* initial step size */
-	 nlopt_set_initial_step(opt, struct_arrval(s, "initial_step", n, NULL));
+     ret = nlopt_set_initial_step(opt,
+         struct_arrval(s, "initial_step", n, NULL));
+     CHECK1(ret, "error setting opt.initial_step");
 
      /* local optimization algorithm */
 	 s_local = mxGetField(s, 0, "local_optimizer");
@@ -254,8 +287,9 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
 		 "opt.local_optimizer must be a scalar structure");
 	  opt_local = make_opt(s_local, n);
 	  CHECK1(opt_local, "error initializing local optimizer options");
-	  nlopt_set_local_optimizer(opt, opt_local);
+	  ret = nlopt_set_local_optimizer(opt, opt_local);
 	  nlopt_destroy(opt_local);
+	  CHECK1(ret, "error setting opt.local_optimizer");
      }
 
      return opt;
@@ -330,6 +364,17 @@ static const char *translate_result(nlopt_result ret)
     }
 }
 
+static const char *ret_msg(nlopt_result ret, const nlopt_opt opt,
+    const char *msg)
+{
+    static char buffer[BUFSIZE];
+    memset(buffer, 0, BUFSIZE);
+    sprintf(buffer, "%s: %s\n%s", translate_result(ret),
+        (nlopt_get_errmsg(opt) ? nlopt_get_errmsg(opt) : "\b\b"),
+        (msg ? msg : "\b"));
+    return buffer;
+}
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
      unsigned n, j, m;
@@ -370,9 +415,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      mx = struct_funcval(prhs[0], "min_objective");
      ismin = (mx != NULL);
      if (!mx) mx = struct_funcval(prhs[0], "max_objective");
-     CHECK(mx, "opt.(min|max)_objective must be set");
+     CHECK2(mx, "opt.(min|max)_objective must be set");
      if (mxIsChar(mx)) {
-	  CHECK(mxGetString(mx, d.func, NAMELENGTHMAX) == 0,
+	  CHECK2(mxGetString(mx, d.func, NAMELENGTHMAX) == 0,
 		"error reading function name string from opt.(min|max)_objective");
 	  d.nrhs = 1;
 	  d.xrhs = 0;
@@ -393,14 +438,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      mx = struct_funcval(prhs[0], "pre");
      if (!mx) {
 	  dpre.nrhs = 0;  /* indicate no memory allocation */
-	  if (ismin)
-	       nlopt_set_min_objective(opt, user_function, &d);
-	  else
+	  ret = (ismin) ?
+	       nlopt_set_min_objective(opt, user_function, &d) :
 	       nlopt_set_max_objective(opt, user_function, &d);
      }
      else {
 	  if (mxIsChar(mx)) {
-	       CHECK(mxGetString(mx, dpre.func, NAMELENGTHMAX) == 0,
+	       CHECK2(mxGetString(mx, dpre.func, NAMELENGTHMAX) == 0,
                      "error reading function name string from opt.pre");
 	       dpre.nrhs = 2;
 	       dpre.xrhs = 0;
@@ -418,23 +462,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  dpre.prhs[dpre.xrhs+1] = mxCreateDoubleMatrix(1, n, mxREAL);
 	  strcpy(dpre.type, "precond");
 	  d.dpre = &dpre;
-	  if (ismin)
-	       nlopt_set_precond_min_objective(opt, user_function, user_pre, &d);
-	  else
+	  ret = (ismin) ?
+	       nlopt_set_precond_min_objective(opt, user_function, user_pre, &d) :
 	       nlopt_set_precond_max_objective(opt, user_function, user_pre, &d);
      }
+     CHECK3(ret, "error setting objective function");
 
      /* nonlinear inequality constraints */
      mx = mxGetField(prhs[0], 0, "fc");
      if (mx) {
-	  CHECK(mxIsCell(mx), "opt.fc must be a cell array");
+	  CHECK2(mxIsCell(mx), "opt.fc must be a cell array");
 	  m = mxGetNumberOfElements(mx);
 	  dfc = (user_function_data *) mxCalloc(m, sizeof(user_function_data));
 	  tol = struct_arrval(prhs[0], "fc_tol", m, NULL);
 	  for (j = 0; j < m; ++j) {
 	       mxArray *fc = cell_funcval(mx, j);
 	       if (mxIsChar(fc)) {
-		    CHECK(mxGetString(fc, dfc[j].func, NAMELENGTHMAX) == 0,
+		    CHECK2(mxGetString(fc, dfc[j].func, NAMELENGTHMAX) == 0,
 		     "error reading function name string from opt.fc");
 		    dfc[j].nrhs = 1;
 		    dfc[j].xrhs = 0;
@@ -452,22 +496,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       sprintf(dfc[j].type, "fc{%u}", j);
 	       ret = nlopt_add_inequality_constraint(opt, user_function, dfc + j,
 		     tol ? tol[j] : 0.0);
-	       CHECK(ret == NLOPT_SUCCESS,
-		     "error adding inequality constraint opt.fc");
+	       CHECK3(ret, "error adding inequality constraint opt.fc");
 	  }
      }
 
      /* nonlinear equality constraints */
      mx = mxGetField(prhs[0], 0, "h");
      if (mx) {
-	  CHECK(mxIsCell(mx), "opt.h must be a cell array");
+	  CHECK2(mxIsCell(mx), "opt.h must be a cell array");
 	  m = mxGetNumberOfElements(mx);
 	  dh = (user_function_data *) mxCalloc(m, sizeof(user_function_data));
 	  tol = struct_arrval(prhs[0], "h_tol", m, NULL);
 	  for (j = 0; j < m; ++j) {
 	       mxArray *h = cell_funcval(mx, j);
 	       if (mxIsChar(h)) {
-		    CHECK(mxGetString(h, dh[j].func, NAMELENGTHMAX) == 0,
+		    CHECK2(mxGetString(h, dh[j].func, NAMELENGTHMAX) == 0,
 		     "error reading function name string from opt.h");
 		    dh[j].nrhs = 1;
 		    dh[j].xrhs = 0;
@@ -485,8 +528,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       sprintf(dh[j].type, "h{%u}", j);
 	       ret = nlopt_add_equality_constraint(opt, user_function, dh + j,
 		     tol ? tol[j] : 0.0);
-	       CHECK(ret == NLOPT_SUCCESS,
-		     "error adding equality constraint opt.h");
+	       CHECK3(ret, "error adding equality constraint opt.h");
 	  }
      }
 
@@ -510,7 +552,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
          /* TODO: is there a way to get number of iterations? */
          /*mxSetField(plhs[3], 0, "iterations", mxCreateDoubleScalar(0));*/
          mxSetField(plhs[3], 0, "message",
-             mxCreateString(translate_result(ret)));
+            mxCreateString(ret_msg(ret, opt, NULL)));
      }
 
      /* cleanup */
