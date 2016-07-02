@@ -32,26 +32,19 @@
 
 #define CHECK1(cond, msg)               \
     if (!(cond)) {                      \
+        const char *buf = msg;          \
         nlopt_destroy(opt);             \
-        mexWarnMsgIdAndTxt(ERRID, msg); \
+        mexWarnMsgIdAndTxt(ERRID, buf); \
         return NULL;                    \
     }
 
 #define CHECK2(cond, msg)              \
     if (!(cond)) {                     \
+        const char *buf = msg;         \
         mxFree(dh);                    \
         mxFree(dfc);                   \
         nlopt_destroy(opt);            \
-        mexErrMsgIdAndTxt(ERRID, msg); \
-    }
-
-#define CHECK3(ret, msg)                          \
-    if ((ret) != NLOPT_SUCCESS) {                 \
-        const char *buf = ret_msg(ret, opt, msg); \
-        mxFree(dh);                               \
-        mxFree(dfc);                              \
-        nlopt_destroy(opt);                       \
-        mexErrMsgIdAndTxt(ERRID, buf);            \
+        mexErrMsgIdAndTxt(ERRID, buf); \
     }
 
 #define BUFSIZE 256      /* length of buffer used for error messages */
@@ -259,7 +252,7 @@ static void user_pre(unsigned n, const double *x, const double *v,
 {
   user_function_data *d = ((user_function_data *) data)->dpre;
 
-  /* x and v */
+  /* x, v */
   memcpy(mxGetPr(d->prhs[d->xrhs]), x, n * sizeof(double));
   memcpy(mxGetPr(d->prhs[d->xrhs + 1]), v, n * sizeof(double));
 
@@ -279,6 +272,35 @@ static void user_pre(unsigned n, const double *x, const double *v,
   if (d->verbose) mexPrintf("%13s eval #%-3d\n", d->type, d->neval);
 }
 
+static const char *translate_result(nlopt_result ret)
+{
+    switch (ret) {
+        case NLOPT_FAILURE: return "NLOPT_FAILURE";
+        case NLOPT_INVALID_ARGS: return "NLOPT_INVALID_ARGS";
+        case NLOPT_OUT_OF_MEMORY: return "NLOPT_OUT_OF_MEMORY";
+        case NLOPT_ROUNDOFF_LIMITED: return "NLOPT_ROUNDOFF_LIMITED";
+        case NLOPT_FORCED_STOP: return "NLOPT_FORCED_STOP";
+        case NLOPT_SUCCESS: return "NLOPT_SUCCESS";
+        case NLOPT_STOPVAL_REACHED: return "NLOPT_STOPVAL_REACHED";
+        case NLOPT_FTOL_REACHED: return "NLOPT_FTOL_REACHED";
+        case NLOPT_XTOL_REACHED: return "NLOPT_XTOL_REACHED";
+        case NLOPT_MAXEVAL_REACHED: return "NLOPT_MAXEVAL_REACHED";
+        case NLOPT_MAXTIME_REACHED: return "NLOPT_MAXTIME_REACHED";
+        default: return "";
+    }
+}
+
+static const char *ret_msg(nlopt_result ret, const nlopt_opt opt,
+    const char *msg)
+{
+    static char buffer[BUFSIZE];
+    memset(buffer, 0, BUFSIZE);
+    sprintf(buffer, "%s: %s\n%s", translate_result(ret),
+        (nlopt_get_errmsg(opt) ? nlopt_get_errmsg(opt) : "\b\b"),
+        (msg ? msg : "\b"));
+    return buffer;
+}
+
 static nlopt_opt make_opt(const mxArray *s, unsigned n)
 {
      nlopt_opt opt = NULL;
@@ -289,56 +311,66 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
 
      /* algorithm */
      alg = (nlopt_algorithm) struct_val(s, "algorithm", NLOPT_NUM_ALGORITHMS);
-     if (alg < 0 || alg >= NLOPT_NUM_ALGORITHMS)
-	    mexErrMsgIdAndTxt(ERRID, "opt.algorithm is invalid: %d", alg);
+     CHECK1(alg >= 0 && alg < NLOPT_NUM_ALGORITHMS, "opt.algorithm is invalid");
 
      /* create object */
      opt = nlopt_create(alg, n);
-     if (!opt)
-     	mexErrMsgIdAndTxt(ERRID, "error creating nlopt object");
+     CHECK1(opt, "error creating nlopt object");
 
      /* bound constraints */
      tmp = struct_arrval(s, "lower_bounds", n, NULL);
      ret = (tmp) ? nlopt_set_lower_bounds(opt, tmp) :
          nlopt_set_lower_bounds1(opt, -HUGE_VAL);
-     CHECK1(ret, "error setting opt.lower_bounds");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.lower_bounds"));
      tmp = struct_arrval(s, "upper_bounds", n, NULL);
      ret = (tmp) ? nlopt_set_upper_bounds(opt, tmp) :
          nlopt_set_upper_bounds1(opt, +HUGE_VAL);
-     CHECK1(ret, "error setting opt.upper_bounds");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.upper_bounds"));
 
      /* stopping criteria */
      ret = nlopt_set_stopval(opt, struct_val(s, "stopval", -HUGE_VAL));
-     CHECK1(ret, "error setting opt.stopval");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.stopval"));
      ret = nlopt_set_ftol_rel(opt, struct_val(s, "ftol_rel", 0.0));
-     CHECK1(ret, "error setting opt.ftol_rel");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.ftol_rel"));
      ret = nlopt_set_ftol_abs(opt, struct_val(s, "ftol_abs", 0.0));
-     CHECK1(ret, "error setting opt.ftol_abs");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.ftol_abs"));
      ret = nlopt_set_xtol_rel(opt, struct_val(s, "xtol_rel", 0.0));
-     CHECK1(ret, "error setting opt.xtol_rel");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.xtol_rel"));
      tmp = struct_arrval(s, "xtol_abs", n, NULL);
      ret = (tmp) ? nlopt_set_xtol_abs(opt, tmp) :
          nlopt_set_xtol_abs1(opt, 0.0);
-     CHECK1(ret, "error setting opt.xtol_abs");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.xtol_abs"));
      ret = nlopt_set_maxeval(opt, (int) struct_val(s, "maxeval", 0));
-     CHECK1(ret, "error setting opt.maxeval");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.maxeval"));
      ret = nlopt_set_maxtime(opt, struct_val(s, "maxtime", 0.0));
-     CHECK1(ret, "error setting opt.maxtime");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.maxtime"));
 
      /* stochastic population */
      ret = nlopt_set_population(opt,
     	(unsigned) struct_val(s, "population", 0));
-     CHECK1(ret, "error setting opt.population");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.population"));
 
      /* vector storage */
      ret = nlopt_set_vector_storage(opt,
          (unsigned) struct_val(s, "vector_storage", 0));
-     CHECK1(ret, "error setting opt.vector_storage");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.vector_storage"));
 
      /* initial step size */
      ret = nlopt_set_initial_step(opt,
          struct_arrval(s, "initial_step", n, NULL));
-     CHECK1(ret, "error setting opt.initial_step");
+     CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.initial_step"));
 
      /* local optimization algorithm */
 	 s_local = mxGetField(s, 0, "local_optimizer");
@@ -350,7 +382,8 @@ static nlopt_opt make_opt(const mxArray *s, unsigned n)
 	  CHECK1(opt_local, "error initializing local optimizer options");
 	  ret = nlopt_set_local_optimizer(opt, opt_local);
 	  nlopt_destroy(opt_local);
-	  CHECK1(ret, "error setting opt.local_optimizer");
+	  CHECK1(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting opt.local_optimizer"));
      }
 
      return opt;
@@ -407,48 +440,21 @@ static void debug_opt(const nlopt_opt opt, const double *x)
     mxFree(tmp);
 }
 
-static const char *translate_result(nlopt_result ret)
-{
-    switch (ret) {
-        case NLOPT_FAILURE: return "NLOPT_FAILURE";
-        case NLOPT_INVALID_ARGS: return "NLOPT_INVALID_ARGS";
-        case NLOPT_OUT_OF_MEMORY: return "NLOPT_OUT_OF_MEMORY";
-        case NLOPT_ROUNDOFF_LIMITED: return "NLOPT_ROUNDOFF_LIMITED";
-        case NLOPT_FORCED_STOP: return "NLOPT_FORCED_STOP";
-        case NLOPT_SUCCESS: return "NLOPT_SUCCESS";
-        case NLOPT_STOPVAL_REACHED: return "NLOPT_STOPVAL_REACHED";
-        case NLOPT_FTOL_REACHED: return "NLOPT_FTOL_REACHED";
-        case NLOPT_XTOL_REACHED: return "NLOPT_XTOL_REACHED";
-        case NLOPT_MAXEVAL_REACHED: return "NLOPT_MAXEVAL_REACHED";
-        case NLOPT_MAXTIME_REACHED: return "NLOPT_MAXTIME_REACHED";
-        default: return "";
-    }
-}
-
-static const char *ret_msg(nlopt_result ret, const nlopt_opt opt,
-    const char *msg)
-{
-    static char buffer[BUFSIZE];
-    memset(buffer, 0, BUFSIZE);
-    sprintf(buffer, "%s: %s\n%s", translate_result(ret),
-        (nlopt_get_errmsg(opt) ? nlopt_get_errmsg(opt) : "\b\b"),
-        (msg ? msg : "\b"));
-    return buffer;
-}
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
      unsigned n, j, m;
      double *x, opt_f, *tol;
-     nlopt_result ret;
      mxArray *mx;
+     nlopt_result ret;
      user_function_data d = {0}, dpre = {0}, dc = {0}, dceq = {0},
          *dfc = NULL, *dh = NULL;
      nlopt_opt opt = NULL;
      bool ismin;
 
+     /* check number of arguments */
      /* [x, fval, exitflag, output] = nlopt_optimize(opt, x0) */
      if (nrhs == 0 && nlhs == 0) {
+        /* show list of all algorithms */
      	for (j = 0; j < NLOPT_NUM_ALGORITHMS; ++j)
      		mexPrintf("%2d = %s\n", j,
      			nlopt_algorithm_name((nlopt_algorithm) j));
@@ -528,9 +534,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       nlopt_set_precond_min_objective(opt, user_function, user_pre, &d) :
 	       nlopt_set_precond_max_objective(opt, user_function, user_pre, &d);
      }
-     CHECK3(ret, "error setting objective function");
+     CHECK2(ret == NLOPT_SUCCESS,
+         ret_msg(ret, opt, "error setting objective function"));
 
-     /* nonlinear inequality constraints */
+     /* nonlinear inequality constraints: fc(x) <= 0 */
      mx = mxGetField(prhs[0], 0, "fc");
      if (mx) {
 	  CHECK2(mxIsCell(mx), "opt.fc must be a cell array");
@@ -539,6 +546,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  tol = struct_arrval(prhs[0], "fc_tol", m, NULL);
 	  for (j = 0; j < m; ++j) {
 	       mxArray *fc = cell_funcval(mx, j);
+	       CHECK2(fc, "opt.fc contains null");
 	       if (mxIsChar(fc)) {
 		    CHECK2(mxGetString(fc, dfc[j].func, NAMELENGTHMAX) == 0,
 		     "error reading function name string from opt.fc");
@@ -558,11 +566,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       sprintf(dfc[j].type, "fc{%u}", j);
 	       ret = nlopt_add_inequality_constraint(opt, user_function, dfc + j,
 		     tol ? tol[j] : 0.0);
-	       CHECK3(ret, "error adding inequality constraint opt.fc");
+	       CHECK2(ret == NLOPT_SUCCESS,
+             ret_msg(ret, opt, "error adding inequality constraint opt.fc"));
 	  }
      }
 
-     /* nonlinear equality constraints */
+     /* nonlinear equality constraints: h(x) = 0 */
      mx = mxGetField(prhs[0], 0, "h");
      if (mx) {
 	  CHECK2(mxIsCell(mx), "opt.h must be a cell array");
@@ -571,6 +580,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  tol = struct_arrval(prhs[0], "h_tol", m, NULL);
 	  for (j = 0; j < m; ++j) {
 	       mxArray *h = cell_funcval(mx, j);
+	       CHECK2(h, "opt.h contains null");
 	       if (mxIsChar(h)) {
 		    CHECK2(mxGetString(h, dh[j].func, NAMELENGTHMAX) == 0,
 		     "error reading function name string from opt.h");
@@ -590,11 +600,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       sprintf(dh[j].type, "h{%u}", j);
 	       ret = nlopt_add_equality_constraint(opt, user_function, dh + j,
 		     tol ? tol[j] : 0.0);
-	       CHECK3(ret, "error adding equality constraint opt.h");
+	       CHECK2(ret == NLOPT_SUCCESS,
+             ret_msg(ret, opt, "error adding equality constraint opt.h"));
 	  }
      }
 
-     /* vector-valued nonlinear inequality constraints */
+     /* vector-valued nonlinear inequality constraints: c(x) <= 0 */
      mx = struct_funcval(prhs[0], "c");
      if (mx) {
         const mxArray *mx_tol = mxGetField(prhs[0], 0, "c_tol");
@@ -621,15 +632,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         strcpy(dc.type, "c");
         ret = nlopt_add_inequality_mconstraint(
             opt, m, user_mfunction, &dc, tol);
-        CHECK3(ret, "error adding vector-valued inequality constraint opt.c");
+        CHECK2(ret == NLOPT_SUCCESS, ret_msg(ret, opt,
+            "error adding vector-valued inequality constraint opt.c"));
      }
 
-     /* vector-valued nonlinear equality constraints */
+     /* vector-valued nonlinear equality constraints: ceq(x) = 0 */
      mx = struct_funcval(prhs[0], "ceq");
      if (mx) {
         const mxArray *mx_tol = mxGetField(prhs[0], 0, "ceq_tol");
         CHECK2(mx_tol && mx_isvector(mx_tol),
-            "opt.ceq_tol must be a real vector of length m (dim of opt.c)");
+            "opt.ceq_tol must be a real vector of length m (dim of opt.ceq)");
         m = (unsigned) mxGetNumberOfElements(mx_tol);
         tol = mxGetPr(mx_tol);
         if (mxIsChar(mx)) {
@@ -651,7 +663,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         strcpy(dceq.type, "ceq");
         ret = nlopt_add_equality_mconstraint(
             opt, m, user_mfunction, &dceq, tol);
-        CHECK3(ret, "error adding vector-valued equality constraint opt.ceq");
+        CHECK2(ret == NLOPT_SUCCESS, ret_msg(ret, opt,
+            "error adding vector-valued equality constraint opt.ceq"));
      }
 
      /* x = x0 */
