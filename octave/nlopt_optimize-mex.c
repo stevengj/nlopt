@@ -34,7 +34,8 @@
 
 #define NAMELENGTHMAX 64 /* TMW_NAME_LENGTH_MAX: max length of varname */
 typedef struct user_function_data_s {
-    char f[NAMELENGTHMAX];
+    char func[NAMELENGTHMAX];
+    char type[NAMELENGTHMAX];
     mxArray *plhs[2];
     mxArray *prhs[3];
     int xrhs, nrhs;
@@ -118,6 +119,17 @@ static mxArray *cell_funcval(const mxArray *c, unsigned i)
      return NULL;
 }
 
+static double arr_norm_inf(const double *x, unsigned n)
+{
+	unsigned i;
+	double mx = 0.0;
+	for (i = 0; i < n; ++i) {
+		if (fabs(x[i]) > mx)
+			mx = fabs(x[i]);
+	}
+	return mx;
+}
+
 static double user_function(unsigned n, const double *x,
 			    double *grad, void *data)
 {
@@ -129,12 +141,12 @@ static double user_function(unsigned n, const double *x,
 
   /* [f, g] = feval(objFunc, x) */
   d->plhs[0] = d->plhs[1] = NULL;
-  if (mexCallMATLAB(grad ? 2 : 1, d->plhs, d->nrhs, d->prhs, d->f) != 0)
-	mexErrMsgIdAndTxt(ERRID, "error calling objective function");
+  if (mexCallMATLAB(grad ? 2 : 1, d->plhs, d->nrhs, d->prhs, d->func) != 0)
+	mexErrMsgIdAndTxt(ERRID, "error calling %s function", d->type);
 
   /* f */
   if (!mx_isscalar(d->plhs[0]))
-	mexErrMsgIdAndTxt(ERRID, "objective function must return a real scalar");
+	mexErrMsgIdAndTxt(ERRID, "%s function must return a real scalar", d->type);
   f = mxGetScalar(d->plhs[0]);
   mxDestroyArray(d->plhs[0]);
 
@@ -142,13 +154,17 @@ static double user_function(unsigned n, const double *x,
   if (grad) {
      if (!mx_isvector_len(d->plhs[1], n))
 	   mexErrMsgIdAndTxt(ERRID,
-	     "objective function must return a gradient vector of length %u", n);
+	     "%s function must return a gradient vector of length %u", d->type, n);
      memcpy(grad, mxGetPr(d->plhs[1]), n * sizeof(double));
      mxDestroyArray(d->plhs[1]);
   }
 
   d->neval++;
-  if (d->verbose) mexPrintf("nlopt_optimize eval #%d: %g\n", d->neval, f);
+  if (d->verbose) {
+  	mexPrintf("%13s eval #%-3d: f(x) = %12g", d->type, d->neval, f);
+  	if (grad) mexPrintf(", norm(g(x)) = %12g", arr_norm_inf(grad,n));
+  	mexPrintf("\n");
+  }
   if (mxIsNaN(f)) nlopt_force_stop(d->opt);
   return f;
 }
@@ -164,18 +180,18 @@ static void user_pre(unsigned n, const double *x, const double *v,
 
   /* vpre = feval(precondFunc, x, v) */
   d->plhs[0] = NULL;
-  if (mexCallMATLAB(1, d->plhs, d->nrhs, d->prhs, d->f) != 0)
-	 mexErrMsgIdAndTxt(ERRID, "error calling preconditioned function");
+  if (mexCallMATLAB(1, d->plhs, d->nrhs, d->prhs, d->func) != 0)
+	 mexErrMsgIdAndTxt(ERRID, "error calling %s function", d->type);
 
-  /* vpre */
+  /* vpre = H(x)*v */
   if (!mx_isvector_len(d->plhs[0], n))
 	 mexErrMsgIdAndTxt(ERRID,
-	 	"preconditioned function must return a vpre vector of length %u", n);
+	 	"%s function must return a vpre vector of length %u", d->type, n);
   memcpy(vpre, mxGetPr(d->plhs[0]), n * sizeof(double));
   mxDestroyArray(d->plhs[0]);
 
   d->neval++;
-  if (d->verbose) mexPrintf("nlopt_optimize precond eval #%d\n", d->neval);
+  if (d->verbose) mexPrintf("%13s eval #%-3d\n", d->type, d->neval);
 }
 
 static nlopt_opt make_opt(const mxArray *s, unsigned n)
@@ -322,6 +338,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      mxArray *mx;
      user_function_data d, dpre, *dfc = NULL, *dh = NULL;
      nlopt_opt opt = NULL;
+     bool ismin;
 
      /* [x, fval, exitflag, output] = nlopt_optimize(opt, x0) */
      if (nrhs == 0 && nlhs == 0) {
@@ -351,17 +368,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
      /* objective function */
      mx = struct_funcval(prhs[0], "min_objective");
+     ismin = (mx != NULL);
      if (!mx) mx = struct_funcval(prhs[0], "max_objective");
      CHECK(mx, "opt.(min|max)_objective must be set");
      if (mxIsChar(mx)) {
-	  CHECK(mxGetString(mx, d.f, NAMELENGTHMAX) == 0,
+	  CHECK(mxGetString(mx, d.func, NAMELENGTHMAX) == 0,
 		"error reading function name string from opt.(min|max)_objective");
 	  d.nrhs = 1;
 	  d.xrhs = 0;
      }
      else {
 	  d.prhs[0] = mx;
-	  strcpy(d.f, "feval");
+	  strcpy(d.func, "feval");
 	  d.nrhs = 2;
 	  d.xrhs = 1;
      }
@@ -369,26 +387,27 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      d.neval = 0;
      d.opt = opt;
      d.prhs[d.xrhs] = mxCreateDoubleMatrix(1, n, mxREAL);
+     strcpy(d.type, ismin ? "min_objective": "max_objective");
 
      /* preconditioned objective function */
      mx = struct_funcval(prhs[0], "pre");
      if (!mx) {
 	  dpre.nrhs = 0;  /* indicate no memory allocation */
-	  if (struct_funcval(prhs[0], "min_objective"))
+	  if (ismin)
 	       nlopt_set_min_objective(opt, user_function, &d);
 	  else
 	       nlopt_set_max_objective(opt, user_function, &d);
      }
      else {
 	  if (mxIsChar(mx)) {
-	       CHECK(mxGetString(mx, dpre.f, NAMELENGTHMAX) == 0,
+	       CHECK(mxGetString(mx, dpre.func, NAMELENGTHMAX) == 0,
                      "error reading function name string from opt.pre");
 	       dpre.nrhs = 2;
 	       dpre.xrhs = 0;
 	  }
 	  else {
 	       dpre.prhs[0] = mx;
-	       strcpy(dpre.f, "feval");
+	       strcpy(dpre.func, "feval");
 	       dpre.nrhs = 3;
 	       dpre.xrhs = 1;
 	  }
@@ -397,8 +416,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  dpre.opt = opt;
 	  dpre.prhs[dpre.xrhs] = d.prhs[d.xrhs];
 	  dpre.prhs[dpre.xrhs+1] = mxCreateDoubleMatrix(1, n, mxREAL);
+	  strcpy(dpre.type, "precond");
 	  d.dpre = &dpre;
-	  if (struct_funcval(prhs[0], "min_objective"))
+	  if (ismin)
 	       nlopt_set_precond_min_objective(opt, user_function, user_pre, &d);
 	  else
 	       nlopt_set_precond_max_objective(opt, user_function, user_pre, &d);
@@ -414,14 +434,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  for (j = 0; j < m; ++j) {
 	       mxArray *fc = cell_funcval(mx, j);
 	       if (mxIsChar(fc)) {
-		    CHECK(mxGetString(fc, dfc[j].f, NAMELENGTHMAX) == 0,
+		    CHECK(mxGetString(fc, dfc[j].func, NAMELENGTHMAX) == 0,
 		     "error reading function name string from opt.fc");
 		    dfc[j].nrhs = 1;
 		    dfc[j].xrhs = 0;
 	       }
 	       else {
 		    dfc[j].prhs[0] = fc;
-		    strcpy(dfc[j].f, "feval");
+		    strcpy(dfc[j].func, "feval");
 		    dfc[j].nrhs = 2;
 		    dfc[j].xrhs = 1;
 	       }
@@ -429,6 +449,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       dfc[j].neval = 0;
 	       dfc[j].opt = opt;
 	       dfc[j].prhs[dfc[j].xrhs] = d.prhs[d.xrhs];
+	       sprintf(dfc[j].type, "fc{%u}", j);
 	       ret = nlopt_add_inequality_constraint(opt, user_function, dfc + j,
 		     tol ? tol[j] : 0.0);
 	       CHECK(ret == NLOPT_SUCCESS,
@@ -446,14 +467,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	  for (j = 0; j < m; ++j) {
 	       mxArray *h = cell_funcval(mx, j);
 	       if (mxIsChar(h)) {
-		    CHECK(mxGetString(h, dh[j].f, NAMELENGTHMAX) == 0,
+		    CHECK(mxGetString(h, dh[j].func, NAMELENGTHMAX) == 0,
 		     "error reading function name string from opt.h");
 		    dh[j].nrhs = 1;
 		    dh[j].xrhs = 0;
 	       }
 	       else {
 		    dh[j].prhs[0] = h;
-		    strcpy(dh[j].f, "feval");
+		    strcpy(dh[j].func, "feval");
 		    dh[j].nrhs = 2;
 		    dh[j].xrhs = 1;
 	       }
@@ -461,6 +482,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	       dh[j].neval = 0;
 	       dh[j].opt = opt;
 	       dh[j].prhs[dh[j].xrhs] = d.prhs[d.xrhs];
+	       sprintf(dh[j].type, "h{%u}", j);
 	       ret = nlopt_add_equality_constraint(opt, user_function, dh + j,
 		     tol ? tol[j] : 0.0);
 	       CHECK(ret == NLOPT_SUCCESS,
