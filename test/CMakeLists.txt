@@ -1,6 +1,7 @@
 add_custom_target (tests)
 
-add_executable (testopt EXCLUDE_FROM_ALL testfuncs.c testfuncs.h testopt.cpp)
+# have to add timer.c and mt19937ar.c as symbols are declared extern
+add_executable (testopt EXCLUDE_FROM_ALL testfuncs.c testfuncs.h testopt.cpp ${CMAKE_SOURCE_DIR}/util/timer.c ${CMAKE_SOURCE_DIR}/util/mt19937ar.c)
 target_link_libraries (testopt ${nlopt_lib})
 add_dependencies (tests testopt)
 
