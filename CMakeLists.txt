@@ -119,8 +119,10 @@ message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE)
 
 # pkgconfig file
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION lib/pkgconfig)
+if (UNIX)
+  configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
+  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION lib/pkgconfig)
+endif ()
 
 #==============================================================================
 # INCLUDE DIRECTORIES
