@@ -20,6 +20,13 @@ endif ()
 
 project (nlopt C)
 
+set (CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(POLICY CMP0042)
+  # Set MACOSX_RPATH to ON
+  cmake_policy(SET CMP0042 NEW)
+endif()
+
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option (WITH_CXX "enable cxx routines" OFF)
@@ -186,13 +193,8 @@ endif ()
 
 
 if (BUILD_SHARED_LIBS)
-  ADD_DEFINITIONS(-DNLOPT_DLL)
-  ADD_DEFINITIONS(-DNLOPT_DLL_EXPORT )
-  
-  if (NOT CMAKE_INSTALL_PREFIX MATCHES "^/usr")
-    set (CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
-    set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-  endif ()
+  add_definitions (-DNLOPT_DLL)
+  add_definitions (-DNLOPT_DLL_EXPORT)
 endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION include)
