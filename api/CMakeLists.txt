@@ -1,3 +1,7 @@
+
+# install man
+install (FILES nlopt.3 DESTINATION share/man/man3)
+
 # generate nlopt.f from nlopt.h enums
 if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f)
   file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f "")
