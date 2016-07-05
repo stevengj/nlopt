@@ -104,45 +104,21 @@ if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
 endif ()
 
 #==============================================================================
-# LOOK FOR THE VERSION NUMBER IN configure.ac
+# version
 #==============================================================================
-
-FILE( READ configure.ac CONFIG_AUTOMAKE )
-
-STRING( REGEX MATCH "AC_INIT\\(nlopt, ([0-9]+\\.[0-9]+\\.?[0-9]*)" NLOPT_AUTOMAKE_LINE_VERSION "${CONFIG_AUTOMAKE}") 
-
-#---------------------------------
-# If version matches 'X.X.X'
-#---------------------------------
-IF(${NLOPT_AUTOMAKE_LINE_VERSION} MATCHES ".*[0-9]+\\.[0-9]+\\.[0-9]+")
-    STRING( REGEX REPLACE ".*([0-9]+)\\.[0-9]+\\.[0-9]*.*" "\\1" NLOPT_MAJOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    STRING( REGEX REPLACE ".*[0-9]+\\.([0-9]+)\\.[0-9]*.*" "\\1" NLOPT_MINOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    STRING( REGEX REPLACE ".*[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" NLOPT_BUGFIX_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
-#---------------------------------
-# Else (consider that version matches 'X.X')
-#---------------------------------
-ELSE(${NLOPT_AUTOMAKE_LINE_VERSION} MATCHES ".*[0-9]+\\.[0-9]+\\.[0-9]+")
-    STRING( REGEX REPLACE ".*([0-9]+)\\.[0-9]+.*" "\\1" NLOPT_MAJOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    STRING( REGEX REPLACE ".*[0-9]+\\.([0-9]+).*" "\\1" NLOPT_MINOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    SET (NLOPT_BUGFIX_VERSION "0")
-    set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION})
-endif()
-
-message (STATUS "NLOPT: Version number ${NLOPT_VERSION_STRING} found in configure.ac" )
+set (NLOPT_MAJOR_VERSION "2")
+set (NLOPT_MINOR_VERSION "5")
+set (NLOPT_BUGFIX_VERSION "0")
+set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
+message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 
 #==============================================================================
 # CREATE config.h
 #==============================================================================
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE)
 
 # pkgconfig file
-set (prefix "${CMAKE_INSTALL_PREFIX}")
-set (exec_prefix "\${prefix}")
-set (libdir "\${exec_prefix}/lib")
-set (includedir "\${prefix}/include")
-set (VERSION "${NLOPT_VERSION_STRING}")
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION lib/pkgconfig)
 
@@ -220,6 +196,10 @@ install (FILES ${NLOPT_HEADERS} DESTINATION include)
 
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
+set (LIB_SOVERSION 0)
+set (LIB_VERSION 0.9.0)
+set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${LIB_SOVERSION})
+set_target_properties (${nlopt_lib} PROPERTIES VERSION ${LIB_VERSION})
 
 # pass -fPIC in case swig module is built with static library
 if (NOT BUILD_SHARED_LIBS)
@@ -228,18 +208,6 @@ if (NOT BUILD_SHARED_LIBS)
     set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
   endif ()
-endif ()
-
-# parse configure.ac for lib version
-string (REGEX MATCH "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:[0-9]+\"" _VERSION_INFO_LINE "${CONFIG_AUTOMAKE}") 
-if (_VERSION_INFO_LINE)
-  string (REGEX REPLACE "SHARED_VERSION_INFO=\"([0-9]+):[0-9]+:[0-9]+\"" "\\1" _VERSION_INFO_CURRENT "${_VERSION_INFO_LINE}") 
-  string (REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:([0-9]+):[0-9]+\"" "\\1" _VERSION_INFO_REVISION "${_VERSION_INFO_LINE}") 
-  string (REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:([0-9]+)\"" "\\1" _VERSION_INFO_AGE "${_VERSION_INFO_LINE}") 
-  math (EXPR _INFO_SOVERSION "${_VERSION_INFO_CURRENT} - ${_VERSION_INFO_AGE} ")
-  set (_INFO_VERSION "${_INFO_SOVERSION}.${_VERSION_INFO_AGE}.${_VERSION_INFO_REVISION}")
-  set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${_INFO_SOVERSION})
-  set_target_properties (${nlopt_lib} PROPERTIES VERSION ${_INFO_VERSION} )
 endif ()
 
 install ( TARGETS ${nlopt_lib}
