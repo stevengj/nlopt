@@ -223,6 +223,7 @@ add_subdirectory (api)
 if (BUILD_PYTHON)
   find_package (PythonInterp)
   find_package (PythonLibs)
+  find_package (NumPy)
 endif ()
 
 if (PYTHONINTERP_FOUND)

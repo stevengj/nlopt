@@ -14,9 +14,10 @@ if (BUILD_OCTAVE)
   endif ()
 endif ()
 
-if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)))
+if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)))
 
   include_directories (${PYTHON_INCLUDE_DIRS})
+  include_directories (${NUMPY_INCLUDE_DIRS})
 
   if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)
     set (SWIG_MODULE_nlopt_REAL_NAME _nlopt)
