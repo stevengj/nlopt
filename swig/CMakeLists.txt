@@ -8,11 +8,6 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-enum-renames.i)
   endforeach ()
 endif ()
 
-if (BUILD_OCTAVE)
-  if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)
-    find_package (SWIG)
-  endif ()
-endif ()
 
 if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp)))
 
@@ -42,11 +37,6 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_
   install ( TARGETS ${SWIG_MODULE_nlopt_REAL_NAME} LIBRARY DESTINATION ${PYTHON_MODULE_PATH} )
 endif ()
 
-if (BUILD_GUILE)
-  if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp)
-    find_package (SWIG)
-  endif ()
-endif ()
 
 # guile bindings with gcc only ok with swig >= 2.0.10
 if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp)))

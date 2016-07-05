@@ -27,6 +27,7 @@ option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
 option (BUILD_PYTHON "build python bindings" ON)
 option (BUILD_OCTAVE "build octave bindings" ON)
 option (BUILD_GUILE "build guile bindings" ON)
+option (USE_SWIG "use SWIG to build bindings" ON)
 
 set (NLOPT_SUFFIX)
 if (WITH_CXX)
@@ -240,6 +241,10 @@ endif ()
 
 if (BUILD_GUILE)
   find_package (Guile)
+endif ()
+
+if (USE_SWIG)
+  find_package (SWIG)
 endif ()
 
 add_subdirectory (swig)
