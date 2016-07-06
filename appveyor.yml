@@ -17,7 +17,7 @@ install:
 build_script:
   - echo Running cmake...
   - cd c:\projects\nlopt
-  - cmake -G "%CMAKE_PLATFORM%" -DCMAKE_INSTALL_PREFIX="C:\projects\nlopt\install" .
+  - cmake -G "%CMAKE_PLATFORM%" -DBUILD_SHARED_LIBS=ON -DWITH_CXX=ON -DCMAKE_INSTALL_PREFIX="C:\projects\nlopt\install" .
   - cmake --build . --config %Configuration% --target install
   - cmake --build . --config %Configuration% --target tests
   - ctest -C %Configuration% --output-on-failure --timeout 100
