@@ -23,6 +23,7 @@ for dll in *.dll; do
     echo EXPORTS >> $def
     i686-w64-mingw32-gcc-nm $dll | grep ' T _' | sed 's/.* T _//' | egrep 'nlopt|nlo_' >> $def
 done
+#dlltool --output-lib nlopt.lib --output-exp nlopt.exp --input-def nlopt.def
 cd ../..
 
 # header file
@@ -74,13 +75,18 @@ cp octave/nlopt_optimize-mex.c mingw32/matlab/nlopt_optimize.c
 mkdir -p mingw32/python
 cp swig/nlopt.py swig/nlopt-python.cpp mingw32/python/
 cat > mingw32/python/setup.py <<EOF
-from distutils.core import setup, Extension
+try:
+    from setuptools import setup
+    from setuptools import Extension
+except ImportError:
+    from distutils.core import setup
+    from distutils.extension import Extension
 import numpy
 
 nlopt_module = Extension('_nlopt',
                          sources = ['nlopt-python.cpp'],
                          libraries = ['libnlopt-0'],
-                         include_dirs = ['../include'],
+                         include_dirs = ['../include', numpy.get_include()],
                          library_dirs = ['../bin'])
 
 setup (name         = 'nlopt',
@@ -91,9 +97,7 @@ setup (name         = 'nlopt',
        description  = """NLopt nonlinear-optimization library""",
        license      = "LGPL, MIT",
        ext_modules  = [nlopt_module],
-       py_modules   = ["nlopt"],
-       include_dirs = ['.', numpy.get_include()],
-       )
+       py_modules   = ["nlopt"])
 EOF
 
 # extra files
