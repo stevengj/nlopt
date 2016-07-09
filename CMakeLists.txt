@@ -20,17 +20,10 @@ endif ()
 
 project (nlopt C)
 
-set (CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
-set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-if(POLICY CMP0042)
-  # Set MACOSX_RPATH to ON
-  cmake_policy(SET CMP0042 NEW)
-endif()
-
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option (WITH_CXX "enable cxx routines" OFF)
-option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF)
+option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" ON)
 option (BUILD_PYTHON "build python bindings" ON)
 option (BUILD_OCTAVE "build octave bindings" ON)
 option (BUILD_GUILE "build guile bindings" ON)
@@ -44,6 +37,31 @@ endif ()
 if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
 endif ()
+
+
+# Offer the user the choice of overriding the installation directories
+set (INSTALL_LIB_DIR     lib${LIB_SUFFIX} CACHE PATH "Installation directory for libraries")
+set (INSTALL_BIN_DIR     bin              CACHE PATH "Installation directory for executables")
+set (INSTALL_INCLUDE_DIR include          CACHE PATH "Installation directory for header files")
+set (INSTALL_DATA_DIR    share/nlopt       CACHE PATH "Installation directory for data files")
+set (INSTALL_CMAKE_DIR   ${INSTALL_LIB_DIR}/cmake/nlopt CACHE PATH "Installation directory for cmake config files")
+
+# Make relative paths absolute (needed later on)
+foreach(p LIB BIN INCLUDE DATA CMAKE)
+    set(var INSTALL_${p}_DIR)
+    set(RELATIVE_INSTALL_${p}_DIR ${INSTALL_${p}_DIR})
+    if(NOT IS_ABSOLUTE "${${var}}")
+        set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+    endif()
+endforeach()
+
+
+set (CMAKE_INSTALL_RPATH ${INSTALL_LIB_DIR})
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(POLICY CMP0042)
+  # Set MACOSX_RPATH to ON
+  cmake_policy(SET CMP0042 NEW)
+endif()
 
 include (CheckIncludeFiles)
 include (CheckFunctionExists)
@@ -129,7 +147,7 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BI
 # pkgconfig file
 if (UNIX OR MINGW)
   configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
-  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION lib/pkgconfig)
+  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTALL_LIB_DIR}/pkgconfig)
 endif ()
 
 #==============================================================================
@@ -201,10 +219,8 @@ install (FILES ${NLOPT_HEADERS} DESTINATION include)
 
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
-set (LIB_SOVERSION 0)
-set (LIB_VERSION 0.9.0)
-set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${LIB_SOVERSION})
-set_target_properties (${nlopt_lib} PROPERTIES VERSION ${LIB_VERSION})
+set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
+set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
 
 # pass -fPIC in case swig module is built with static library
 if (NOT BUILD_SHARED_LIBS)
@@ -216,9 +232,10 @@ if (NOT BUILD_SHARED_LIBS)
 endif ()
 
 install ( TARGETS ${nlopt_lib}
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib${LIB_SUFFIX}
-          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+          EXPORT  NLoptLibraryDepends
+          RUNTIME DESTINATION ${RELATIVE_INSTALL_BIN_DIR}
+          LIBRARY DESTINATION ${RELATIVE_INSTALL_LIB_DIR}
+          ARCHIVE DESTINATION ${RELATIVE_INSTALL_LIB_DIR}
         )
 
 add_subdirectory (api)
@@ -276,4 +293,31 @@ set (CPACK_SOURCE_IGNORE_FILES ".git;/build;.*~;${CPACK_SOURCE_IGNORE_FILES}")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${NLOPT_VERSION_STRING})
 
 include (CPack)
+
+# configuration files
+export (TARGETS ${nlopt_lib} FILE ${PROJECT_BINARY_DIR}/NLoptLibraryDepends.cmake)
+
+# Install the export set for use with the install-tree
+install(EXPORT NLoptLibraryDepends
+        DESTINATION ${RELATIVE_INSTALL_CMAKE_DIR}
+        COMPONENT Development)
+
+# Create a NLOPTConfig.cmake file for the use from the install tree
+# and install it
+set (NLOPT_LIBRARIES ${nlopt_lib})
+
+set (NLOPT_CMAKE_DIR "${INSTALL_CMAKE_DIR}")
+file (RELATIVE_PATH rel_include_dir "${NLOPT_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
+list (APPEND RELATIVE_NLOPT_INCLUDE_DIRS ${rel_include_dir})
+
+file (RELATIVE_PATH rel_lib_dir "${NLOPT_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
+list (APPEND RELATIVE_NLOPT_LIB_DIR ${rel_lib_dir})
+
+configure_file (cmake/NLoptConfig.cmake.in NLoptConfig.cmake @ONLY)
+configure_file (cmake/NLoptConfigVersion.cmake.in NLoptConfigVersion.cmake @ONLY)
+install (FILES
+          ${CMAKE_CURRENT_BINARY_DIR}/NLoptConfig.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/NLoptConfigVersion.cmake
+         DESTINATION ${RELATIVE_INSTALL_CMAKE_DIR}
+         COMPONENT Development)
 

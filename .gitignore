@@ -10,6 +10,7 @@
 *.mex*
 *.oct
 *.zip
+build
 
 # generated code
 api/nlopt.f

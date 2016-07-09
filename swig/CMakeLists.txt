@@ -63,9 +63,6 @@ if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXI
   target_link_libraries(${SWIG_MODULE_nlopt_guile_REAL_NAME} ${nlopt_lib})
   target_link_libraries(${SWIG_MODULE_nlopt_guile_REAL_NAME} ${GUILE_LIBRARIES})
 
-  set_target_properties (${SWIG_MODULE_nlopt_guile_REAL_NAME} PROPERTIES SOVERSION ${LIB_SOVERSION})
-  set_target_properties (${SWIG_MODULE_nlopt_guile_REAL_NAME} PROPERTIES VERSION ${LIB_VERSION})
-
   file (RELATIVE_PATH _REL_GUILE_SITE_PATH ${GUILE_ROOT_DIR} ${GUILE_SITE_DIR})
   set (GUILE_SITE_PATH ${_REL_GUILE_SITE_PATH})
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm DESTINATION ${GUILE_SITE_PATH})
