@@ -22,7 +22,6 @@ swig/nlopt-python.cpp
 swig/nlopt.py
 swig/nlopt.scm
 swig/nlopt.scm.in
-README-WINDOWS
 mingw32
 mingw64
 
