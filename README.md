@@ -8,11 +8,9 @@ nonlinear optimization libraries.
 The latest release and a complete manual may be found at the NLopt
 home page: http://ab-initio.mit.edu/nlopt
 
-It is compiled and installed with the standard GNU autoconf/automake
-commands:
+It is compiled and installed with CMake build system:
 
-    ./configure
-    make
+    cmake .
     make install
 
 See `./configure --help` or the `INSTALL` file for other options.  To
@@ -20,11 +18,10 @@ build the latest development sources:
 
     git clone git://github.com/stevengj/nlopt
     cd nlopt
-    sh autogen.sh
+    cmake .
     make
 
-(To build from git, you will need GNU autoconf, automake, and libtool
-installed, along with SWIG and Unix tools such as m4, perl, and sed.)
+(To build from git, you will need SWIG.)
 
 Once it is installed, `#include <nlopt.h>` in your C/C++ programs and
 link it with `-lnlopt -lm`.  You may need to use the C++ compiler to link

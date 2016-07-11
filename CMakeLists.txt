@@ -1,5 +1,3 @@
-PROJECT(NLOPT)
-
 #==============================================================================
 # NLOPT CMake file
 # 
@@ -14,104 +12,169 @@ PROJECT(NLOPT)
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
 # Copyright (c) 2008-2009 Children's Hospital Boston 
 #==============================================================================
+cmake_minimum_required (VERSION 2.6)
+
+if (NOT DEFINED CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
+endif ()
+
+project (nlopt C)
+
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+option (WITH_CXX "enable cxx routines" OFF)
+option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" ON)
+option (BUILD_PYTHON "build python bindings" ON)
+option (BUILD_OCTAVE "build octave bindings" ON)
+option (BUILD_GUILE "build guile bindings" ON)
+option (USE_SWIG "use SWIG to build bindings" ON)
+
+set (NLOPT_SUFFIX)
+if (WITH_CXX)
+  set (NLOPT_SUFFIX _cxx)
+endif ()
+
+if (WITH_CXX OR BUILD_PYTHON)
+  enable_language (CXX)
+endif ()
 
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-INCLUDE(CheckIncludeFiles)
-INCLUDE(CheckFunctionExists)
-INCLUDE(CheckTypeSize)
+# Offer the user the choice of overriding the installation directories
+set (INSTALL_LIB_DIR     lib${LIB_SUFFIX} CACHE PATH "Installation directory for libraries")
+set (INSTALL_BIN_DIR     bin              CACHE PATH "Installation directory for executables")
+set (INSTALL_INCLUDE_DIR include          CACHE PATH "Installation directory for header files")
+set (INSTALL_DATA_DIR    share/nlopt       CACHE PATH "Installation directory for data files")
+set (INSTALL_CMAKE_DIR   ${INSTALL_LIB_DIR}/cmake/nlopt CACHE PATH "Installation directory for cmake config files")
 
+# Make relative paths absolute (needed later on)
+foreach(p LIB BIN INCLUDE DATA CMAKE)
+    set(var INSTALL_${p}_DIR)
+    set(RELATIVE_INSTALL_${p}_DIR ${INSTALL_${p}_DIR})
+    if(NOT IS_ABSOLUTE "${${var}}")
+        set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+    endif()
+endforeach()
+
+
+set (CMAKE_INSTALL_RPATH ${INSTALL_LIB_DIR})
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(POLICY CMP0042)
+  # Set MACOSX_RPATH to ON
+  cmake_policy(SET CMP0042 NEW)
+endif()
+
+include (CheckIncludeFiles)
+include (CheckFunctionExists)
+include (CheckTypeSize)
+include (CheckCCompilerFlag)
 
 #==============================================================================
 # COMPILATION CHECKINGS and CONFIGURATION GENERATION
 #==============================================================================
-CHECK_INCLUDE_FILES( unistd.h HAVE_UNISTD_H)
-CHECK_INCLUDE_FILES( string.h HAVE_STRING_H)
-CHECK_INCLUDE_FILES( strings.h HAVE_STRINGS_H)
-CHECK_INCLUDE_FILES( sys/stat.h HAVE_SYS_STAT_H)
-CHECK_INCLUDE_FILES( inttypes.h HAVE_INTTYPES_H)
-CHECK_INCLUDE_FILES( memory.h HAVE_MEMORY_H)
-CHECK_INCLUDE_FILES( stdlib.h HAVE_STDLIB_H)
-CHECK_INCLUDE_FILES( stdint.h HAVE_STDINT_H)
+check_include_file (dlfcn.h HAVE_DLFCN_H)
+check_include_file (getopt.h HAVE_GETOPT_H)
+check_include_file (unistd.h HAVE_UNISTD_H)
+check_include_file (string.h HAVE_STRING_H)
+check_include_file (strings.h HAVE_STRINGS_H)
+check_include_file (inttypes.h HAVE_INTTYPES_H)
+check_include_file (memory.h HAVE_MEMORY_H)
+check_include_file (stdlib.h HAVE_STDLIB_H)
+check_include_file (stdint.h HAVE_STDINT_H)
+check_include_file (time.h HAVE_TIME_H)
+check_include_file (sys/types.h HAVE_SYS_TYPES_H)
+check_include_file (sys/stat.h HAVE_SYS_STAT_H)
+check_include_file (sys/time.h HAVE_SYS_TIME_H)
+if (HAVE_TIME_H AND HAVE_SYS_TIME_H)
+  set (TIME_WITH_SYS_TIME TRUE)
+endif ()
+check_function_exists (getpid HAVE_GETPID)
+check_function_exists (syscall HAVE_GETTID_SYSCALL)
+check_function_exists (isinf HAVE_ISINF)
+check_function_exists (isnan HAVE_ISNAN)
+check_function_exists (gettimeofday HAVE_GETTIMEOFDAY)
+check_function_exists (qsort_r HAVE_QSORT_R)
+check_function_exists (time HAVE_TIME)
+check_function_exists (copysign HAVE_COPYSIGN)
+check_type_size ("uint32_t" SIZEOF_UINT32_T)
+set (HAVE_UINT32_T ${SIZEOF_UINT32_T})
+check_type_size ("unsigned int" SIZEOF_UNSIGNED_INT)
+check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
 
-CHECK_INCLUDE_FILES( sys/types.h HAVE_SYS_TYPES_H)
-CHECK_INCLUDE_FILES( sys/types.h HAVE_SYS_TYPES_H)
-CHECK_INCLUDE_FILES( sys/types.h HAVE_SYS_TYPES_H)
+if (NOT DEFINED HAVE_FPCLASSIFY)
+  message(STATUS "Looking for fpclassify")
+  file (WRITE ${CMAKE_BINARY_DIR}/fpclassify.c "#include <math.h>\n")
+  file (APPEND ${CMAKE_BINARY_DIR}/fpclassify.c "int main(void) {\n")
+  file (APPEND ${CMAKE_BINARY_DIR}/fpclassify.c "if (!fpclassify(3.14159)) fpclassify(2.7183);\n")
+  file (APPEND ${CMAKE_BINARY_DIR}/fpclassify.c "  return 0; }\n")
+  try_compile (HAVE_FPCLASSIFY
+  ${CMAKE_BINARY_DIR}/build_fpclassify
+  ${CMAKE_BINARY_DIR}/fpclassify.c
+  CMAKE_FLAGS -DLINK_LIBRARIES=m)
+  message(STATUS "Looking for fpclassify - ${HAVE_FPCLASSIFY}")
+endif ()
 
-CHECK_FUNCTION_EXISTS( isinf HAVE_ISINF)
-CHECK_FUNCTION_EXISTS( isinf HAVE_ISNAN)
-CHECK_FUNCTION_EXISTS( gettimeofday HAVE_GETTIMEOFDAY)
-CHECK_FUNCTION_EXISTS( qsort_r HAVE_QSORT_R)
-CHECK_FUNCTION_EXISTS( time HAVE_TIME)
-CHECK_FUNCTION_EXISTS( copysign HAVE_COPYSIGN)
+option (WITH_THREADLOCAL "check thread local keyword" ON)
+if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
+  foreach (_THREADLOCAL_KEY "__thread" "__declspec(thread)")
+    unset (HAVE_THREAD_LOCAL_STORAGE CACHE)
+    check_c_source_compiles("
+    ${_THREADLOCAL_KEY} int tls;
 
-CHECK_TYPE_SIZE(uint32_t    UINT32_T)
-IF(NOT HAVE_UINT32_T)
-  IF(MSVC)
-    SET(uint32_t "unsigned int")
-    SET(SIZEOF_UNSIGNED_INT 4)
-  ENDIF(MSVC)
-ENDIF(NOT HAVE_UINT32_T)
+    int main(void) {
+        return 0;
+    }" HAVE_THREAD_LOCAL_STORAGE)
+    if (${HAVE_THREAD_LOCAL_STORAGE})
+      set (THREADLOCAL ${_THREADLOCAL_KEY})
+    endif ()
+  endforeach()
+endif ()
 
 #==============================================================================
-# LOOK FOR THE VERSION NUMBER IN configure.ac
+# version
 #==============================================================================
-
-FILE( READ configure.ac CONFIG_AUTOMAKE )
-
-STRING( REGEX MATCH "AC_INIT\\(nlopt, ([0-9]+\\.[0-9]+\\.?[0-9]*)" NLOPT_AUTOMAKE_LINE_VERSION "${CONFIG_AUTOMAKE}") 
-
-#---------------------------------
-# If version matches 'X.X.X'
-#---------------------------------
-IF(${NLOPT_AUTOMAKE_LINE_VERSION} MATCHES ".*[0-9]+\\.[0-9]+\\.[0-9]+")
-    STRING( REGEX REPLACE ".*([0-9]+)\\.[0-9]+\\.[0-9]*.*" "\\1" NLOPT_MAJOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    STRING( REGEX REPLACE ".*[0-9]+\\.([0-9]+)\\.[0-9]*.*" "\\1" NLOPT_MINOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    STRING( REGEX REPLACE ".*[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" NLOPT_BUGFIX_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-#---------------------------------
-# Else (consider that version matches 'X.X')
-#---------------------------------
-ELSE(${NLOPT_AUTOMAKE_LINE_VERSION} MATCHES ".*[0-9]+\\.[0-9]+\\.[0-9]+")
-    STRING( REGEX REPLACE ".*([0-9]+)\\.[0-9]+.*" "\\1" NLOPT_MAJOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    STRING( REGEX REPLACE ".*[0-9]+\\.([0-9]+).*" "\\1" NLOPT_MINOR_VERSION "${NLOPT_AUTOMAKE_LINE_VERSION}") 
-    SET (NLOPT_BUGFIX_VERSION "0")
-ENDIF(${NLOPT_AUTOMAKE_LINE_VERSION} MATCHES ".*[0-9]+\\.[0-9]+\\.[0-9]+")
-
-MESSAGE(STATUS "NLOPT: Version number ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION} found in configure.ac" )
-
+set (NLOPT_MAJOR_VERSION "2")
+set (NLOPT_MINOR_VERSION "5")
+set (NLOPT_BUGFIX_VERSION "0")
+set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
+message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 
 #==============================================================================
 # CREATE config.h
 #==============================================================================
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE )
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE)
 
+# pkgconfig file
+if (UNIX OR MINGW)
+  configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
+  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTALL_LIB_DIR}/pkgconfig)
+endif ()
 
 #==============================================================================
 # INCLUDE DIRECTORIES
 #==============================================================================
-SET(${INCLUDE_DIRECTORIES} "")
-INCLUDE_DIRECTORIES (
-	${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-	stogo 
-	util 
-	direct 
-	cdirect 
-	praxis 
-	luksan 
-	crs 
-	mlsl 
-	mma 
-	cobyla 
-	newuoa 
-	neldermead 
-	auglag 
-	bobyqa 
-	isres 
-	slsqp
-        esch
-	api   )
+set (${INCLUDE_DIRECTORIES} "")
+include_directories (
+  ${CMAKE_BINARY_DIR}/api
+  ${CMAKE_BINARY_DIR}
+  stogo 
+  util 
+  direct 
+  cdirect 
+  praxis 
+  luksan 
+  crs 
+  mlsl 
+  mma 
+  cobyla 
+  newuoa 
+  neldermead 
+  auglag 
+  bobyqa 
+  isres 
+  slsqp
+  esch
+  api)
 
 
 #==============================================================================
@@ -119,7 +182,7 @@ INCLUDE_DIRECTORIES (
 #==============================================================================
 
 SET ( NLOPT_HEADERS 
-  api/nlopt.h api/nlopt.hpp api/nlopt.f
+  api/nlopt.h ${CMAKE_BINARY_DIR}/api/nlopt.hpp ${CMAKE_BINARY_DIR}/api/nlopt.f
 )
 
 SET ( NLOPT_SOURCES   
@@ -140,41 +203,121 @@ SET ( NLOPT_SOURCES
 	esch/esch.c esch/esch.h
 	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
 	util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c 
-	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
 
-OPTION(BUILD_SHARED_LIBS "Build NLOPT as a shared library" OFF )
+if (WITH_CXX)
+  list (APPEND NLOPT_SOURCES stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h)
+endif ()
+
 
 if (BUILD_SHARED_LIBS)
-  ADD_DEFINITIONS(-DNLOPT_DLL)
-  ADD_DEFINITIONS(-DNLOPT_DLL_EXPORT )
-  
-  if (NOT CMAKE_INSTALL_PREFIX MATCHES "^/usr")
-    set (CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
-    set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  add_definitions (-DNLOPT_DLL)
+  add_definitions (-DNLOPT_DLL_EXPORT)
+endif ()
+
+install (FILES ${NLOPT_HEADERS} DESTINATION include)
+
+set (nlopt_lib nlopt${NLOPT_SUFFIX})
+add_library (${nlopt_lib} ${NLOPT_SOURCES})
+set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
+set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
+
+# pass -fPIC in case swig module is built with static library
+if (NOT BUILD_SHARED_LIBS)
+  check_c_compiler_flag (-fPIC HAS_FPIC)
+  if (HAS_FPIC)
+    set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
   endif ()
 endif ()
 
-INSTALL ( FILES ${NLOPT_HEADERS} DESTINATION include )
-
-ADD_LIBRARY (nlopt ${NLOPT_SOURCES} )
-
-# parse configure.ac for lib version
-STRING( REGEX MATCH "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:[0-9]+\"" _VERSION_INFO_LINE "${CONFIG_AUTOMAKE}") 
-IF (_VERSION_INFO_LINE)
-  STRING( REGEX REPLACE "SHARED_VERSION_INFO=\"([0-9]+):[0-9]+:[0-9]+\"" "\\1" _VERSION_INFO_CURRENT "${_VERSION_INFO_LINE}") 
-  STRING( REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:([0-9]+):[0-9]+\"" "\\1" _VERSION_INFO_REVISION "${_VERSION_INFO_LINE}") 
-  STRING( REGEX REPLACE "SHARED_VERSION_INFO=\"[0-9]+:[0-9]+:([0-9]+)\"" "\\1" _VERSION_INFO_AGE "${_VERSION_INFO_LINE}") 
-  MATH(EXPR _INFO_SOVERSION "${_VERSION_INFO_CURRENT} - ${_VERSION_INFO_AGE} ")
-  SET(_INFO_VERSION "${_INFO_SOVERSION}.${_VERSION_INFO_AGE}.${_VERSION_INFO_REVISION}")
-  SET_TARGET_PROPERTIES(nlopt PROPERTIES SOVERSION ${_INFO_SOVERSION})
-  SET_TARGET_PROPERTIES(nlopt PROPERTIES VERSION ${_INFO_VERSION} )
-ENDIF ()
-
-INSTALL ( TARGETS nlopt
-          RUNTIME DESTINATION bin
-          LIBRARY DESTINATION lib${LIB_SUFFIX}
-          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+install ( TARGETS ${nlopt_lib}
+          EXPORT  NLoptLibraryDepends
+          RUNTIME DESTINATION ${RELATIVE_INSTALL_BIN_DIR}
+          LIBRARY DESTINATION ${RELATIVE_INSTALL_LIB_DIR}
+          ARCHIVE DESTINATION ${RELATIVE_INSTALL_LIB_DIR}
         )
 
+add_subdirectory (api)
+
+if (BUILD_PYTHON)
+  find_package (PythonInterp)
+  find_package (PythonLibs)
+  find_package (NumPy)
+endif ()
+
+if (PYTHONINTERP_FOUND)
+  execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
+                    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE )
+
+  get_filename_component (_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
+  file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
+
+  set (PYTHON_MODULE_PATH ${_REL_PYTHON_MODULE_PATH})
+
+endif ()
+
+if (BUILD_GUILE)
+  find_package (Guile)
+endif ()
+
+if (USE_SWIG)
+  find_package (SWIG)
+endif ()
+
 add_subdirectory (swig)
+
+if (BUILD_OCTAVE)
+  find_package (Octave)
+endif ()
+
+if (OCTAVE_FOUND)
+  add_subdirectory (octave)
+endif ()
+
+enable_testing ()
+add_subdirectory (test)
+
+set (CPACK_PACKAGE_NAME          "${CMAKE_PROJECT_NAME}")
+set (CPACK_PACKAGE_VERSION_MAJOR "${NLOPT_MAJOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_MINOR "${NLOPT_MINOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_PATCH "${NLOPT_BUGFIX_VERSION}")
+set (CPACK_SOURCE_GENERATOR      "TBZ2;TGZ"    )
+set (CPACK_BINARY_STGZ           "OFF"        )
+set (CPACK_BINARY_TBZ2           "ON"         )
+set (CPACK_BINARY_TGZ            "ON"         )
+set (CPACK_BINARY_TZ             "OFF"        )
+set (CPACK_SOURCE_IGNORE_FILES ".git;/build;.*~;${CPACK_SOURCE_IGNORE_FILES}")
+
+set (CPACK_SOURCE_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${NLOPT_VERSION_STRING})
+
+include (CPack)
+
+# configuration files
+export (TARGETS ${nlopt_lib} FILE ${PROJECT_BINARY_DIR}/NLoptLibraryDepends.cmake)
+
+# Install the export set for use with the install-tree
+install(EXPORT NLoptLibraryDepends
+        DESTINATION ${RELATIVE_INSTALL_CMAKE_DIR}
+        COMPONENT Development)
+
+# Create a NLOPTConfig.cmake file for the use from the install tree
+# and install it
+set (NLOPT_LIBRARIES ${nlopt_lib})
+
+set (NLOPT_CMAKE_DIR "${INSTALL_CMAKE_DIR}")
+file (RELATIVE_PATH rel_include_dir "${NLOPT_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
+list (APPEND RELATIVE_NLOPT_INCLUDE_DIRS ${rel_include_dir})
+
+file (RELATIVE_PATH rel_lib_dir "${NLOPT_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
+list (APPEND RELATIVE_NLOPT_LIB_DIR ${rel_lib_dir})
+
+configure_file (cmake/NLoptConfig.cmake.in NLoptConfig.cmake @ONLY)
+configure_file (cmake/NLoptConfigVersion.cmake.in NLoptConfigVersion.cmake @ONLY)
+install (FILES
+          ${CMAKE_CURRENT_BINARY_DIR}/NLoptConfig.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/NLoptConfigVersion.cmake
+         DESTINATION ${RELATIVE_INSTALL_CMAKE_DIR}
+         COMPONENT Development)
+
