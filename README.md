@@ -11,10 +11,10 @@ home page: http://ab-initio.mit.edu/nlopt
 It is compiled and installed with CMake build system:
 
     cmake .
-    make install
+    sudo make install
 
-See `./configure --help` or the `INSTALL` file for other options.  To
-build the latest development sources:
+See `CMakeLists.txt` file for cmake options.
+To build the latest development sources:
 
     git clone git://github.com/stevengj/nlopt
     cd nlopt
