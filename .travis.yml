@@ -33,7 +33,9 @@ matrix:
     - os: osx
       install:
         - brew tap homebrew/python
-        - brew install swig python
+        - brew tap homebrew/science
+        - brew update
+        - brew install swig python octave
       script:
         - mkdir build && pushd build
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local  -DWITH_CXX=ON ..

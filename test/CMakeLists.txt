@@ -31,3 +31,7 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_SOURCE_D
   add_test (NAME test_std_python COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_std.py)
   set_tests_properties (test_std_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
 endif ()
+
+if (OCTAVE_FOUND)
+  add_test (NAME test_octave COMMAND ${OCTAVE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m ${CMAKE_SOURCE_DIR}/octave ${CMAKE_BINARY_DIR}/octave)
+endif ()
