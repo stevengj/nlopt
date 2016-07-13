@@ -35,3 +35,11 @@ endif ()
 if (OCTAVE_FOUND)
   add_test (NAME test_octave COMMAND ${OCTAVE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m ${CMAKE_SOURCE_DIR}/octave ${CMAKE_BINARY_DIR}/octave)
 endif ()
+
+if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp)))
+  set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
+                              "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig"
+    )
+  add_test (NAME test_guile COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm)
+  set_tests_properties (test_guile PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
+endif ()
