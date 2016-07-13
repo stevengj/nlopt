@@ -306,15 +306,15 @@ DIRECT-L search algorithm by Jones et al. as modified by Gablonsky et
 al. to be more weighted towards local search.  Does not support
 unconstrainted optimization.  There are also several other variants of
 the DIRECT algorithm that are supported:
-.BR NLOPT_GLOBAL_DIRECT ,
+.BR NLOPT_GN_DIRECT ,
 which is the original DIRECT algorithm;
-.BR NLOPT_GLOBAL_DIRECT_L_RAND ,
+.BR NLOPT_GN_DIRECT_L_RAND ,
 a slightly randomized version of DIRECT-L that may be better in
 high-dimensional search spaces;
-.BR NLOPT_GLOBAL_DIRECT_NOSCAL ,
-.BR NLOPT_GLOBAL_DIRECT_L_NOSCAL ,
+.BR NLOPT_GN_DIRECT_NOSCAL ,
+.BR NLOPT_GN_DIRECT_L_NOSCAL ,
 and
-.BR NLOPT_GLOBAL_DIRECT_L_RAND_NOSCAL ,
+.BR NLOPT_GN_DIRECT_L_RAND_NOSCAL ,
 which are versions of DIRECT where the dimensions are not rescaled to
 a unit hypercube (which means that dimensions with larger bounds are
 given more weight).

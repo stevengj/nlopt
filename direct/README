@@ -21,8 +21,8 @@ algorithm, as described in:
 	of the DIRECT algorithm," J. Global Optimization 21 (1),
 	p. 27-37 (2001).
 
-Both the original Jones algorithm (NLOPT_GLOBAL_DIRECT) and the
-Gablonsky modified version (NLOPT_GLOBAL_DIRECT_L) are implemented
+Both the original Jones algorithm (NLOPT_GN_DIRECT) and the
+Gablonsky modified version (NLOPT_GN_DIRECT_L) are implemented
 and available from the NLopt interface.  The Gablonsky version
 makes the algorithm "more biased towards local search" so that it
 is more efficient for functions without too many local minima.
