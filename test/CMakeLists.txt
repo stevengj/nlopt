@@ -18,6 +18,10 @@ foreach (algo_index RANGE 29)# 42
     if (algo_index STREQUAL 10)
       set (enable_ FALSE)
     endif ()
+    # LN_NEWUOA_BOUND timeouts on msvc
+    if (algo_index STREQUAL 27)
+      set (enable_ FALSE)
+    endif ()
     if (enable_)
       add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -a ${algo_index} -o ${obj_index})
     endif ()
@@ -28,6 +32,18 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_SOURCE_D
   set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${INSTALL_DESTDIR}${INSTALL_LIB_DIR}:$ENV{LD_LIBRARY_PATH}"
                                   "PYTHONPATH=${INSTALL_DESTDIR}${CMAKE_INSTALL_PREFIX}/${PYTHON_MODULE_PATH}${PATH_SEP}$ENV{PYTHONPATH}"
     )
-  add_test (NAME test_std_python COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_std.py)
-  set_tests_properties (test_std_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
+  add_test (NAME test_python COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py)
+  set_tests_properties (test_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
+endif ()
+
+if (OCTAVE_FOUND)
+  add_test (NAME test_octave COMMAND ${OCTAVE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m ${CMAKE_SOURCE_DIR}/octave ${CMAKE_BINARY_DIR}/octave)
+endif ()
+
+if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp)))
+  set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
+                              "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig"
+    )
+  add_test (NAME test_guile COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm)
+  set_tests_properties (test_guile PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
 endif ()

@@ -26,6 +26,7 @@ option (WITH_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" ON)
 option (BUILD_PYTHON "build python bindings" ON)
 option (BUILD_OCTAVE "build octave bindings" ON)
+option (BUILD_MATLAB "build matlab bindings" OFF)
 option (BUILD_GUILE "build guile bindings" ON)
 option (USE_SWIG "use SWIG to build bindings" ON)
 
@@ -272,7 +273,12 @@ if (BUILD_OCTAVE)
   find_package (Octave)
 endif ()
 
-if (OCTAVE_FOUND)
+if (BUILD_MATLAB)
+  cmake_minimum_required (VERSION 3.3) # for the matlab_add_mex macro
+  find_package (Matlab)
+endif ()
+
+if (OCTAVE_FOUND OR Matlab_FOUND)
   add_subdirectory (octave)
 endif ()
 

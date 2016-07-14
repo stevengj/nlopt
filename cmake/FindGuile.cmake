@@ -62,6 +62,10 @@ if (GUILE_INCLUDE_DIR)
 
 endif ()
 
+find_program(GUILE_EXECUTABLE
+              NAMES guile
+           )
+
 find_program(GUILE_CONFIG_EXECUTABLE
               NAMES guile-config
            )
@@ -71,7 +75,7 @@ if (GUILE_CONFIG_EXECUTABLE)
   execute_process (COMMAND ${GUILE_CONFIG_EXECUTABLE} info prefix
                     OUTPUT_VARIABLE GUILE_ROOT_DIR
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-                    
+
   execute_process (COMMAND ${GUILE_CONFIG_EXECUTABLE} info sitedir
                     OUTPUT_VARIABLE GUILE_SITE_DIR
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
