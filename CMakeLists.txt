@@ -48,13 +48,13 @@ set (INSTALL_DATA_DIR    share/nlopt       CACHE PATH "Installation directory fo
 set (INSTALL_CMAKE_DIR   ${INSTALL_LIB_DIR}/cmake/nlopt CACHE PATH "Installation directory for cmake config files")
 
 # Make relative paths absolute (needed later on)
-foreach(p LIB BIN INCLUDE DATA CMAKE)
-    set(var INSTALL_${p}_DIR)
-    set(RELATIVE_INSTALL_${p}_DIR ${INSTALL_${p}_DIR})
-    if(NOT IS_ABSOLUTE "${${var}}")
-        set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-    endif()
-endforeach()
+foreach (p LIB BIN INCLUDE DATA CMAKE)
+  set (var INSTALL_${p}_DIR)
+  set (RELATIVE_INSTALL_${p}_DIR ${INSTALL_${p}_DIR})
+  if (NOT IS_ABSOLUTE "${${var}}")
+    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif ()
+endforeach ()
 
 
 set (CMAKE_INSTALL_RPATH ${INSTALL_LIB_DIR})
@@ -158,21 +158,21 @@ set (${INCLUDE_DIRECTORIES} "")
 include_directories (
   ${CMAKE_BINARY_DIR}/api
   ${CMAKE_BINARY_DIR}
-  stogo 
-  util 
-  direct 
-  cdirect 
-  praxis 
-  luksan 
-  crs 
-  mlsl 
-  mma 
-  cobyla 
-  newuoa 
-  neldermead 
-  auglag 
-  bobyqa 
-  isres 
+  stogo
+  util
+  direct
+  cdirect
+  praxis
+  luksan
+  crs
+  mlsl
+  mma
+  cobyla
+  newuoa
+  neldermead
+  auglag
+  bobyqa
+  isres
   slsqp
   esch
   api)
@@ -182,29 +182,29 @@ include_directories (
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
-SET ( NLOPT_HEADERS 
+set (NLOPT_HEADERS 
   api/nlopt.h ${CMAKE_BINARY_DIR}/api/nlopt.hpp ${CMAKE_BINARY_DIR}/api/nlopt.f
 )
 
-SET ( NLOPT_SOURCES   
-	direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
-	cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
-	praxis/praxis.c praxis/praxis.h
-	luksan/plis.c luksan/plip.c luksan/pnet.c luksan/mssubs.c luksan/pssubs.c luksan/luksan.h
-	crs/crs.c crs/crs.h
-	mlsl/mlsl.c mlsl/mlsl.h
-	mma/mma.c mma/mma.h mma/ccsa_quadratic.c
-	cobyla/cobyla.c cobyla/cobyla.h
-	newuoa/newuoa.c newuoa/newuoa.h 
-	neldermead/nldrmd.c neldermead/neldermead.h neldermead/sbplx.c	 
-	auglag/auglag.c auglag/auglag.h
-	bobyqa/bobyqa.c bobyqa/bobyqa.h
-	isres/isres.c isres/isres.h 
-	slsqp/slsqp.c slsqp/slsqp.h 
-	esch/esch.c esch/esch.h
-	api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
-	util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c 
-        )
+set (NLOPT_SOURCES   
+  direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
+  cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
+  praxis/praxis.c praxis/praxis.h
+  luksan/plis.c luksan/plip.c luksan/pnet.c luksan/mssubs.c luksan/pssubs.c luksan/luksan.h
+  crs/crs.c crs/crs.h
+  mlsl/mlsl.c mlsl/mlsl.h
+  mma/mma.c mma/mma.h mma/ccsa_quadratic.c
+  cobyla/cobyla.c cobyla/cobyla.h
+  newuoa/newuoa.c newuoa/newuoa.h
+  neldermead/nldrmd.c neldermead/neldermead.h neldermead/sbplx.c 
+  auglag/auglag.c auglag/auglag.h
+  bobyqa/bobyqa.c bobyqa/bobyqa.h
+  isres/isres.c isres/isres.h
+  slsqp/slsqp.c slsqp/slsqp.h
+  esch/esch.c esch/esch.h
+  api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
+  util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c
+)
 
 if (WITH_CXX)
   list (APPEND NLOPT_SOURCES stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h)
