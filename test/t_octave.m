@@ -2,7 +2,7 @@
 arg_list = argv ();
 for i = 1:nargin
     loadpath = arg_list{i};
-    printf ("-- adding path: %s\n", loadpath);
+    printf ('-- adding path: %s\n', loadpath);
     addpath (loadpath);
 endfor
 
