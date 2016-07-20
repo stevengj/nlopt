@@ -27,5 +27,7 @@ if (OCTAVE_FOUND)
 endif ()
 
 if (Matlab_FOUND)
+  cmake_minimum_required (VERSION 3.3) # for the matlab_add_mex macro
+
   matlab_add_mex (NAME nlopt_optimize-mex SRC nlopt_optimize-mex.c OUTPUT_NAME nlopt_optimize LINK_TO ${nlopt_lib})
 endif ()
