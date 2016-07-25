@@ -24,10 +24,11 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option (WITH_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" ON)
-option (BUILD_PYTHON "build python bindings" ON)
-option (BUILD_OCTAVE "build octave bindings" ON)
-option (BUILD_MATLAB "build matlab bindings" ON)
-option (BUILD_GUILE "build guile bindings" ON)
+option (BUILD_PYTHON "build python bindings"  ON)
+option (BUILD_OCTAVE "build octave bindings"  ON)
+option (BUILD_MATLAB "build matlab bindings"  ON)
+option (BUILD_GUILE "build guile bindings"    ON)
+option (BUILD_TESTS "build tests?"           OFF)
 option (USE_SWIG "use SWIG to build bindings" ON)
 
 set (NLOPT_SUFFIX)
@@ -39,6 +40,7 @@ if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
 endif ()
 
+include (${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 # Offer the user the choice of overriding the installation directories
 set (INSTALL_LIB_DIR     lib${LIB_SUFFIX} CACHE PATH "Installation directory for libraries")

@@ -1,7 +1,13 @@
 add_custom_target (tests)
 
+if(BUILD_TESTS)
+    set(TESTING_FLAG  "")
+else()
+    set(TESTING_FLAG EXCLUDE_FROM_ALL)
+endif()
+
 # have to add timer.c and mt19937ar.c as symbols are declared extern
-add_executable (testopt EXCLUDE_FROM_ALL testfuncs.c testfuncs.h testopt.cpp ${CMAKE_SOURCE_DIR}/util/timer.c ${CMAKE_SOURCE_DIR}/util/mt19937ar.c)
+add_executable (testopt ${TESTING_FLAG} testfuncs.c testfuncs.h testopt.cpp ${CMAKE_SOURCE_DIR}/util/timer.c ${CMAKE_SOURCE_DIR}/util/mt19937ar.c)
 target_link_libraries (testopt ${nlopt_lib})
 add_dependencies (tests testopt)
 
