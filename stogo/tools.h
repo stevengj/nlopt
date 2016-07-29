@@ -8,13 +8,6 @@
 #include <list>
 #include "linalg.h"
 
-#ifndef FALSE
-const int FALSE=(1==0); // boolean FALSE
-#endif
-#ifndef FALSE
-const int TRUE=(1==1); // boolean TRUE
-#endif
-
 typedef const class Trial CTrial;
 typedef CTrial& RCTrial;
 typedef CTrial* PCTrial;
@@ -84,7 +77,7 @@ public:
   RCTBox operator=(RCTBox);      // assignment operator
 
   double GetMin();               // Returns 'minf'
-  bool EmptyBox();               // Returns TRUE if Box contains no trials
+  bool EmptyBox();               // Returns true if Box contains no trials
   void AddTrial(RCTrial);        // Add a trial to the (back of) box
   void RemoveTrial(Trial &);     // Remove a trial from the (back of) box
   void GetLastTrial(Trial &);    // Return a trial from the back of the box

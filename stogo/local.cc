@@ -155,7 +155,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     copy(g,z) ;
     axpy(1.0,x,z) ;
     if (!box.InsideBox(z)) {
-      if (box.Intersection(x,g,z)==TRUE) {
+      if (box.Intersection(x,g,z)) {
         axpy(-1.0,x,z) ;
         delta=min(delta,delta_coef*norm2(z)) ;
       }

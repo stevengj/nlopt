@@ -242,7 +242,7 @@ int main()
   if (str[0]=='y') {
     params.det_pnts=2*dim+1; params.rnd_pnts=0;
     params.eps_cl=0.1; params.rshift=0.3;
-    params.mu=1.0E-4; AVflag=FALSE;
+    params.mu=1.0E-4; AVflag=false;
   }
   else {
     cout << "Number of deterministic points ";
@@ -257,12 +257,12 @@ int main()
     cin >> params.mu;
     cout << "Use the AV initialization (y/n) ";
     cin >> str;
-    if (str[0]=='y') AVflag=TRUE; else AVflag=FALSE;
+    AVflag = (str[0]=='y') ? true : false;
   }
 
   Global Problem(D,Obj, Grad, params);
   RVector x_av(dim);
-  if (AVflag==TRUE) {
+  if (AVflag) {
     cout << "Enter time limit for each coordinate direction (seconds) ";
     cin >> stop.maxtime;
     if (stop.maxtime<1) {
@@ -273,7 +273,7 @@ int main()
     TBox I(1);
     Global AV(I, Obj, Grad, params);
 
-    x_av=0.0; AVfail=FALSE;
+    x_av=0.0; AVfail=false;
     for (axis=0; axis<Problem.dim; axis++) {
       cout << "### axis=" << axis << " ###" << endl;
       I.lb=(D.lb)(axis); I.ub=(D.ub)(axis);
@@ -283,11 +283,11 @@ int main()
 
       if (AV.NoMinimizers()) {
         cout << "AV failed with axis=" << axis << endl;
-        AVfail=TRUE; break;
+        AVfail=true; break;
       }
     }
 
-    if (AVfail==FALSE) {
+    if (!AVfail) {
       AVbest=AV.GetMinValue();
       cout << "### AV Located x=" << x_av << " fbound=" << AVbest << endl;
       RVector AVx(Problem.dim);
@@ -306,7 +306,7 @@ int main()
   Problem.Search(-1, x_av);
 
   cout << "Optimization terminated. Current set of minimizers is" << endl;
-  if (Problem.NoMinimizers() && AVflag==FALSE)
+  if (Problem.NoMinimizers() && !AVflag)
     cout << "### No improvement found ###" << endl;
   else
     Problem.DispMinimizers();
