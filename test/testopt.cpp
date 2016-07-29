@@ -167,6 +167,7 @@ static int test_function(int ifunc)
     fprintf(stderr, ") = %0.16g instead of %0.16g, |diff| = %g\n",
       func.f(func.n, func.xmin, 0, func.f_data), func.minf,
       fabs(func.f(func.n, func.xmin, 0, func.f_data) - func.minf));
+    free(x);
     return 0;
   }
 
@@ -242,7 +243,7 @@ static int test_function(int ifunc)
     printf("]\n");
 
     val = func.f(func.n, x, NULL, func.f_data);
-    if (val != minf) {
+    if (fabs(val - minf) > 1e-12) {
       fprintf(stderr, "Mismatch %g between returned minf=%g and f(x) = %g\n",
         minf - val, minf, val);
       free(x);
