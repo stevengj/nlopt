@@ -4,7 +4,8 @@ libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: NLopt
-Description: nonlinear optimization libary
+Description: a nonlinear optimization libary
+URL: https://github.com/stevengj/nlopt
 Version: @NLOPT_VERSION_STRING@
 Libs: -L${libdir} -lnlopt@NLOPT_SUFFIX@ -lm
 Cflags: -I${includedir}
