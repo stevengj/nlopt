@@ -20,51 +20,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
  */
 
-#include <math.h>
-#include <float.h>
-
 #include "nlopt-internal.h"
-
-/*************************************************************************/
-
-int nlopt_isinf(double x) {
-     return fabs(x) >= HUGE_VAL * 0.99
-#ifdef HAVE_ISINF
-	  || isinf(x)
-#endif
-	  ;
-}
-
-int nlopt_isfinite(double x) {
-    return fabs(x) <= DBL_MAX;
-}
-
-int nlopt_istiny(double x)
-{
-#if defined(HAVE_FPCLASSIFY)
-    return x == 0.0 || fpclassify(x) == FP_SUBNORMAL;
-#elif defined(_WIN32)
-    if (x == 0.0)
-        return 1;
-    else {
-        int c = _fpclass(x);
-        return c == _FPCLASS_ND || c == _FPCLASS_PD;
-    }
-#else
-    return fabs(x) < 2.2250738585072014e-308; /* assume IEEE 754 double */
-#endif
-}
-
-int nlopt_isnan(double x)
-{
-#if defined(HAVE_ISNAN)
-    return isnan(x);
-#elif defined(_WIN32)
-    return _isnan(x);
-#else
-    return x != x; /* might fail with aggressive optimization */
-#endif
-}
 
 /*************************************************************************/
 
