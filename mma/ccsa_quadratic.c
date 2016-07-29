@@ -436,7 +436,7 @@ nlopt_result ccsa_quadratic_minimize(
 		    printf("CCSA dual converged in %d iters to g=%g:\n",
 			   dd.count, dd.gval);
 		    for (i = 0; i < MIN(ccsa_verbose, m); ++i)
-			 printf("    CCSA y[%d]=%g, gc[%d]=%g\n",
+			 printf("    CCSA y[%u]=%g, gc[%u]=%g\n",
 				i, y[i], i, dd.gcval[i]);
 	       }
 
@@ -511,7 +511,7 @@ nlopt_result ccsa_quadratic_minimize(
 	       if (ccsa_verbose)
 		    printf("CCSA inner iteration: rho -> %g\n", rho);
 	       for (i = 0; i < MIN(ccsa_verbose, m); ++i)
-		    printf("                CCSA rhoc[%d] -> %g\n", i,rhoc[i]);
+		    printf("                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
 	  }
 
 	  if (nlopt_stop_ftol(stop, fcur, fprev))
@@ -527,7 +527,7 @@ nlopt_result ccsa_quadratic_minimize(
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], CCSA_RHOMIN);
 	  for (i = 0; i < MIN(ccsa_verbose, m); ++i)
-	       printf("                 CCSA rhoc[%d] -> %g\n", i, rhoc[i]);
+	       printf("                 CCSA rhoc[%u] -> %g\n", i, rhoc[i]);
 	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
 		    double dx2 = (xcur[j]-xprev[j]) * (xprev[j]-xprevprev[j]);
@@ -541,7 +541,7 @@ nlopt_result ccsa_quadratic_minimize(
 		    }
 	       }
 	       for (j = 0; j < MIN(ccsa_verbose, n); ++j)
-		    printf("                 CCSA sigma[%d] -> %g\n", 
+		    printf("                 CCSA sigma[%u] -> %g\n", 
 			   j, sigma[j]);
 	  }
      }

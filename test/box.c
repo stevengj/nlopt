@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-
-#include <nlopt.h>
+#include "nlopt.h"
 
 /****************************************************************************/
 /* test function from M. J. Box, "A new method of constrained optimization
@@ -130,11 +129,12 @@ static const double box_lb[5] = {0,1.2,20,9,6.5};
 static const double box_ub[5] = {HUGE_VAL, 2.4, 60, 9.3, 7.0};
 static const double box_xmin[5] = {4.53743, 2.4, 60, 9.3, 7.0};
 
-int main(void) {
+int main(void)
+{
      int cdata[6] = {-1,1,-2,2,-3,3};
      double x[5] = {2.52, 2, 37.5, 9.25, 6.8};
      double minf;
- 
+
      nlopt_minimize_constrained(NLOPT_LN_COBYLA, 5, box, NULL,
 				6, box_constraint, cdata, sizeof(int),
 				box_lb, box_ub, x, &minf,
