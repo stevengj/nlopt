@@ -1,14 +1,21 @@
 /*
-	A simple program to test the global optimizer.
-*/
+ * A simple program to test the global optimizer.
+ */
 
+#include <cstdlib>
+#include <iostream>
+using namespace std;
+
+#include "nlopt-util.h"
 #include "global.h"
 #include "tools.h"
+#include "linalg.h"
 #include "testfun.h"
 
 #define STRLEN_MAX 80
 
-int main() {
+int main()
+{
   bool AVfail, AVflag;
   int testfnc, dim, axis, i;
   double AVbest;
@@ -120,9 +127,9 @@ int main() {
     break;
   case 3:
     dim=3;
-    Dom=Domain_BoxBetts; 
+    Dom=Domain_BoxBetts;
     Obj=Objective_BoxBetts;
-    Grad=Gradient_BoxBetts; 
+    Grad=Gradient_BoxBetts;
     break;
   case 14:
     dim=10;
@@ -134,21 +141,21 @@ int main() {
     dim=4;
     Dom=Domain_Levy;
     Obj=Objective_Levy;
-    Grad=Gradient_Levy;  
+    Grad=Gradient_Levy;
     break;
   case 16:
     dim=5;
-    Dom=Domain_Levy; 
-    Obj=Objective_Levy; 
-    Grad=Gradient_Levy; 
+    Dom=Domain_Levy;
+    Obj=Objective_Levy;
+    Grad=Gradient_Levy;
     break;
- case 17:
+  case 17:
     dim=6;
     Dom=Domain_Levy;
     Obj=Objective_Levy;
     Grad=Gradient_Levy;
     break;
- case 18:
+  case 18:
     dim=7;
     Dom=Domain_Levy;
     Obj=Objective_Levy;
@@ -156,10 +163,10 @@ int main() {
     break;
   case 19:
     cout << "Enter problem dimension ";
-    int rast_dim;   
+    int rast_dim;
     cin >> rast_dim;
     dim=rast_dim;
-    Dom=Domain_Rastrigin;   
+    Dom=Domain_Rastrigin;
     Obj=Objective_Rastrigin;
     Grad=Gradient_Rastrigin;
     break;
@@ -167,7 +174,7 @@ int main() {
     cout << "Enter problem dimension (two or larger) ";
     int trid_dim;
     cin >> trid_dim;
-    dim=trid_dim; 
+    dim=trid_dim;
     Dom=Domain_Trid;
     Obj=Objective_Trid;
     Grad=Gradient_Trid;
@@ -178,19 +185,19 @@ int main() {
     Obj=Objective_Perm_4_50;
     Grad=Gradient_Perm_4_50;
     break;
- case 22:
+  case 22:
     dim=4;
     Dom=Domain_Perm;
     Obj=Objective_Perm_4_05;
     Grad=Gradient_Perm_4_05;
     break;
- case 23:  
+  case 23:
     dim=4;
     Dom=Domain_Powersum;
     Obj=Objective_Powersum;
     Grad=Gradient_Powersum;
     break;
- case 24:
+  case 24:
     cout << "Enter problem dimension ";
     int schwef_dim;
     cin >> schwef_dim;
@@ -207,7 +214,7 @@ int main() {
     break;
   default:
     cout << "Error : Function not defined" << endl;
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   cout << "Dimension=" <<dim << endl;
@@ -218,13 +225,18 @@ int main() {
     cout << "[" << D.lb(i) << "," << D.ub(i) << "]";
   cout << endl << endl;
 
-  GlobalParams params;
+  nlopt_stopping stop = {0};
+  stop.n = dim;
+  stop.maxtime = 0;
+  stop.maxeval = 0;
   cout << "Enter time limit (seconds) ";
-  cin >> params.maxtime;
-  if (params.maxtime<1) {   
+  cin >> stop.maxtime;
+  if (stop.maxtime<1) {
     cout << "Warning: time limit set to 1 second\n";
   }
-  params.maxeval = 0;
+
+  GlobalParams params;
+  params.stop = &stop;
   cout << "Use factory settings (y/n) ";
   char str[STRLEN_MAX]; cin >> str;
   if (str[0]=='y') {
@@ -252,11 +264,11 @@ int main() {
   RVector x_av(dim);
   if (AVflag==TRUE) {
     cout << "Enter time limit for each coordinate direction (seconds) ";
-    cin >> params.maxtime;
-    if (params.maxtime<1) {
+    cin >> stop.maxtime;
+    if (stop.maxtime<1) {
       cout << "Warning: time limit set to 1 second\n";
     }
-    params.maxeval = 0;
+    stop.maxeval = 0;
     params.det_pnts=3;
     TBox I(1);
     Global AV(I, Obj, Grad, params);
@@ -270,8 +282,8 @@ int main() {
       AV.Search(axis, x_av);
 
       if (AV.NoMinimizers()) {
-	cout << "AV failed with axis=" << axis << endl;
-	AVfail=TRUE; break;
+        cout << "AV failed with axis=" << axis << endl;
+        AVfail=TRUE; break;
       }
     }
 
@@ -285,7 +297,7 @@ int main() {
       Problem.SetMinValue(AVbest);
 
       // Add the best point found to the initial box (domain)
-      Problem.AddPoint(x_av, AVbest);      
+      Problem.AddPoint(x_av, AVbest);
     }
   }
 
@@ -298,4 +310,5 @@ int main() {
     cout << "### No improvement found ###" << endl;
   else
     Problem.DispMinimizers();
+  return EXIT_SUCCESS;
 }

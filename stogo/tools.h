@@ -1,16 +1,11 @@
-
 //   Various datastructures and functions used by the global optimizer
 
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include <float.h>
 #include <iostream>
-
-#include <algorithm>
-#include <iterator>
+#include <functional>
 #include <list>
-
 #include "linalg.h"
 
 #ifndef FALSE
@@ -24,7 +19,8 @@ typedef const class Trial CTrial;
 typedef CTrial& RCTrial;
 typedef CTrial* PCTrial;
 
-class Trial{
+class Trial
+{
 public:
   RVector xvals;
   double objval;
@@ -33,15 +29,15 @@ public:
   Trial(int);
   Trial(RCTrial); // Copy constructor
   RCTrial operator=(RCTrial) ; // assignment operator
-  friend ostream & operator << (ostream &, RCTrial) ;
+  friend std::ostream & operator<<(std::ostream &, RCTrial) ;
 };
 
-class TrialGT : public unary_function<Trial, bool>
 // Predicate for Trial (needed for remove_if)
+class TrialGT : public std::unary_function<Trial, bool>
 {
 public:
   explicit TrialGT(double val) : _val(val) {}
-  bool operator()(Trial& foo) { 
+  bool operator()(Trial& foo) {
     return foo.objval > _val;
   }
 private:
@@ -53,7 +49,8 @@ typedef const class VBox CVBox;
 typedef CVBox* PCVBox;
 typedef CVBox& RCVBox;
 
-class VBox{
+class VBox
+{
 public:
   RVector lb, ub;
 
@@ -66,7 +63,7 @@ public:
   double Width(int) ;            // Returns the width of the i-th interval
   void Midpoint(RCRVector);      // Returns the midpoint
 
-  friend ostream & operator << (ostream &, const VBox &);
+  friend std::ostream & operator<<(std::ostream &, const VBox &);
 };
 
 typedef class TBox& RTBox;
@@ -74,10 +71,11 @@ typedef const class TBox CTBox;
 typedef CTBox* PCTBox;
 typedef CTBox& RCTBox;
 
-class TBox: public VBox {
+class TBox : public VBox
+{
 public:
   double minf;   // Smallest function value found so far
-  list<Trial> TList; // List of trials
+  std::list<Trial> TList; // List of trials
 
   TBox();        // Construct a box
   TBox(int);
@@ -91,11 +89,11 @@ public:
   void RemoveTrial(Trial &);     // Remove a trial from the (back of) box
   void GetLastTrial(Trial &);    // Return a trial from the back of the box
 
-  list<Trial>::const_iterator FirstTrial();
-  list<Trial>::const_iterator LastTrial();
+  std::list<Trial>::const_iterator FirstTrial();
+  std::list<Trial>::const_iterator LastTrial();
 
-  void GetTrial(list<Trial>::const_iterator, Trial&);
-  void ClearBox();            
+  void GetTrial(std::list<Trial>::const_iterator, Trial&);
+  void ClearBox();
   bool CloseToMin(RVector&, double*, double);
 
   unsigned int NStationary();      // Returns the number of stationary points
@@ -112,8 +110,8 @@ public:
   bool Intersection(RCRVector, RCRVector, RCRVector);
   double LowerBound(double);
 
-  bool operator<(const TBox & x) const {return (minf>x.minf);}
-  friend ostream & operator << (ostream &, const TBox &);
+  bool operator<(const TBox & x) const { return (minf>x.minf); }
+  friend std::ostream & operator<<(std::ostream &, const TBox &);
 };
 
 #endif

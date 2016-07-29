@@ -5,8 +5,10 @@
 #ifndef LOCAL_H
 #define LOCAL_H
 
-#include "tools.h"
+#include "nlopt-util.h"
 #include "global.h"
+#include "tools.h"
+#include "linalg.h"
 
 extern int FC, GC ;
 

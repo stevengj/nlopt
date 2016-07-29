@@ -1,14 +1,15 @@
 #ifndef TESTFUN_H
 #define TESTFUN_H
 
-#include "linalg.h"
+#include <cmath>
 #include "tools.h"
-#include "stogo_config.h"
+#include "linalg.h"
 
 const double pi=fabs(acos(-1.));
 
 /* The Matrix a and vector c are needed in the Shekel function */
-static double a[10][4]={ { 4,4,4,4 } ,
+static double a[10][4]={
+			 { 4,4,4,4 } ,
 			 { 1,1,1,1 } ,
 			 { 8,8,8,8 } ,
 			 { 6,6,6,6 } ,
@@ -17,7 +18,7 @@ static double a[10][4]={ { 4,4,4,4 } ,
 			 { 5,5,3,3 } ,
 			 { 8,1,8,1 } ,
 			 { 6,2,6,2 } ,
-			 {7,3.6,7,3.6} };
+			 { 7,3.6,7,3.6} };
 static double c[10]= { .1 , .2 , .2 , .4 , .4 , .6 , .3, .7 , .5 , .5 };
 
 void Domain_Shekel(RTBox box) {
@@ -50,7 +51,7 @@ void Gradient_Shekel(RCRVector x, RVector &grad) {
 
 
 /******************** Unimodal functions ******************/
- 
+
 void Domain_Rosenbrock(RTBox box) {
   box.lb=-10.0 ; box.ub=10.0 ;
 }
@@ -115,7 +116,7 @@ void Domain_Paviani(RTBox box) {
  box.lb=2.001 ; box.ub=9.999 ;
 }
 
-double Objective_Paviani(RCRVector x) { 
+double Objective_Paviani(RCRVector x) {
   double a,b,sum=0.0, mul=1.0 ;
   int n=x.GetLength() ;
   for (int i=0 ; i<n ; i++) {
@@ -259,7 +260,7 @@ void Domain_Hansen(RTBox box) {
 
 double Objective_Hansen(RCRVector x) {
   return (cos(1.0)+2.0*cos(x(0)+2.0)+3.0*cos(2.0*x(0)+3.0)+4.0*cos(3.0*x(0)
-        +4.0)+5.0*cos(4.0*x(0)+5.0))*(cos(2.0*x(1)+1.0)+2.0*cos(3.0*x(1)+2.0)   
+        +4.0)+5.0*cos(4.0*x(0)+5.0))*(cos(2.0*x(1)+1.0)+2.0*cos(3.0*x(1)+2.0)
         +3.0*cos(4.0*x(1)+3.0)+4.0*cos(5.0*x(1)+4.0)+5.0*cos(6.0*x(1)+5.0));
 }
 
@@ -393,7 +394,7 @@ void Domain_Camel6(RTBox box) {
 
 double Objective_Camel6(RCRVector x) {
   double x1=x(0),x2=x(1) ;
-  return 4.0*x1*x1-0.21E1*pow(x1,4.0)+pow(x1,6.0)/3+x1*x2-4.0*x2*x2 
+  return 4.0*x1*x1-0.21E1*pow(x1,4.0)+pow(x1,6.0)/3+x1*x2-4.0*x2*x2
     + 4.0*pow(x2,4.0);
 }
 
@@ -476,8 +477,8 @@ void GradPerm(RCRVector x, RVector &grad, double beta) {
     for (int k=1 ; k<=n ; k++) {
       double s2=0.0;
       for (int i=1 ; i<=n; i++)
-	//      s2+=(i^k+beta)*((x(i-1)/i)^k-1);
-	s2+=(pow(1.0*i,1.0*k)+beta)*(pow(x(i-1)/i,1.0*k)-1);
+        //      s2+=(i^k+beta)*((x(i-1)/i)^k-1);
+        s2+=(pow(1.0*i,1.0*k)+beta)*(pow(x(i-1)/i,1.0*k)-1);
       //    s1+=2*s2*(j^k+beta)/(x(j-1)*j^k)*k*x(j-1)^k;
       s1+=2*s2*(pow(1.0*j,1.0*k)+beta)/pow(1.0*j,1.0*k)*k*pow(x(j-1),k-1.0);
     }
@@ -529,7 +530,7 @@ void Gradient_Powersum(RCRVector x, RVector &grad) {
     for (int k=1 ; k<=n ; k++) {
       double s2=0.0;
       for (int i=1 ; i<=n ; i++)
-	s2+=pow(x(i-1),1.0*k);
+        s2+=pow(x(i-1),1.0*k);
       s1+=2*(s2-b[k-1])*k*pow(x(j),k-1.0);
     }
     grad(j)=s1;

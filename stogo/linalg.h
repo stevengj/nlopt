@@ -7,9 +7,6 @@
 #define LINALG_H
 
 #include <iostream>
-using namespace std;
-#include <math.h>         // for sqrt()
-#include <float.h>
 
 typedef const class RVector CRVector;
 typedef CRVector& RCRVector;
@@ -23,8 +20,9 @@ double eps() ;
 
 /********************* Class RVector *********************/
 
-class RVector{
-protected:
+class RVector
+{
+ protected:
 
  public:
   int      len;       // size of array
@@ -44,7 +42,7 @@ protected:
   double *raw_data() { return elements; }
   const double *raw_data_const() const { return elements; }
 
-  friend ostream & operator << (ostream &, const RVector &);
+  friend std::ostream & operator<<(std::ostream &, const RVector &);
 
   friend double norm2(RCRVector) ;
   friend double normInf(RCRVector) ;
@@ -70,13 +68,13 @@ class RMatrix
    RMatrix() ;
    RMatrix(int); // dimension
   ~RMatrix() { delete[] Vals;  Vals=0 ; Dim=0; }
- 
+
   RMatrix(RCRMatrix); // copy constructor
   RCRMatrix operator=(double num) ;
   RCRMatrix operator=(RCRMatrix) ; // (needed for template stuff)
 
   double& operator()(int vidx,int hidx) ;
-  friend ostream & operator << (ostream &, const RMatrix &);
+  friend std::ostream & operator<<(std::ostream &, const RMatrix &);
 
   friend void gemv(char,double, RCRMatrix, RCRVector, double, RCRVector);
   friend void ger(double alpha,RCRVector,RCRVector,RCRMatrix);
