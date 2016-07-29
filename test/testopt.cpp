@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <stdlib.h>
@@ -42,7 +42,6 @@
 extern "C" int feenableexcept (int EXCEPTS);
 #endif
 
-
 #include "nlopt.h"
 #include "nlopt-util.h"
 #include "testfuncs.h"
@@ -53,21 +52,12 @@ static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
 static int force_constraints = 0;
-static int fix_bounds[100] = {0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0,
-			      0,0,0,0,0,0,0,0,0,0};
+static int fix_bounds[100] = {0};
 
 static void listalgs(FILE *f)
 {
   int i;
-  fprintf(f, "Available algorithms:\n");
+  fprintf(f, "\nAvailable algorithms:\n");
   for (i = 0; i < NLOPT_NUM_ALGORITHMS; ++i)
     fprintf(f, "  %2d: %s\n", i, nlopt_algorithm_name((nlopt_algorithm) i));
 }
@@ -75,7 +65,7 @@ static void listalgs(FILE *f)
 static void listfuncs(FILE *f)
 {
   int i;
-  fprintf(f, "Available objective functions:\n");
+  fprintf(f, "\nAvailable objective functions:\n");
   for (i = 0; i < NTESTFUNCS; ++i)
     fprintf(f, "  %2d: %s (%d dims)\n", i, testfuncs[i].name, testfuncs[i].n);
 }
@@ -94,7 +84,7 @@ static double bounds_wrap_func(int n, const double *x, double *grad, void *d_)
   for (i = 0; i < n; ++i) {
     if (x[i] < d->lb[i]) {
       b = d->lb[i];
-      break; 
+      break;
     }
     else if (x[i] > d->ub[i]) {
       b = d->ub[i];
@@ -103,7 +93,7 @@ static double bounds_wrap_func(int n, const double *x, double *grad, void *d_)
   }
   if (i < n)
     fprintf(stderr, "WARNING: bounds violated by x[%d] = %g = %g + %g\n",
-	    i, x[i], b, x[i] - b);
+      i, x[i], b, x[i] - b);
   return d->f(n, x, grad, d->f_data);
 }
 
@@ -117,7 +107,7 @@ static int test_function(int ifunc)
   int total_count = 0, max_count = 0, min_count = 1<<30;
   double total_err = 0, max_err = 0;
   bounds_wrap_data bw;
-  
+
   if (ifunc < 0 || ifunc >= NTESTFUNCS) {
     fprintf(stderr, "testopt: invalid function %d\n", ifunc);
     listfuncs(stderr);
@@ -136,11 +126,12 @@ static int test_function(int ifunc)
   bw.f_data = func.f_data;
 
   for (i = 0; i < func.n; ++i) xtabs[i] = xtol_abs;
-  minf_max = minf_max_delta > (-HUGE_VAL) ? minf_max_delta + func.minf : (-HUGE_VAL);
-  
+  minf_max = minf_max_delta > (-HUGE_VAL) ?
+    minf_max_delta + func.minf : (-HUGE_VAL);
+
   printf("-----------------------------------------------------------\n");
   printf("Optimizing %s (%d dims) using %s algorithm\n",
-	 func.name, func.n, nlopt_algorithm_name(algorithm));
+    func.name, func.n, nlopt_algorithm_name(algorithm));
   printf("lower bounds at lb = [");
   for (i = 0; i < func.n; ++i) printf(" %g", func.lb[i]);
   printf("]\n");
@@ -150,16 +141,16 @@ static int test_function(int ifunc)
   memcpy(lb, func.lb, func.n * sizeof(double));
   memcpy(ub, func.ub, func.n * sizeof(double));
   for (i = 0; i < func.n; ++i) if (fix_bounds[i]) {
-      printf("fixing bounds for dim[%d] to xmin[%d]=%g\n",
-	     i, i, func.xmin[i]);
-      lb[i] = ub[i] = func.xmin[i];
+    printf("fixing bounds for dim[%d] to xmin[%d]=%g\n",
+      i, i, func.xmin[i]);
+    lb[i] = ub[i] = func.xmin[i];
   }
   if (force_constraints) {
     for (i = 0; i < func.n; ++i) {
       if (nlopt_iurand(2) == 0)
-	ub[i] = nlopt_urand(lb[i], func.xmin[i]);
+        ub[i] = nlopt_urand(lb[i], func.xmin[i]);
       else
-	lb[i] = nlopt_urand(func.xmin[i], ub[i]);
+        lb[i] = nlopt_urand(func.xmin[i], ub[i]);
     }
     printf("adjusted lower bounds at lb = [");
     for (i = 0; i < func.n; ++i) printf(" %g", lb[i]);
@@ -173,9 +164,9 @@ static int test_function(int ifunc)
     fprintf(stderr, "BUG: function does not achieve given lower bound!\n");
     fprintf(stderr, "f(%g", func.xmin[0]);
     for (i = 1; i < func.n; ++i) fprintf(stderr, ", %g", func.xmin[i]);
-    fprintf(stderr, ") = %0.16g instead of %0.16g, |diff| = %g\n", 
-	    func.f(func.n, func.xmin, 0, func.f_data), func.minf,
-	    fabs(func.f(func.n, func.xmin, 0, func.f_data) - func.minf));
+    fprintf(stderr, ") = %0.16g instead of %0.16g, |diff| = %g\n",
+      func.f(func.n, func.xmin, 0, func.f_data), func.minf,
+      fabs(func.f(func.n, func.xmin, 0, func.f_data) - func.minf));
     return 0;
   }
 
@@ -186,53 +177,52 @@ static int test_function(int ifunc)
     printf("Starting guess x = [");
     for (i = 0; i < func.n; ++i) {
       if (center_start)
-	x[i] = (ub[i] + lb[i]) * 0.5;
+        x[i] = (ub[i] + lb[i]) * 0.5;
       else if (xinit_tol < 0) { /* random starting point near center of box */
-	double dx = (ub[i] - lb[i]) * 0.25;
-	double xm = 0.5 * (ub[i] + lb[i]);
-	x[i] = nlopt_urand(xm - dx, xm + dx);
+        double dx = (ub[i] - lb[i]) * 0.25;
+        double xm = 0.5 * (ub[i] + lb[i]);
+        x[i] = nlopt_urand(xm - dx, xm + dx);
       }
       else {
-	x[i] = nlopt_urand(-xinit_tol, xinit_tol)
-	  + (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
-	if (x[i] > ub[i]) x[i] = ub[i];
-	else if (x[i] < lb[i]) x[i] = lb[i];
+        x[i] = nlopt_urand(-xinit_tol, xinit_tol) +
+          (1 + nlopt_urand(-xinit_tol, xinit_tol)) * func.xmin[i];
+        if (x[i] > ub[i]) x[i] = ub[i];
+        else if (x[i] < lb[i]) x[i] = lb[i];
       }
       printf(" %g", x[i]);
     }
     printf("]\n");
     f0 = func.f(func.n, x, x + func.n, func.f_data);
     printf("Starting function value = %g\n", f0);
-    
+
     if (iter == 0 && testfuncs_verbose && func.has_gradient) {
       printf("checking gradient:\n");
       for (i = 0; i < func.n; ++i) {
-	double f;
-	x[i] *= 1 + 1e-6;
-	f = func.f(func.n, x, NULL, func.f_data);
-	x[i] /= 1 + 1e-6;
-	printf("  grad[%d] = %g vs. numerical derivative %g\n",
-	       i, x[i + func.n], (f - f0) / (x[i] * 1e-6));
+        double f;
+        x[i] *= 1 + 1e-6;
+        f = func.f(func.n, x, NULL, func.f_data);
+        x[i] /= 1 + 1e-6;
+        printf("  grad[%d] = %g vs. numerical derivative %g\n",
+          i, x[i + func.n], (f - f0) / (x[i] * 1e-6));
       }
     }
-    
+
     testfuncs_counter = 0;
     ret = nlopt_minimize(algorithm,
-			 func.n, bounds_wrap_func, &bw,
-			 lb, ub,
-			 x, &minf,
-			 minf_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
-			 maxeval, maxtime);
+      func.n, bounds_wrap_func, &bw,
+      lb, ub,
+      x, &minf,
+      minf_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
+      maxeval, maxtime);
     printf("finished after %g seconds.\n", nlopt_seconds() - start);
     printf("return code %d from nlopt_minimize\n", ret);
-    if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED
-	&& ret != NLOPT_FORCED_STOP) {
+    if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED && ret != NLOPT_FORCED_STOP) {
       fprintf(stderr, "testopt: error in nlopt_minimize\n");
       free(x);
       return 0;
     }
-    printf("Found minimum f = %g after %d evaluations.\n", 
-	   minf, testfuncs_counter);
+    printf("Found minimum f = %g after %d evaluations.\n",
+      minf, testfuncs_counter);
     total_count += testfuncs_counter;
     if (testfuncs_counter > max_count) max_count = testfuncs_counter;
     if (testfuncs_counter < min_count) min_count = testfuncs_counter;
@@ -243,7 +233,7 @@ static int test_function(int ifunc)
       printf("|f - minf| = %g\n", fabs(minf - func.minf));
     else
       printf("|f - minf| = %g, |f - minf| / |minf| = %e\n",
-	     fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));
+        fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));
     total_err += fabs(minf - func.minf);
     if (fabs(minf - func.minf) > max_err)
       max_err = fabs(minf - func.minf);
@@ -253,14 +243,16 @@ static int test_function(int ifunc)
 
     val = func.f(func.n, x, NULL, func.f_data);
     if (val != minf) {
-      fprintf(stderr, "Mismatch %g between returned minf=%g and f(x) = %g\n", 
-	      minf - val, minf, val);
+      fprintf(stderr, "Mismatch %g between returned minf=%g and f(x) = %g\n",
+        minf - val, minf, val);
       free(x);
       return 0;
     }
   }
   if (iterations > 1)
-    printf("average #evaluations = %g (%d-%d)\naverage |f-minf| = %g, max |f-minf| = %g\n", total_count * 1.0 / iterations, min_count, max_count, total_err / iterations, max_err);
+    printf("average #evaluations = %g (%d-%d)\naverage |f-minf| = %g, max |f-minf| = %g\n",
+      total_count * 1.0 / iterations, min_count,
+      max_count, total_err / iterations, max_err);
 
   free(x);
   return 1;
@@ -268,43 +260,42 @@ static int test_function(int ifunc)
 
 static void usage(FILE *f)
 {
-  fprintf(f, "Usage: testopt [OPTIONS]\n"
-	  "Options:\n"
-	  "     -h : print this help\n"
-	  "     -L : list available algorithms and objective functions\n"
-	  "     -v : verbose mode\n"
-	  " -a <n> : use optimization algorithm <n>\n"
-	  " -o <n> : use objective function <n>\n"
-	  " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
-	  " -b <dim0,dim1,...>: eliminate given dims by equating bounds\n"
-	  "     -c : starting guess at center of cell\n"
-	  "     -C : put optimum outside of bound constraints\n"
-	  " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
-	  " -t <t> : use at most <t> seconds (default: disabled)\n"
-	  " -x <t> : relative tolerance <t> on x (default: disabled)\n"
-	  " -X <t> : absolute tolerance <t> on x (default: disabled)\n"
-	  " -f <t> : relative tolerance <t> on f (default: disabled)\n"
-	  " -F <t> : absolute tolerance <t> on f (default: disabled)\n"
-	  " -m <m> : stop when minf+<m> is reached (default: disabled)\n"
-	  " -i <n> : iterate optimization <n> times (default: 1)\n"
-	  " -r <s> : use random seed <s> for starting guesses\n"
-	  , maxeval);
+  fprintf(f, "Usage: testopt [OPTIONS]\n");
+  fprintf(f, "Options:\n");
+  fprintf(f, "     -h : print this help\n");
+  fprintf(f, "     -L : list available algorithms and objective functions\n");
+  fprintf(f, "     -v : verbose mode\n");
+  fprintf(f, " -a <n> : use optimization algorithm <n>\n");
+  fprintf(f, " -o <n> : use objective function <n>\n");
+  fprintf(f, " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n");
+  fprintf(f, " -b <dim0,dim1,...>: eliminate given dims by equating bounds\n");
+  fprintf(f, "     -c : starting guess at center of cell\n");
+  fprintf(f, "     -C : put optimum outside of bound constraints\n");
+  fprintf(f, " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n", maxeval);
+  fprintf(f, " -t <t> : use at most <t> seconds (default: disabled)\n");
+  fprintf(f, " -x <t> : relative tolerance <t> on x (default: disabled)\n");
+  fprintf(f, " -X <t> : absolute tolerance <t> on x (default: disabled)\n");
+  fprintf(f, " -f <t> : relative tolerance <t> on f (default: disabled)\n");
+  fprintf(f, " -F <t> : absolute tolerance <t> on f (default: disabled)\n");
+  fprintf(f, " -m <m> : stop when minf+<m> is reached (default: disabled)\n");
+  fprintf(f, " -i <n> : iterate optimization <n> times (default: 1)\n");
+  fprintf(f, " -r <s> : use random seed <s> for starting guesses\n");
 }
 
 int main(int argc, char **argv)
 {
   int c;
-  
+
   nlopt_srand_time();
   testfuncs_verbose = 0;
-  
+
   if (argc <= 1)
     usage(stdout);
 
 #if USE_FEENABLEEXCEPT
   feenableexcept(FE_INVALID);
 #endif
-  
+
   while ((c = getopt(argc, argv, "hLvCc0:r:a:o:i:e:t:x:X:f:F:m:b:")) != -1)
     switch (c) {
     case 'h':
@@ -326,15 +317,15 @@ int main(int argc, char **argv)
     case 'a':
       c = atoi(optarg);
       if (c < 0 || c >= NLOPT_NUM_ALGORITHMS) {
-	fprintf(stderr, "testopt: invalid algorithm %d\n", c);
-	listalgs(stderr);
-	return EXIT_FAILURE;
+        fprintf(stderr, "testopt: invalid algorithm %d\n", c);
+        listalgs(stderr);
+        return EXIT_FAILURE;
       }
       algorithm = (nlopt_algorithm) c;
       break;
     case 'o':
       if (!test_function(atoi(optarg)))
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
       break;
     case 'e':
       maxeval = atoi(optarg);
@@ -370,21 +361,21 @@ int main(int argc, char **argv)
     case 'b': {
       const char *s = optarg;
       while (s && *s) {
-	int b = atoi(s);
-	if (b < 0 || b >= 100) { 
-	  fprintf(stderr, "invalid -b argument");
-	  return EXIT_FAILURE;
-	}
-	fix_bounds[b] = 1;
-	s = strchr(s, ','); if (s) ++s;
+        int b = atoi(s);
+        if (b < 0 || b >= 100) {
+          fprintf(stderr, "invalid -b argument");
+          return EXIT_FAILURE;
+        }
+        fix_bounds[b] = 1;
+        s = strchr(s, ','); if (s) ++s;
       }
       break;
     }
     default:
-      fprintf(stderr, "harminv: invalid argument -%c\n", c);
+      fprintf(stderr, "invalid argument -%c\n", c);
       usage(stderr);
       return EXIT_FAILURE;
     }
-  
+
   return EXIT_SUCCESS;
 }
