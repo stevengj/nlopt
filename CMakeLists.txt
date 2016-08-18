@@ -12,7 +12,7 @@
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
 # Copyright (c) 2008-2009 Children's Hospital Boston 
 #==============================================================================
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.5)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
@@ -39,12 +39,14 @@ if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
 endif ()
 
+include (GNUInstallDirs)
 
 # Offer the user the choice of overriding the installation directories
-set (INSTALL_LIB_DIR     lib${LIB_SUFFIX} CACHE PATH "Installation directory for libraries")
-set (INSTALL_BIN_DIR     bin              CACHE PATH "Installation directory for executables")
-set (INSTALL_INCLUDE_DIR include          CACHE PATH "Installation directory for header files")
-set (INSTALL_DATA_DIR    share/nlopt       CACHE PATH "Installation directory for data files")
+set (INSTALL_LIB_DIR     ${CMAKE_INSTALL_LIBDIR}        CACHE PATH "Installation directory for libraries")
+set (INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}        CACHE PATH "Installation directory for executables")
+set (INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}    CACHE PATH "Installation directory for header files")
+set (INSTALL_DATA_DIR    ${CMAKE_INSTALL_DATADIR}/nlopt CACHE PATH "Installation directory for data files")
+set (INSTALL_MAN_DIR     ${CMAKE_INSTALL_MANDIR}        CACHE PATH "Installation directory for man documentation")
 set (INSTALL_CMAKE_DIR   ${INSTALL_LIB_DIR}/cmake/nlopt CACHE PATH "Installation directory for cmake config files")
 
 # Make relative paths absolute (needed later on)
@@ -216,7 +218,7 @@ if (BUILD_SHARED_LIBS)
   add_definitions (-DNLOPT_DLL_EXPORT)
 endif ()
 
-install (FILES ${NLOPT_HEADERS} DESTINATION include)
+install (FILES ${NLOPT_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
