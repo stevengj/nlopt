@@ -69,11 +69,13 @@ set (INSTALL_DATA_DIR    "${CMAKE_INSTALL_DATADIR}/nlopt"
   CACHE PATH "Installation directory for data files")
 set (INSTALL_MAN_DIR     "${CMAKE_INSTALL_MANDIR}"
   CACHE PATH "Installation directory for man pages")
+set (INSTALL_DOC_DIR       "${CMAKE_INSTALL_DOCDIR}"
+  CACHE PATH "Installation directory for doc files")
 set (INSTALL_CMAKE_DIR   "${INSTALL_LIB_DIR}/cmake/nlopt"
   CACHE PATH "Installation directory for CMake files")
 
 # Make relative paths absolute (needed later on)
-foreach (p LIB BIN INCLUDE DATA MAN CMAKE)
+foreach (p LIB BIN INCLUDE DATA MAN DOC CMAKE)
   set (var INSTALL_${p}_DIR)
   set (RELATIVE_INSTALL_${p}_DIR "${INSTALL_${p}_DIR}")
   if (NOT IS_ABSOLUTE "${${var}}")
@@ -307,6 +309,14 @@ if (UNIX)
     FILES api/nlopt.3 api/nlopt_minimize.3 api/nlopt_minimize_constrained.3
     DESTINATION "${RELATIVE_INSTALL_MAN_DIR}/man3")
 endif ()
+
+install (
+  FILES AUTHORS COPYING NEWS
+  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}")
+install (
+  FILES README.md
+  RENAME README
+  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}")
 
 #==============================================================================
 # DEV CMAKE GENERATION
