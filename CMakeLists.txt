@@ -38,11 +38,12 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # provide user options
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 option (WITH_CXX          "Enable C++-based routines (StoGO)" OFF)
-option (USE_SWIG          "Use SWIG to generate bindings" ON)
+option (WITH_SWIG          "Use SWIG to generate bindings" ON)
 option (BUILD_PYTHON      "Build Python bindings (using SWIG)" ON)
 option (BUILD_GUILE       "Build Guile bindings (using SWIG)" ON)
 option (BUILD_OCTAVE      "Build Octave bindings" ON)
 option (BUILD_MATLAB      "Build MATLAB bindings" ON)
+option (BUILD_TESTS       "Build Tests" ON)
 
 # enable C++ language compiler if needed
 if (WITH_CXX OR BUILD_PYTHON)
@@ -362,7 +363,7 @@ if (BUILD_GUILE)
   find_package (Guile)
 endif ()
 
-if (USE_SWIG)
+if (WITH_SWIG)
   find_package (SWIG)
 endif ()
 
@@ -406,8 +407,10 @@ endif ()
 #==============================================================================
 
 # tests: C, Python, Guile, Octave
-enable_testing ()
-add_subdirectory (test)
+if (BUILD_TESTS)
+  enable_testing ()
+  add_subdirectory (test)
+endif ()
 
 #==============================================================================
 # CPACK
