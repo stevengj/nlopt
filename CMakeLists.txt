@@ -53,7 +53,7 @@ if (BUILD_PYTHON OR BUILD_GUILE)
 endif ()
 
 # enable C++ language compiler if needed
-if (WITH_CXX OR BUILD_PYTHON)
+if (WITH_CXX OR BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE)
   enable_language (CXX)
 endif ()
 
