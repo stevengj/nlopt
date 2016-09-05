@@ -45,6 +45,7 @@ option (BUILD_OCTAVE        "Build Octave bindings" ON)
 option (BUILD_MATLAB        "Build MATLAB bindings" ON)
 option (BUILD_TESTS         "Build Tests" ON)
 option (WITH_EXTRA_WARNINGS "Enable extra compiler warnings (GNU GCC)" OFF)
+option (WITH_FOLDERS        "Enable grouping of files/targets in folders" ON)
 
 # validate options combination
 if (BUILD_PYTHON OR BUILD_GUILE)
@@ -97,6 +98,12 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 if (POLICY CMP0042)
   # Set MACOSX_RPATH to ON
   cmake_policy (SET CMP0042 NEW)
+endif ()
+
+# organize target projects inside IDE
+# (group cmake generated targets like ALL_BUILD/ZERO_CHECK/..)
+if (WITH_FOLDERS)
+  set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 endif ()
 
 # set compiler-specific flags
