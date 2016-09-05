@@ -222,6 +222,12 @@ install (FILES ${NLOPT_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
+
+# link against libm if needed
+if (UNIX)
+  target_link_libraries (${nlopt_lib} m)
+endif ()
+
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
 set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
 
