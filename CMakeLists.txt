@@ -13,7 +13,7 @@
 # Copyright (c) 2008-2009 Children's Hospital Boston
 #==============================================================================
 
-cmake_minimum_required (VERSION 2.8.5)
+cmake_minimum_required (VERSION 2.8.9)
 
 # default install directory locally inside build-tree
 # (this must come before calling PROJECT)
@@ -359,19 +359,15 @@ if (UNIX OR HAVE_LIBM)
   target_link_libraries (${nlopt_lib} m)
 endif ()
 
+# pass -fPIC in case swig module is built with static library
+if (NOT BUILD_SHARED_LIBS)
+  set_target_properties (${nlopt_lib} PROPERTIES POSITION_INDEPENDENT_CODE True)
+endif ()
+
 # library version
 set_target_properties (${nlopt_lib} PROPERTIES
   VERSION "${NLOPT_SOVERSION_STRING}"
   SOVERSION ${NLOPT_SOVERSION_INTERFACE})
-
-# pass -fPIC in case swig module is built with static library
-if (NOT BUILD_SHARED_LIBS)
-  check_c_compiler_flag (-fPIC HAS_FPIC)
-  if (HAS_FPIC)
-    set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
-  endif ()
-endif ()
 
 # library installation
 install (
