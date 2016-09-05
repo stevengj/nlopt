@@ -16,6 +16,9 @@
  * Cmake under Linux/Win32
  */
 
+#ifndef NLOPT_CONFIG_H
+#define NLOPT_CONFIG_H
+
 /* Major version number. */
 #define MAJOR_VERSION @NLOPT_MAJOR_VERSION@
 
@@ -26,72 +29,72 @@
 #define BUGFIX_VERSION @NLOPT_BUGFIX_VERSION@
 
 /* Name of package */
-#undef PACKAGE
+#define PACKAGE "@CMAKE_PROJECT_NAME@"
 
 /* Version number of package */
-#undef VERSION
+#define VERSION "@NLOPT_VERSION_STRING@"
 
 /* Define to the full name of this package. */
-#undef PACKAGE_NAME
+#define PACKAGE_NAME "@CMAKE_PROJECT_NAME@"
 
 /* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
+#define PACKAGE_TARNAME "@CMAKE_PROJECT_NAME@"
 
 /* Define to the version of this package. */
-#undef PACKAGE_VERSION
+#define PACKAGE_VERSION "@NLOPT_VERSION_STRING@"
 
 /* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
+#define PACKAGE_STRING "@CMAKE_PROJECT_NAME@ @NLOPT_VERSION_STRING@"
 
 /* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT "stevenj@alum.mit.edu"
 
 /* Define to the home page for this package. */
-#undef PACKAGE_URL
+#define PACKAGE_URL "https://github.com/stevengj/nlopt"
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+/* Define if you can safely include both <sys/time.h> and <time.h>. */
 #cmakedefine TIME_WITH_SYS_TIME
 
-/* Define to 1 if you have the <sys/types.h> header file. */
+/* Define if you have the <sys/time.h> header file. */
 #cmakedefine HAVE_SYS_TIME_H
 
-/* Define to 1 if you have the <unistd.h> header file. */
+/* Define if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H
 
-/* Define to 1 if you have the <getopt.h> header file. */
+/* Define if you have the <getopt.h> header file. */
 #cmakedefine HAVE_GETOPT_H
 
-/* Define to 1 if you have the <stdint.h> header file. */
+/* Define if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H
 
-/* Define to 1 if you have the <inttypes.h> header file. */
+/* Define if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H
 
-/* Define to 1 if you have the <stdlib.h> header file. */
+/* Define if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H
 
-/* Define to 1 if you have the <memory.h> header file. */
+/* Define if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H
 
-/* Define to 1 if you have the <strings.h> header file. */
+/* Define if you have the <strings.h> header file. */
 #cmakedefine HAVE_STRINGS_H
 
-/* Define to 1 if you have the <string.h> header file. */
+/* Define if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H
 
-/* Define to 1 if you have the <sys/stat.h> header file. */
+/* Define if you have the <sys/stat.h> header file. */
 #cmakedefine HAVE_SYS_STAT_H
 
-/* Define to 1 if you have the <sys/types.h> header file. */
+/* Define if you have the <sys/types.h> header file. */
 #cmakedefine HAVE_SYS_TYPES_H
 
-/* Define to 1 if you have the <dlfcn.h> header file. */
+/* Define if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H
 
-/* Define to 1 if you have the `m' library (-lm). */
+/* Define if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
 /* Define if the isnan() function/macro is available. */
@@ -109,28 +112,28 @@
 /* replacement for broken HUGE_VAL macro, if needed */
 #undef REPLACEMENT_HUGE_VAL
 
-/* Define to 1 if you have the `BSDgettimeofday' function. */
+/* Define if you have the `BSDgettimeofday' function. */
 #undef HAVE_BSDGETTIMEOFDAY
 
-/* Define to 1 if you have the `gettimeofday' function. */
+/* Define if you have the `gettimeofday' function. */
 #cmakedefine HAVE_GETTIMEOFDAY
 
-/* Define to 1 if you have the `time' function. */
+/* Define if you have the `time' function. */
 #cmakedefine HAVE_TIME
 
 /* Define if syscall(SYS_gettid) available. */
 #undef HAVE_GETTID_SYSCALL
 
-/* Define to 1 if you have the `getpid' function. */
+/* Define if you have the `getpid' function. */
 #cmakedefine HAVE_GETPID
 
-/* Define to 1 if you have the `qsort_r' function. */
+/* Define if you have the `qsort_r' function. */
 #cmakedefine HAVE_QSORT_R
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
-/* Define to 1 if the system has the type `uint32_t'. */
+/* Define if the system has the type `uint32_t'. */
 #cmakedefine HAVE_UINT32_T
 
 /* The size of `unsigned int', as computed by sizeof. */
@@ -157,3 +160,5 @@
 
 /* Define to enable extra debugging code. */
 #undef DEBUG
+
+#endif
