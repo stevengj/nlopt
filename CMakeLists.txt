@@ -253,6 +253,11 @@ endif ()
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
 
+# link against libm if needed
+if (UNIX)
+  target_link_libraries (${nlopt_lib} m)
+endif ()
+
 # library version
 set_target_properties (${nlopt_lib} PROPERTIES
   VERSION "${NLOPT_SOVERSION_STRING}"
