@@ -268,62 +268,82 @@ configure_file (config.cmake.h.in config.h IMMEDIATE)
 # NLOPT LIBRARY TARGET
 #==============================================================================
 
+# lists of source files
+set (NLOPT_SOURCES_DIRECT direct/DIRect.c direct/direct_wrap.c
+  direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h
+  direct/direct.h)
+set (NLOPT_SOURCES_CDIRECT cdirect/cdirect.c cdirect/hybrid.c
+  cdirect/cdirect.h)
+set (NLOPT_SOURCES_STOGO stogo/global.cc stogo/linalg.cc stogo/local.cc
+  stogo/tools.cc stogo/stogo.cc stogo/global.h stogo/linalg.h stogo/local.h
+  stogo/tools.h stogo/stogo_config.h stogo/stogo.h)
+set (NLOPT_SOURCES_PRAXIS praxis/praxis.c praxis/praxis.h)
+set (NLOPT_SOURCES_LUKSAN luksan/plis.c luksan/plip.c luksan/pnet.c
+  luksan/mssubs.c luksan/pssubs.c luksan/luksan.h)
+set (NLOPT_SOURCES_CRS crs/crs.c crs/crs.h)
+set (NLOPT_SOURCES_MLSL mlsl/mlsl.c mlsl/mlsl.h)
+set (NLOPT_SOURCES_MMA mma/mma.c mma/mma.h mma/ccsa_quadratic.c)
+set (NLOPT_SOURCES_COBYLA cobyla/cobyla.c cobyla/cobyla.h)
+set (NLOPT_SOURCES_NEWUOA newuoa/newuoa.c newuoa/newuoa.h)
+set (NLOPT_SOURCES_NELDERMEAD neldermead/nldrmd.c neldermead/sbplx.c
+  neldermead/neldermead.h)
+set (NLOPT_SOURCES_AUGLAG auglag/auglag.c auglag/auglag.h)
+set (NLOPT_SOURCES_BOBYQA bobyqa/bobyqa.c bobyqa/bobyqa.h)
+set (NLOPT_SOURCES_ISRES isres/isres.c isres/isres.h)
+set (NLOPT_SOURCES_ESCH esch/esch.c esch/esch.h)
+set (NLOPT_SOURCES_SLSQP slsqp/slsqp.c slsqp/slsqp.h)
+set (NLOPT_SOURCES_CQUAD cquad/cquad.c cquad/cquad.h)
+set (NLOPT_SOURCES_SUBPLEX subplex/subplex.c subplex/subplex.h)
+set (NLOPT_SOURCES_TENSOR tensor/tensor.c)
+set (NLOPT_SOURCES_API api/general.c api/options.c api/optimize.c
+  api/deprecated.c api/nlopt-internal.h api/nlopt.h)
+set (NLOPT_SOURCES_F77 api/f77api.c api/f77funcs.h api/f77funcs_.h)
+set (NLOPT_SOURCES_UTIL util/mt19937ar.c util/sobolseq.c util/timer.c
+  util/stop.c util/redblack.c util/qsort_r.c util/rescale.c util/soboldata.h
+  util/nlopt-util.h util/redblack.h)
+
+# source files: C
+set (NLOPT_SOURCES
+  ${NLOPT_SOURCES_DIRECT}
+  ${NLOPT_SOURCES_CDIRECT}
+  ${NLOPT_SOURCES_PRAXIS}
+  ${NLOPT_SOURCES_LUKSAN}
+  ${NLOPT_SOURCES_CRS}
+  ${NLOPT_SOURCES_MLSL}
+  ${NLOPT_SOURCES_MMA}
+  ${NLOPT_SOURCES_COBYLA}
+  ${NLOPT_SOURCES_NEWUOA}
+  ${NLOPT_SOURCES_NELDERMEAD}
+  ${NLOPT_SOURCES_AUGLAG}
+  ${NLOPT_SOURCES_BOBYQA}
+  ${NLOPT_SOURCES_ISRES}
+  ${NLOPT_SOURCES_ESCH}
+  ${NLOPT_SOURCES_SLSQP}
+  #${NLOPT_SOURCES_CQUAD}
+  #${NLOPT_SOURCES_SUBPLEX}
+  #${NLOPT_SOURCES_TENSOR}
+  ${NLOPT_SOURCES_API}
+  ${NLOPT_SOURCES_UTIL}
+)
+
+# source files: Fortran interface
+list (APPEND NLOPT_SOURCES ${NLOPT_SOURCES_F77})
+
+# source files: C++
+if (WITH_CXX)
+  list (APPEND NLOPT_SOURCES ${NLOPT_SOURCES_STOGO})
+endif ()
+
+# include dirs
 set (${INCLUDE_DIRECTORIES} "")
 include_directories (
   ${CMAKE_BINARY_DIR}/api
   ${CMAKE_BINARY_DIR}
-  stogo
-  util
-  direct
-  cdirect
-  praxis
-  luksan
-  crs
-  mlsl
-  mma
-  cobyla
-  newuoa
-  neldermead
-  auglag
-  bobyqa
-  isres
-  esch
-  slsqp
-  #cquad
-  #subplex
-  #tensor
-  api
+  api util
+  direct cdirect praxis luksan crs mlsl mma cobyla newuoa neldermead
+  auglag bobyqa isres esch slsqp stogo
+  #cquad subplex tensor
 )
-
-# source files: C
-set (NLOPT_SOURCES
-  direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
-  cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
-  praxis/praxis.c praxis/praxis.h
-  luksan/plis.c luksan/plip.c luksan/pnet.c luksan/mssubs.c luksan/pssubs.c luksan/luksan.h
-  crs/crs.c crs/crs.h
-  mlsl/mlsl.c mlsl/mlsl.h
-  mma/mma.c mma/mma.h mma/ccsa_quadratic.c
-  cobyla/cobyla.c cobyla/cobyla.h
-  newuoa/newuoa.c newuoa/newuoa.h
-  neldermead/nldrmd.c neldermead/neldermead.h neldermead/sbplx.c
-  auglag/auglag.c auglag/auglag.h
-  bobyqa/bobyqa.c bobyqa/bobyqa.h
-  isres/isres.c isres/isres.h
-  esch/esch.c esch/esch.h
-  slsqp/slsqp.c slsqp/slsqp.h
-  #cquad/cquad.c cquad/cquad.h
-  #subplex/subplex.c subplex/subplex.h
-  #tensor/tensor.c
-  api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
-  util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c
-)
-
-# source files: C++
-if (WITH_CXX)
-  list (APPEND NLOPT_SOURCES
-    stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h)
-endif ()
 
 # dllimport/dllexport decorations for Windows
 if (BUILD_SHARED_LIBS AND WIN32)
