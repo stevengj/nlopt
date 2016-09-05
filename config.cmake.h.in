@@ -53,7 +53,9 @@
 #define PACKAGE_URL "https://github.com/stevengj/nlopt"
 
 /* Define if you have the ANSI C header files. */
+#ifndef __cplusplus
 #undef STDC_HEADERS
+#endif
 
 /* Define if you can safely include both <sys/time.h> and <time.h>. */
 #cmakedefine TIME_WITH_SYS_TIME
@@ -122,13 +124,14 @@
 #cmakedefine HAVE_TIME
 
 /* Define if syscall(SYS_gettid) available. */
-#undef HAVE_GETTID_SYSCALL
+#cmakedefine HAVE_GETTID_SYSCALL
 
 /* Define if you have the `getpid' function. */
 #cmakedefine HAVE_GETPID
 
 /* Define if you have the `qsort_r' function. */
 #cmakedefine HAVE_QSORT_R
+/* #undef HAVE_QSORT_R_damn_it_use_my_own */
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
@@ -147,7 +150,9 @@
 #define THREADLOCAL @THREADLOCAL@
 
 /* Define to empty if `const' does not conform to ANSI C. */
+#ifndef __cplusplus
 #undef const
+#endif
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if `inline' is not supported under any name. */
@@ -159,6 +164,6 @@
 #cmakedefine WITH_CXX
 
 /* Define to enable extra debugging code. */
-#undef DEBUG
+/* #undef DEBUG */
 
 #endif
