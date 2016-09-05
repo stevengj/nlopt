@@ -33,7 +33,7 @@ endif ()
 project (nlopt C)
 
 # append path to custom cmake modules FindXXX
-list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # provide user options
 option (BUILD_SHARED_LIBS   "Build NLopt as a shared library" ON)
@@ -64,27 +64,22 @@ if (WITH_CXX)
   set (NLOPT_SUFFIX _cxx)
 endif ()
 
-include (GNUInstallDirs)
-
 # Offer the user the choice of overriding the installation directories
 # (these are relative to CMAKE_INSTALL_PREFIX)
+include (GNUInstallDirs)
 set (INSTALL_LIB_DIR     "${CMAKE_INSTALL_LIBDIR}"
   CACHE PATH "Installation directory for libraries")
 set (INSTALL_BIN_DIR     "${CMAKE_INSTALL_BINDIR}"
   CACHE PATH "Installation directory for executables")
 set (INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}"
   CACHE PATH "Installation directory for header files")
-set (INSTALL_DATA_DIR    "${CMAKE_INSTALL_DATADIR}/nlopt"
-  CACHE PATH "Installation directory for data files")
 set (INSTALL_MAN_DIR     "${CMAKE_INSTALL_MANDIR}"
   CACHE PATH "Installation directory for man pages")
-set (INSTALL_DOC_DIR       "${CMAKE_INSTALL_DOCDIR}"
+set (INSTALL_DOC_DIR     "${CMAKE_INSTALL_DOCDIR}"
   CACHE PATH "Installation directory for doc files")
-set (INSTALL_CMAKE_DIR   "${INSTALL_LIB_DIR}/cmake/nlopt"
-  CACHE PATH "Installation directory for CMake files")
 
 # Make relative paths absolute (needed later on)
-foreach (p LIB BIN INCLUDE DATA MAN DOC CMAKE)
+foreach (p LIB BIN INCLUDE MAN DOC)
   set (var INSTALL_${p}_DIR)
   set (RELATIVE_INSTALL_${p}_DIR "${INSTALL_${p}_DIR}")
   if (NOT IS_ABSOLUTE "${${var}}")
@@ -460,15 +455,15 @@ export (
 # install the export set for use from the install-tree
 install (
   EXPORT NLoptLibraryDepends
-  DESTINATION "${RELATIVE_INSTALL_CMAKE_DIR}"
+  DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/cmake/nlopt"
   COMPONENT "Development")
 
 # create cmake config files for build-tree and install-tree
 set (NLOPT_LIBRARIES ${nlopt_lib})
 file (RELATIVE_PATH RELATIVE_NLOPT_INCLUDE_DIRS
-  "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
+  "${INSTALL_LIB_DIR}/cmake/nlopt" "${INSTALL_INCLUDE_DIR}")
 file (RELATIVE_PATH RELATIVE_NLOPT_LIB_DIR
-  "${INSTALL_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
+  "${INSTALL_LIB_DIR}/cmake/nlopt" "${INSTALL_LIB_DIR}")
 configure_file (cmake/NLoptConfig.cmake.in NLoptConfig.cmake @ONLY)
 configure_file (cmake/NLoptConfigVersion.cmake.in NLoptConfigVersion.cmake @ONLY)
 
@@ -477,7 +472,7 @@ install (
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/NLoptConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/NLoptConfigVersion.cmake"
-  DESTINATION "${RELATIVE_INSTALL_CMAKE_DIR}"
+  DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/cmake/nlopt"
   COMPONENT "Development")
 
 #==============================================================================
