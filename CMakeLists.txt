@@ -45,6 +45,13 @@ option (BUILD_OCTAVE      "Build Octave bindings" ON)
 option (BUILD_MATLAB      "Build MATLAB bindings" ON)
 option (BUILD_TESTS       "Build Tests" ON)
 
+# validate options combination
+if (BUILD_PYTHON OR BUILD_GUILE)
+  if (NOT WITH_SWIG)
+    message (WARNING "Python/Guile wrappers require SWIG")
+  endif ()
+endif ()
+
 # enable C++ language compiler if needed
 if (WITH_CXX OR BUILD_PYTHON)
   enable_language (CXX)
