@@ -1,9 +1,4 @@
 
-# install man
-if (UNIX)
-  install (FILES nlopt.3 nlopt_minimize.3 nlopt_minimize_constrained.3 DESTINATION ${INSTALL_MAN_DIR}/man3)
-endif ()
-
 # generate nlopt.f from nlopt.h enums
 if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f)
   file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f "")
