@@ -276,7 +276,7 @@ if (BUILD_OCTAVE)
 endif ()
 
 if (BUILD_MATLAB)
-  find_package (Matlab)
+  find_package (Matlab COMPONENTS MX_LIBRARY MAIN_PROGRAM)
 endif ()
 
 if (OCTAVE_FOUND OR Matlab_FOUND)
