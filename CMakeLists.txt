@@ -406,9 +406,9 @@ endif ()
 install (
   TARGETS ${nlopt_lib}
   EXPORT  NLoptLibraryDepends
-  RUNTIME DESTINATION "${RELATIVE_INSTALL_BIN_DIR}"
-  LIBRARY DESTINATION "${RELATIVE_INSTALL_LIB_DIR}"
-  ARCHIVE DESTINATION "${RELATIVE_INSTALL_LIB_DIR}")
+  RUNTIME DESTINATION "${RELATIVE_INSTALL_BIN_DIR}" COMPONENT "Libraries"
+  LIBRARY DESTINATION "${RELATIVE_INSTALL_LIB_DIR}" COMPONENT "Libraries"
+  ARCHIVE DESTINATION "${RELATIVE_INSTALL_LIB_DIR}" COMPONENT "Libraries")
 
 #==============================================================================
 # C/C++/FORTRAN HEADERS
@@ -426,25 +426,27 @@ set (NLOPT_HEADERS
 
 install (
   FILES ${NLOPT_HEADERS}
-  DESTINATION "${RELATIVE_INSTALL_INCLUDE_DIR}")
+  DESTINATION "${RELATIVE_INSTALL_INCLUDE_DIR}"
+  COMPONENT "Headers")
 
 #==============================================================================
 # MAN PAGES AND DOCS
 #==============================================================================
 
-if (UNIX)
-  install (
-    FILES api/nlopt.3 api/nlopt_minimize.3 api/nlopt_minimize_constrained.3
-    DESTINATION "${RELATIVE_INSTALL_MAN_DIR}/man3")
-endif ()
+install (
+  FILES api/nlopt.3 api/nlopt_minimize.3 api/nlopt_minimize_constrained.3
+  DESTINATION "${RELATIVE_INSTALL_MAN_DIR}/man3"
+  COMPONENT "Documentation")
 
 install (
   FILES AUTHORS COPYING NEWS
-  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}")
+  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}"
+  COMPONENT "Documentation")
 install (
   FILES README.md
   RENAME README
-  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}")
+  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}"
+  COMPONENT "Documentation")
 
 #==============================================================================
 # DEV CMAKE GENERATION
@@ -483,14 +485,12 @@ install (
 #==============================================================================
 
 # create and install pkgconfig file
-if (UNIX OR MINGW)
-  configure_file (nlopt.pc.in nlopt.pc @ONLY)
+configure_file (nlopt.pc.in nlopt.pc @ONLY)
 
-  install (
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc"
-    DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/pkgconfig"
-    COMPONENT "Development")
-endif ()
+install (
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc"
+  DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/pkgconfig"
+  COMPONENT "Development")
 
 #==============================================================================
 # PYTHON/GUILE BINDINGS (SWIG)
