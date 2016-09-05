@@ -376,6 +376,32 @@ set_target_properties (${nlopt_lib} PROPERTIES
   VERSION "${NLOPT_SOVERSION_STRING}"
   SOVERSION ${NLOPT_SOVERSION_INTERFACE})
 
+# group files and target projects in IDE
+if (WITH_FOLDERS)
+  source_group (direct     FILES ${NLOPT_SOURCES_DIRECT})
+  source_group (cdirect    FILES ${NLOPT_SOURCES_CDIRECT})
+  source_group (praxis     FILES ${NLOPT_SOURCES_PRAXIS})
+  source_group (luksan     FILES ${NLOPT_SOURCES_LUKSAN})
+  source_group (crs        FILES ${NLOPT_SOURCES_CRS})
+  source_group (mlsl       FILES ${NLOPT_SOURCES_MLSL})
+  source_group (mma        FILES ${NLOPT_SOURCES_MMA})
+  source_group (cobyla     FILES ${NLOPT_SOURCES_COBYLA})
+  source_group (newuoa     FILES ${NLOPT_SOURCES_NEWUOA})
+  source_group (neldermead FILES ${NLOPT_SOURCES_NELDERMEAD})
+  source_group (auglag     FILES ${NLOPT_SOURCES_AUGLAG})
+  source_group (bobyqa     FILES ${NLOPT_SOURCES_BOBYQA})
+  source_group (isres      FILES ${NLOPT_SOURCES_ISRES})
+  source_group (esch       FILES ${NLOPT_SOURCES_ESCH})
+  source_group (slsqp      FILES ${NLOPT_SOURCES_SLSQP})
+  source_group (cquad      FILES ${NLOPT_SOURCES_CQUAD})
+  source_group (subplex    FILES ${NLOPT_SOURCES_SUBPLEX})
+  source_group (tensor     FILES ${NLOPT_SOURCES_TENSOR})
+  source_group (api        FILES ${NLOPT_SOURCES_API})
+  source_group (util       FILES ${NLOPT_SOURCES_UTIL})
+  source_group (f77        FILES ${NLOPT_SOURCES_F77})
+  source_group (stogo      FILES ${NLOPT_SOURCES_STOGO})
+endif ()
+
 # library installation
 install (
   TARGETS ${nlopt_lib}
