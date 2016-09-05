@@ -119,7 +119,7 @@ include (CheckIncludeFile)
 include (CheckIncludeFiles)
 include (CheckSymbolExists)
 include (CheckTypeSize)
-include (CheckCCompilerFlag)
+include (CheckCSourceCompiles)
 include (CMakePushCheckState)
 
 # AC_HEADER_STDC
@@ -174,17 +174,35 @@ check_type_size ("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
 
 # check TLS keyword
-option (WITH_THREADLOCAL "check thread local keyword" ON)
-if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
+if (NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
   foreach (_TLS_KEY "__thread" "__declspec(thread)")
     unset (HAVE_THREAD_LOCAL_STORAGE CACHE)
     check_c_source_compiles (
-      "${_TLS_KEY} int tls; int main(void) { return 0; }"
+      "${_TLS_KEY} int tls = 0; int main(void) { tls = 1; return 0; }"
       HAVE_THREAD_LOCAL_STORAGE)
     if (HAVE_THREAD_LOCAL_STORAGE)
-      set (THREADLOCAL ${_TLS_KEY})
+      set (THREADLOCAL ${_TLS_KEY} CACHE INTERNAL "Keyword TLS")
+      break ()
     endif ()
   endforeach ()
+  unset (_TLS_KEY)
+endif ()
+
+# check inline for C
+if (NOT DEFINED HAVE_C_INLINE)
+  foreach (_INLINE_KEY "inline" "__inline__" "__inline")
+    unset (HAVE_C_INLINE CACHE)
+    check_c_source_compiles ("
+        typedef int foo_t;
+        static ${_INLINE_KEY} foo_t foo() { return 0; }
+        int main(void) { return foo(); }
+      " HAVE_C_INLINE)
+    if (HAVE_C_INLINE)
+      set (C_INLINE ${_INLINE_KEY} CACHE INTERNAL "Keyword inline")
+      break ()
+    endif ()
+  endforeach ()
+  unset (_INLINE_KEY)
 endif ()
 
 #==============================================================================
