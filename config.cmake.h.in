@@ -88,7 +88,7 @@
 #cmakedefine HAVE_COPYSIGN
 
 /* replacement for broken HUGE_VAL macro, if needed */
-#undef REPLACEMENT_HUGE_VAL
+#cmakedefine REPLACEMENT_HUGE_VAL
 
 /* Define if you have the `gettimeofday' function. */
 #cmakedefine HAVE_GETTIMEOFDAY

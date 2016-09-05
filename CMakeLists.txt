@@ -205,6 +205,28 @@ if (NOT DEFINED HAVE_C_INLINE)
   unset (_INLINE_KEY)
 endif ()
 
+# check for broken Solaris HUGE_VAL macro under gcc 3.4.x and similar
+if (NOT DEFINED HAVE_HUGE_VAL)
+  check_c_source_compiles (
+    "#include <math.h>\nint main(void) { double x = -HUGE_VAL; return 0; }"
+    HAVE_HUGE_VAL)
+  if (NOT HAVE_HUGE_VAL)
+    unset (HAVE_HUGE_VAL CACHE)
+    check_c_source_compiles ("
+        #include <math.h>
+        #ifdef __GNUC__
+        #undef HUGE_VAL
+        #define HUGE_VAL __builtin_huge_val()
+        #endif
+        int main(void) { double x = -HUGE_VAL; return 0; }
+      " HAVE_HUGE_VAL)
+    if (HAVE_HUGE_VAL)
+      set (REPLACEMENT_HUGE_VAL "__builtin_huge_val()" CACHE INTERNAL
+        "Replacement for HUGE_VAL")
+    endif ()
+  endif ()
+endif ()
+
 #==============================================================================
 # CONFIGURATION GENERATION
 #==============================================================================
