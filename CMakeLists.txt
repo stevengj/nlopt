@@ -36,14 +36,15 @@ project (nlopt C)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # provide user options
-option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
-option (WITH_CXX          "Enable C++-based routines (StoGO)" OFF)
-option (WITH_SWIG          "Use SWIG to generate bindings" ON)
-option (BUILD_PYTHON      "Build Python bindings (using SWIG)" ON)
-option (BUILD_GUILE       "Build Guile bindings (using SWIG)" ON)
-option (BUILD_OCTAVE      "Build Octave bindings" ON)
-option (BUILD_MATLAB      "Build MATLAB bindings" ON)
-option (BUILD_TESTS       "Build Tests" ON)
+option (BUILD_SHARED_LIBS   "Build NLopt as a shared library" ON)
+option (WITH_CXX            "Enable C++-based routines (StoGO)" OFF)
+option (WITH_SWIG           "Use SWIG to generate bindings" ON)
+option (BUILD_PYTHON        "Build Python bindings (using SWIG)" ON)
+option (BUILD_GUILE         "Build Guile bindings (using SWIG)" ON)
+option (BUILD_OCTAVE        "Build Octave bindings" ON)
+option (BUILD_MATLAB        "Build MATLAB bindings" ON)
+option (BUILD_TESTS         "Build Tests" ON)
+option (WITH_EXTRA_WARNINGS "Enable extra compiler warnings (GNU GCC)" OFF)
 
 # validate options combination
 if (BUILD_PYTHON OR BUILD_GUILE)
@@ -96,6 +97,28 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 if (POLICY CMP0042)
   # Set MACOSX_RPATH to ON
   cmake_policy (SET CMP0042 NEW)
+endif ()
+
+# set compiler-specific flags
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  if (WITH_EXTRA_WARNINGS)
+    # add extra warnings in maintainer mode
+    foreach (_FLG -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align
+        -Wno-long-long -pedantic -Wshadow -Wwrite-strings -Wredundant-decls
+        -Wundef -Wconversion)
+      set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_FLG}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_FLG}")
+    endforeach ()
+    foreach (_FLG -Wbad-function-cast -Wstrict-prototypes -Wnested-externs
+        -Wmissing-prototypes -Wmissing-declarations)
+      set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_FLG}")
+    endforeach ()
+    unset (_FLG)
+  else ()
+    # turn off deprecated warnings
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+  endif ()
 endif ()
 
 #==============================================================================
