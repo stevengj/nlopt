@@ -117,9 +117,10 @@ set (NLOPT_SOVERSION_STRING
 
 include (CheckIncludeFile)
 include (CheckIncludeFiles)
-include (CheckFunctionExists)
+include (CheckSymbolExists)
 include (CheckTypeSize)
 include (CheckCCompilerFlag)
+include (CMakePushCheckState)
 
 # AC_HEADER_STDC
 check_include_files ("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
@@ -133,41 +134,44 @@ check_include_file (unistd.h HAVE_UNISTD_H)
 check_include_file (getopt.h HAVE_GETOPT_H)
 check_include_file (stdint.h HAVE_STDINT_H)
 
+# AC_CHECK_LIB (libm mostly needed on UNIX)
+cmake_push_check_state ()
+set (CMAKE_REQUIRED_LIBRARIES m)
+check_symbol_exists (sqrt math.h HAVE_LIBM)
+cmake_pop_check_state ()
+
 # AC_CHECK_FUNCS from math.h
-check_function_exists (isnan HAVE_ISNAN)
-check_function_exists (isinf HAVE_ISINF)
-check_function_exists (copysign HAVE_COPYSIGN)
+cmake_push_check_state ()
+if (UNIX OR HAVE_LIBM)
+  set (CMAKE_REQUIRED_LIBRARIES m)
+endif ()
+check_symbol_exists (isnan math.h HAVE_ISNAN)
+check_symbol_exists (isinf math.h HAVE_ISINF)
+check_symbol_exists (isfinite math.h HAVE_ISFINITE)
+check_symbol_exists (fpclassify math.h HAVE_FPCLASSIFY)
+check_symbol_exists (copysign math.h HAVE_COPYSIGN)
+cmake_pop_check_state ()
 
 # AC_CHECK_FUNCS from sys/time.h;time.h
-check_function_exists (gettimeofday HAVE_GETTIMEOFDAY)
-check_function_exists (time HAVE_TIME)
+check_symbol_exists (gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
+check_symbol_exists (time time.h HAVE_TIME)
 
 # AC_CHECK_FUNCS from unistd.h
-check_function_exists (syscall HAVE_GETTID_SYSCALL)
-check_function_exists (getpid HAVE_GETPID)
+check_symbol_exists (syscall unistd.h HAVE_GETTID_SYSCALL)
+check_symbol_exists (getpid unistd.h HAVE_GETPID)
 
 # AC_CHECK_FUNCS for reentrant quicksort version
-check_function_exists (qsort_r HAVE_QSORT_R)
+check_symbol_exists (qsort_r stdlib.h HAVE_QSORT_R)
+
+# AC_CHECK_FUNCS for formatted IO functions
+check_symbol_exists (vsnprintf stdio.h HAVE_VSNPRINTF)
 
 # check for 32-bit unsigned integer type uint32_t
+# (NOTE: it autmatically checks and includes necessary standard headers)
 check_type_size ("uint32_t" SIZEOF_UINT32_T)
 set (HAVE_UINT32_T ${SIZEOF_UINT32_T})
 check_type_size ("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
-
-# check for fpclassify from math.h
-if (NOT DEFINED HAVE_FPCLASSIFY)
-  message (STATUS "Looking for fpclassify")
-  file (WRITE "${CMAKE_BINARY_DIR}/fpclassify.c" "#include <math.h>\n")
-  file (APPEND "${CMAKE_BINARY_DIR}/fpclassify.c" "int main(void) {\n")
-  file (APPEND "${CMAKE_BINARY_DIR}/fpclassify.c" "  if (!fpclassify(3.14159)) fpclassify(2.7183);\n")
-  file (APPEND "${CMAKE_BINARY_DIR}/fpclassify.c" "  return 0; }\n")
-  try_compile (HAVE_FPCLASSIFY
-    "${CMAKE_BINARY_DIR}/build_fpclassify"
-    "${CMAKE_BINARY_DIR}/fpclassify.c"
-    CMAKE_FLAGS -DLINK_LIBRARIES=m)
-  message (STATUS "Looking for fpclassify - ${HAVE_FPCLASSIFY}")
-endif ()
 
 # check TLS keyword
 option (WITH_THREADLOCAL "check thread local keyword" ON)
@@ -261,7 +265,7 @@ set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
 
 # link against libm if needed
-if (UNIX)
+if (UNIX OR HAVE_LIBM)
   target_link_libraries (${nlopt_lib} m)
 endif ()
 
