@@ -115,35 +115,39 @@ set (NLOPT_SOVERSION_STRING
 # COMPILATION CHECKINGS
 #==============================================================================
 
+include (CheckIncludeFile)
 include (CheckIncludeFiles)
 include (CheckFunctionExists)
 include (CheckTypeSize)
 include (CheckCCompilerFlag)
 
-check_include_file (dlfcn.h HAVE_DLFCN_H)
-check_include_file (getopt.h HAVE_GETOPT_H)
-check_include_file (unistd.h HAVE_UNISTD_H)
-check_include_file (string.h HAVE_STRING_H)
-check_include_file (strings.h HAVE_STRINGS_H)
-check_include_file (inttypes.h HAVE_INTTYPES_H)
-check_include_file (memory.h HAVE_MEMORY_H)
-check_include_file (stdlib.h HAVE_STDLIB_H)
-check_include_file (stdint.h HAVE_STDINT_H)
-check_include_file (time.h HAVE_TIME_H)
-check_include_file (sys/types.h HAVE_SYS_TYPES_H)
-check_include_file (sys/stat.h HAVE_SYS_STAT_H)
+# AC_HEADER_STDC
+check_include_files ("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
+
+# AC_HEADER_TIME
+check_include_files ("sys/time.h;time.h" TIME_WITH_SYS_TIME)
 check_include_file (sys/time.h HAVE_SYS_TIME_H)
-if (HAVE_TIME_H AND HAVE_SYS_TIME_H)
-  set (TIME_WITH_SYS_TIME TRUE)
-endif ()
-check_function_exists (getpid HAVE_GETPID)
-check_function_exists (syscall HAVE_GETTID_SYSCALL)
-check_function_exists (isinf HAVE_ISINF)
+
+# AC_CHECK_HEADERS for some POSIX headers
+check_include_file (unistd.h HAVE_UNISTD_H)
+check_include_file (getopt.h HAVE_GETOPT_H)
+check_include_file (stdint.h HAVE_STDINT_H)
+
+# AC_CHECK_FUNCS from math.h
 check_function_exists (isnan HAVE_ISNAN)
-check_function_exists (gettimeofday HAVE_GETTIMEOFDAY)
-check_function_exists (qsort_r HAVE_QSORT_R)
-check_function_exists (time HAVE_TIME)
+check_function_exists (isinf HAVE_ISINF)
 check_function_exists (copysign HAVE_COPYSIGN)
+
+# AC_CHECK_FUNCS from sys/time.h;time.h
+check_function_exists (gettimeofday HAVE_GETTIMEOFDAY)
+check_function_exists (time HAVE_TIME)
+
+# AC_CHECK_FUNCS from unistd.h
+check_function_exists (syscall HAVE_GETTID_SYSCALL)
+check_function_exists (getpid HAVE_GETPID)
+
+# AC_CHECK_FUNCS for reentrant quicksort version
+check_function_exists (qsort_r HAVE_QSORT_R)
 
 # check for 32-bit unsigned integer type uint32_t
 check_type_size ("uint32_t" SIZEOF_UINT32_T)
@@ -151,6 +155,7 @@ set (HAVE_UINT32_T ${SIZEOF_UINT32_T})
 check_type_size ("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
 
+# check for fpclassify from math.h
 if (NOT DEFINED HAVE_FPCLASSIFY)
   message (STATUS "Looking for fpclassify")
   file (WRITE "${CMAKE_BINARY_DIR}/fpclassify.c" "#include <math.h>\n")
