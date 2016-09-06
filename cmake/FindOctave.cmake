@@ -150,7 +150,9 @@ endif ()
 # find inclue dirs
 find_path (OCTAVE_INCLUDE_DIR
   NAMES octave/oct.h
-  HINTS "${OCTAVE_INCLUDE_PATHS}/..")
+  HINTS
+    "${OCTAVE_INCLUDE_PATHS}"
+    "${OCTAVE_INCLUDE_PATHS}/..")
 
 set (OCTAVE_INCLUDE_DIRS "${OCTAVE_INCLUDE_DIR}" "${OCTAVE_INCLUDE_DIR}/octave")
 
@@ -180,13 +182,24 @@ macro (octave_add_oct FUNCTIONNAME)
     endif ()
   endforeach ()
   # module target
-  add_library (${FUNCTIONNAME} SHARED ${_SOURCES})
+  add_library (${FUNCTIONNAME} MODULE ${_SOURCES})
+  if (CMAKE_VERSION VERSION_GREATER 2.8.10)
+    target_include_directories (${FUNCTIONNAME} BEFORE
+      PRIVATE ${OCTAVE_INCLUDE_DIRS})
+  endif ()
   target_link_libraries (${FUNCTIONNAME}
     ${OCTAVE_LIBRARIES} ${_LINK_LIBRARIES})
   set_target_properties (${FUNCTIONNAME} PROPERTIES
+    NO_SONAME ON
     PREFIX ""
     SUFFIX ".${_OCT_EXTENSION}"
   )
+  # cleanup
+  unset (_CMD)
+  unset (_SOURCES)
+  unset (_LINK_LIBRARIES)
+  unset (_EXTENSION)
+  unset (_OCT_EXTENSION)
 endmacro ()
 
 # handle REQUIRED and QUIET options
@@ -212,6 +225,10 @@ else ()
 endif ()
 
 mark_as_advanced (
+  OCTAVE_CONFIG_EXECUTABLE
+  OCTAVE_EXECUTABLE
+  OCTAVE_MKOCTFILE
+  OCTAVE_ROOT_DIR
   OCTAVE_OCT_FILE_DIR
   OCTAVE_OCT_LIB_DIR
   OCTAVE_OCTINTERP_LIBRARY
@@ -220,7 +237,6 @@ mark_as_advanced (
   OCTAVE_LIBRARIES
   OCTAVE_INCLUDE_DIR
   OCTAVE_INCLUDE_DIRS
-  OCTAVE_ROOT_DIR
   OCTAVE_VERSION_STRING
   OCTAVE_MAJOR_VERSION
   OCTAVE_MINOR_VERSION
