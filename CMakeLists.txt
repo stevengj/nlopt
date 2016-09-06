@@ -64,31 +64,12 @@ if (WITH_CXX)
   set (NLOPT_SUFFIX _cxx)
 endif ()
 
-# Offer the user the choice of overriding the installation directories
-# (these are relative to CMAKE_INSTALL_PREFIX)
+# default installation directories
+# (provides variables: CMAKE_INSTALL_<dir> and CMAKE_INSTALL_FULL_<dir>)
 include (GNUInstallDirs)
-set (INSTALL_LIB_DIR     "${CMAKE_INSTALL_LIBDIR}"
-  CACHE PATH "Installation directory for libraries")
-set (INSTALL_BIN_DIR     "${CMAKE_INSTALL_BINDIR}"
-  CACHE PATH "Installation directory for executables")
-set (INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}"
-  CACHE PATH "Installation directory for header files")
-set (INSTALL_MAN_DIR     "${CMAKE_INSTALL_MANDIR}"
-  CACHE PATH "Installation directory for man pages")
-set (INSTALL_DOC_DIR     "${CMAKE_INSTALL_DOCDIR}"
-  CACHE PATH "Installation directory for doc files")
 
-# Make relative paths absolute (needed later on)
-foreach (p LIB BIN INCLUDE MAN DOC)
-  set (var INSTALL_${p}_DIR)
-  set (RELATIVE_INSTALL_${p}_DIR "${INSTALL_${p}_DIR}")
-  if (NOT IS_ABSOLUTE "${${var}}")
-    set (${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-  endif ()
-endforeach ()
-
-# rpath
-set (CMAKE_INSTALL_RPATH "${INSTALL_LIB_DIR}")
+# set RPATH of installed executables and libraries
+set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 if (POLICY CMP0042)
   # Set MACOSX_RPATH to ON
@@ -401,9 +382,9 @@ endif ()
 install (
   TARGETS ${nlopt_lib}
   EXPORT  NLoptLibraryDepends
-  RUNTIME DESTINATION "${RELATIVE_INSTALL_BIN_DIR}" COMPONENT "Libraries"
-  LIBRARY DESTINATION "${RELATIVE_INSTALL_LIB_DIR}" COMPONENT "Libraries"
-  ARCHIVE DESTINATION "${RELATIVE_INSTALL_LIB_DIR}" COMPONENT "Libraries")
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT "Libraries"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT "Libraries"
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT "Libraries")
 
 #==============================================================================
 # C/C++/FORTRAN HEADERS
@@ -421,7 +402,7 @@ set (NLOPT_HEADERS
 
 install (
   FILES ${NLOPT_HEADERS}
-  DESTINATION "${RELATIVE_INSTALL_INCLUDE_DIR}"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   COMPONENT "Headers")
 
 #==============================================================================
@@ -430,17 +411,17 @@ install (
 
 install (
   FILES api/nlopt.3 api/nlopt_minimize.3 api/nlopt_minimize_constrained.3
-  DESTINATION "${RELATIVE_INSTALL_MAN_DIR}/man3"
+  DESTINATION "${CMAKE_INSTALL_MANDIR}/man3"
   COMPONENT "Documentation")
 
 install (
   FILES AUTHORS COPYING NEWS
-  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}"
+  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
   COMPONENT "Documentation")
 install (
   FILES README.md
   RENAME README
-  DESTINATION "${RELATIVE_INSTALL_DOC_DIR}"
+  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
   COMPONENT "Documentation")
 
 #==============================================================================
@@ -455,15 +436,15 @@ export (
 # install the export set for use from the install-tree
 install (
   EXPORT NLoptLibraryDepends
-  DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/cmake/nlopt"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/nlopt"
   COMPONENT "Development")
 
 # create cmake config files for build-tree and install-tree
 set (NLOPT_LIBRARIES ${nlopt_lib})
 file (RELATIVE_PATH RELATIVE_NLOPT_INCLUDE_DIRS
-  "${INSTALL_LIB_DIR}/cmake/nlopt" "${INSTALL_INCLUDE_DIR}")
+  "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/nlopt" "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 file (RELATIVE_PATH RELATIVE_NLOPT_LIB_DIR
-  "${INSTALL_LIB_DIR}/cmake/nlopt" "${INSTALL_LIB_DIR}")
+  "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/nlopt" "${CMAKE_INSTALL_FULL_LIBDIR}")
 configure_file (cmake/NLoptConfig.cmake.in NLoptConfig.cmake @ONLY)
 configure_file (cmake/NLoptConfigVersion.cmake.in NLoptConfigVersion.cmake @ONLY)
 
@@ -472,7 +453,7 @@ install (
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/NLoptConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/NLoptConfigVersion.cmake"
-  DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/cmake/nlopt"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/nlopt"
   COMPONENT "Development")
 
 #==============================================================================
@@ -484,7 +465,7 @@ configure_file (nlopt.pc.in nlopt.pc @ONLY)
 
 install (
   FILES "${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc"
-  DESTINATION "${RELATIVE_INSTALL_LIB_DIR}/pkgconfig"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
   COMPONENT "Development")
 
 #==============================================================================
@@ -511,13 +492,19 @@ if (PYTHONINTERP_FOUND)
     COMMAND "${PYTHON_EXECUTABLE}" -c
 "from distutils.sysconfig import get_python_lib
 print(get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
-    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
+    OUTPUT_VARIABLE PYTHON_MODULE_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  get_filename_component (_ABS_PYTHON_MODULE_PATH
-    "${_ABS_PYTHON_MODULE_PATH}" ABSOLUTE)
-  file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH
-    "${CMAKE_INSTALL_PREFIX}" "${_ABS_PYTHON_MODULE_PATH}")
-  set (PYTHON_MODULE_PATH "${_REL_PYTHON_MODULE_PATH}")
+  get_filename_component (PYTHON_MODULE_PATH "${PYTHON_MODULE_PATH}" ABSOLUTE)
+  file (RELATIVE_PATH RELATIVE_PYTHON_MODULE_PATH
+    "${CMAKE_INSTALL_PREFIX}" "${PYTHON_MODULE_PATH}")
+endif ()
+
+# guile extension installation directories
+if (GUILE_FOUND)
+  file (RELATIVE_PATH RELATIVE_GUILE_EXTENSION_DIR
+    "${GUILE_ROOT_DIR}" "${GUILE_EXTENSION_DIR}")
+  file (RELATIVE_PATH RELATIVE_GUILE_SITE_DIR
+    "${GUILE_ROOT_DIR}" "${GUILE_SITE_DIR}")
 endif ()
 
 # generate wrappers + Python/Guile modules targets
@@ -533,6 +520,14 @@ endif ()
 
 if (BUILD_MATLAB)
   find_package (Matlab COMPONENTS MX_LIBRARY MAIN_PROGRAM)
+endif ()
+
+# octave package installation directories
+if (OCTAVE_FOUND)
+  file (RELATIVE_PATH RELATIVE_OCTAVE_OCT_SITE_DIR
+    "${OCTAVE_ROOT_DIR}" "${OCTAVE_OCT_SITE_DIR}")
+  file (RELATIVE_PATH RELATIVE_OCTAVE_M_SITE_DIR
+    "${OCTAVE_ROOT_DIR}" "${OCTAVE_M_SITE_DIR}")
 endif ()
 
 # oct/mex module targets
