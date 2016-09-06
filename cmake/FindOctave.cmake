@@ -30,10 +30,10 @@
 #
 # To install it, you can the use the variable OCTAVE_OCT_FILE_DIR as follow:
 #
-#  file (RELATIVE_PATH PKG_OCTAVE_OCT_SITE_DIR ${OCTAVE_ROOT_DIR} ${OCTAVE_OCT_SITE_DIR})
+#  file (RELATIVE_PATH OCT_SITE_DIR ${OCTAVE_ROOT_DIR} ${OCTAVE_OCT_SITE_DIR})
 #  install (
 #    TARGETS target_name
-#    DESTINATION ${PKG_OCTAVE_OCT_SITE_DIR}
+#    DESTINATION ${OCT_SITE_DIR}
 #  )
 
 #=============================================================================
@@ -112,9 +112,12 @@ if (OCTAVE_CONFIG_EXECUTABLE)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   if (OCTAVE_VERSION_STRING)
-    string (REGEX REPLACE "([0-9]+)\\..*" "\\1" OCTAVE_MAJOR_VERSION ${OCTAVE_VERSION_STRING})
-    string (REGEX REPLACE "[0-9]+\\.([0-9]+).*" "\\1" OCTAVE_MINOR_VERSION ${OCTAVE_VERSION_STRING})
-    string (REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" OCTAVE_PATCH_VERSION ${OCTAVE_VERSION_STRING})
+    string (REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)"
+      _MATCH "${OCTAVE_VERSION_STRING}")
+    set (OCTAVE_MAJOR_VERSION ${CMAKE_MATCH_1})
+    set (OCTAVE_MINOR_VERSION ${CMAKE_MATCH_2})
+    set (OCTAVE_PATCH_VERSION ${CMAKE_MATCH_3})
+    unset (_MATCH)
   endif ()
 endif ()
 
@@ -185,7 +188,7 @@ endmacro ()
 
 # handle REQUIRED and QUIET options
 include (FindPackageHandleStandardArgs)
-if (CMAKE_VERSION LESS 2.8.3)
+if (CMAKE_VERSION VERSION_LESS 2.8.3)
   find_package_handle_standard_args (Octave
     DEFAULT_MSG
       OCTAVE_EXECUTABLE
@@ -200,6 +203,7 @@ else ()
       OCTAVE_ROOT_DIR
       OCTAVE_INCLUDE_DIRS
       OCTAVE_LIBRARIES
+      OCTAVE_VERSION_STRING
     VERSION_VAR
       OCTAVE_VERSION_STRING)
 endif ()
