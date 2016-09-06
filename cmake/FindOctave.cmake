@@ -136,9 +136,11 @@ find_library (OCTAVE_OCTINTERP_LIBRARY
 find_library (OCTAVE_OCTAVE_LIBRARY
   NAMES octave liboctave
   HINTS ${OCTAVE_LIBRARIES_PATHS})
-find_library (OCTAVE_CRUFT_LIBRARY
-  NAMES cruft libcruft
-  HINTS ${OCTAVE_LIBRARIES_PATHS})
+if (OCTAVE_VERSION_STRING VERSION_LESS 4.0.0)
+  find_library (OCTAVE_CRUFT_LIBRARY
+    NAMES cruft libcruft
+    HINTS ${OCTAVE_LIBRARIES_PATHS})
+endif ()
 
 set (OCTAVE_LIBRARIES ${OCTAVE_OCTINTERP_LIBRARY} ${OCTAVE_OCTAVE_LIBRARY})
 if (OCTAVE_CRUFT_LIBRARY)
@@ -146,7 +148,7 @@ if (OCTAVE_CRUFT_LIBRARY)
 endif ()
 
 # find inclue dirs
-find_path (OCTAVE_INCLUDE_DIR 
+find_path (OCTAVE_INCLUDE_DIR
   NAMES octave/oct.h
   HINTS "${OCTAVE_INCLUDE_PATHS}/..")
 
@@ -179,7 +181,8 @@ macro (octave_add_oct FUNCTIONNAME)
   endforeach ()
   # module target
   add_library (${FUNCTIONNAME} SHARED ${_SOURCES})
-  target_link_libraries (${FUNCTIONNAME} ${OCTAVE_LIBRARIES} ${_LINK_LIBRARIES})
+  target_link_libraries (${FUNCTIONNAME}
+    ${OCTAVE_LIBRARIES} ${_LINK_LIBRARIES})
   set_target_properties (${FUNCTIONNAME} PROPERTIES
     PREFIX ""
     SUFFIX ".${_OCT_EXTENSION}"
