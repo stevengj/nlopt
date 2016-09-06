@@ -44,9 +44,19 @@
 # find guile executables
 find_program (GUILE_EXECUTABLE
   NAMES guile
+  PATHS
+    /usr/bin
+    /usr/local/bin
+    /opt/local/bin
+    $ENV{GUILE_ROOT}/bin
 )
 find_program (GUILE_CONFIG_EXECUTABLE
   NAMES guile-config
+  PATHS
+    /usr/bin
+    /usr/local/bin
+    /opt/local/bin
+    $ENV{GUILE_ROOT}/bin
 )
 
 if (GUILE_CONFIG_EXECUTABLE)
@@ -71,22 +81,28 @@ endif ()
 # Look for guile-2.2 first, then 2.0, then 1.8
 # Macports for OSX puts things in /opt/local
 find_path (GUILE_INCLUDE_DIR libguile.h
+  PATHS
+    /usr/include
+    /usr/local/include
+    /opt/local/include
+    $ENV{GUILE_ROOT}/include
   PATH_SUFFIXES
     guile/2.2
     guile/2.0
     guile/1.8
     libguile
     guile
-  HINTS
-    /opt/local/include
 )
 set (GUILE_INCLUDE_DIRS ${GUILE_INCLUDE_DIR})
 
 # Look for the library
 find_library (GUILE_LIBRARY
   NAMES guile-2.2 guile-2.0 guile
-  HINTS
+  PATHS
+    /usr/lib
+    /usr/local/lib
     /opt/local/lib
+    $ENV{GUILE_ROOT}/lib
 )
 set (GUILE_LIBRARIES ${GUILE_LIBRARY})
 
