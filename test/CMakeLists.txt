@@ -178,7 +178,27 @@ endif ()
 #==============================================================================
 
 if (OCTAVE_FOUND)
+  set (OCTAVE_OPTS --quiet --norc)
+  if (NOT OCTAVE_VERSION_STRING VERSION_LESS 4.0.0)
+    list (APPEND OCTAVE_OPTS --no-gui --no-window-system)
+  endif ()
+
   add_test (NAME test_octave
-    COMMAND "${OCTAVE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m"
-      ${CMAKE_SOURCE_DIR}/octave ${CMAKE_BINARY_DIR}/octave)
+    COMMAND "${OCTAVE_EXECUTABLE}" ${OCTAVE_OPTS}
+      --eval "cd('${CMAKE_CURRENT_SOURCE_DIR}'); t_octave")
+
+  # setup test environment
+  if (WITH_TESTS_INSTALL_TREE)
+    set (OCTAVE_TEST_ENVIRONMENT
+      "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
+      "OCTAVE_PATH=${INSTALL_OCTAVE_FULL_OCT_DIR}:${INSTALL_OCTAVE_FULL_M_DIR}:"
+    )
+  else ()
+    set (OCTAVE_TEST_ENVIRONMENT
+      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
+      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave:${CMAKE_SOURCE_DIR}/octave:"
+    )
+  endif ()
+  set_tests_properties (test_octave
+    PROPERTIES ENVIRONMENT "${OCTAVE_TEST_ENVIRONMENT}")
 endif ()
