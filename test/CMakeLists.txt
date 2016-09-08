@@ -4,6 +4,7 @@
 #==============================================================================
 
 set (BUILD_TESTS_UTIL ON)
+set (WITH_TESTS_INSTALL_TREE OFF)  # run tests from install or build tree
 
 # add test executable linked against nlopt
 macro (add_executable_nlopt _NAME)
@@ -110,6 +111,20 @@ if (BUILD_TESTS_UTIL)
   add_test (NAME "sobolseq_test" COMMAND sobolseq_test 2 100)
 endif ()
 
+# setup test environment
+if (WITH_TESTS_INSTALL_TREE)
+  set (C_TEST_ENVIRONMENT
+    "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
+  )
+else ()
+  set (C_TEST_ENVIRONMENT
+    "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
+  )
+endif ()
+set_tests_properties (
+  lorentzfit box mt19937ar_test redblack_test sobolseq_test
+  PROPERTIES ENVIRONMENT "${C_TEST_ENVIRONMENT}")
+
 #==============================================================================
 # Python tests
 #==============================================================================
@@ -119,12 +134,19 @@ if (PYTHONINTERP_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
     COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_python.py")
 
   # setup test environment
-  set (PYINSTALLCHECK_ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-    "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}:$ENV{PYTHONPATH}"
-  )
+  if (WITH_TESTS_INSTALL_TREE)
+    set (PYTHON_TEST_ENVIRONMENT
+      "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
+      "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}:$ENV{PYTHONPATH}"
+    )
+  else ()
+    set (PYTHON_TEST_ENVIRONMENT
+      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
+      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig:$ENV{PYTHONPATH}"
+    )
+  endif ()
   set_tests_properties (test_python
-    PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
+    PROPERTIES ENVIRONMENT "${PYTHON_TEST_ENVIRONMENT}")
 endif ()
 
 #==============================================================================
@@ -136,12 +158,19 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
     COMMAND "${GUILE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm")
 
   # setup test environment
-  set (GUILECHECK_ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
-    "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig"
-  )
+  if (WITH_TESTS_INSTALL_TREE)
+    set (GUILE_TEST_ENVIRONMENT
+      "LD_LIBRARY_PATH=${INSTALL_GUILE_FULL_EXT_DIR}:${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
+      "GUILE_LOAD_PATH=${INSTALL_GUILE_FULL_SITE_DIR}:..."
+    )
+  else ()
+    set (GUILE_TEST_ENVIRONMENT
+      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig:${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
+      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig:..."
+    )
+  endif ()
   set_tests_properties (test_guile
-    PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
+    PROPERTIES ENVIRONMENT "${GUILE_TEST_ENVIRONMENT}")
 endif ()
 
 #==============================================================================
