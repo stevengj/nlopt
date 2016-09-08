@@ -94,7 +94,9 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
 
   # Guile lib target
   add_library (nlopt_guile MODULE
-    "${CMAKE_CURRENT_BINARY_DIR}/nloptGUILE_wrap.cxx")
+    "${CMAKE_CURRENT_BINARY_DIR}/nloptGUILE_wrap.cxx"
+    "${CMAKE_BINARY_DIR}/api/nlopt.hpp"
+    "${CMAKE_SOURCE_DIR}/api/nlopt.h")
   target_link_libraries(nlopt_guile ${nlopt_lib} ${GUILE_LIBRARIES})
   set_target_properties (nlopt_guile PROPERTIES NO_SONAME ON)
 

@@ -64,6 +64,7 @@ if (OCTAVE_FOUND)
     SOURCES
       nlopt_optimize-oct.cc
       "${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h"
+      "${CMAKE_SOURCE_DIR}/api/nlopt.h"
     LINK_LIBRARIES ${nlopt_lib})
   set_target_properties (nlopt_octave PROPERTIES OUTPUT_NAME nlopt_optimize)
 
@@ -87,7 +88,9 @@ if (Matlab_FOUND)
 
   # MATLAB lib target (MEX-file)
   matlab_add_mex (NAME nlopt_matlab
-    SRC nlopt_optimize-mex.c
+    SRC
+      nlopt_optimize-mex.c
+      "${CMAKE_SOURCE_DIR}/api/nlopt.h"
     OUTPUT_NAME nlopt_optimize
     LINK_TO ${nlopt_lib})
   set_target_properties (nlopt_matlab PROPERTIES NO_SONAME ON)
