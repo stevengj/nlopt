@@ -544,6 +544,10 @@ if (OCTAVE_FOUND)
     "${OCTAVE_ROOT_DIR}" "${OCTAVE_M_SITE_DIR}")
 endif ()
 
+if (Matlab_FOUND)
+  set (RELATIVE_INSTALL_MATLAB_DIR "matlab")
+endif ()
+
 # oct/mex module targets
 if (BUILD_OCTAVE OR BUILD_MATLAB)
   add_subdirectory (octave)

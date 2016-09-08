@@ -94,4 +94,13 @@ if (Matlab_FOUND)
     OUTPUT_NAME nlopt_optimize
     LINK_TO ${nlopt_lib})
   set_target_properties (nlopt_matlab PROPERTIES NO_SONAME ON)
+
+  install (
+    TARGETS nlopt_matlab
+    DESTINATION "${RELATIVE_INSTALL_MATLAB_DIR}"
+    COMPONENT "Bindings")
+  install (
+    FILES ${NLOPT_SOURCES_M}
+    DESTINATION "${RELATIVE_INSTALL_MATLAB_DIR}"
+    COMPONENT "Bindings")
 endif ()
