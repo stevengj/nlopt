@@ -19,7 +19,7 @@ if (PYTHONLIBS_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
     "${CMAKE_BINARY_DIR}/api/nlopt.hpp"
     "${CMAKE_SOURCE_DIR}/api/nlopt.h")
   swig_add_module (nlopt python nlopt.i)
-  swig_link_libraries (nlopt ${nlopt_lib} ${PYTHON_LIBRARIES})
+  swig_link_libraries (nlopt ${NLOPT_LIB} ${PYTHON_LIBRARIES})
   set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES
     NO_SONAME ON)
 
@@ -97,7 +97,7 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
     "${CMAKE_CURRENT_BINARY_DIR}/nloptGUILE_wrap.cxx"
     "${CMAKE_BINARY_DIR}/api/nlopt.hpp"
     "${CMAKE_SOURCE_DIR}/api/nlopt.h")
-  target_link_libraries (nlopt_guile ${nlopt_lib} ${GUILE_LIBRARIES})
+  target_link_libraries (nlopt_guile ${NLOPT_LIB} ${GUILE_LIBRARIES})
   set_target_properties (nlopt_guile PROPERTIES
     NO_SONAME ON)
 

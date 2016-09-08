@@ -18,7 +18,7 @@ set (NLOPT_DEFINITIONS "@NLOPT_DEFINITIONS@")
 include ("${CMAKE_CURRENT_LIST_DIR}/NLoptLibraryDepends.cmake")
 
 # These are IMPORTED targets created by NLOPTLibraryDepends.cmake
-set (NLOPT_LIBRARIES "@NLOPT_LIBRARIES@")
+set (NLOPT_LIBRARIES "@NLOPT_LIB@")
 
 if (CMAKE_VERSION VERSION_LESS 2.8.3)
   set (CMAKE_CURRENT_LIST_DIR)

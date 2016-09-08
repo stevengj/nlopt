@@ -64,11 +64,6 @@ if (WITH_CXX OR BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE)
   enable_language (CXX)
 endif ()
 
-set (NLOPT_SUFFIX)
-if (WITH_CXX)
-  set (NLOPT_SUFFIX _cxx)
-endif ()
-
 # default installation directories
 # (provides variables: CMAKE_INSTALL_<dir> and CMAKE_INSTALL_FULL_<dir>)
 include (GNUInstallDirs)
@@ -256,6 +251,13 @@ configure_file (config.cmake.h.in config.h IMMEDIATE)
 # NLOPT LIBRARY TARGET
 #==============================================================================
 
+# library name
+set (NLOPT_SUFFIX)
+if (WITH_CXX)
+  set (NLOPT_SUFFIX _cxx)
+endif ()
+set (NLOPT_LIB nlopt${NLOPT_SUFFIX})
+
 # lists of source files
 set (NLOPT_SOURCES_DIRECT direct/DIRect.c direct/direct_wrap.c
   direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h
@@ -341,22 +343,21 @@ if (BUILD_SHARED_LIBS AND WIN32)
 endif ()
 
 # library target (Shared or Static)
-set (nlopt_lib nlopt${NLOPT_SUFFIX})
-add_library (${nlopt_lib} ${NLOPT_SOURCES})
+add_library (${NLOPT_LIB} ${NLOPT_SOURCES})
 
 # link against libm if needed
 if (UNIX OR HAVE_LIBM)
-  target_link_libraries (${nlopt_lib} m)
+  target_link_libraries (${NLOPT_LIB} m)
 endif ()
 
 # if built as static lib, pass -fPIC in case building extension modules
 if (NOT BUILD_SHARED_LIBS AND
     (BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE OR BUILD_MATLAB))
-  set_target_properties (${nlopt_lib} PROPERTIES POSITION_INDEPENDENT_CODE True)
+  set_target_properties (${NLOPT_LIB} PROPERTIES POSITION_INDEPENDENT_CODE True)
 endif ()
 
 # library version
-set_target_properties (${nlopt_lib} PROPERTIES
+set_target_properties (${NLOPT_LIB} PROPERTIES
   VERSION "${NLOPT_SOVERSION_STRING}"
   SOVERSION ${NLOPT_SOVERSION_INTERFACE})
 
@@ -388,7 +389,7 @@ endif ()
 
 # library installation
 install (
-  TARGETS ${nlopt_lib}
+  TARGETS ${NLOPT_LIB}
   EXPORT  NLoptLibraryDepends
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT "Libraries"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT "Libraries"
@@ -418,31 +419,12 @@ install (
   COMPONENT "Headers")
 
 #==============================================================================
-# MAN PAGES AND DOCS
-#==============================================================================
-
-install (
-  FILES api/nlopt.3 api/nlopt_minimize.3 api/nlopt_minimize_constrained.3
-  DESTINATION "${CMAKE_INSTALL_MANDIR}/man3"
-  COMPONENT "Documentation")
-
-install (
-  FILES AUTHORS COPYING NEWS
-  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
-  COMPONENT "Documentation")
-install (
-  FILES README.md
-  RENAME README
-  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
-  COMPONENT "Documentation")
-
-#==============================================================================
 # DEV CMAKE GENERATION
 #==============================================================================
 
 # add library target to the build-tree export set
 export (
-  TARGETS ${nlopt_lib}
+  TARGETS ${NLOPT_LIB}
   FILE "${PROJECT_BINARY_DIR}/NLoptLibraryDepends.cmake")
 
 # install the export set for use from the install-tree
@@ -452,7 +434,6 @@ install (
   COMPONENT "Development")
 
 # create cmake config files for build-tree and install-tree
-set (NLOPT_LIBRARIES ${nlopt_lib})
 file (RELATIVE_PATH RELATIVE_NLOPT_INCLUDE_DIRS
   "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/nlopt" "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 file (RELATIVE_PATH RELATIVE_NLOPT_LIB_DIR
@@ -479,6 +460,25 @@ install (
   FILES "${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
   COMPONENT "Development")
+
+#==============================================================================
+# MAN PAGES AND DOCS
+#==============================================================================
+
+install (
+  FILES api/nlopt.3 api/nlopt_minimize.3 api/nlopt_minimize_constrained.3
+  DESTINATION "${CMAKE_INSTALL_MANDIR}/man3"
+  COMPONENT "Documentation")
+
+install (
+  FILES AUTHORS COPYING NEWS
+  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+  COMPONENT "Documentation")
+install (
+  FILES README.md
+  RENAME README
+  DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+  COMPONENT "Documentation")
 
 #==============================================================================
 # PYTHON/GUILE BINDINGS (SWIG)

@@ -65,7 +65,7 @@ if (OCTAVE_FOUND)
       nlopt_optimize-oct.cc
       "${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h"
       "${CMAKE_SOURCE_DIR}/api/nlopt.h"
-    LINK_LIBRARIES ${nlopt_lib})
+    LINK_LIBRARIES ${NLOPT_LIB})
   set_target_properties (nlopt_octave PROPERTIES OUTPUT_NAME nlopt_optimize)
 
   install (
@@ -92,7 +92,7 @@ if (Matlab_FOUND)
       nlopt_optimize-mex.c
       "${CMAKE_SOURCE_DIR}/api/nlopt.h"
     OUTPUT_NAME nlopt_optimize
-    LINK_TO ${nlopt_lib})
+    LINK_TO ${NLOPT_LIB})
   set_target_properties (nlopt_matlab PROPERTIES NO_SONAME ON)
 
   install (
