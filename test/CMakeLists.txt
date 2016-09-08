@@ -1,14 +1,38 @@
 
-#==============================================================================
-# Helpers
-#==============================================================================
-
 # build and run util tests
 option (BUILD_TESTS_UTIL "Build util tests" OFF)
 # build and run algorithm tests
 option (BUILD_TESTS_ALG "Build algorithm tests" OFF)
 # run tests from either install-tree or build-tree
 option (WITH_TESTS_INSTALL_TREE "Test from install or build tree" OFF)
+
+#==============================================================================
+# Helpers
+#==============================================================================
+
+# get path separator, LD path environmnent variable name, and LD install dir
+# in a cross-platform way
+if (WIN32)
+  set (PATH_SEP "\;")
+  set (PATH_VAR "PATH")
+  set (PATH_VAL "${CMAKE_INSTALL_FULL_BINDIR}")
+elseif (APPLE)
+  set (PATH_SEP ":")
+  set (PATH_VAR "DYLD_LIBRARY_PATH")
+  set (PATH_VAL "${CMAKE_INSTALL_FULL_LIBDIR}")
+else ()
+  set (PATH_SEP ":")
+  set (PATH_VAR "LD_LIBRARY_PATH")
+  set (PATH_VAL "${CMAKE_INSTALL_FULL_LIBDIR}")
+endif ()
+
+# get value of an environment variable properly escaped if needed
+macro (get_env _VARIABLE _NAME)
+  set (${_VARIABLE} $ENV{${_NAME}})
+  if (WIN32)
+    string (REPLACE ";" "\\;" ${_VARIABLE} "${${_VARIABLE}}")
+  endif ()
+endmacro ()
 
 # prepend a common path to a list of paths
 function (prepend VAR PREFIX)
@@ -185,12 +209,20 @@ if (BUILD_TESTS_ALG)
 endif ()
 
 # setup test environment
+if (MSVC)
+  # inside build tree, Visual Studio places binaries in a subdirectory
+  # named after the config type (Release, Debug, ...)
+  set (BUILD_TYPE_SUFFIX "/${CMAKE_BUILD_TYPE}")
+else ()
+  set (BUILD_TYPE_SUFFIX "")
+endif ()
+get_env (PATH_ENV ${PATH_VAR})
 if (WITH_TESTS_INSTALL_TREE)
   set (C_TEST_ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}")
+    "${PATH_VAR}=${PATH_VAL}${PATH_SEP}${PATH_ENV}")
 else ()
   set (C_TEST_ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}")
+    "${PATH_VAR}=${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}")
 endif ()
 set_tests_properties (${C_TESTS}
   PROPERTIES ENVIRONMENT "${C_TEST_ENVIRONMENT}")
@@ -206,12 +238,12 @@ if (PYTHONINTERP_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
   # setup test environment
   if (WITH_TESTS_INSTALL_TREE)
     set (PYTHON_TEST_ENVIRONMENT
-      "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-      "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}:$ENV{PYTHONPATH}")
+      "${PATH_VAR}=${PATH_VAL}${PATH_SEP}${PATH_ENV}"
+      "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}${PATH_SEP}$ENV{PYTHONPATH}")
   else ()
     set (PYTHON_TEST_ENVIRONMENT
-      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig:$ENV{PYTHONPATH}")
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}"
+      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig${BUILD_TYPE_SUFFIX}${PATH_SEP}$ENV{PYTHONPATH}")
   endif ()
   set_tests_properties (test_python
     PROPERTIES ENVIRONMENT "${PYTHON_TEST_ENVIRONMENT}")
@@ -228,12 +260,12 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
   # setup test environment
   if (WITH_TESTS_INSTALL_TREE)
     set (GUILE_TEST_ENVIRONMENT
-      "LD_LIBRARY_PATH=${INSTALL_GUILE_FULL_EXT_DIR}:${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-      "GUILE_LOAD_PATH=${INSTALL_GUILE_FULL_SITE_DIR}:...")
+      "${PATH_VAR}=${INSTALL_GUILE_FULL_EXT_DIR}${PATH_SEP}${PATH_VAL}${PATH_SEP}${PATH_ENV}"
+      "GUILE_LOAD_PATH=${INSTALL_GUILE_FULL_SITE_DIR}${PATH_SEP}...")
   else ()
     set (GUILE_TEST_ENVIRONMENT
-      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig:${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig:...")
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}/swig${BUILD_TYPE_SUFFIX}${PATH_SEP}${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}"
+      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig${BUILD_TYPE_SUFFIX}${PATH_SEP}...")
   endif ()
   set_tests_properties (test_guile
     PROPERTIES ENVIRONMENT "${GUILE_TEST_ENVIRONMENT}")
@@ -252,17 +284,17 @@ if (OCTAVE_FOUND)
 
   add_test (NAME test_octave
     COMMAND "${OCTAVE_EXECUTABLE}" ${OCTAVE_OPTS}
-      --eval "cd('${CMAKE_CURRENT_SOURCE_DIR}'); t_octave")
+      --eval "cd('${CMAKE_CURRENT_SOURCE_DIR}'), t_octave, exit")
 
   # setup test environment
   if (WITH_TESTS_INSTALL_TREE)
     set (OCTAVE_TEST_ENVIRONMENT
-      "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-      "OCTAVE_PATH=${INSTALL_OCTAVE_FULL_OCT_DIR}:${INSTALL_OCTAVE_FULL_M_DIR}:")
+      "${PATH_VAR}=${PATH_VAL}${PATH_SEP}${PATH_ENV}"
+      "OCTAVE_PATH=${INSTALL_OCTAVE_FULL_OCT_DIR}${PATH_SEP}${INSTALL_OCTAVE_FULL_M_DIR}${PATH_SEP}")
   else ()
     set (OCTAVE_TEST_ENVIRONMENT
-      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave:${CMAKE_SOURCE_DIR}/octave:")
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}"
+      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave${BUILD_TYPE_SUFFIX}${PATH_SEP}${CMAKE_SOURCE_DIR}/octave${PATH_SEP}")
   endif ()
   set_tests_properties (test_octave
     PROPERTIES ENVIRONMENT "${OCTAVE_TEST_ENVIRONMENT}")
