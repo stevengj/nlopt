@@ -209,23 +209,21 @@ if (BUILD_TESTS_ALG)
 endif ()
 
 # setup test environment
-if (MSVC)
-  # inside build tree, Visual Studio places binaries in a subdirectory
-  # named after the config type (Release, Debug, ...)
-  set (BUILD_TYPE_SUFFIX "/${CMAKE_BUILD_TYPE}")
-else ()
-  set (BUILD_TYPE_SUFFIX "")
-endif ()
 get_env (PATH_ENV ${PATH_VAR})
 if (WITH_TESTS_INSTALL_TREE)
   set (C_TEST_ENVIRONMENT
     "${PATH_VAR}=${PATH_VAL}${PATH_SEP}${PATH_ENV}")
 else ()
+  # NOTE: inside build tree, Visual Studio places binaries in a subdirectory
+  # named after the config type (Release, Debug, ...)
   set (C_TEST_ENVIRONMENT
-    "${PATH_VAR}=${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}")
+    "${PATH_VAR}=${CMAKE_BINARY_DIR}${PATH_SEP}${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}${PATH_SEP}${PATH_ENV}")
 endif ()
 set_tests_properties (${C_TESTS}
   PROPERTIES ENVIRONMENT "${C_TEST_ENVIRONMENT}")
+
+#TODO: when setting tests env, install dirs are still in cmake format
+# which can be problematic on windows, ie: PATH=C:/build/install;C:\Windows;...
 
 #==============================================================================
 # Python tests
@@ -242,8 +240,8 @@ if (PYTHONINTERP_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
       "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}${PATH_SEP}$ENV{PYTHONPATH}")
   else ()
     set (PYTHON_TEST_ENVIRONMENT
-      "${PATH_VAR}=${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}"
-      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig${BUILD_TYPE_SUFFIX}${PATH_SEP}$ENV{PYTHONPATH}")
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}${PATH_SEP}${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}${PATH_SEP}${PATH_ENV}"
+      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig${PATH_SEP}${CMAKE_BINARY_DIR}/swig/${CMAKE_BUILD_TYPE}${PATH_SEP}$ENV{PYTHONPATH}")
   endif ()
   set_tests_properties (test_python
     PROPERTIES ENVIRONMENT "${PYTHON_TEST_ENVIRONMENT}")
@@ -264,8 +262,8 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
       "GUILE_LOAD_PATH=${INSTALL_GUILE_FULL_SITE_DIR}${PATH_SEP}...")
   else ()
     set (GUILE_TEST_ENVIRONMENT
-      "${PATH_VAR}=${CMAKE_BINARY_DIR}/swig${BUILD_TYPE_SUFFIX}${PATH_SEP}${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}"
-      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig${BUILD_TYPE_SUFFIX}${PATH_SEP}...")
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}/swig${PATH_SEP}${CMAKE_BINARY_DIR}/swig/${CMAKE_BUILD_TYPE}${PATH_SEP}${CMAKE_BINARY_DIR}${PATH_SEP}${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}${PATH_SEP}${PATH_ENV}"
+      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig${PATH_SEP}${CMAKE_BINARY_DIR}/swig/${CMAKE_BUILD_TYPE}${PATH_SEP}...")
   endif ()
   set_tests_properties (test_guile
     PROPERTIES ENVIRONMENT "${GUILE_TEST_ENVIRONMENT}")
@@ -293,8 +291,8 @@ if (OCTAVE_FOUND)
       "OCTAVE_PATH=${INSTALL_OCTAVE_FULL_OCT_DIR}${PATH_SEP}${INSTALL_OCTAVE_FULL_M_DIR}${PATH_SEP}")
   else ()
     set (OCTAVE_TEST_ENVIRONMENT
-      "${PATH_VAR}=${CMAKE_BINARY_DIR}${BUILD_TYPE_SUFFIX}${PATH_SEP}${PATH_ENV}"
-      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave${BUILD_TYPE_SUFFIX}${PATH_SEP}${CMAKE_SOURCE_DIR}/octave${PATH_SEP}")
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}${PATH_SEP}${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}${PATH_SEP}${PATH_ENV}"
+      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave${PATH_SEP}${CMAKE_BINARY_DIR}/octave/${CMAKE_BUILD_TYPE}${PATH_SEP}${CMAKE_SOURCE_DIR}/octave${PATH_SEP}")
   endif ()
   set_tests_properties (test_octave
     PROPERTIES ENVIRONMENT "${OCTAVE_TEST_ENVIRONMENT}")
