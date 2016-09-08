@@ -3,30 +3,25 @@
 # Python extension
 #==============================================================================
 
-if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR
-    (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp")))
+if (PYTHONLIBS_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
+  # UseSWIG reads INCLUDE_DIRECTORIES to retrieve include dirs
   include_directories (${PYTHON_INCLUDE_DIRS})
   include_directories (${NUMPY_INCLUDE_DIRS})
 
-  if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.cpp")
-    set (SWIG_MODULE_nlopt_REAL_NAME _nlopt)
-    add_library (${SWIG_MODULE_nlopt_REAL_NAME} MODULE nlopt-python.cpp)
-    target_link_libraries (${SWIG_MODULE_nlopt_REAL_NAME} ${nlopt_lib})
-    target_link_libraries (${SWIG_MODULE_nlopt_REAL_NAME} ${PYTHON_LIBRARIES})
-    set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES PREFIX "")
-    if (NOT CMAKE_SOURCE_DIR MATCHES CMAKE_BINARY_DIR)
-      execute_process (COMMAND ${CMAKE_COMMAND} -E copy
-        "${CMAKE_CURRENT_SOURCE_DIR}/nlopt.py"
-        "${CMAKE_CURRENT_BINARY_DIR}/nlopt.py")
-    endif ()
-  else ()
-    include (UseSWIG)
-    set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
-    set (SWIG_MODULE_nlopt_EXTRA_DEPS nlopt-python.i numpy.i)
-    swig_add_module (nlopt python nlopt.i)
-    swig_link_libraries (nlopt ${nlopt_lib})
-    swig_link_libraries (nlopt ${PYTHON_LIBRARIES})
-  endif ()
+  # use swig to generate python wrapper and Python lib target
+  # (NOTE: no conflict in target name, real name in swig macros is _nlopt)
+  include (UseSWIG)
+  set_source_files_properties (nlopt.i PROPERTIES
+    SWIG_MODULE_NAME nlopt
+    CPLUSPLUS ON)
+  set (SWIG_MODULE_nlopt_EXTRA_DEPS
+    nlopt-exceptions.i nlopt-python.i numpy.i
+    "${CMAKE_BINARY_DIR}/api/nlopt.hpp"
+    "${CMAKE_SOURCE_DIR}/api/nlopt.h")
+  swig_add_module (nlopt python nlopt.i)
+  swig_link_libraries (nlopt ${nlopt_lib} ${PYTHON_LIBRARIES})
+  set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES
+    NO_SONAME ON)
 
   install (
     TARGETS ${SWIG_MODULE_nlopt_REAL_NAME}
@@ -72,6 +67,7 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
   include_directories (${GUILE_INCLUDE_DIRS})
 
   # generate guile wrappers using swig
+  set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
   add_custom_command (
     OUTPUT
       nloptGUILE_wrap.cxx
