@@ -55,7 +55,7 @@ if (BUILD_PYTHON OR BUILD_GUILE)
     message (WARNING "Python/Guile wrappers require SWIG")
   endif ()
   if (NOT BUILD_CPP)
-    message (WARNING "Python/Guile wrappers require the C++ interface")
+    message (WARNING "Python/Guile wrappers require the C++ interface (nlopt.hpp)")
   endif ()
 endif ()
 

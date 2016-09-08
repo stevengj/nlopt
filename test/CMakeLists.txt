@@ -3,17 +3,55 @@
 # Helpers
 #==============================================================================
 
-set (BUILD_TESTS_UTIL ON)
-set (WITH_TESTS_INSTALL_TREE OFF)  # run tests from install or build tree
+# build and run util tests
+option (BUILD_TESTS_UTIL "Build util tests" OFF)
+# build and run algorithm tests
+option (BUILD_TESTS_ALG "Build algorithm tests" OFF)
+# run tests from either install-tree or build-tree
+option (WITH_TESTS_INSTALL_TREE "Test from install or build tree" OFF)
+
+# prepend a common path to a list of paths
+function (prepend VAR PREFIX)
+   set (LISTVAR "")
+   foreach (P ${ARGN})
+      list (APPEND LISTVAR "${PREFIX}/${P}")
+   endforeach (P)
+   set (${VAR} "${LISTVAR}" PARENT_SCOPE)
+endfunction ()
 
 # add test executable linked against nlopt
-macro (add_executable_nlopt _NAME)
-  add_executable (${_NAME} EXCLUDE_FROM_ALL ${ARGN})
-  target_link_libraries (${_NAME} ${NLOPT_LIB})
+function (add_executable_nlopt NAME)
+  add_executable (${NAME} EXCLUDE_FROM_ALL ${ARGN})
+  target_link_libraries (${NAME} ${NLOPT_LIB})
   if (WITH_FOLDERS)
-    set_target_properties (${_NAME} PROPERTIES FOLDER "Testing")
+    set_target_properties (${NAME} PROPERTIES FOLDER "Testing")
   endif ()
-endmacro ()
+endfunction ()
+
+# add test executable for util functions
+function (add_executable_util NAME)
+  add_executable (${NAME} EXCLUDE_FROM_ALL ${ARGN})
+  if (UNIX OR HAVE_LIBM)
+    target_link_libraries (${NAME} m)
+  endif ()
+  if (WITH_FOLDERS)
+    set_target_properties (${NAME} PROPERTIES FOLDER "Testing")
+  endif ()
+endfunction ()
+
+# add test executable for an internal algorithm
+function (add_executable_alg NAME ALG)
+  prepend (NLOPT_SOURCES_${ALG}2 .. ${NLOPT_SOURCES_${ALG}})
+  prepend (NLOPT_SOURCES_UTIL2 .. ${NLOPT_SOURCES_UTIL})
+  add_executable (${NAME} EXCLUDE_FROM_ALL ${ARGN}
+    ${NLOPT_SOURCES_${ALG}2} ${NLOPT_SOURCES_UTIL2})
+  if (UNIX OR HAVE_LIBM)
+    target_link_libraries (${NAME} m)
+  endif ()
+  if (WITH_FOLDERS)
+    set_target_properties (${NAME} PROPERTIES FOLDER "Testing")
+  endif ()
+endfunction ()
 
 #==============================================================================
 # Test Executables
@@ -33,17 +71,22 @@ add_executable_nlopt (box box.c)
 
 # util tests
 if (BUILD_TESTS_UTIL)
-  add_executable (mt19937ar_test EXCLUDE_FROM_ALL
-    ../util/mt19937ar_test.c ../util/mt19937ar.c)
-  add_executable (redblack_test EXCLUDE_FROM_ALL
-    ../util/redblack_test.c ../util/redblack.c)
-  add_executable (sobolseq_test EXCLUDE_FROM_ALL
-    ../util/sobolseq_test.c ../util/sobolseq.c ../util/mt19937ar.c)
+  add_executable_util (mt19937ar_test ../util/mt19937ar_test.c
+    ../util/mt19937ar.c)
+  add_executable_util (redblack_test ../util/redblack_test.c
+    ../util/redblack.c)
+  add_executable_util (sobolseq_test ../util/sobolseq_test.c
+    ../util/sobolseq.c ../util/mt19937ar.c)
+endif ()
 
-  if (UNIX OR HAVE_LIBM)
-    target_link_libraries (mt19937ar_test m)
-    target_link_libraries (redblack_test m)
-    target_link_libraries (sobolseq_test m)
+# algorithm tests
+if (BUILD_TESTS_ALG)
+  add_executable_alg (direct_tstc DIRECT ../direct/tstc.c)
+  if (WITH_CXX)
+    add_executable_alg (stogo_prog STOGO ../stogo/prog.cc)
+    add_executable_alg (stogo_testros STOGO ../stogo/testros.cc)
+    add_executable_alg (stogo_tst STOGO ../stogo/tst.cc)
+    add_executable_alg (stogo_tstc STOGO ../stogo/tstc.c)
   endif ()
 endif ()
 
@@ -56,6 +99,12 @@ add_custom_target (tests)
 add_dependencies (tests testopt lorentzfit box)
 if (BUILD_TESTS_UTIL)
   add_dependencies (tests mt19937ar_test redblack_test sobolseq_test)
+endif ()
+if (BUILD_TESTS_ALG)
+  add_dependencies (tests direct_tstc)
+  if (WITH_CXX)
+    add_dependencies (tests stogo_prog stogo_testros stogo_tst stogo_tstc)
+  endif ()
 endif ()
 
 # emulate Autotools "make check" to build and run tests
@@ -70,6 +119,9 @@ endif ()
 #==============================================================================
 # C/C++ tests
 #==============================================================================
+
+# collect all C tests
+set (C_TESTS "")
 
 # testopt (sweep over various algorithms and objective functions)
 foreach (_algo_index RANGE 29)  # 42
@@ -96,6 +148,7 @@ foreach (_algo_index RANGE 29)  # 42
     if (_enable)
       add_test (NAME "testopt_algo${_algo_index}_obj${_obj_index}"
         COMMAND testopt -a ${_algo_index} -o ${_obj_index})
+      list (APPEND C_TESTS "testopt_algo${_algo_index}_obj${_obj_index}")
     endif ()
   endforeach ()
 endforeach ()
@@ -103,26 +156,43 @@ endforeach ()
 # more nlopt tests
 add_test (NAME "lorentzfit" COMMAND lorentzfit)
 add_test (NAME "box" COMMAND box)
+list (APPEND C_TESTS lorentzfit box)
 
 # util tests
 if (BUILD_TESTS_UTIL)
   add_test (NAME "mt19937ar_test" COMMAND mt19937ar_test)
   add_test (NAME "redblack_test" COMMAND redblack_test 20)
   add_test (NAME "sobolseq_test" COMMAND sobolseq_test 2 100)
+  list (APPEND C_TESTS mt19937ar_test redblack_test sobolseq_test)
+endif ()
+
+# internal tests
+if (BUILD_TESTS_ALG)
+  add_test (NAME "direct_tstc" COMMAND direct_tstc)
+  list (APPEND C_TESTS direct_tstc)
+  if (WITH_CXX)
+    if (UNIX)
+      # conditional, otherwise we get "echo.exe not found" error on Windows
+      # (this is an interactive program that prompts for input from stdin)
+      add_test (NAME "stogo_prog" COMMAND echo 1 1 y | stogo_prog)
+      list (APPEND C_TESTS stogo_prog)
+    endif ()
+    add_test (NAME "stogo_testros" COMMAND stogo_testros)
+    add_test (NAME "stogo_tst" COMMAND stogo_tst)
+    add_test (NAME "stogo_tstc" COMMAND stogo_tstc)
+    list (APPEND C_TESTS stogo_testros stogo_tst stogo_tstc)
+  endif ()
 endif ()
 
 # setup test environment
 if (WITH_TESTS_INSTALL_TREE)
   set (C_TEST_ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-  )
+    "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}")
 else ()
   set (C_TEST_ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-  )
+    "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}")
 endif ()
-set_tests_properties (
-  lorentzfit box mt19937ar_test redblack_test sobolseq_test
+set_tests_properties (${C_TESTS}
   PROPERTIES ENVIRONMENT "${C_TEST_ENVIRONMENT}")
 
 #==============================================================================
@@ -137,13 +207,11 @@ if (PYTHONINTERP_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
   if (WITH_TESTS_INSTALL_TREE)
     set (PYTHON_TEST_ENVIRONMENT
       "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-      "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}:$ENV{PYTHONPATH}"
-    )
+      "PYTHONPATH=${INSTALL_PYTHON_FULL_LIB_DIR}:$ENV{PYTHONPATH}")
   else ()
     set (PYTHON_TEST_ENVIRONMENT
       "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig:$ENV{PYTHONPATH}"
-    )
+      "PYTHONPATH=${CMAKE_BINARY_DIR}/swig:$ENV{PYTHONPATH}")
   endif ()
   set_tests_properties (test_python
     PROPERTIES ENVIRONMENT "${PYTHON_TEST_ENVIRONMENT}")
@@ -161,13 +229,11 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
   if (WITH_TESTS_INSTALL_TREE)
     set (GUILE_TEST_ENVIRONMENT
       "LD_LIBRARY_PATH=${INSTALL_GUILE_FULL_EXT_DIR}:${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-      "GUILE_LOAD_PATH=${INSTALL_GUILE_FULL_SITE_DIR}:..."
-    )
+      "GUILE_LOAD_PATH=${INSTALL_GUILE_FULL_SITE_DIR}:...")
   else ()
     set (GUILE_TEST_ENVIRONMENT
       "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig:${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig:..."
-    )
+      "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig:...")
   endif ()
   set_tests_properties (test_guile
     PROPERTIES ENVIRONMENT "${GUILE_TEST_ENVIRONMENT}")
@@ -178,6 +244,7 @@ endif ()
 #==============================================================================
 
 if (OCTAVE_FOUND)
+  # octave executable options
   set (OCTAVE_OPTS --quiet --norc)
   if (NOT OCTAVE_VERSION_STRING VERSION_LESS 4.0.0)
     list (APPEND OCTAVE_OPTS --no-gui --no-window-system)
@@ -191,13 +258,11 @@ if (OCTAVE_FOUND)
   if (WITH_TESTS_INSTALL_TREE)
     set (OCTAVE_TEST_ENVIRONMENT
       "LD_LIBRARY_PATH=${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
-      "OCTAVE_PATH=${INSTALL_OCTAVE_FULL_OCT_DIR}:${INSTALL_OCTAVE_FULL_M_DIR}:"
-    )
+      "OCTAVE_PATH=${INSTALL_OCTAVE_FULL_OCT_DIR}:${INSTALL_OCTAVE_FULL_M_DIR}:")
   else ()
     set (OCTAVE_TEST_ENVIRONMENT
       "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:$ENV{LD_LIBRARY_PATH}"
-      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave:${CMAKE_SOURCE_DIR}/octave:"
-    )
+      "OCTAVE_PATH=${CMAKE_BINARY_DIR}/octave:${CMAKE_SOURCE_DIR}/octave:")
   endif ()
   set_tests_properties (test_octave
     PROPERTIES ENVIRONMENT "${OCTAVE_TEST_ENVIRONMENT}")
