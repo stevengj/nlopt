@@ -54,6 +54,10 @@ foreach (_algo_index RANGE 29)# 42
     if (_algo_index STREQUAL 10)
       set (_enable FALSE)
     endif ()
+    # LN_NEWUOA only works for dimensionality >= 2
+    if (_algo_index STREQUAL 26 AND _obj_index STREQUAL 19)
+      set (_enable FALSE)
+    endif ()
     # LN_NEWUOA_BOUND timeouts on msvc
     if (_algo_index STREQUAL 27)
       set (_enable FALSE)
