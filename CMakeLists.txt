@@ -39,6 +39,8 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 option (BUILD_SHARED_LIBS   "Build NLopt as a shared library" ON)
 option (WITH_CXX            "Enable C++-based routines (StoGO)" OFF)
 option (WITH_SWIG           "Use SWIG to generate bindings" ON)
+option (BUILD_CPP           "Build C++ interace (nlopt.hpp)" ON)
+option (BUILD_F77           "Build Fortran iterface" ON)
 option (BUILD_PYTHON        "Build Python bindings (using SWIG)" ON)
 option (BUILD_GUILE         "Build Guile bindings (using SWIG)" ON)
 option (BUILD_OCTAVE        "Build Octave bindings" ON)
@@ -51,6 +53,9 @@ option (WITH_FOLDERS        "Enable grouping of files/targets in folders" ON)
 if (BUILD_PYTHON OR BUILD_GUILE)
   if (NOT WITH_SWIG)
     message (WARNING "Python/Guile wrappers require SWIG")
+  endif ()
+  if (NOT BUILD_CPP)
+    message (WARNING "Python/Guile wrappers require the C++ interface")
   endif ()
 endif ()
 
@@ -310,7 +315,9 @@ set (NLOPT_SOURCES
 )
 
 # source files: Fortran interface
-list (APPEND NLOPT_SOURCES ${NLOPT_SOURCES_F77})
+if (BUILD_F77)
+  list (APPEND NLOPT_SOURCES ${NLOPT_SOURCES_F77})
+endif ()
 
 # source files: C++
 if (WITH_CXX)
@@ -342,8 +349,9 @@ if (UNIX OR HAVE_LIBM)
   target_link_libraries (${nlopt_lib} m)
 endif ()
 
-# pass -fPIC in case swig module is built with static library
-if (NOT BUILD_SHARED_LIBS)
+# if built as static lib, pass -fPIC in case building extension modules
+if (NOT BUILD_SHARED_LIBS AND
+    (BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE OR BUILD_MATLAB))
   set_target_properties (${nlopt_lib} PROPERTIES POSITION_INDEPENDENT_CODE True)
 endif ()
 
@@ -391,14 +399,18 @@ install (
 #==============================================================================
 
 # generate nlopt.hpp and nlopt.f
-add_subdirectory (api)
+if (BUILD_CPP OR BUILD_F77)
+  add_subdirectory (api)
+endif ()
 
 # header files to install (public API)
-set (NLOPT_HEADERS
-  api/nlopt.h
-  "${CMAKE_BINARY_DIR}/api/nlopt.hpp"
-  "${CMAKE_BINARY_DIR}/api/nlopt.f"
-)
+set (NLOPT_HEADERS api/nlopt.h)
+if (BUILD_CPP)
+  list (APPEND NLOPT_HEADERS "${CMAKE_BINARY_DIR}/api/nlopt.hpp")
+endif ()
+if (BUILD_F77)
+  list (APPEND NLOPT_HEADERS "${CMAKE_BINARY_DIR}/api/nlopt.f")
+endif ()
 
 install (
   FILES ${NLOPT_HEADERS}
@@ -508,7 +520,9 @@ if (GUILE_FOUND)
 endif ()
 
 # generate wrappers + Python/Guile modules targets
-add_subdirectory (swig)
+if (WITH_SWIG OR BUILD_GUILE OR BUILD_PYTHON)
+  add_subdirectory (swig)
+endif ()
 
 #==============================================================================
 # OCTAVE/MATLAB BINDINGS
@@ -531,7 +545,7 @@ if (OCTAVE_FOUND)
 endif ()
 
 # oct/mex module targets
-if (OCTAVE_FOUND OR Matlab_FOUND)
+if (BUILD_OCTAVE OR BUILD_MATLAB)
   add_subdirectory (octave)
 endif ()
 

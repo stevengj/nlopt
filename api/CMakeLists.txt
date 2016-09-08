@@ -4,7 +4,7 @@
 #==============================================================================
 
 # generate nlopt.f from nlopt.h enums
-if ("${CMAKE_CURRENT_SOURCE_DIR}/nlopt.h" IS_NEWER_THAN
+if (BUILD_F77 AND "${CMAKE_CURRENT_SOURCE_DIR}/nlopt.h" IS_NEWER_THAN
     "${CMAKE_CURRENT_BINARY_DIR}/nlopt.f")
   file (WRITE "${CMAKE_CURRENT_BINARY_DIR}/nlopt.f" "")
   file (STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/nlopt.h" NLOPT_H_LINES
@@ -49,7 +49,7 @@ endif ()
 #==============================================================================
 
 # generate nlopt.hpp from nlopt-in.hpp
-if ("${CMAKE_CURRENT_SOURCE_DIR}/nlopt-in.hpp" IS_NEWER_THAN
+if (BUILD_CPP AND "${CMAKE_CURRENT_SOURCE_DIR}/nlopt-in.hpp" IS_NEWER_THAN
     "${CMAKE_CURRENT_BINARY_DIR}/nlopt.hpp")
   set (OUTPUT_HPP "${CMAKE_CURRENT_BINARY_DIR}/nlopt.hpp")
   file (WRITE "${OUTPUT_HPP}" "")
