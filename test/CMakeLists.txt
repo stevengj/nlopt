@@ -1,22 +1,49 @@
 
 #==============================================================================
+# Helpers
+#==============================================================================
+
+set (BUILD_TESTS_UTIL ON)
+
+# add test executable linked against nlopt
+macro (add_executable_nlopt _NAME)
+  add_executable (${_NAME} EXCLUDE_FROM_ALL ${ARGN})
+  target_link_libraries (${_NAME} ${NLOPT_LIB})
+  if (WITH_FOLDERS)
+    set_target_properties (${_NAME} PROPERTIES FOLDER "Testing")
+  endif ()
+endmacro ()
+
+#==============================================================================
 # Test Executables
 #==============================================================================
 
-# have to add timer.c and mt19937ar.c as symbols are declared extern
+# nlopt tests
+# (note: have to add some util/*.c as symbols are declared extern)
 set (TESTOPT_SOURCES
   testopt.c testfuncs.c testfuncs.h
-  "${CMAKE_SOURCE_DIR}/util/timer.c"
-  "${CMAKE_SOURCE_DIR}/util/mt19937ar.c"
-)
+  ../util/timer.c ../util/mt19937ar.c)
 if (NOT HAVE_GETOPT_H)
-  list (APPEND TESTOPT_SOURCES "${CMAKE_SOURCE_DIR}/util/nlopt-getopt.c")
+  list (APPEND TESTOPT_SOURCES ../util/nlopt-getopt.c)
 endif ()
-add_executable (testopt EXCLUDE_FROM_ALL ${TESTOPT_SOURCES})
-target_link_libraries (testopt ${NLOPT_LIB})
+add_executable_nlopt (testopt ${TESTOPT_SOURCES})
+add_executable_nlopt (lorentzfit lorentzfit.c ../util/mt19937ar.c)
+add_executable_nlopt (box box.c)
 
-if (WITH_FOLDERS)
-  set_target_properties (testopt PROPERTIES FOLDER "Testing")
+# util tests
+if (BUILD_TESTS_UTIL)
+  add_executable (mt19937ar_test EXCLUDE_FROM_ALL
+    ../util/mt19937ar_test.c ../util/mt19937ar.c)
+  add_executable (redblack_test EXCLUDE_FROM_ALL
+    ../util/redblack_test.c ../util/redblack.c)
+  add_executable (sobolseq_test EXCLUDE_FROM_ALL
+    ../util/sobolseq_test.c ../util/sobolseq.c ../util/mt19937ar.c)
+
+  if (UNIX OR HAVE_LIBM)
+    target_link_libraries (mt19937ar_test m)
+    target_link_libraries (redblack_test m)
+    target_link_libraries (sobolseq_test m)
+  endif ()
 endif ()
 
 #==============================================================================
@@ -25,7 +52,10 @@ endif ()
 
 # group all tests executables under one target
 add_custom_target (tests)
-add_dependencies (tests testopt)
+add_dependencies (tests testopt lorentzfit box)
+if (BUILD_TESTS_UTIL)
+  add_dependencies (tests mt19937ar_test redblack_test sobolseq_test)
+endif ()
 
 # emulate Autotools "make check" to build and run tests
 add_custom_target (check
@@ -41,8 +71,8 @@ endif ()
 #==============================================================================
 
 # testopt (sweep over various algorithms and objective functions)
-foreach (_algo_index RANGE 29)# 42
-  foreach (_obj_index RANGE 1)# 21
+foreach (_algo_index RANGE 29)  # 42
+  foreach (_obj_index RANGE 1)  # 21
     set (_enable TRUE)
     # cxx stogo
     if (NOT WITH_CXX)
@@ -69,17 +99,30 @@ foreach (_algo_index RANGE 29)# 42
   endforeach ()
 endforeach ()
 
+# more nlopt tests
+add_test (NAME "lorentzfit" COMMAND lorentzfit)
+add_test (NAME "box" COMMAND box)
+
+# util tests
+if (BUILD_TESTS_UTIL)
+  add_test (NAME "mt19937ar_test" COMMAND mt19937ar_test)
+  add_test (NAME "redblack_test" COMMAND redblack_test 20)
+  add_test (NAME "sobolseq_test" COMMAND sobolseq_test 2 100)
+endif ()
+
 #==============================================================================
 # Python tests
 #==============================================================================
 
 if (PYTHONINTERP_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
+  add_test (NAME test_python
+    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_python.py")
+
+  # setup test environment
   set (PYINSTALLCHECK_ENVIRONMENT
     "LD_LIBRARY_PATH=${INSTALL_DESTDIR}${CMAKE_INSTALL_FULL_LIBDIR}:$ENV{LD_LIBRARY_PATH}"
     "PYTHONPATH=${INSTALL_DESTDIR}${PYTHON_MODULE_PATH}${PATH_SEP}$ENV{PYTHONPATH}"
   )
-  add_test (NAME test_python
-    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_python.py")
   set_tests_properties (test_python
     PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
 endif ()
@@ -89,12 +132,14 @@ endif ()
 #==============================================================================
 
 if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
+  add_test (NAME test_guile
+    COMMAND "${GUILE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm")
+
+  # setup test environment
   set (GUILECHECK_ENVIRONMENT
     "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
     "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig"
   )
-  add_test (NAME test_guile
-    COMMAND "${GUILE_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm")
   set_tests_properties (test_guile
     PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
 endif ()
