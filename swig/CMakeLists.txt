@@ -23,6 +23,11 @@ if (PYTHONLIBS_FOUND AND NUMPY_FOUND AND SWIG_FOUND)
   set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES
     NO_SONAME ON)
 
+  if (WITH_FOLDERS)
+    set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES
+      FOLDER "Python")
+  endif ()
+
   install (
     TARGETS ${SWIG_MODULE_nlopt_REAL_NAME}
     LIBRARY DESTINATION "${RELATIVE_PYTHON_MODULE_PATH}"
@@ -100,6 +105,10 @@ if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
   target_link_libraries (nlopt_guile ${NLOPT_LIB} ${GUILE_LIBRARIES})
   set_target_properties (nlopt_guile PROPERTIES
     NO_SONAME ON)
+
+  if (WITH_FOLDERS)
+    set_target_properties (nlopt_guile PROPERTIES FOLDER "Guile")
+  endif ()
 
   install (
     TARGETS nlopt_guile

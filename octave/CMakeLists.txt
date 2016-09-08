@@ -68,6 +68,10 @@ if (OCTAVE_FOUND)
     LINK_LIBRARIES ${NLOPT_LIB})
   set_target_properties (nlopt_octave PROPERTIES OUTPUT_NAME nlopt_optimize)
 
+  if (WITH_FOLDERS)
+    set_target_properties (nlopt_octave PROPERTIES FOLDER "Octave")
+  endif ()
+
   install (
     TARGETS nlopt_octave
     DESTINATION "${RELATIVE_OCTAVE_OCT_SITE_DIR}"
@@ -94,6 +98,10 @@ if (Matlab_FOUND)
     OUTPUT_NAME nlopt_optimize
     LINK_TO ${NLOPT_LIB})
   set_target_properties (nlopt_matlab PROPERTIES NO_SONAME ON)
+
+  if (WITH_FOLDERS)
+    set_target_properties (nlopt_matlab PROPERTIES FOLDER "MATLAB")
+  endif ()
 
   install (
     TARGETS nlopt_matlab

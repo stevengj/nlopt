@@ -363,6 +363,7 @@ set_target_properties (${NLOPT_LIB} PROPERTIES
 
 # group files and target projects in IDE
 if (WITH_FOLDERS)
+  set_target_properties (${NLOPT_LIB} PROPERTIES FOLDER "Libraries")
   source_group (direct     FILES ${NLOPT_SOURCES_DIRECT})
   source_group (cdirect    FILES ${NLOPT_SOURCES_CDIRECT})
   source_group (praxis     FILES ${NLOPT_SOURCES_PRAXIS})
