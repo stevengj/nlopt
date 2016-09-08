@@ -297,3 +297,38 @@ if (OCTAVE_FOUND)
   set_tests_properties (test_octave
     PROPERTIES ENVIRONMENT "${OCTAVE_TEST_ENVIRONMENT}")
 endif ()
+
+#==============================================================================
+# MATLAB tests
+#==============================================================================
+
+if (Matlab_FOUND)
+  # MATLAB executable options
+  set (MATLAB_OPTS -nodesktop -nodisplay -nosplash)
+  if (WIN32)
+    list (APPEND MATLAB_OPTS -wait)  #TODO: unix alternative ?
+  endif ()
+
+  # unfortunately MATLABPATH env var only works in Linux/Mac
+  # so we will manually call addpath() instead
+  if (WITH_TESTS_INSTALL_TREE)
+    set (ADDPATH_CALL "addpath('${INSTALL_MATLAB_FULL_DIR}')")
+  else ()
+    set (ADDPATH_CALL "addpath('${CMAKE_SOURCE_DIR}/octave'), addpath('${CMAKE_BINARY_DIR}/octave'), addpath('${CMAKE_BINARY_DIR}/octave/${CMAKE_BUILD_TYPE}')")
+  endif ()
+
+  add_test (NAME test_matlab
+    COMMAND "${Matlab_MAIN_PROGRAM}" ${MATLAB_OPTS}
+      -r "try, ${ADDPATH_CALL}, end, cd('${CMAKE_CURRENT_SOURCE_DIR}'), t_octave, exit")
+
+  # setup test environment
+  if (WITH_TESTS_INSTALL_TREE)
+    set (MATLAB_TEST_ENVIRONMENT
+      "${PATH_VAR}=${PATH_VAL}${PATH_SEP}${PATH_ENV}")
+  else ()
+    set (MATLAB_TEST_ENVIRONMENT
+      "${PATH_VAR}=${CMAKE_BINARY_DIR}${PATH_SEP}${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}${PATH_SEP}${PATH_ENV}")
+  endif ()
+  set_tests_properties (test_matlab
+    PROPERTIES ENVIRONMENT "${MATLAB_TEST_ENVIRONMENT}")
+endif ()
