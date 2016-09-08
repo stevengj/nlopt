@@ -56,6 +56,11 @@ if (BUILD_GUILE AND "${CMAKE_SOURCE_DIR}/api/nlopt.h" IS_NEWER_THAN
       "${ENUM_LINE}")
   endforeach ()
 
+  # cleanup
+  unset (ENUM_LINE)
+  unset (NLOPT_H_LINE)
+  unset (NLOPT_H_LINES)
+
   # mark file as generated
   set_source_files_properties (
     "${CMAKE_CURRENT_BINARY_DIR}/nlopt-enum-renames.i"
@@ -63,35 +68,42 @@ if (BUILD_GUILE AND "${CMAKE_SOURCE_DIR}/api/nlopt.h" IS_NEWER_THAN
 endif ()
 
 # guile bindings with gcc only ok with swig >= 2.0.10
-if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
-    OR (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp")))
+if (GUILE_FOUND AND SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9)
   include_directories (${GUILE_INCLUDE_DIRS})
 
-  if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp")
-    set (guile_cpp_source "${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp")
-  else ()
-    file (WRITE "${CMAKE_CURRENT_BINARY_DIR}/GenericConfigureFile.cmake"
-      "configure_file (\${INFILE} \${OUTFILE} @ONLY)")
-    set (guile_cpp_source ${CMAKE_CURRENT_BINARY_DIR}/nlopt-guile.cpp)
-    add_custom_command (
-      OUTPUT ${guile_cpp_source} nlopt.scm.in
-      COMMAND ${SWIG_EXECUTABLE} -I${CMAKE_BINARY_DIR}/api -outdir ${CMAKE_CURRENT_BINARY_DIR} -c++ -guile -scmstub -o ${guile_cpp_source} ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i
-      COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm.in
-      COMMAND ${CMAKE_COMMAND} -DINFILE=${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm.in -DOUTFILE=${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm -DNLOPT_SUFFIX=${NLOPT_SUFFIX} -P ${CMAKE_CURRENT_BINARY_DIR}/GenericConfigureFile.cmake)
-  endif ()
+  # generate guile wrappers using swig
+  add_custom_command (
+    OUTPUT
+      nloptGUILE_wrap.cxx
+      nlopt.scm
+    COMMAND "${SWIG_EXECUTABLE}"
+    ARGS
+      -guile -scmstub -c++
+      -I${CMAKE_BINARY_DIR}/api
+      -module nlopt
+      -outdir "${CMAKE_CURRENT_BINARY_DIR}"
+      -o nloptGUILE_wrap.cxx
+      "${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i"
+    MAIN_DEPENDENCY nlopt.i
+    DEPENDS
+      nlopt-exceptions.i nlopt-guile.i
+      "${CMAKE_CURRENT_BINARY_DIR}/nlopt-enum-renames.i"
+      "${CMAKE_BINARY_DIR}/api/nlopt.hpp"
+      "${CMAKE_SOURCE_DIR}/api/nlopt.h"
+    COMMENT "Swig source")
+  set_source_files_properties (
+    "${CMAKE_CURRENT_BINARY_DIR}/nloptGUILE_wrap.cxx"
+    "${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm"
+    PROPERTIES GENERATED TRUE)
 
-  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.scm.in)
-    configure_file (nlopt.scm.in nlopt.scm @ONLY)
-  endif ()
-
-  set (SWIG_MODULE_nlopt_guile_REAL_NAME nlopt${NLOPT_SUFFIX}_guile)
-  add_library (${SWIG_MODULE_nlopt_guile_REAL_NAME} MODULE ${guile_cpp_source})
-  target_link_libraries(${SWIG_MODULE_nlopt_guile_REAL_NAME} ${nlopt_lib})
-  target_link_libraries(${SWIG_MODULE_nlopt_guile_REAL_NAME} ${GUILE_LIBRARIES})
-
+  # Guile lib target
+  add_library (nlopt_guile MODULE
+    "${CMAKE_CURRENT_BINARY_DIR}/nloptGUILE_wrap.cxx")
+  target_link_libraries(nlopt_guile ${nlopt_lib} ${GUILE_LIBRARIES})
+  set_target_properties (nlopt_guile PROPERTIES NO_SONAME ON)
 
   install (
-    TARGETS ${SWIG_MODULE_nlopt_guile_REAL_NAME}
+    TARGETS nlopt_guile
     LIBRARY DESTINATION "${RELATIVE_GUILE_EXTENSION_DIR}"
     COMPONENT "Bindings")
   install (
