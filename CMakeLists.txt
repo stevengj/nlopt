@@ -582,25 +582,32 @@ endif ()
 # CPACK
 #==============================================================================
 
+# customize binary/source installers
 set (CPACK_PACKAGE_NAME                "${CMAKE_PROJECT_NAME}")
 set (CPACK_PACKAGE_CONTACT             "Steven G. Johnson <stevenj@alum.mit.edu>")
 set (CPACK_PACKAGE_VENDOR              "Massachusetts Institute of Technology")
+set (CPACK_PACKAGE_VERSION_MAJOR       "${NLOPT_MAJOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_MINOR       "${NLOPT_MINOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_PATCH       "${NLOPT_BUGFIX_VERSION}")
 set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "NLopt: a nonlinear optimization library")
 set (CPACK_PACKAGE_DESCRIPTION_FILE    "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set (CPACK_RESOURCE_FILE_README        "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set (CPACK_RESOURCE_FILE_LICENSE       "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set (CPACK_PACKAGE_VERSION_MAJOR       "${NLOPT_MAJOR_VERSION}")
-set (CPACK_PACKAGE_VERSION_MINOR       "${NLOPT_MINOR_VERSION}")
-set (CPACK_PACKAGE_VERSION_PATCH       "${NLOPT_BUGFIX_VERSION}")
-if (NOT WIN32)
+set (CPACK_SOURCE_IGNORE_FILES         ".git/;build/;.*~;${CPACK_SOURCE_IGNORE_FILES}")
+set (CPACK_SOURCE_PACKAGE_FILE_NAME    "${CPACK_PACKAGE_NAME}-${NLOPT_VERSION_STRING}")
+if (WIN32)
+  set (CPACK_GENERATOR                 "ZIP")  # NSIS
+  set (CPACK_SOURCE_GENERATOR          "ZIP")
+  set (CPACK_BINARY_ZIP                "ON")
+  set (CPACK_SOURCE_ZIP                "ON")
+else ()
   set (CPACK_GENERATOR                 "TGZ")
   set (CPACK_SOURCE_GENERATOR          "TGZ")
   set (CPACK_BINARY_TGZ                "ON")
   set (CPACK_SOURCE_TGZ                "ON")
 endif ()
-set (CPACK_SOURCE_IGNORE_FILES         ".git;.*~;build/;${CPACK_SOURCE_IGNORE_FILES}")
-set (CPACK_SOURCE_PACKAGE_FILE_NAME    "${CPACK_PACKAGE_NAME}-${NLOPT_VERSION_STRING}")
 
+# generates package/package_source targets
 include (CPack)
 
 #==============================================================================
