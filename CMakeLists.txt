@@ -107,6 +107,17 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
   endif ()
 endif ()
 
+# when cross-compiling, tell GCC linker to use static libraries if possible
+# in order to avoid dependencies on libgcc and libstdc++ shared libraries
+# (this produces self-contained but larger binaries)
+# (NOTE: pay attention if C++ exceptions are propagated across libraries)
+if (CMAKE_CROSSCOMPILING AND CMAKE_COMPILER_IS_GNUCC AND BUILD_SHARED_LIBS)
+  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static")
+  set (CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -static")
+  set (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -static")
+  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+endif ()
+
 #==============================================================================
 # VERSION NUMBERS
 #==============================================================================
