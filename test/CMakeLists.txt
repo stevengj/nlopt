@@ -1,13 +1,6 @@
 
-# build and run util tests
-option (BUILD_TESTS_UTIL "Build util tests" OFF)
-# build and run algorithm tests
-option (BUILD_TESTS_ALG "Build algorithm tests" OFF)
-# run tests from either install-tree or build-tree
-option (WITH_TESTS_INSTALL_TREE "Test from install or build tree" OFF)
-
 #==============================================================================
-# Helpers
+# Helper functions and macros
 #==============================================================================
 
 # get path separator, LD path environmnent variable name, and LD install dir
