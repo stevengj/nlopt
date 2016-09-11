@@ -353,11 +353,15 @@ include_directories (
 
 # dllimport/dllexport decorations for Windows
 if (BUILD_SHARED_LIBS AND WIN32)
-  add_definitions (-DNLOPT_DLL -DNLOPT_DLL_EXPORT)
+  set (NLOPT_DEFINITIONS -DNLOPT_DLL)  # also used by NLoptConfig.cmake.in
+  add_definitions (${NLOPT_DEFINITIONS})
 endif ()
 
 # library target (Shared or Static)
 add_library (${NLOPT_LIB} ${NLOPT_SOURCES})
+
+# dllimport/dllexport decorations for Windows
+set_target_properties (${NLOPT_LIB} PROPERTIES DEFINE_SYMBOL NLOPT_DLL_EXPORT)
 
 # link against libm if needed
 if (UNIX OR HAVE_LIBM)
