@@ -4,17 +4,15 @@ function t_octave()
     %opt.algorithm = nlopt_algorithm('LN_COBYLA');
     opt.lower_bounds = [-inf, 0];
     opt.min_objective = @myfunc;
-    opt.fc = {
-        @(x) myconstraint(x,2,0),
-        @(x) myconstraint(x,-1,1)
-    };
+    opt.fc{1} = @(x) myconstraint(x,2,0);
+    opt.fc{2} = @(x) myconstraint(x,-1,1);
     opt.fc_tol = [1e-8, 1e-8];
     opt.xtol_rel = 1e-4;
-    display(opt)
+    disp(opt)
     [x, fval, exitflag] = nlopt_optimize(opt, [1.234, 5.678]);
-    display(x)
-    display(fval)
-    display(exitflag)
+    disp(x)
+    disp(fval)
+    disp(exitflag)
 end
 
 function [val, grad] = myfunc(x)
