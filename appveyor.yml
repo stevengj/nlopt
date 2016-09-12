@@ -33,8 +33,8 @@ artifacts:
   - path: build\nlopt-*.zip
   - path: build\nlopt-*.exe
 
-install:
-  - choco install -y swig > nul
+#install:
+#  - choco install -y swig > nul
 
 build_script:
   - cd "c:\projects\nlopt"
