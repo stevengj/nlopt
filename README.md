@@ -23,10 +23,10 @@ To build the latest development sources:
 
 (To build from git, you will need SWIG.)
 
-Once it is installed, `#include <nlopt.h>` in your C/C++ programs and
+Once it is installed, `#include "nlopt.h"` in your C/C++ programs and
 link it with `-lnlopt -lm`.  You may need to use the C++ compiler to link
 in order to include the C++ libraries (which are used internally by NLopt,
-even though it has a C API).
+even though it exports a C API).
 
 The minimization function, `nlopt_minimize`, is described in the [man
 page](http://en.wikipedia.org/wiki/Man_page) (`api/nlopt_minimize.3`,

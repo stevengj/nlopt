@@ -149,12 +149,13 @@ int main(int argc, char **argv)
 	  
      for (i = 0; i < N; ++i) {
 	  rb_node *le, *gt;
+	  double lek, gtk;
 	  kd = 0.01 * (rand() % (N * 150) - N*25);
 	  le = rb_tree_find_le(&t, &kd);
 	  gt = rb_tree_find_gt(&t, &kd);
 	  n = rb_tree_min(&t);
-	  double lek = le ? le->k[0] : -HUGE_VAL;
-	  double gtk = gt ? gt->k[0] : +HUGE_VAL;
+	  lek = le ? le->k[0] : -HUGE_VAL;
+	  gtk = gt ? gt->k[0] : +HUGE_VAL;
 	  printf("%g <= %g < %g\n", lek, kd, gtk);
 	  if (n->k[0] > kd) {
 	       if (le) {

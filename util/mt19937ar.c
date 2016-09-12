@@ -2,8 +2,8 @@
    A C-program for MT19937, with initialization improved 2002/1/26.
    Coded by Takuji Nishimura and Makoto Matsumoto.
 
-   Before using, initialize the state by using init_genrand(seed)  
-   or init_by_array(init_key, key_length).
+   Before using, initialize the state by using nlopt_init_genrand(seed)  
+   or nlopt_init_by_array(init_key, key_length).
 
    Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
    All rights reserved.                          
@@ -215,8 +215,8 @@ int nlopt_iurand(int n)
    added by SGJ */
 double nlopt_nrand(double mean, double stddev)
 {
-  // Box-Muller algorithm to generate Gaussian from uniform
-  // see Knuth vol II algorithm P, sec. 3.4.1
+  /* Box-Muller algorithm to generate Gaussian from uniform
+     see Knuth vol II algorithm P, sec. 3.4.1 */
   double v1, v2, s;
   do {
     v1 = nlopt_urand(-1, 1);
@@ -230,24 +230,3 @@ double nlopt_nrand(double mean, double stddev)
     return mean + v1 * sqrt(-2 * log(s) / s) * stddev;
   }
 }
-
-#if 0
-#include <stdio.h>
-int main(void)
-{
-    int i;
-    uint32_t init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
-    init_by_array(init, length);
-    printf("1000 outputs of nlopt_genrand_int32()\n");
-    for (i=0; i<1000; i++) {
-      printf("%10lu ", nlopt_genrand_int32());
-      if (i%5==4) printf("\n");
-    }
-    printf("\n1000 outputs of genrand_real2()\n");
-    for (i=0; i<1000; i++) {
-      printf("%10.8f ", genrand_real2());
-      if (i%5==4) printf("\n");
-    }
-    return 0;
-}
-#endif

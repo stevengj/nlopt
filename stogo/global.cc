@@ -9,16 +9,19 @@
    NB The RNGs seed should be initialized using some timer
 */
 
+#include <cfloat>
 #include <iostream>
-
 #include <iterator>
 #include <algorithm>
 #include <stack>
+using namespace std;
 
+#include "nlopt-util.h"
 #include "stogo_config.h"
 #include "global.h"
 #include "local.h"
-#include "nlopt-util.h"
+#include "tools.h"
+#include "linalg.h"
 
 // Timer stuff
 double   StartTime;
@@ -28,7 +31,9 @@ int FC=0, GC=0 ;
 
 int stogo_verbose = 0; /* set to nonzero for verbose output */
 
-Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P): Domain(D) {
+Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P)
+: Domain(D)
+{
 
   dim=Domain.GetDim();
   Objective=o;
@@ -47,7 +52,7 @@ Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P): Domain(D) {
   fbound=DBL_MAX;
 }
 
-#if 0 // not necessary; default copy is sufficient 
+#if 0 // not necessary; default copy is sufficient
 Global& Global::operator=(const Global &G) {
   // Copy the problem info and parameter settings
   Domain=G.Domain; Objective=G.Objective;  Gradient=G.Gradient;
@@ -76,21 +81,21 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
     tmpTrial.objval=DBL_MAX ;
     // Add the rest
     i=1 ; flag=1 ; dir=0 ;
-    x=m ; 
+    x=m ;
     while (i<det_pnts) {
       w=box.Width(dir) ;
       x(dir)=m(dir)+flag*rshift*w ;
-      tmpTrial.xvals=x ; 
+      tmpTrial.xvals=x ;
       SampleBox.AddTrial(tmpTrial) ;
       flag=-flag;
       if (flag==1 && dir<dim) {
-	x(dir)=m(dir) ;
-	dir++ ;
+        x(dir)=m(dir) ;
+        dir++ ;
       }
       i++ ;
     }
     // Add midpoint
-    tmpTrial.xvals=m ; 
+    tmpTrial.xvals=m ;
     SampleBox.AddTrial(tmpTrial) ;
   }
 }
@@ -135,14 +140,14 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
       box.AddTrial(tmpTrial) ;
 
       if (tmpTrial.objval<=fbound+mu && tmpTrial.objval<=box.minf+mu) {
-	if (stogo_verbose) {
-	  cout << "Found a candidate, x=" << tmpTrial.xvals;
-	  cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
-	}
-	SolSet.push_back(tmpTrial);
+        if (stogo_verbose) {
+          cout << "Found a candidate, x=" << tmpTrial.xvals;
+          cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
+        }
+        SolSet.push_back(tmpTrial);
 #ifdef NLOPT_UTIL_H
-	if (tmpTrial.objval < stop->minf_max)
-	  break;
+        if (tmpTrial.objval < stop->minf_max)
+          break;
 #endif
       }
 #ifdef GS_DEBUG
@@ -179,14 +184,14 @@ void Global::ReduceOrSubdivide(RTBox box, int axis, RCRVector x_av) {
     }
     else
       if ( (ns>1) && (box.LowerBound(maxgrad)>fbound) ) {
-	// Several stationary points found and lower bound > fbound
-	Garbage.push(box) ;
+        // Several stationary points found and lower bound > fbound
+        Garbage.push(box) ;
       }
       else {
-	// Subdivision
-	B1.ClearBox() ; B2.ClearBox() ;
-	box.split(B1,B2) ;
-	CandSet.push(B1) ; CandSet.push(B2) ;
+        // Subdivision
+        B1.ClearBox() ; B2.ClearBox() ;
+        box.split(B1,B2) ;
+        CandSet.push(B1) ; CandSet.push(B2) ;
       }
 
   // Update fbound
@@ -242,28 +247,28 @@ void Global::Search(int axis, RCRVector x_av){
 
 #ifdef NLOPT_UTIL_H
       if (!NoMinimizers() && OneMinimizer(x) < stop->minf_max) {
-	done = TRUE;
-	break;
+        done = true;
+        break;
       }
 #endif
       if (!InTime()) {
-        done=TRUE;
-	if (stogo_verbose)
-	  cout << "The program has run out of time or function evaluations\n";
+        done=true;
+        if (stogo_verbose)
+          cout << "The program has run out of time or function evaluations\n";
         break;
       }
 
     } // inner while-loop
     if (stogo_verbose)
       cout << endl << "*** Inner loop completed ***" << endl ;
-    
+
     // Reduce SolSet if necessary
     SolSet.erase(remove_if(SolSet.begin(), SolSet.end(),
 			   TrialGT(fbound+mu)),SolSet.end());
     if (InTime()) {
       if (stogo_verbose) {
-	cout << "Current set of minimizers (" << SolSet.size() << ")" << endl ;
-	DispMinimizers() ;
+        cout << "Current set of minimizers (" << SolSet.size() << ")" << endl ;
+        DispMinimizers() ;
       }
 
       while (!Garbage.empty()) {

@@ -1,19 +1,25 @@
 // A C-callable front-end to the StoGO global-optimization library.
 //  -- Steven G. Johnson
 
+#include "nlopt-util.h"
 #include "stogo.h"
 #include "global.h"
+#include "tools.h"
+#include "linalg.h"
 
-class MyGlobal : public Global {
+class MyGlobal : public Global
+{
 protected:
   objective_func my_func;
   void *my_data;
 
 public:
 
-  MyGlobal(RTBox D, GlobalParams P, objective_func func, void *data) : Global(D, 0, 0, P), my_func(func), my_data(data) {}
-  
-  virtual double ObjectiveGradient(RCRVector xy, RVector &grad, whichO which){
+  MyGlobal(RTBox D, GlobalParams P, objective_func func, void *data)
+  : Global(D, 0, 0, P), my_func(func), my_data(data) {}
+
+  virtual double ObjectiveGradient(RCRVector xy, RVector &grad, whichO which)
+  {
     ++numeval;
     switch (which) {
     case GRADIENT_ONLY:
@@ -41,7 +47,7 @@ int stogo_minimize(int n,
 
   // FIXME: WTF do these parameters mean?
   params.rnd_pnts=nrandom;
-  params.det_pnts=2*n+1 - nrandom; 
+  params.det_pnts=2*n+1 - nrandom;
   params.eps_cl=0.1; params.rshift=0.3;
   params.mu=1.0E-4;
   params.stop = stop;
@@ -58,7 +64,7 @@ int stogo_minimize(int n,
 
   if (Problem.NoMinimizers())
     return 0;
-  
+
   *minf = Problem.OneMinimizer(dummyvec);
   for (int i = 0; i < n; ++i) x[i] = dummyvec(i);
   return 1;

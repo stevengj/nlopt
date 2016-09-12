@@ -21,6 +21,7 @@
  */
 
 #include <math.h>
+#include <float.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -143,7 +144,8 @@ char *nlopt_vsprintf(char *p, const char *format, va_list ap)
 
     p = (char *) realloc(p, len);
     if (!p) abort();
-    
+
+    /* TODO: check HAVE_VSNPRINTF, and fallback to vsprintf otherwise */
     while ((ret = vsnprintf(p, len, format, ap)) < 0 || (size_t)ret >= len) {
         /* C99 vsnprintf returns the required number of bytes (excluding \0)
            if the buffer is too small; older versions (e.g. MS) return -1 */
@@ -162,4 +164,55 @@ void nlopt_stop_msg(const nlopt_stopping *s, const char *format, ...)
         *(s->stop_msg) = nlopt_vsprintf(*(s->stop_msg), format, ap);
         va_end(ap);
     }
+}
+
+/*************************************************************************/
+
+int nlopt_isinf(double x)
+{
+    return (fabs(x) >= HUGE_VAL * 0.99)
+#if defined(HAVE_ISINF)
+        || isinf(x)
+#else
+        || (!nlopt_isnan(x) && nlopt_isnan(x - x))
+#endif
+    ;
+}
+
+int nlopt_isfinite(double x)
+{
+    return (fabs(x) <= DBL_MAX)
+#if defined(HAVE_ISFINITE)
+        || isfinite(x)
+#elif defined(_WIN32)
+        || _finite(x)
+#endif
+    ;
+}
+
+int nlopt_istiny(double x)
+{
+    if (x == 0.0)
+        return 1;
+    else {
+#if defined(HAVE_FPCLASSIFY)
+        return fpclassify(x) == FP_SUBNORMAL;
+#elif defined(_WIN32)
+        int c = _fpclass(x);
+        return c == _FPCLASS_ND || c == _FPCLASS_PD;
+#else
+        return fabs(x) < 2.2250738585072014e-308; /* assume IEEE 754 double */
+#endif
+    }
+}
+
+int nlopt_isnan(double x)
+{
+#if defined(HAVE_ISNAN)
+    return isnan(x);
+#elif defined(_WIN32)
+    return _isnan(x);
+#else
+    return (x != x); /* might fail with aggressive optimization */
+#endif
 }

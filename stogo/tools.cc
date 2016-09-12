@@ -1,9 +1,15 @@
-
-#include <float.h>
+#include <cstdlib>
+#include <cmath>
+#include <cfloat>
 #include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <list>
+using namespace std;
 
 #include "stogo_config.h"
 #include "tools.h"
+#include "linalg.h"
 
 Trial::Trial():xvals(0) {
   objval=DBL_MAX;
@@ -96,7 +102,7 @@ double TBox::GetMin() {
 }
 
 bool TBox::EmptyBox() {
-  // Returns TRUE if the list of Trials is empty
+  // Returns true if the list of Trials is empty
   return TList.empty() ;
 }
 
@@ -137,7 +143,7 @@ void TBox::ClearBox() {
 }
 
 bool TBox::CloseToMin(RVector &vec, double *objval, double eps_cl) {
-  // Returns TRUE if 'vec' is close to some of the trials in the box,
+  // Returns true if 'vec' is close to some of the trials in the box,
   // in this case, 'vec' and 'objval' are overwritten by the Trial data
   // otherwise 'vec' and 'objval' are not affected.
   //
@@ -155,10 +161,10 @@ bool TBox::CloseToMin(RVector &vec, double *objval, double eps_cl) {
     if (norm2(y)<=eps_cl) {
       vec=x;
       *objval=(*itr).objval;
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 unsigned int TBox::NStationary() {
@@ -197,8 +203,8 @@ void TBox::split(RTBox B1, RTBox B2) {
     // Compute the relative deviations
     for ( itr = TList.begin(); itr != TList.end(); ++itr ) {
       for (k = 0; k<n; k++) {
-	x=(*itr).xvals;
-	dispers(k)=dispers(k)+pow(center(k)-x(k),2.0);
+        x=(*itr).xvals;
+        dispers(k)=dispers(k)+pow(center(k)-x(k),2.0);
       }
     }
     scal((double)(1.0/ns),dispers);
@@ -207,7 +213,7 @@ void TBox::split(RTBox B1, RTBox B2) {
     tmp=dispers(0);i=0;
     for (k=1; k<n; k++) {
       if (dispers(k)>tmp) {
-	tmp=dispers(k);i=k;
+        tmp=dispers(k);i=k;
       }
     }
     B1.ub(i)=center(i) ; B2.lb(i)=center(i);
@@ -247,11 +253,11 @@ ostream & operator << (ostream & os, const TBox & B) {
 }
 
 bool TBox::InsideBox(RCRVector x) {
-  // Returns TRUE if the point X lies inside BOX, FALSE otherwise
+  // Returns true if the point X lies inside BOX, false otherwise
   int n=GetDim();
   for (int i=0 ; i<n ; i++)
-    if (x(i)<lb(i) || x(i)>ub(i)) return FALSE;
-  return TRUE;
+    if (x(i)<lb(i) || x(i)>ub(i)) return false;
+  return true;
 }
 
 int TBox::OutsideBox(RCRVector x, RCTBox domain) {
@@ -314,7 +320,7 @@ double TBox::ClosestSide(RCRVector x) {
 
   //   Warning: The output of this functon is nonsense if the
   //   point X lies outside B. Should we try to detect this case?
-  
+
   double dist, tmp ;
   int n=GetDim();
   dist=DBL_MAX;
@@ -328,7 +334,7 @@ double TBox::ClosestSide(RCRVector x) {
 double TBox::FarthestSide(RCRVector x) {
   // Returns the longest distance from point X to the box B.
   //   Same comment apply here as in ClosestSide(X)
-    
+
   double dist, tmp;
   int n=GetDim();
   dist=DBL_MIN;
@@ -349,7 +355,7 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
 //   Due to round of errors the algorithm can fail to find an intersection
 //   The caller is notified and should act accordingly
 //
-//  The routine returns FALSE if no intersection was found, TRUE otherwise
+//  The routine returns false if no intersection was found, true otherwise
 
   int n=GetDim();
   RVector tmpV(n);
@@ -357,32 +363,32 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
   int i, j, k, isect;
   double alpha, gamma;
 
-  i=0; done=FALSE;
-  while (i<n && done==FALSE) {
+  i=0; done=false;
+  while (i<n && !done) {
     if (h(i)==0) {
       z(i)=x(i);
       break;
     }
     for (k=1; k<=2; k++) {
       if (k==1)
-	alpha=lb(i);
+        alpha=lb(i);
       else
-	alpha=ub(i);
+        alpha=ub(i);
       gamma=(alpha-x(i))/h(i);
       z(i)=alpha;
       isect=1;
       for (j=0; j<n; j++) {
-	if (j != i) {
-	  z(j)=x(j)+gamma*h(j);
-	  if (z(j)<lb(j) || z(j)>ub(j)) {
-	    isect=0;
-	    break;
-	  }
-	}
+        if (j != i) {
+          z(j)=x(j)+gamma*h(j);
+          if (z(j)<lb(j) || z(j)>ub(j)) {
+            isect=0;
+            break;
+          }
+        }
       }
       copy(z,tmpV); axpy(-1.0,x,tmpV);  // tmpV=z-x
       if (isect==1 && dot(tmpV,h)>0) {
-	done=TRUE; break;
+        done=true; break;
       }
     }
     i++;

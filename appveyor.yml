@@ -1,23 +1,49 @@
-version: 1.0.{build}
+#
+# AppVeyor CI build script.
+# https://ci.appveyor.com/project/stevengj/nlopt
+#
+
+version: 2.5.0.{build}
 os: Visual Studio 2015
+
 clone_folder: C:\projects\nlopt
+shallow_clone: true
+clone_depth: 1
+
+build: off
 test: off
-configuration:
-  - Release
+deploy: off
+
 branches:
   only:
     - master
+
+configuration:
+  - Release
+  #- Debug
+
 environment:
+  CMAKE_OPTS: -DWITH_CXX=ON -DBUILD_F77=OFF -DWITH_SWIG=OFF -DBUILD_PYTHON=OFF -DBUILD_GUILE=OFF -DBUILD_OCTAVE=OFF -DBUILD_MATLAB=OFF
+  INSTALL_PREFIX: C:\projects\nlopt\build\install
   matrix:
-    - CMAKE_PLATFORM: "Visual Studio 14 2015"
-    - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
+    - CMAKE_GENERATOR: "Visual Studio 14 2015"
+    - CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
+
+artifacts:
+  - path: build\nlopt-*.zip
+  - path: build\nlopt-*.exe
+
 #install:
-  #- cinstall: python
-  #- choco install swig
+#  - choco install -y swig > nul
+
 build_script:
-  - echo Running cmake...
-  - cd c:\projects\nlopt
-  - cmake -G "%CMAKE_PLATFORM%" -DBUILD_SHARED_LIBS=OFF -DWITH_CXX=ON -DCMAKE_INSTALL_PREFIX="C:\projects\nlopt\install" .
+  - cd "c:\projects\nlopt"
+  - mkdir build && cd build
+  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_INSTALL_PREFIX="%INSTALL_PREFIX%" %CMAKE_OPTS% ..
+  - cmake --build . --config %Configuration%
   - cmake --build . --config %Configuration% --target install
   - cmake --build . --config %Configuration% --target tests
-  - ctest -C %Configuration% --output-on-failure --timeout 100
+
+test_script:
+  - ctest --build-config %Configuration% --output-on-failure --timeout 100
+  - cpack

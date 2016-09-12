@@ -72,7 +72,7 @@ static double boxbetts_f(unsigned n, const double *x, double *grad, void *data)
      for (i = 1; i <= 10; ++i) {
 	  double e0 = exp(-0.1*i*x[0]);
 	  double e1 = exp(-0.1*i*x[1]);
-	  double e2 = exp(-0.1*i) - exp((double) -i);
+	  double e2 = exp(-0.1*i) - exp(-1.0*i);
 	  double g = e0 - e1 - e2 * x[2];
 	  f += sqr(g);
 	  if (grad) {
@@ -140,14 +140,14 @@ static const double grosenbrock_xmin[30] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 static double goldsteinprice_f(unsigned n, const double *x, double *grad, void *data)
 {
      double x0, x1, a1, a12, a2, b1, b12, b2;
-     UNUSED(data);
      x0 = x[0]; x1 = x[1];
      a1 = x0+x1+1; a12 = sqr(a1);
      a2 = 19 - 14*x0 + 3*x0*x0 - 14*x1 + 6*x0*x1 + 3*x1*x1;
      b1 = 2*x0-3*x1; b12 = sqr(b1);
      b2 = 18 - 32*x0 + 12*x0*x0 + 48*x1 - 36*x0*x1 + 27*x1*x1;
+     UNUSED(data);
      if (grad) {
-	  grad[0] = (1 + a12 * a2) * (2 * b1 * 2 * b2 
+	  grad[0] = (1 + a12 * a2) * (2 * b1 * 2 * b2
 				      + b12 * (-32 + 24*x0 - 36*x1))
 	       + (2 * a1 * a2 + a12 * (-14 + 6*x0 + 6*x1)) * (30 + b12 * b2);
 	  grad[1] = (1 + a12 * a2) * (2 * b1 * (-3) * b2
@@ -177,10 +177,10 @@ static double shekel_f(unsigned n, const double *x, double *grad, void *data)
      static const double c[10] = {.1,.2,.2,.4,.4,.6,.3,.7,.5,.5};
      unsigned i;
      double f = 0;
-     if (grad) for (i = 0; i < n; ++i) grad[i] = 0;
      unsigned m = *((unsigned *) data);
+     if (grad) for (i = 0; i < n; ++i) grad[i] = 0;
      for (i = 0; i < m; ++i) {
-	  double fi = 1.0 / (c[i] 
+	  double fi = 1.0 / (c[i]
 			     + sqr(x[0]-A[i][0])
 			     + sqr(x[1]-A[i][1])
 			     + sqr(x[2]-A[i][2])
@@ -206,10 +206,10 @@ static const double shekel2_xmin[4] = {4.000746531,4.000592935,3.999663399,3.999
 /****************************************************************************/
 static double levy_f(unsigned n, const double *x, double *grad, void *data)
 {
-     UNUSED(data);
      unsigned i;
      double a = x[n-1] - 1, b = 1 + sqr(sin(PI2*x[n-1]));
      double f = sqr(sin(PI3*x[0])) + a * b;
+     UNUSED(data);
      if (grad) {
 	  for (i = 0; i < n; ++i) grad[i] = 0;
 	  grad[0] = 2 * PI3 * sin(PI3*x[0]) * cos(PI3*x[0]);
@@ -264,7 +264,7 @@ static double sixhumpcamel_f(unsigned n, const double *x, double *grad, void *da
 	  grad[0] = 8*x[0] - 2.1*4*pow(x[0],3.) + 2*pow(x[0],5.) + x[1];
 	  grad[1] = x[0] - 8*x[1] + 16*pow(x[1],3.);
      }
-     RETURN(4*sqr(x[0]) - 2.1 * pow(x[0],4.) + pow(x[0],6.)/3. 
+     RETURN(4*sqr(x[0]) - 2.1 * pow(x[0],4.) + pow(x[0],6.)/3.
 	    + x[0]*x[1] - 4*sqr(x[1]) + 4*pow(x[1],4.));
 }
 
@@ -310,9 +310,9 @@ static const double branin_xmin[2] = {1,0};
 /****************************************************************************/
 static double shubert_f(unsigned n, const double *x, double *grad, void *data)
 {
-     UNUSED(data);
      unsigned i, j;
      double f = 0;
+     UNUSED(data);
      for (j = 1; j <= 5; ++j)
 	  for (i = 0; i < n; ++i)
 	       f -= j * sin((j+1) * x[i] + j);
@@ -373,10 +373,10 @@ static const double osc1d_xmin[1] = {1.23456789};
 /****************************************************************************/
 static double corner4d_f(unsigned n, const double *x, double *grad, void *data)
 {
-     UNUSED(data);
-     UNUSED(n);
      double u = x[0] + x[1] * x[2] * sin(2 * x[3]);
      double v = x[0] + 2*sin(u);
+     UNUSED(data);
+     UNUSED(n);
      if (grad) {
 	  grad[0] = 2*v * (1 + 2*cos(u));
 	  grad[1] = 2*v * 2*cos(u) * x[2] * sin(2*x[3]) + 0.1;
@@ -393,10 +393,10 @@ static const double corner4d_xmin[4] = {0,0,0,0};
 /****************************************************************************/
 static double side4d_f(unsigned n, const double *x, double *grad, void *data)
 {
-     UNUSED(data);
-     UNUSED(n);
      double x0, x1, x2, x3, d0,d1,d2,d3;
      const double w0 = 0.1, w1 = 0.2, w2 = 0.3, w3 = 0.4;
+     UNUSED(data);
+     UNUSED(n);
      x0 = +0.4977 * x[0] - 0.3153 * x[1] - 0.5066 * x[2] - 0.4391 * x[3];
      x1 = -0.3153 * x[0] + 0.3248 * x[1] - 0.4382 * x[2] - 0.4096 * x[3];
      x2 = -0.5066 * x[0] - 0.4382 * x[1] + 0.3807 * x[2] - 0.4543 * x[3];

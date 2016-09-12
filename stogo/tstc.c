@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "nlopt-util.h"
 #include "stogo.h"
 
 /* has two global minima at (0.09,-0.71) and (-0.09,0.71), plus
    4 additional local minima */
-static int cnt=0;
-double tst_obj(int n, const double *xy, double *g, void *unused)
+static int cnt = 0;
+double tst_obj(unsigned n, const double *xy, double *g, void *unused)
 {
   double x, y, f;
   x = xy[0];
@@ -28,16 +29,19 @@ int main(int argc, char **argv)
 {
   int n = 2;
   double x[2], l[2], u[2];
-  long int maxits = 0, maxtim = 0;
   int info;
   double minf;
+  nlopt_stopping stop = {0};
 
-  maxits = argc < 2 ? 100 : atoi(argv[1]);
+  stop.n = n;
+  stop.maxeval = argc < 2 ? 100 : atoi(argv[1]);
+  stop.maxtime = 0;
 
   l[0] = -3; l[1] = -3;
   u[0] = 3; u[1] = 3;
+  x[0] = 0; x[1] = 0;
 
-  info = stogo_minimize(n, tst_obj, NULL, x, &minf, l, u, maxits, maxtim);
+  info = stogo_minimize(n, tst_obj, NULL, x, &minf, l, u, &stop, 0);
 
   printf("min f = %g at (%g,%g) after %d evals, return value %d\n",
 	 minf, x[0], x[1], cnt, info);

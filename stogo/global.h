@@ -1,12 +1,12 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "nlopt-util.h"
-
+#include <list>
 #include <queue>
-//#include "function.h"
+#include "nlopt-util.h"
 #include "tools.h"
-using namespace std;
+#include "linalg.h"
+//#include "function.h"
 
 extern "C" int stogo_verbose;
 
@@ -24,7 +24,8 @@ typedef enum { OBJECTIVE_ONLY, GRADIENT_ONLY, OBJECTIVE_AND_GRADIENT } whichO;
 typedef double objgrad(RCRVector,RCRVector,whichO) ;
 typedef objgrad* Pobjgrad ;
 
-class GlobalParams {
+class GlobalParams
+{
 public:
 #ifdef NLOPT_UTIL_H
   nlopt_stopping *stop;
@@ -36,7 +37,8 @@ public:
   int det_pnts, rnd_pnts;
 };
 
-class Global: public GlobalParams {
+class Global : public GlobalParams
+{
 public:
   // Problem specification
   int dim ;
@@ -44,21 +46,22 @@ public:
   Pgrad Gradient ;
   long int numeval;
 
-  virtual double ObjectiveGradient(RCRVector xy, RVector&grad, whichO which){
-       ++numeval;
-       switch (which) {
-	   case OBJECTIVE_AND_GRADIENT:
-		Gradient(xy, grad);
-	   case OBJECTIVE_ONLY:
-		return Objective(xy);
-	   case GRADIENT_ONLY:
-		Gradient(xy, grad);
-       }
-       return 0.0;
+  virtual double ObjectiveGradient(RCRVector xy, RVector&grad, whichO which)
+  {
+    ++numeval;
+    switch (which) {
+      case OBJECTIVE_AND_GRADIENT:
+        Gradient(xy, grad);
+      case OBJECTIVE_ONLY:
+        return Objective(xy);
+      case GRADIENT_ONLY:
+        Gradient(xy, grad);
+    }
+    return 0.0;
   }
-				   
+
   Global(RTBox, Pobj, Pgrad, GlobalParams);
-//  Global& operator=(const Global &);
+  //Global& operator=(const Global &);
 
   void Search(int, RCRVector);
   void DispMinimizers();
@@ -75,10 +78,10 @@ public:
   bool InTime();
 
 private:
-  list<Trial> SolSet;
-  list<Trial>::const_iterator titr;
-  priority_queue<TBox> CandSet;
-  priority_queue<TBox> Garbage;
+  std::list<Trial> SolSet;
+  std::list<Trial>::const_iterator titr;
+  std::priority_queue<TBox> CandSet;
+  std::priority_queue<TBox> Garbage;
 
   double fbound;
   TBox Domain;
@@ -89,4 +92,3 @@ private:
   void ReduceOrSubdivide(RTBox, int, RCRVector);
 };
 #endif
-
