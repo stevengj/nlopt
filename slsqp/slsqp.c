@@ -1145,7 +1145,7 @@ static void lsei_(double *c__, double *d__, double *e,
     }
     *mode = 1;
     w[mc1] = 0.0;
-    i__2 = *mg; // BUGFIX for *mc == *n: changed from *mg - *mc, SGJ 2010
+    i__2 = *mg; /* BUGFIX for *mc == *n: changed from *mg - *mc, SGJ 2010 */
     dcopy___(&i__2, &w[mc1], 0, &w[mc1], 1);
     if (*mc == *n) {
 	goto L50;

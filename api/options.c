@@ -211,7 +211,7 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
      return nopt;
 
 oom:
-     nopt->munge_on_destroy = NULL; // better to leak mem than crash
+     nopt->munge_on_destroy = NULL; /* better to leak mem than crash */
      nlopt_destroy(nopt);
      return NULL;
 }

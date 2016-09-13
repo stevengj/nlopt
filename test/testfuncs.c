@@ -147,7 +147,7 @@ static double goldsteinprice_f(unsigned n, const double *x, double *grad, void *
      b1 = 2*x0-3*x1; b12 = sqr(b1);
      b2 = 18 - 32*x0 + 12*x0*x0 + 48*x1 - 36*x0*x1 + 27*x1*x1;
      if (grad) {
-	  grad[0] = (1 + a12 * a2) * (2 * b1 * 2 * b2 
+	  grad[0] = (1 + a12 * a2) * (2 * b1 * 2 * b2
 				      + b12 * (-32 + 24*x0 - 36*x1))
 	       + (2 * a1 * a2 + a12 * (-14 + 6*x0 + 6*x1)) * (30 + b12 * b2);
 	  grad[1] = (1 + a12 * a2) * (2 * b1 * (-3) * b2
@@ -180,7 +180,7 @@ static double shekel_f(unsigned n, const double *x, double *grad, void *data)
      if (grad) for (i = 0; i < n; ++i) grad[i] = 0;
      unsigned m = *((unsigned *) data);
      for (i = 0; i < m; ++i) {
-	  double fi = 1.0 / (c[i] 
+	  double fi = 1.0 / (c[i]
 			     + sqr(x[0]-A[i][0])
 			     + sqr(x[1]-A[i][1])
 			     + sqr(x[2]-A[i][2])
@@ -264,7 +264,7 @@ static double sixhumpcamel_f(unsigned n, const double *x, double *grad, void *da
 	  grad[0] = 8*x[0] - 2.1*4*pow(x[0],3.) + 2*pow(x[0],5.) + x[1];
 	  grad[1] = x[0] - 8*x[1] + 16*pow(x[1],3.);
      }
-     RETURN(4*sqr(x[0]) - 2.1 * pow(x[0],4.) + pow(x[0],6.)/3. 
+     RETURN(4*sqr(x[0]) - 2.1 * pow(x[0],4.) + pow(x[0],6.)/3.
 	    + x[0]*x[1] - 4*sqr(x[1]) + 4*pow(x[1],4.));
 }
 
