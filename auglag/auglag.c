@@ -79,7 +79,8 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      nlopt_result ret = NLOPT_SUCCESS;
      double ICM = HUGE_VAL, minf_penalty = HUGE_VAL, penalty;
      double *xcur = NULL, fcur;
-     int i, ii, k, feasible, minf_feasible = 0;
+     int i, ii, feasible, minf_feasible = 0;
+     unsigned int k;
      int auglag_iters = 0;
      int max_constraint_dim;
 
