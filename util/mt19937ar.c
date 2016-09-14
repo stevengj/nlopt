@@ -1,12 +1,12 @@
-/* 
+/*
    A C-program for MT19937, with initialization improved 2002/1/26.
    Coded by Takuji Nishimura and Makoto Matsumoto.
 
-   Before using, initialize the state by using init_genrand(seed)  
-   or init_by_array(init_key, key_length).
+   Before using, initialize the state by using nlopt_init_genrand(seed)
+   or nlopt_init_by_array(init_key, key_length).
 
    Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
-   All rights reserved.                          
+   All rights reserved.
 
    Modified 2007 by Steven G. Johnson for use with NLopt (to avoid
    namespace pollution, use uint32_t instead of unsigned long,
@@ -24,8 +24,8 @@
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
 
-     3. The names of its contributors may not be used to endorse or promote 
-        products derived from this software without specific prior written 
+     3. The names of its contributors may not be used to endorse or promote
+        products derived from this software without specific prior written
         permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -63,7 +63,7 @@
 #  endif
 #endif
 
-/* Period parameters */  
+/* Period parameters */
 #define N 624
 #define M 397
 #define MATRIX_A 0x9908b0dfUL   /* constant vector a */
@@ -81,8 +81,8 @@ void nlopt_init_genrand(unsigned long s)
 {
     mt[0]= s & 0xffffffffUL;
     for (mti=1; mti<N; mti++) {
-        mt[mti] = 
-	    (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti); 
+        mt[mti] =
+	    (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti);
         /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
         /* In the previous versions, MSBs of the seed affect   */
         /* only MSBs of the array mt[].                        */
@@ -118,7 +118,7 @@ static uint32_t nlopt_genrand_int32(void)
 
         mti = 0;
     }
-  
+
     y = mt[mti++];
 
     /* Tempering */
@@ -158,7 +158,7 @@ static void nlopt_init_by_array(uint32_t init_key[], int key_length)
         if (i>=N) { mt[0] = mt[N-1]; i=1; }
     }
 
-    mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
+    mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
@@ -170,32 +170,32 @@ static long nlopt_genrand_int31(void)
 /* generates a random number on [0,1]-real-interval */
 static double nlopt_genrand_real1(void)
 {
-    return nlopt_genrand_int32()*(1.0/4294967295.0); 
-    /* divided by 2^32-1 */ 
+    return nlopt_genrand_int32()*(1.0/4294967295.0);
+    /* divided by 2^32-1 */
 }
 
 /* generates a random number on [0,1)-real-interval */
 static double nlopt_genrand_real2(void)
 {
-    return nlopt_genrand_int32()*(1.0/4294967296.0); 
+    return nlopt_genrand_int32()*(1.0/4294967296.0);
     /* divided by 2^32 */
 }
 
 /* generates a random number on (0,1)-real-interval */
 static double nlopt_genrand_real3(void)
 {
-    return (((double)nlopt_genrand_int32()) + 0.5)*(1.0/4294967296.0); 
+    return (((double)nlopt_genrand_int32()) + 0.5)*(1.0/4294967296.0);
     /* divided by 2^32 */
 }
 
 #endif
 
 /* generates a random number on [0,1) with 53-bit resolution*/
-static double nlopt_genrand_res53(void) 
-{ 
-    uint32_t a=nlopt_genrand_int32()>>5, b=nlopt_genrand_int32()>>6; 
-    return(a*67108864.0+b)*(1.0/9007199254740992.0); 
-} 
+static double nlopt_genrand_res53(void)
+{
+    uint32_t a=nlopt_genrand_int32()>>5, b=nlopt_genrand_int32()>>6;
+    return(a*67108864.0+b)*(1.0/9007199254740992.0);
+}
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
 
 /* generate uniform random number in [a,b) with 53-bit resolution,
@@ -215,8 +215,8 @@ int nlopt_iurand(int n)
    added by SGJ */
 double nlopt_nrand(double mean, double stddev)
 {
-  // Box-Muller algorithm to generate Gaussian from uniform
-  // see Knuth vol II algorithm P, sec. 3.4.1
+  /* Box-Muller algorithm to generate Gaussian from uniform
+     see Knuth vol II algorithm P, sec. 3.4.1 */
   double v1, v2, s;
   do {
     v1 = nlopt_urand(-1, 1);
@@ -230,24 +230,3 @@ double nlopt_nrand(double mean, double stddev)
     return mean + v1 * sqrt(-2 * log(s) / s) * stddev;
   }
 }
-
-#if 0
-#include <stdio.h>
-int main(void)
-{
-    int i;
-    uint32_t init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
-    init_by_array(init, length);
-    printf("1000 outputs of nlopt_genrand_int32()\n");
-    for (i=0; i<1000; i++) {
-      printf("%10lu ", nlopt_genrand_int32());
-      if (i%5==4) printf("\n");
-    }
-    printf("\n1000 outputs of genrand_real2()\n");
-    for (i=0; i<1000; i++) {
-      printf("%10.8f ", genrand_real2());
-      if (i%5==4) printf("\n");
-    }
-    return 0;
-}
-#endif

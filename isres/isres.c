@@ -90,7 +90,7 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
          nlopt_stop_msg(stop, "population %d is too small", population);
          return NLOPT_INVALID_ARGS;
      }
-     survivors = ceil(population * SURVIVOR);
+     survivors = (int) ceil(population * SURVIVOR);
 
      taup = PHI / sqrt(2*n);
      tau = PHI / sqrt(2*sqrt(n));
