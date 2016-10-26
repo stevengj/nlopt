@@ -98,11 +98,11 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->errmsg = NULL;
 
 	  if (n > 0) {
-	       opt->lb = (double *) malloc(sizeof(double) * (n));
+	       opt->lb = (double *) calloc(n, sizeof(double));
 	       if (!opt->lb) goto oom;
-	       opt->ub = (double *) malloc(sizeof(double) * (n));
+	       opt->ub = (double *) calloc(n, sizeof(double));
 	       if (!opt->ub) goto oom;
-	       opt->xtol_abs = (double *) malloc(sizeof(double) * (n));
+	       opt->xtol_abs = (double *) calloc(n, sizeof(double));
 	       if (!opt->xtol_abs) goto oom;
 	       nlopt_set_lower_bounds1(opt, -HUGE_VAL);
 	       nlopt_set_upper_bounds1(opt, +HUGE_VAL);
