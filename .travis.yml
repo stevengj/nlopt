@@ -35,8 +35,8 @@ matrix:
         - brew tap homebrew/python
         - brew tap homebrew/science
         - brew update
-        - brew install swig numpy octave guile
+        - brew install swig octave guile || echo "nope"
       script:
         - mkdir build && pushd build
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local  -DWITH_CXX=ON ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_CXX_FLAGS="-std=c++11" -DWITH_CXX=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
         - make install && make tests && ctest --output-on-failure
