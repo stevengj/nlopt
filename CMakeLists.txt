@@ -142,10 +142,10 @@ set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_
 message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 
 #==============================================================================
-# CREATE config.h
+# CREATE nlopt_config.h
 #==============================================================================
 
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h IMMEDIATE)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt_config.h IMMEDIATE)
 
 # pkgconfig file
 if (UNIX OR MINGW)
