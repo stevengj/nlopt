@@ -19,7 +19,7 @@
 *.zip
 
 # generated code
-config.h
+nlopt_config.h
 nlopt.pc
 api/nlopt.f
 api/nlopt.hpp

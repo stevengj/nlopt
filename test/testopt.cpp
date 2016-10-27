@@ -25,7 +25,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "config.h"
+#include "nlopt_config.h"
 
 #ifdef HAVE_UNISTD_H
 #  include <unistd.h>

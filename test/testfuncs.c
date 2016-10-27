@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "testfuncs.h"
-#include "config.h"
+#include "nlopt_config.h"
 
 #define UNUSED(x) (void) x
 
