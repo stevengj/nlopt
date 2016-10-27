@@ -35,7 +35,7 @@ if (WITH_CXX)
   set (NLOPT_SUFFIX _cxx)
 endif ()
 
-if (WITH_CXX OR BUILD_PYTHON)
+if (WITH_CXX OR BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE)
   enable_language (CXX)
 endif ()
 
@@ -70,6 +70,8 @@ include (CheckIncludeFiles)
 include (CheckFunctionExists)
 include (CheckTypeSize)
 include (CheckCCompilerFlag)
+include (CheckCXXSymbolExists)
+include (CheckCXXCompilerFlag)
 
 #==============================================================================
 # COMPILATION CHECKINGS and CONFIGURATION GENERATION
@@ -130,6 +132,16 @@ if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
       set (THREADLOCAL ${_THREADLOCAL_KEY})
     endif ()
   endforeach()
+endif ()
+
+if (WITH_CXX OR BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE)
+  check_cxx_symbol_exists (_LIBCPP_VERSION string SYSTEM_HAS_LIBCPP)
+  if (SYSTEM_HAS_LIBCPP)
+    check_cxx_compiler_flag ("-std=c++11" SUPPORTS_STDCXX11)
+    if (SUPPORTS_STDCXX11)
+      set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+    endif ()
+  endif ()
 endif ()
 
 #==============================================================================
