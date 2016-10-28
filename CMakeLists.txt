@@ -261,7 +261,7 @@ if (BUILD_PYTHON)
   find_package (NumPy)
 endif ()
 
-if (PYTHONINTERP_FOUND)
+if (NOT DEFINED INSTALL_PYTHON_DIR AND PYTHONINTERP_FOUND)
   execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
                     OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
                     OUTPUT_STRIP_TRAILING_WHITESPACE )
@@ -269,7 +269,7 @@ if (PYTHONINTERP_FOUND)
   get_filename_component (_ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
   file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
 
-  set (PYTHON_MODULE_PATH ${_REL_PYTHON_MODULE_PATH})
+  set (INSTALL_PYTHON_DIR ${_REL_PYTHON_MODULE_PATH})
 
 endif ()
 
