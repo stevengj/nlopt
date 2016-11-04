@@ -15,15 +15,15 @@
 cmake_minimum_required (VERSION 2.8.5)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
+  set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 endif ()
 
-project (nlopt C)
+project (nlopt)
 
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option (WITH_CXX "enable cxx routines" OFF)
-option (BUILD_SHARED_LIBS "Build NLOPT as a shared library" ON)
+option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 option (BUILD_PYTHON "build python bindings" ON)
 option (BUILD_OCTAVE "build octave bindings" ON)
 option (BUILD_MATLAB "build matlab bindings" ON)
@@ -33,10 +33,6 @@ option (USE_SWIG "use SWIG to build bindings" ON)
 set (NLOPT_SUFFIX)
 if (WITH_CXX)
   set (NLOPT_SUFFIX _cxx)
-endif ()
-
-if (WITH_CXX OR BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE)
-  enable_language (CXX)
 endif ()
 
 include (GNUInstallDirs)
