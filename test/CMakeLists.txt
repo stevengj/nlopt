@@ -1,7 +1,7 @@
 add_custom_target (tests)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
-add_executable (testopt EXCLUDE_FROM_ALL testfuncs.c testfuncs.h testopt.cpp ${CMAKE_SOURCE_DIR}/util/timer.c ${CMAKE_SOURCE_DIR}/util/mt19937ar.c)
+add_executable (testopt testfuncs.c testfuncs.h testopt.cpp ${CMAKE_SOURCE_DIR}/util/timer.c ${CMAKE_SOURCE_DIR}/util/mt19937ar.c)
 target_link_libraries (testopt ${nlopt_lib})
 add_dependencies (tests testopt)
 
@@ -29,8 +29,8 @@ foreach (algo_index RANGE 29)# 42
 endforeach ()
 
 if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_SOURCE_DIR}/swig/nlopt-python.cpp)))
-  set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${INSTALL_DESTDIR}${INSTALL_LIB_DIR}:$ENV{LD_LIBRARY_PATH}"
-                                  "PYTHONPATH=${INSTALL_DESTDIR}${CMAKE_INSTALL_PREFIX}/${INSTALL_PYTHON_DIR}${PATH_SEP}$ENV{PYTHONPATH}"
+  set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
+                                  "PYTHONPATH=${CMAKE_BINARY_DIR}/swig"
     )
   add_test (NAME test_python COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py)
   set_tests_properties (test_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
