@@ -68,6 +68,7 @@ include (CheckTypeSize)
 include (CheckCCompilerFlag)
 include (CheckCXXSymbolExists)
 include (CheckCXXCompilerFlag)
+include (CheckLibraryExists)
 
 #==============================================================================
 # COMPILATION CHECKINGS and CONFIGURATION GENERATION
@@ -100,6 +101,11 @@ check_type_size ("uint32_t" SIZEOF_UINT32_T)
 set (HAVE_UINT32_T ${SIZEOF_UINT32_T})
 check_type_size ("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
+
+check_library_exists ("m" sqrt "" HAVE_LIBM)
+if (HAVE_LIBM)
+  set (M_LIBRARY m)
+endif()
 
 if (NOT DEFINED HAVE_FPCLASSIFY)
   message(STATUS "Looking for fpclassify")
@@ -230,6 +236,8 @@ install (FILES ${NLOPT_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
+target_link_libraries (${nlopt_lib} ${M_LIBRARY})
+
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
 set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
 
