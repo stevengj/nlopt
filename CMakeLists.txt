@@ -109,13 +109,13 @@ endif()
 
 if (NOT DEFINED HAVE_FPCLASSIFY)
   message(STATUS "Looking for fpclassify")
-  file (WRITE ${CMAKE_BINARY_DIR}/fpclassify.c "#include <math.h>\n")
-  file (APPEND ${CMAKE_BINARY_DIR}/fpclassify.c "int main(void) {\n")
-  file (APPEND ${CMAKE_BINARY_DIR}/fpclassify.c "if (!fpclassify(3.14159)) fpclassify(2.7183);\n")
-  file (APPEND ${CMAKE_BINARY_DIR}/fpclassify.c "  return 0; }\n")
+  file (WRITE ${PROJECT_BINARY_DIR}/fpclassify.c "#include <math.h>\n")
+  file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "int main(void) {\n")
+  file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "if (!fpclassify(3.14159)) fpclassify(2.7183);\n")
+  file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "  return 0; }\n")
   try_compile (HAVE_FPCLASSIFY
-  ${CMAKE_BINARY_DIR}/build_fpclassify
-  ${CMAKE_BINARY_DIR}/fpclassify.c
+  ${PROJECT_BINARY_DIR}/build_fpclassify
+  ${PROJECT_BINARY_DIR}/fpclassify.c
   CMAKE_FLAGS -DLINK_LIBRARIES=m)
   message(STATUS "Looking for fpclassify - ${HAVE_FPCLASSIFY}")
 endif ()
@@ -172,8 +172,8 @@ endif ()
 #==============================================================================
 set (${INCLUDE_DIRECTORIES} "")
 include_directories (
-  ${CMAKE_BINARY_DIR}/api
-  ${CMAKE_BINARY_DIR}
+  ${PROJECT_BINARY_DIR}/api
+  ${PROJECT_BINARY_DIR}
   stogo
   util
   direct
@@ -199,7 +199,7 @@ include_directories (
 #==============================================================================
 
 set (NLOPT_HEADERS 
-  api/nlopt.h ${CMAKE_BINARY_DIR}/api/nlopt.hpp ${CMAKE_BINARY_DIR}/api/nlopt.f
+  api/nlopt.h ${PROJECT_BINARY_DIR}/api/nlopt.hpp ${PROJECT_BINARY_DIR}/api/nlopt.f
 )
 
 set (NLOPT_SOURCES   
