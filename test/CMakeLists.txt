@@ -1,7 +1,7 @@
 add_custom_target (tests)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
-add_executable (testopt testfuncs.c testfuncs.h testopt.cpp ${CMAKE_SOURCE_DIR}/util/timer.c ${CMAKE_SOURCE_DIR}/util/mt19937ar.c)
+add_executable (testopt testfuncs.c testfuncs.h testopt.cpp ${PROJECT_SOURCE_DIR}/util/timer.c ${PROJECT_SOURCE_DIR}/util/mt19937ar.c)
 target_link_libraries (testopt ${nlopt_lib})
 add_dependencies (tests testopt)
 
@@ -28,21 +28,21 @@ foreach (algo_index RANGE 29)# 42
   endforeach ()
 endforeach ()
 
-if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_SOURCE_DIR}/swig/nlopt-python.cpp)))
-  set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
-                                  "PYTHONPATH=${CMAKE_BINARY_DIR}/swig"
+if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/swig/nlopt-python.cpp)))
+  set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/swig"
+                                  "PYTHONPATH=${PROJECT_BINARY_DIR}/swig"
     )
   add_test (NAME test_python COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py)
   set_tests_properties (test_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
 endif ()
 
 if (OCTAVE_FOUND)
-  add_test (NAME test_octave COMMAND ${OCTAVE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m ${CMAKE_SOURCE_DIR}/octave ${CMAKE_BINARY_DIR}/octave)
+  add_test (NAME test_octave COMMAND ${OCTAVE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m ${PROJECT_SOURCE_DIR}/octave ${PROJECT_BINARY_DIR}/octave)
 endif ()
 
 if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-guile.cpp)))
-  set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/swig"
-                              "GUILE_LOAD_PATH=${CMAKE_BINARY_DIR}/swig"
+  set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/swig"
+                              "GUILE_LOAD_PATH=${PROJECT_BINARY_DIR}/swig"
     )
   add_test (NAME test_guile COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm)
   set_tests_properties (test_guile PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
