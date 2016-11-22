@@ -1,18 +1,18 @@
 #==============================================================================
 # NLOPT CMake file
-# 
-# NLopt is a free/open-source library for nonlinear optimization, providing 
-# a common interface for a number of different free optimization routines 
-# available online as well as original implementations of various other 
+#
+# NLopt is a free/open-source library for nonlinear optimization, providing
+# a common interface for a number of different free optimization routines
+# available online as well as original implementations of various other
 # algorithms
-# WEBSITE: http://ab-initio.mit.edu/wiki/index.php/NLopt 
+# WEBSITE: http://ab-initio.mit.edu/wiki/index.php/NLopt
 # AUTHOR: Steven G. Johnson
 #
 # This CMakeLists.txt file was created to compile NLOPT with the CMAKE utility.
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
-# Copyright (c) 2008-2009 Children's Hospital Boston 
+# Copyright (c) 2008-2009 Children's Hospital Boston
 #==============================================================================
-cmake_minimum_required (VERSION 2.8.5)
+cmake_minimum_required (VERSION 3.0)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
@@ -168,10 +168,52 @@ if (UNIX OR MINGW)
 endif ()
 
 #==============================================================================
+# nlopt LIBRARY TARGET (SHARED OR STATIC)
+#==============================================================================
+
+configure_file (api/nlopt.h ${PROJECT_BINARY_DIR}/api/nlopt.h COPYONLY)
+
+set (NLOPT_HEADERS
+  ${PROJECT_BINARY_DIR}/api/nlopt.h ${PROJECT_BINARY_DIR}/api/nlopt.hpp ${PROJECT_BINARY_DIR}/api/nlopt.f
+)
+
+set (NLOPT_SOURCES
+  direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
+  cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
+  praxis/praxis.c praxis/praxis.h
+  luksan/plis.c luksan/plip.c luksan/pnet.c luksan/mssubs.c luksan/pssubs.c luksan/luksan.h
+  crs/crs.c crs/crs.h
+  mlsl/mlsl.c mlsl/mlsl.h
+  mma/mma.c mma/mma.h mma/ccsa_quadratic.c
+  cobyla/cobyla.c cobyla/cobyla.h
+  newuoa/newuoa.c newuoa/newuoa.h
+  neldermead/nldrmd.c neldermead/neldermead.h neldermead/sbplx.c
+  auglag/auglag.c auglag/auglag.h
+  bobyqa/bobyqa.c bobyqa/bobyqa.h
+  isres/isres.c isres/isres.h
+  slsqp/slsqp.c slsqp/slsqp.h
+  esch/esch.c esch/esch.h
+  api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
+  util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c
+)
+
+if (WITH_CXX)
+  list (APPEND NLOPT_SOURCES stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h)
+endif ()
+
+install (FILES ${NLOPT_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR})
+
+set (nlopt_lib nlopt${NLOPT_SUFFIX})
+add_library (${nlopt_lib} ${NLOPT_SOURCES})
+target_link_libraries (${nlopt_lib} ${M_LIBRARY})
+
+set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
+set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
+
+#==============================================================================
 # INCLUDE DIRECTORIES
 #==============================================================================
-set (${INCLUDE_DIRECTORIES} "")
-include_directories (
+target_include_directories (${nlopt_lib} PRIVATE
   ${PROJECT_BINARY_DIR}/api
   ${PROJECT_BINARY_DIR}
   stogo
@@ -193,53 +235,13 @@ include_directories (
   esch
   api)
 
-
-#==============================================================================
-# nlopt LIBRARY TARGET (SHARED OR STATIC)
-#==============================================================================
-
-set (NLOPT_HEADERS 
-  api/nlopt.h ${PROJECT_BINARY_DIR}/api/nlopt.hpp ${PROJECT_BINARY_DIR}/api/nlopt.f
-)
-
-set (NLOPT_SOURCES   
-  direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
-  cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
-  praxis/praxis.c praxis/praxis.h
-  luksan/plis.c luksan/plip.c luksan/pnet.c luksan/mssubs.c luksan/pssubs.c luksan/luksan.h
-  crs/crs.c crs/crs.h
-  mlsl/mlsl.c mlsl/mlsl.h
-  mma/mma.c mma/mma.h mma/ccsa_quadratic.c
-  cobyla/cobyla.c cobyla/cobyla.h
-  newuoa/newuoa.c newuoa/newuoa.h
-  neldermead/nldrmd.c neldermead/neldermead.h neldermead/sbplx.c 
-  auglag/auglag.c auglag/auglag.h
-  bobyqa/bobyqa.c bobyqa/bobyqa.h
-  isres/isres.c isres/isres.h
-  slsqp/slsqp.c slsqp/slsqp.h
-  esch/esch.c esch/esch.h
-  api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
-  util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c
-)
-
-if (WITH_CXX)
-  list (APPEND NLOPT_SOURCES stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h)
-endif ()
-
+get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES)
+target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/api>")
 
 if (BUILD_SHARED_LIBS)
-  add_definitions (-DNLOPT_DLL)
-  add_definitions (-DNLOPT_DLL_EXPORT)
+  target_compile_definitions (${nlopt_lib} INTERFACE -DNLOPT_DLL)
+  target_compile_definitions (${nlopt_lib} INTERFACE -DNLOPT_DLL_EXPORT)
 endif ()
-
-install (FILES ${NLOPT_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR})
-
-set (nlopt_lib nlopt${NLOPT_SUFFIX})
-add_library (${nlopt_lib} ${NLOPT_SOURCES})
-target_link_libraries (${nlopt_lib} ${M_LIBRARY})
-
-set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
-set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
 
 # pass -fPIC in case swig module is built with static library
 if (NOT BUILD_SHARED_LIBS)
