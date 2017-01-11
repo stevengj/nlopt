@@ -6,6 +6,8 @@ matrix:
     - os: linux
       addons:
         apt:
+          sources:
+          - george-edison55-precise-backports
           packages:
           - swig
           - python-dev
