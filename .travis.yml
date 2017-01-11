@@ -15,6 +15,7 @@ matrix:
           - guile-2.0-dev
           - octave3.2-headers
           - cmake
+          - cmake-data
           - g++-mingw-w64-i686
           - gcc-mingw-w64-i686
           - binutils-mingw-w64-i686
