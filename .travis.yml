@@ -34,7 +34,8 @@ matrix:
       install:
         - brew tap homebrew/science
         - brew update
-        - brew install swig octave guile || echo "nope"
+        # TODO: install guile once 2.2 is supported in swig
+        - brew install swig octave || echo "nope"
       script:
         - mkdir build && pushd build
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DWITH_CXX=ON -DPYTHON_EXECUTABLE=/usr/bin/python ..
