@@ -36,4 +36,4 @@ be added in the future.
 
 [1]: https://cmake.org/
 [2]: http://www.swig.org/
-[3]: https://en.wikipedia.org/wiki/Man_pagey
+[3]: https://en.wikipedia.org/wiki/Man_page
