@@ -1,0 +1,207 @@
+ }* Tweak the overal size to better match RTD.
+ */
+body {
+    font-size: 90%;
+}
+
+h3, h4, h5, h6 {
+    color: #000000;
+    font-weight: 300
+}
+
+/*
+ * Sphinx doesn't have support for section dividers like we do in
+ * MkDocs, this styles the section titles in the nav
+ *
+ * https://github.com/mkdocs/mkdocs/issues/175
+ */
+.wy-menu-vertical span {
+    line-height: 18px;
+    padding: 0.4045em 1.618em;
+    display: block;
+    position: relative;
+    font-size: 90%;
+    color: #838383;
+}
+
+.wy-menu-vertical .subnav a {
+    padding: 0.4045em 2.427em;
+}
+
+/*
+ * Long navigations run off the bottom of the screen as the nav
+ * area doesn't scroll.
+ *
+ * https://github.com/mkdocs/mkdocs/pull/202
+ */
+.wy-nav-side {
+    height: 100%;
+    overflow-y: auto;
+}
+
+/*
+ * readthedocs theme hides nav items when the window height is
+ * too small to contain them.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/#348
+ */
+.wy-menu-vertical ul {
+  margin-bottom: 2em;
+}
+
+/*
+ * Wrap inline code samples otherwise they shoot of the side and
+ * can't be read at all.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/313
+ */
+/*
+p code {
+    word-wrap: break-word;
+}
+*/
+
+/*
+ * The CSS classes from highlight.js seem to clash with the
+ * ReadTheDocs theme causing some code to be incorrectly made
+ * bold and italic.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/411
+ */
+
+code.cs, code.c {
+    font-weight: inherit;
+    font-style: inherit;
+}
+
+/*
+ * Fix some issues with the theme and non-highlighted code
+ * samples. Without and highlighting styles attached the
+ * formatting is broken.
+ *
+ * https://github.com/mkdocs/mkdocs/issues/319
+ */
+.no-highlight {
+  display: block;
+  padding: 0.5em;
+  color: #333;
+}
+
+
+/*
+ * Additions specific to the search functionality provided by MkDocs
+ */
+
+#mkdocs-search-results article h3
+{
+    margin-top: 23px;
+    border-top: 1px solid #E1E4E5;
+    padding-top: 24px;
+}
+
+#mkdocs-search-results article:first-child h3 {
+    border-top: none;
+}
+
+#mkdocs-search-query{
+    width: 100%;
+    border-radius: 50px;
+    padding: 6px 12px;
+    border-color: #D1D4D5;
+}
+
+.wy-menu-vertical li ul {
+    display: inherit;
+}
+
+.wy-menu-vertical li ul.subnav ul.subnav{
+    padding-left: 1em;
+}
+
+/*
+ * Fix wrapping in the code highlighting
+ *
+ * https://github.com/mkdocs/mkdocs/issues/233
+ */
+code {
+    white-space: pre;
+    border: none;
+    /*background-color: lightgray;*/
+    background-color: inherit;
+    color: black;
+    color: inherit;
+}
+
+pre {
+  padding: 5px 5px 5px 5px;
+  font-size: 125%;
+  /*border-style: dashed dashed dashed dashed;*/
+  border-width: 0pt black;
+  background: lightgray;
+  background-color: lightgray;
+  color: black;
+}
+
+.hljs {
+  background: lightgray;
+  background-color: lightgray;
+  color: black;
+}
+
+/*
+ * HR 20150603 I can't figure out any way to get
+ * small caps text other than via the following kluge:
+ *
+ * 1. Enable the 'wikilinks' markdown extension in the 
+ *    mkdocs.yml file     
+ *
+ * 2. Include the following style specification to ensure
+ *    that wikilinks are rendered in small caps but otherwise
+ *    like ordinary text (i.e. in ordinary black text and 
+ *    with the usual underline-on-hover feature turned off)
+ *
+ * 3. Then text delineated by double brackets (as in: [[scuff-em]])
+ *    be rendered in small caps.
+ */
+a.wikilink {
+   font-variant: small-caps;
+   color: #000000;
+}
+a.wikilink:hover
+ {text-decoration:none }
+
+.SmallCaps{
+   font-variant: small-caps;
+   font-variant-numeric: oldstyle-nums;
+}
+
+.SC{
+   font-variant: small-caps;
+   font-variant-numeric: oldstyle-nums;
+}
+
+ol.TOC { 
+  margin: 20px 0;
+  padding:5px;
+  border: 1px solid #aaaaaa;
+  background-color: #f9f9f9;
+}
+
+.toc { 
+  margin: 20px 0;
+  padding:5px;
+  border: 1px solid #aaaaaa;
+  background-color: #f9f9f9;
+}
+
+.toctitle 
+ { font-variant: small-caps; 
+   font-weight:  bold;
+   padding: 5px;
+   margin: 5px 5px;
+   text-align: center;
+ }
+
+.shaded
+ { background-color: #EEEEEE;
+ }
