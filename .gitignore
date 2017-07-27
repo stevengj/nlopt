@@ -43,3 +43,6 @@ stogo/prog
 stogo/testros
 stogo/tst
 stogo/tstc
+
+# MacOS
+.DS_Store

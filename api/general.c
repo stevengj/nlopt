@@ -119,7 +119,7 @@ void NLOPT_STDCALL nlopt_srand(unsigned long seed) {
 }
 
 void NLOPT_STDCALL nlopt_srand_time(void) {
-     nlopt_srand(nlopt_time_seed() + my_gettid() * 314159);
+     nlopt_srand(nlopt_time_seed() + (unsigned long)my_gettid() * 314159);
 }
 
 void nlopt_srand_time_default(void) {
