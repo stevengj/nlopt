@@ -24,4 +24,26 @@ markdown_extensions:
 extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML','mathjaxhelper.js']
 
 pages:
- - NLopt.md
+ - NLopt:
+    - Overview: index.md
+    - Release Notes: NLopt_release_notes.md
+    - FAQ: NLopt_FAQ.md
+ - NLopt manual:
+    - NLopt manual: NLopt_manual.md
+    - Introduction: NLopt_Introduction.md
+    - Installation: NLopt_Installation.md
+    - Tutorial:     NLopt_Tutorial.md
+ - NLopt reference:
+    - General reference: NLopt_Reference.md
+    - C++ reference: NLopt_C-plus-plus_Reference.md
+    - Fortran reference: NLopt_Fortran_Reference.md
+    - Matlab reference: NLopt_Matlab_Reference.md
+    - Python reference: NLopt_Python_Reference.md
+    - Guile reference: NLopt_Guile_Reference.md
+    - R reference:     NLopt_R_Reference.md
+    - Deprecated API reference: NLopt_Deprecated_API_Reference.md
+ - NLopt algorithms:
+    - NLopt algorithms: NLopt_Algorithms.md
+ - NLopt on Windows: NLopt_on_Windows.md
+ - License and Copyright: NLopt_License_and_Copyright.md
+ - Citing NLopt: Citing_NLopt.md
