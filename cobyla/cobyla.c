@@ -1505,6 +1505,12 @@ L130:
 /* new value of ZDOTA(NACT) and branch if it is not acceptable. */
 
   i__1 = nact;
+  
+/* This pragma fixes a known problem compiling with VS2013 or VS2015 in Release */
+/* see https://connect.microsoft.com/VisualStudio/feedback/details/1028781/c1001-on-release-build */
+#if defined(_MSC_VER) && _MSC_VER >= 1800
+  #pragma loop(no_vector)
+#endif
   for (k = 1; k <= i__1; ++k) {
     d__1 = 0., d__2 = vmultc[k] - ratio * vmultd[k];
     vmultc[k] = MAX2(d__1,d__2);
