@@ -28,9 +28,11 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${CMAKE_CURRENT_
     set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
     set (SWIG_MODULE_nlopt_EXTRA_DEPS nlopt-python.i numpy.i)
 
+    include_directories (${NLOPT_PRIVATE_INCLUDE_DIRS})
     swig_add_module (nlopt python nlopt.i)
     swig_link_libraries (nlopt ${nlopt_lib})
     swig_link_libraries (nlopt ${PYTHON_LIBRARIES})
+    target_include_directories (${SWIG_MODULE_nlopt_REAL_NAME} PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
   endif ()
 
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION ${INSTALL_PYTHON_DIR})
