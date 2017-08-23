@@ -224,7 +224,7 @@ nlopt_result ccsa_quadratic_minimize(
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
      double *dfcdx, *dfcdx_cur;
      double *fcval, *fcval_cur, *rhoc, *gcval, *y, *dual_lb, *dual_ub;
-     double *pre_lb, *pre_ub;
+     double *pre_lb = NULL, *pre_ub = NULL;
      unsigned i, ifc, j, k = 0;
      dual_data dd;
      int feasible;

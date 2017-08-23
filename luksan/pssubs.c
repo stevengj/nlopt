@@ -96,7 +96,7 @@ void luksan_pnint1__(double *rl, double *ru, double *fl,
     double d__1, d__2;
 
     /* Local variables */
-    double a, b, c__, d__, den, dis;
+    double a = 0.0, b = 0.0, c__, d__, den = 0.0, dis;
     int ntyp;
 
     *merr = 0;

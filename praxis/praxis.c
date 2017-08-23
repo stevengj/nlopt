@@ -622,7 +622,7 @@ static void minfit_(int m, int n, double machep,
 
     /* Local variables */
     double *e; /* size n */
-    double c__, f, g, h__;
+    double c__, f = 0.0, g, h__;
     int i__, j, k, l;
     double s, x, y, z__;
     int l2, ii, kk, kt, ll2, lp1;

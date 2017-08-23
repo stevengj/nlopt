@@ -315,7 +315,7 @@ static void nnls_(double *a, int *mda, int *m, int *
     double up;
     int iz1, iz2, npp1, iter;
     double wmax, alpha, asave;
-    int itmax, izmax, nsetp;
+    int itmax, izmax = 0, nsetp;
     double unorm;
 
 /*     C.L.LAWSON AND R.J.HANSON, JET PROPULSION LABORATORY: */
