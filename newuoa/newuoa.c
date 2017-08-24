@@ -108,16 +108,16 @@ static nlopt_result trsapp_(int *n, int *npt, double *xopt,
 
     /* Local variables */
     int i__, j, k;
-    double dd, cf, dg, gg;
+    double dd = 0.0, cf, dg, gg = 0.0;
     int ih;
-    double ds, sg;
+    double ds, sg = 0.0;
     int iu;
-    double ss, dhd, dhs, cth, sgk, shs, sth, qadd, half, qbeg, qred, qmin,
-	     temp, qsav, qnew, zero, ggbeg, alpha, angle, reduc;
+    double ss, dhd, dhs, cth, sgk, shs = 0.0, sth, qadd, half, qbeg, qred = 0.0, qmin,
+	     temp, qsav, qnew, zero, ggbeg = 0.0, alpha, angle, reduc;
     int iterc;
-    double ggsav, delsq, tempa, tempb;
+    double ggsav, delsq, tempa = 0.0, tempb = 0.0;
     int isave;
-    double bstep, ratio, twopi;
+    double bstep = 0.0, ratio, twopi;
     int itersw;
     double angtest;
     int itermax;
@@ -1070,7 +1070,7 @@ static nlopt_result biglag_(int *n, int *npt, double *xopt,
     int nptm;
     double zero, angle, scale, denom;
     int iterc, isave;
-    double delsq, tempa, tempb, twopi, taubeg, tauold, taumax;
+    double delsq, tempa, tempb = 0.0, twopi, taubeg, tauold, taumax;
 
 
 /* N is the number of variables. */
@@ -1390,7 +1390,7 @@ static void update_(int *n, int *npt, double *bmat,
     int nptm;
     double zero;
     int iflag;
-    double scala, scalb_, alpha, denom, tempa, tempb, tausq;
+    double scala, scalb_, alpha, denom, tempa, tempb = 0.0, tausq;
 
 
 /* The arrays BMAT and ZMAT with IDZ are updated, in order to shift the */
@@ -1579,31 +1579,31 @@ static nlopt_result newuob_(int *n, int *npt, double *x,
     double d__1, d__2, d__3;
 
     /* Local variables */
-    double f;
+    double f = 0.0;
     int i__, j, k, ih, nf, nh, ip, jp;
     double dx;
     int np, nfm;
     double one;
     int idz;
-    double dsq, rho;
-    int ipt, jpt;
-    double sum, fbeg, diff, half, beta;
+    double dsq, rho = 0.0;
+    int ipt = 0, jpt = 0;
+    double sum, fbeg = 0.0, diff, half, beta;
     int nfmm;
     double gisq;
     int knew;
     double temp, suma, sumb, fopt = HUGE_VAL, bsum, gqsq;
     int kopt, nptm;
-    double zero, xipt, xjpt, sumz, diffa, diffb, diffc, hdiag, alpha, 
+    double zero, xipt = 0.0, xjpt = 0.0, sumz, diffa = 0.0, diffb = 0.0, diffc = 0.0, hdiag, alpha = 0.0, 
 	    delta, recip, reciq, fsave;
-    int ksave, nfsav, itemp;
-    double dnorm, ratio, dstep, tenth, vquad;
+    int ksave, nfsav = 0, itemp;
+    double dnorm = 0.0, ratio = 0.0, dstep, tenth, vquad;
     int ktemp;
     double tempq;
-    int itest;
+    int itest = 0;
     double rhosq;
-    double detrat, crvmin;
+    double detrat, crvmin = 0.0;
     double distsq;
-    double xoptsq;
+    double xoptsq = 0.0;
     double rhoend;
     nlopt_result rc = NLOPT_SUCCESS, rc2;
 

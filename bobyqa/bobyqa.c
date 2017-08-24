@@ -158,8 +158,8 @@ static nlopt_result rescue_(int *n, int *npt, const double *xl, const double *xu
     /* Local variables */
     double f;
     int i__, j, k, ih, jp, ip, iq, np, iw;
-    double xp, xq, den;
-    int ihp;
+    double xp = 0.0, xq, den;
+    int ihp = 0;
     double one;
     int ihq, jpn, kpt;
     double sum, diff, half, beta;
@@ -760,12 +760,12 @@ static void altmov_(int *n, int *npt, double *xpt,
     double slbd;
     int iubd;
     double vlag, subd, temp;
-    int ksav;
-    double step, zero, curv;
+    int ksav = 0;
+    double step = 0.0, zero, curv;
     int iflag;
-    double scale, csave, tempa, tempb, tempd, const__, sumin, ggfree;
-    int ibdsav;
-    double dderiv, bigstp, predsq, presav, distsq, stpsav, wfixsq, wsqsav;
+    double scale, csave = 0.0, tempa, tempb, tempd, const__, sumin, ggfree;
+    int ibdsav = 0;
+    double dderiv, bigstp, predsq, presav, distsq, stpsav = 0.0, wfixsq, wsqsav;
 
 
 /*     The arguments N, NPT, XPT, XOPT, BMAT, ZMAT, NDIM, SL and SU all have */
@@ -1174,16 +1174,16 @@ static void trsbox_(int *n, int *npt, double *xpt,
     double ds;
     int iu;
     double dhd, dhs, cth, one, shs, sth, ssq, half, beta, sdec, blen;
-    int iact, nact;
+    int iact = 0, nact;
     double angt, qred;
     int isav;
-    double temp, zero, xsav, xsum, angbd, dredg, sredg;
+    double temp, zero, xsav = 0.0, xsum, angbd = 0.0, dredg = 0.0, sredg = 0.0;
     int iterc;
-    double resid, delsq, ggsav, tempa, tempb, ratio, sqstp, redmax, 
-	    dredsq, redsav, onemin, gredsq, rednew;
-    int itcsav;
-    double rdprev, rdnext, stplen, stepsq;
-    int itermax;
+    double resid, delsq, ggsav = 0.0, tempa, tempb, ratio, sqstp, redmax, 
+	    dredsq = 0.0, redsav, onemin, gredsq = 0.0, rednew;
+    int itcsav = 0;
+    double rdprev, rdnext = 0.0, stplen, stepsq;
+    int itermax = 0;
 
 
 /*     The arguments N, NPT, XPT, XOPT, GOPT, HQ, PQ, SL and SU have the same */
@@ -1728,8 +1728,8 @@ static nlopt_result prelim_(int *n, int *npt, double *x,
     double f;
     int i__, j, k, ih, np, nfm;
     double one;
-    int nfx, ipt, jpt;
-    double two, fbeg, diff, half, temp, zero, recip, stepa, stepb;
+    int nfx, ipt = 0, jpt = 0;
+    double two, fbeg, diff, half, temp, zero, recip, stepa = 0.0, stepb = 0.0;
     int itemp;
     double rhosq;
 
@@ -1979,7 +1979,7 @@ static nlopt_result bobyqb_(int *n, int *npt, double *x,
     int kopt, nptm;
     double zero, curv;
     int ksav;
-    double gqsq, dist, sumw, sumz, diffa, diffb, diffc, hdiag;
+    double gqsq, dist, sumw, sumz, diffa, diffb, diffc = 0.0, hdiag;
     int kbase;
     double alpha, delta, adelt, denom, fsave, bdtol, delsq;
     int nresc, nfsav;

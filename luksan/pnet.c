@@ -144,7 +144,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
     /* Builtin functions */
 
     /* Local variables */
-    double a, b;
+    double a = 0.0, b = 0.0;
     int i__, n;
     double p, r__;
     int kd, ld;
