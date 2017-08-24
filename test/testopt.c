@@ -33,75 +33,7 @@
 #ifdef HAVE_GETOPT_H
 #  include <getopt.h>
 #else
-int     opterr = 1,             /* if error message should be printed */
-  optind = 1,             /* index into parent argv vector */
-  optopt,                 /* character checked for validity */
-  optreset;               /* reset getopt */
-char    *optarg;                /* argument associated with option */
-
-#define BADCH   (int)'?'
-#define BADARG  (int)':'
-#define EMSG    ""
-
-/*
-* getopt --
-*      Parse argc/argv argument vector.
-*/
-int
-  getopt(int nargc, char * const nargv[], const char *ostr)
-{
-  static char *place = EMSG;              /* option letter processing */
-  const char *oli;                        /* option letter list index */
-
-  if (optreset || !*place) {              /* update scanning pointer */
-    optreset = 0;
-    if (optind >= nargc || *(place = nargv[optind]) != '-') {
-      place = EMSG;
-      return (-1);
-    }
-    if (place[1] && *++place == '-') {      /* found "--" */
-      ++optind;
-      place = EMSG;
-      return (-1);
-    }
-  }                                       /* option letter okay? */
-  if ((optopt = (int)*place++) == (int)':' ||
-    !(oli = strchr(ostr, optopt))) {
-      /*
-      * if the user didn't specify '-' as an option,
-      * assume it means -1.
-      */
-      if (optopt == (int)'-')
-        return (-1);
-      if (!*place)
-        ++optind;
-      if (opterr && *ostr != ':')
-        (void)printf("illegal option -- %c\n", optopt);
-      return (BADCH);
-  }
-  if (*++oli != ':') {                    /* don't need argument */
-    optarg = NULL;
-    if (!*place)
-      ++optind;
-  }
-  else {                                  /* need an argument */
-    if (*place)                     /* no white space */
-      optarg = place;
-    else if (nargc <= ++optind) {   /* no arg */
-      place = EMSG;
-      if (*ostr == ':')
-        return (BADARG);
-      if (opterr)
-        (void)printf("option requires an argument -- %c\n", optopt);
-      return (BADCH);
-    }
-    else                            /* white space */
-      optarg = nargv[optind];
-    place = EMSG;
-    ++optind;
-  }
-  return (optopt);                        /* dump back option letter */
-}
+#  include "nlopt-getopt.h"
 #endif
 
 #define USE_FEENABLEEXCEPT 0
@@ -116,7 +48,7 @@ extern "C" int feenableexcept (int EXCEPTS);
 #include "testfuncs.h"
 
 static nlopt_algorithm algorithm = NLOPT_GN_DIRECT_L;
-static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_delta = -HUGE_VAL;
+static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_delta;
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
@@ -244,6 +176,7 @@ static int test_function(int ifunc)
     fprintf(stderr, ") = %0.16g instead of %0.16g, |diff| = %g\n", 
 	    func.f(func.n, func.xmin, 0, func.f_data), func.minf,
 	    fabs(func.f(func.n, func.xmin, 0, func.f_data) - func.minf));
+    free(x);
     return 0;
   }
 
@@ -320,7 +253,7 @@ static int test_function(int ifunc)
     printf("]\n");
 
     val = func.f(func.n, x, NULL, func.f_data);
-    if (val != minf) {
+    if (fabs(val - minf) > 1e-12) {
       fprintf(stderr, "Mismatch %g between returned minf=%g and f(x) = %g\n", 
 	      minf - val, minf, val);
       free(x);
@@ -365,7 +298,8 @@ int main(int argc, char **argv)
   
   nlopt_srand_time();
   testfuncs_verbose = 0;
-  
+  minf_max_delta = -HUGE_VAL;
+
   if (argc <= 1)
     usage(stdout);
 
