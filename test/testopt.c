@@ -48,7 +48,7 @@ extern "C" int feenableexcept (int EXCEPTS);
 #include "testfuncs.h"
 
 static nlopt_algorithm algorithm = NLOPT_GN_DIRECT_L;
-static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_delta = -HUGE_VAL;
+static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_delta;
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
@@ -298,7 +298,8 @@ int main(int argc, char **argv)
   
   nlopt_srand_time();
   testfuncs_verbose = 0;
-  
+  minf_max_delta = -HUGE_VAL;
+
   if (argc <= 1)
     usage(stdout);
 
