@@ -6,16 +6,13 @@ matrix:
     - os: linux
       addons:
         apt:
-          sources:
-          - george-edison55-precise-backports
           packages:
           - swig
           - python-dev
           - python-numpy
           - guile-2.0-dev
-          - octave3.2-headers
+          - liboctave-dev
           - cmake
-          - cmake-data
           - g++-mingw-w64-i686
           - gcc-mingw-w64-i686
           - binutils-mingw-w64-i686
