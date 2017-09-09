@@ -88,15 +88,15 @@ When you compile NLopt using the above commands, it will automatically compile p
 
 ### Matlab
 
-In particular, for Matlab plugins to be installed, you should to have the Matlab `mex` compiler command in your [Unix PATH](http://kb.iu.edu/data/acar.html). Alternatively, you can specify the explicit path to the `mex` by passing a `MEX` variable to `cmake`, via:
+In particular, for Matlab plugins to be installed, you should provide the Matlab installation dir, eg:
 
-`cmake -DMEX_COMPILER=`*`/path/to/mex`* .
+`cmake -DMatlab_ROOT_DIR=/opt/matlab/RYYYYx/` .
 
 Some versions of Matlab also require that you compile NLopt as a shared library in order to produce a Matlab plugin; see below.
 
-By default, the Matlab plugins (along with help files and other `.m` files) are installed into the `MATLABPATH` printed out by `matlab` `-n` (which gives some directory within your Matlab installation directory), so that they will be available to all Matlab users. (This requires `matlab` to be in your `PATH` too; alternatively, you can pass `MATLAB=/path/to/matlab` to `configure`.) You can override this default (e.g. if you don't have administrator access on your machine) by passing a `MEX_INSTALL_DIR` to `configure`, via (in addition to other `configure` arguments):
+The Matlab plugins (along with help files and other `.m` files) are installed into `INSTALL_MEX_DIR`. You can override the default by passing a `INSTALL_MEX_DIR` to `cmake`, via (in addition to other `cmake` arguments):
 
-`./configure MEX_INSTALL_DIR=`*`dir`*
+`cmake -DINSTALL_MEX_DIR=`*`dir`* .
 
 to install the Matlab plugins in directory *dir*. In this case, however, when you run Matlab you will either need to run in the *dir* directory or explicitly add *dir* to your Matlab path (see the Matlab `path` command).
 
