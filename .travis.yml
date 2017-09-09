@@ -23,6 +23,8 @@ matrix:
           - gcc-mingw-w64-x86-64
           - binutils-mingw-w64-x86-64
       script:
+        - pip install mkdocs python-markdown-math --user
+        - PATH=$PATH:~/.local/bin mkdocs build
         - mkdir build && pushd build
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DWITH_CXX=ON ..
         - make install -j2 && ctest -j2 --output-on-failure
