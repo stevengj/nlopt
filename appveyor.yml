@@ -19,4 +19,5 @@ build_script:
   - cd c:\projects\nlopt
   - cmake -G "%CMAKE_PLATFORM%" -DWITH_CXX=ON -DCMAKE_INSTALL_PREFIX="C:\projects\nlopt\install" .
   - cmake --build . --config %Configuration% --target install
+  - xcopy Release\nlopt_cxx.dll test\Release
   - ctest -C %Configuration% --output-on-failure --timeout 100
