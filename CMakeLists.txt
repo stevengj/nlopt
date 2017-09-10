@@ -239,8 +239,8 @@ get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES
 target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/api>")
 
 if (BUILD_SHARED_LIBS)
-  target_compile_definitions (${nlopt_lib} INTERFACE -DNLOPT_DLL)
-  target_compile_definitions (${nlopt_lib} INTERFACE -DNLOPT_DLL_EXPORT)
+  target_compile_definitions (${nlopt_lib} PUBLIC -DNLOPT_DLL)
+  target_compile_definitions (${nlopt_lib} PRIVATE -DNLOPT_DLL_EXPORT)
 endif ()
 
 # pass -fPIC in case swig module is built with static library
