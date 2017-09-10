@@ -11,12 +11,12 @@ environment:
   matrix:
     - CMAKE_PLATFORM: "Visual Studio 14 2015"
     - CMAKE_PLATFORM: "Visual Studio 14 2015 Win64"
-#install:
-  #- cinstall: python
+install:
+  - cinstall: python
   #- choco install swig
 build_script:
   - echo Running cmake...
   - cd c:\projects\nlopt
-  - cmake -G "%CMAKE_PLATFORM%" -DBUILD_SHARED_LIBS=OFF -DWITH_CXX=ON -DCMAKE_INSTALL_PREFIX="C:\projects\nlopt\install" .
+  - cmake -G "%CMAKE_PLATFORM%" -DWITH_CXX=ON -DCMAKE_INSTALL_PREFIX="C:\projects\nlopt\install" .
   - cmake --build . --config %Configuration% --target install
   - ctest -C %Configuration% --output-on-failure --timeout 100
