@@ -272,7 +272,8 @@ NLOPT_STDCALL nlopt_set_lower_bounds(nlopt_opt opt, const double *lb)
      nlopt_unset_errmsg(opt);
      if (opt && (opt->n == 0 || lb)) {
 	  unsigned int i;
-	  memcpy(opt->lb, lb, sizeof(double) * (opt->n));
+         if (opt->n > 0)
+             memcpy(opt->lb, lb, sizeof(double) * (opt->n));
 	  for (i = 0; i < opt->n; ++i)
               if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
                   opt->lb[i] = opt->ub[i];
@@ -314,7 +315,8 @@ NLOPT_STDCALL nlopt_set_upper_bounds(nlopt_opt opt, const double *ub)
      nlopt_unset_errmsg(opt);
      if (opt && (opt->n == 0 || ub)) {
 	  unsigned int i;
-	  memcpy(opt->ub, ub, sizeof(double) * (opt->n));
+         if (opt->n > 0)
+             memcpy(opt->ub, ub, sizeof(double) * (opt->n));
 	  for (i = 0; i < opt->n; ++i)
               if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
                   opt->ub[i] = opt->lb[i];
