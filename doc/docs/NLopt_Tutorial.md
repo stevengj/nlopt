@@ -447,9 +447,9 @@ opt.add_inequality_constraint(lambda x,grad: myconstraint(x,grad,-1,1), 1e-8)
 opt.set_xtol_rel(1e-4)
 x = opt.optimize([1.234, 5.678])
 minf = opt.last_optimum_value()
-print "optimum at ", x[0],x[1]
-print "minimum value = ", minf
-print "result code = ", opt.last_optimize_result()
+print("optimum at ", x[0], x[1])
+print("minimum value = ", minf)
+print("result code = ", opt.last_optimize_result())
 ```
 
 

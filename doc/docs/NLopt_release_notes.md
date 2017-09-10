@@ -4,6 +4,13 @@
 
 Here, we describe what has changed between releases of the [NLopt](index.md) package. You can also refer to the `NEWS` file in the Meep package (or the `ChangeLog` file for a more detailed listing).
 
+NLopt 2.5.0
+-----------
+
+<small>TBA</small>
+
+-   Using CMake build system instead of autotools
+
 NLopt 2.4.2
 -----------
 
