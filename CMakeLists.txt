@@ -320,16 +320,17 @@ set (CPACK_SOURCE_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${NLOPT_VERSION_STRING
 include (CPack)
 
 # configuration files
-export (TARGETS ${nlopt_lib} FILE ${PROJECT_BINARY_DIR}/NLoptLibraryDepends.cmake)
+export (TARGETS ${nlopt_lib} NAMESPACE NLopt:: FILE ${PROJECT_BINARY_DIR}/NLoptLibraryDepends.cmake)
 
 # Install the export set for use with the install-tree
 install(EXPORT NLoptLibraryDepends
+        NAMESPACE NLopt::
         DESTINATION ${RELATIVE_INSTALL_CMAKE_DIR}
         COMPONENT Development)
 
 # Create a NLOPTConfig.cmake file for the use from the install tree
 # and install it
-set (NLOPT_LIBRARIES ${nlopt_lib})
+set (NLOPT_LIBRARIES "NLopt::${nlopt_lib}")
 
 set (NLOPT_CMAKE_DIR "${INSTALL_CMAKE_DIR}")
 file (RELATIVE_PATH rel_include_dir "${NLOPT_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
