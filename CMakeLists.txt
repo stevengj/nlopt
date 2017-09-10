@@ -236,7 +236,7 @@ target_include_directories (${nlopt_lib} PRIVATE
   api)
 
 get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES)
-target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/api>")
+target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/api>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions (${nlopt_lib} PUBLIC -DNLOPT_DLL)
