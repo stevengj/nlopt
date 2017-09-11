@@ -210,6 +210,19 @@ target_link_libraries (${nlopt_lib} ${M_LIBRARY})
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
 set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
 
+if (BUILD_SHARED_LIBS)
+  if (WIN32)
+    set_target_properties (${nlopt_lib} PROPERTIES DEBUG_POSTFIX d )
+  endif ()
+else ()
+  if (WIN32)
+    set_target_properties (${nlopt_lib} PROPERTIES DEBUG_POSTFIX sd )
+    set_target_properties (${nlopt_lib} PROPERTIES MINSIZEREL_POSTFIX s )
+    set_target_properties (${nlopt_lib} PROPERTIES RELEASE_POSTFIX s )
+    set_target_properties (${nlopt_lib} PROPERTIES RELWITHDEBINFO_POSTFIX s )
+  endif ()
+endif ()
+
 #==============================================================================
 # INCLUDE DIRECTORIES
 #==============================================================================
