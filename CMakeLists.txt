@@ -259,6 +259,10 @@ install ( TARGETS ${nlopt_lib}
           ARCHIVE DESTINATION ${RELATIVE_INSTALL_LIB_DIR}
         )
 
+if (MSVC AND BUILD_SHARED_LIBS AND NOT CMAKE_VERSION VERSION_LESS 3.1)
+  install (FILES $<TARGET_PDB_FILE:${nlopt_lib}> DESTINATION ${RELATIVE_INSTALL_BIN_DIR} CONFIGURATIONS Debug RelWithDebInfo COMPONENT Debug)
+endif ()
+
 add_subdirectory (api)
 
 if (BUILD_PYTHON)
