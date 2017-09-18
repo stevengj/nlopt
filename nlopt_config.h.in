@@ -148,7 +148,7 @@
 #undef VERSION
 
 /* Define if compiled including C++-based routines */
-#cmakedefine WITH_CXX
+#cmakedefine NLOPT_CXX
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

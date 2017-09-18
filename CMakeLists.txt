@@ -22,16 +22,16 @@ project (nlopt)
 
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-option (WITH_CXX "enable cxx routines" OFF)
+option (NLOPT_CXX "enable cxx routines" OFF)
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
-option (BUILD_PYTHON "build python bindings" ON)
-option (BUILD_OCTAVE "build octave bindings" ON)
-option (BUILD_MATLAB "build matlab bindings" ON)
-option (BUILD_GUILE "build guile bindings" ON)
-option (USE_SWIG "use SWIG to build bindings" ON)
+option (NLOPT_PYTHON "build python bindings" ON)
+option (NLOPT_OCTAVE "build octave bindings" ON)
+option (NLOPT_MATLAB "build matlab bindings" ON)
+option (NLOPT_GUILE "build guile bindings" ON)
+option (NLOPT_SWIG "use SWIG to build bindings" ON)
 
 set (NLOPT_SUFFIX)
-if (WITH_CXX)
+if (NLOPT_CXX)
   set (NLOPT_SUFFIX _cxx)
 endif ()
 
@@ -136,7 +136,7 @@ if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
   endforeach()
 endif ()
 
-if (WITH_CXX OR BUILD_PYTHON OR BUILD_GUILE OR BUILD_OCTAVE)
+if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
   check_cxx_symbol_exists (_LIBCPP_VERSION string SYSTEM_HAS_LIBCPP)
   if (SYSTEM_HAS_LIBCPP)
     check_cxx_compiler_flag ("-std=c++11" SUPPORTS_STDCXX11)
@@ -197,7 +197,7 @@ set (NLOPT_SOURCES
   util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c
 )
 
-if (WITH_CXX)
+if (NLOPT_CXX)
   list (APPEND NLOPT_SOURCES stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h)
 endif ()
 
@@ -265,7 +265,7 @@ endif ()
 
 add_subdirectory (api)
 
-if (BUILD_PYTHON)
+if (NLOPT_PYTHON)
   find_package (PythonInterp)
   find_package (PythonLibs)
   find_package (NumPy)
@@ -283,21 +283,21 @@ if (NOT DEFINED INSTALL_PYTHON_DIR AND PYTHONINTERP_FOUND)
 
 endif ()
 
-if (BUILD_GUILE)
+if (NLOPT_GUILE)
   find_package (Guile)
 endif ()
 
-if (USE_SWIG)
+if (NLOPT_SWIG)
   find_package (SWIG)
 endif ()
 
 add_subdirectory (swig)
 
-if (BUILD_OCTAVE)
+if (NLOPT_OCTAVE)
   find_package (Octave)
 endif ()
 
-if (BUILD_MATLAB)
+if (NLOPT_MATLAB)
   find_package (Matlab)
 endif ()
 

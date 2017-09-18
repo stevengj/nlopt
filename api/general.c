@@ -42,7 +42,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Unscaled Randomized DIRECT-L (global, no-derivative)",
      "Original DIRECT version (global, no-derivative)",
      "Original DIRECT-L version (global, no-derivative)",
-#ifdef WITH_CXX
+#ifdef NLOPT_CXX
      "StoGO (global, derivative-based)",
      "StoGO with randomized search (global, derivative-based)",
 #else

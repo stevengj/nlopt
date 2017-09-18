@@ -141,7 +141,7 @@ NLopt with C++ algorithms
 NLopt, as-is, is callable from C, C++, and Fortran, with optional Matlab and GNU Octave plugins (and even installs an `nlopt.hpp` C++ header file to allow you to call it in a more C++ style). By default, it includes only subroutines written in C (or written in Fortran and converted to C), to simplify linking. If you configure with:
 
 ```
-cmake -DWITH_CXX=ON .
+cmake -DNLOPT_CXX=ON .
 ```
 
 
