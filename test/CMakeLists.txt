@@ -11,7 +11,7 @@ foreach (algo_index RANGE 29)# 42
   foreach (obj_index RANGE 1)# 21
     set (enable_ TRUE)
     # cxx stogo
-    if (NOT WITH_CXX)
+    if (NOT NLOPT_CXX)
       if (algo_index STREQUAL 8 OR algo_index STREQUAL 9)
         set (enable_ FALSE)
       endif ()

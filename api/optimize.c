@@ -31,7 +31,7 @@
 #include "praxis.h"
 #include "direct.h"
 
-#ifdef WITH_CXX
+#ifdef NLOPT_CXX
 #  include "stogo.h"
 #endif
 
@@ -505,7 +505,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 
 	 case NLOPT_GD_STOGO:
 	 case NLOPT_GD_STOGO_RAND:
-#ifdef WITH_CXX
+#ifdef NLOPT_CXX
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
