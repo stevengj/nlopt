@@ -1,4 +1,4 @@
-[![Latest Docs](https://readthedocs.org/projects/pip/badge/?version=latest)](http://nlopt.readthedocs.io/en/latest/)
+[![Latest Docs](https://readthedocs.org/projects/nlopt/badge/?version=latest)](http://nlopt.readthedocs.io/en/latest/)
 [![Build Status](https://travis-ci.org/stevengj/nlopt.svg?branch=master)](https://travis-ci.org/stevengj/nlopt)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/stevengj/nlopt?branch=master&svg=true)](https://ci.appveyor.com/project/StevenGJohnson/nlopt)
 
