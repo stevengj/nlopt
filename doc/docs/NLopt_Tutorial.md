@@ -32,8 +32,10 @@ Example in C/C++
 
 To implement the above example in C or C++, we would first do:
 
-`#include `<math.h>
-`#include `<nlopt.h>
+```c
+#include <math.h>
+#include <nlopt.h>
+```
 
 to include the NLopt header file as well as the standard math header file (needed for things like the `sqrt` function and the `HUGE_VAL` constant), then we would define our objective function as:
 
