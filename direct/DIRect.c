@@ -162,17 +162,17 @@
 /* |            for the function within the hyper-box.                     | */
 /* |                                                                       | */
 /* |    minf -- The value of the function at x.                            | */
-/* |  Ierror -- Error flag. If Ierror is lower 0, an error has occured. The| */
-/* |            values of Ierror mean                                      | */
+/* |  Ierror -- Error flag. If Ierror is lower 0, an error has occurred.   | */
+/* |            The values of Ierror mean                                  | */
 /* |            Fatal errors :                                             | */
 /* |             -1   u(i) <= l(i) for some i.                             | */
 /* |             -2   maxf is too large.                                   | */
 /* |             -3   Initialization in DIRpreprc failed.                  | */
 /* |             -4   Error in DIRSamplepoints, that is there was an error | */
 /* |                  in the creation of the sample points.                | */
-/* |             -5   Error in DIRSamplef, that is an error occured while  | */
+/* |             -5   Error in DIRSamplef, that is an error occurred while | */
 /* |                  the function was sampled.                            | */
-/* |             -6   Error in DIRDoubleInsert, that is an error occured   | */
+/* |             -6   Error in DIRDoubleInsert, that is an error occurred  | */
 /* |                  DIRECT tried to add all hyperrectangles with the same| */
 /* |                  size and function value at the center. Either        | */
 /* |                  increase maxdiv or use our modification (Jones = 1). | */
@@ -355,7 +355,7 @@
 	    algmethod, &MAXFUNC, &MAXDEEP, fglobal, fglper, ierror, &epsfix, &
 		      iepschange, volper, sigmaper);
 /* +-----------------------------------------------------------------------+ */
-/* | If an error has occured while writing the header (we do some checking | */
+/* | If an error has occurred while writing the header (we do some checking| */
 /* | of variables there), return to the main program.                      | */
 /* +-----------------------------------------------------------------------+ */
     if (*ierror < 0) {
@@ -383,7 +383,7 @@
     direct_dirinitlist_(anchor, &ifree, point, f, &MAXFUNC, &MAXDEEP);
 /* +-----------------------------------------------------------------------+ */
 /* | Call the routine to initialise the mapping of x from the n-dimensional| */
-/* | unit cube to the hypercube given by u and l. If an error occured,     | */
+/* | unit cube to the hypercube given by u and l. If an error occurred,    | */
 /* | give out a error message and return to the main program with the error| */
 /* | flag set.                                                             | */
 /* | JG 07/16/01 Changed call to remove unused data.                       | */
@@ -413,12 +413,12 @@
     if (*ierror < 0) {
 	if (*ierror == -4) {
 	    if (logfile)
-		 fprintf(logfile, "WARNING: Error occured in routine DIRsamplepoints.\n");
+		 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplepoints.\n");
 	    goto cleanup;
 	}
 	if (*ierror == -5) {
 	    if (logfile)
-		 fprintf(logfile, "WARNING: Error occured in routine DIRsamplef..\n");
+		 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplef..\n");
 	    goto cleanup;
 	}
 	if (*ierror == -102) goto L100;
@@ -535,7 +535,7 @@
 			MAXDEEP, &oops);
 		if (oops > 0) {
 		    if (logfile)
-			 fprintf(logfile, "WARNING: Error occured in routine DIRsamplepoints.\n");
+			 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplepoints.\n");
 		    *ierror = -4;
 		    goto cleanup;
 		}
@@ -558,7 +558,7 @@
 		}
 		if (oops > 0) {
 		    if (logfile)
-			 fprintf(logfile, "WARNING: Error occured in routine DIRsamplef.\n");
+			 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplef.\n");
 		    *ierror = -5;
 		    goto cleanup;
 		}
