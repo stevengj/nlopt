@@ -6,5 +6,6 @@ includedir=${prefix}/include
 Name: NLopt
 Description: nonlinear optimization libary
 Version: @NLOPT_VERSION_STRING@
-Libs: -L${libdir} -lnlopt@NLOPT_SUFFIX@ -lm
+Libs: -L${libdir} -lnlopt@NLOPT_SUFFIX@
+Libs.private: -lm
 Cflags: -I${includedir}
