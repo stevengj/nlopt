@@ -89,7 +89,7 @@
     if (PyInstance_Check(py_obj)) return "instance"    ;
 %#endif
 
-    return "unkown type";
+    return "unknown type";
   }
 
   /* Given a NumPy typecode, return a string describing the type.
