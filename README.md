@@ -15,7 +15,9 @@ NLopt is compiled and installed with the [CMake][1] build system
 
     git clone git://github.com/stevengj/nlopt
     cd nlopt
-    cmake .
+    mkdir build
+    cd build
+    cmake ..
     make
     sudo make install
 
