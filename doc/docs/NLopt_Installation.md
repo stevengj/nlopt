@@ -6,18 +6,18 @@ The installation of NLopt is fairly standard and straightforward, at least on Un
 
 In particular, NLopt uses the standard [CMake](https://cmake.org/) `cmake` build system, which means that you compile it via:
 
-```
-cmake .
+```sh
+mkdir build
+cd build
+cmake ..
 make
 ```
 
+in the `nlopt` directory. Then install the NLopt libraries and header files via:
 
-in the `nlopt` directory. Then, you would switch to be the `root` user, or use the `sudo` command, to install the NLopt libraries and header files via:
-
+```sh
+sudo make install
 ```
-make install
-```
-
 
 By default, this installs the NLopt shared library (`libnlopt.so`) in `/usr/local/lib` and the NLopt header file (`nlopt.h`) in `/usr/local/include`, as well manual pages and a few other files.
 
@@ -30,19 +30,17 @@ You may wish to install NLopt in a directory other than `/usr/local`, especially
 
 For example, suppose that you want to install into the `install` subdirectory of your home directory (`$HOME`). You would do:
 
-```
-cmake -DCMAKE_INSTALL_PREFIX=$HOME/install
+```sh
+cmake -DCMAKE_INSTALL_PREFIX=$HOME/install ..
 make
 make install
 ```
 
-
 This will create the directories `$HOME/install/lib` etcetera and install NLopt into them. However, now when you compile code using NLopt, you will need to tell the compiler where to find the NLopt header files (using `-I`) and libraries (using `-L`) with something like:
 
-```
+```sh
 cc -I$HOME/install/include myprogram.c -L$HOME/install/lib -lnlopt -lm -o myprogram
 ```
-
 
 See also below for how to change the installation directories for Octave, Matlab, and Guile plugins, if you are installing those.
 
@@ -50,17 +48,15 @@ Note also that the `-DCMAKE_INSTALL_PREFIX` flag will change the location where 
 
 However, at this point you need to tell the operating system where to find the shared library, so that the runtime linker works properly. There are at least two ways to do this. First, you can use the `LD_LIBRARY_PATH` environment variable. For example, if you installed into the `/foo/bar` directory, so that the library is in `/foo/bar/lib`, then you would do
 
-```
+```sh
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/foo/bar/lib
 ```
 
-
 in the [bash](https://en.wikipedia.org/wiki/Bash) shell, or
 
-```
+```sh
 setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/foo/bar/lib
 ```
-
 
 in [csh](https://en.wikipedia.org/wiki/csh) or [w:tcsh](https://en.wikipedia.org/wiki/tcsh).
 
@@ -73,10 +69,9 @@ By default, NLopt compiles as a shared library (also called a dynamic-link libra
 
 Compiling NLopt as a static library is easy. Just add `-DBUILD_SHARED_LIBS=OFF` to the `cmake` flags, as in:
 
+```sh
+cmake -DBUILD_SHARED_LIBS=OFF ..
 ```
-cmake -DBUILD_SHARED_LIBS=OFF .
-```
-
 
 Then you run `make` and `make` `install` as usual.
 
@@ -90,13 +85,17 @@ When you compile NLopt using the above commands, it will automatically compile p
 
 In particular, for Matlab plugins to be installed, you should provide the Matlab installation dir, eg:
 
-`cmake -DMatlab_ROOT_DIR=/opt/matlab/RYYYYx/` .
+```sh
+cmake -DMatlab_ROOT_DIR=/opt/matlab/RYYYYx/ ..
+```
 
 Some versions of Matlab also require that you compile NLopt as a shared library in order to produce a Matlab plugin; see below.
 
 The Matlab plugins (along with help files and other `.m` files) are installed into `INSTALL_MEX_DIR`. You can override the default by passing a `INSTALL_MEX_DIR` to `cmake`, via (in addition to other `cmake` arguments):
 
-`cmake -DINSTALL_MEX_DIR=`*`dir`* .
+```sh
+cmake -DINSTALL_MEX_DIR=dir ..
+```
 
 to install the Matlab plugins in directory *dir*. In this case, however, when you run Matlab you will either need to run in the *dir* directory or explicitly add *dir* to your Matlab path (see the Matlab `path` command).
 
@@ -106,8 +105,9 @@ For the Octave plugins to be installed, you need to have the Octave `mkoctfile` 
 
 By default, the compiled Octave plugins (`.oct` files) are installed into the octave extension binary directory relatively to the installation prefix (usually something like `/usr/local/lib/octave/2.1.73/site/oct/i486-pc-linux-gnu`), and the .m script files are installed into the site extension directory relatively the the installation prefix (usually something like `/usr/local/share/octave/2.1.73/site/m/`). You can change these defaults by passing `INSTALL_OCT_DIR` and `INSTALL_M_DIR`, respectively, to the cmake script, via:
 
-`cmake -DINSTALL_OCT_DIR=`*`octdir`*` -DINSTALL_M_DIR=`*`mdir`* .
-
+```sh
+cmake -DINSTALL_OCT_DIR=octdir -DINSTALL_M_DIR=mdir ..
+```
 
 Python plugins
 --------------
@@ -116,7 +116,9 @@ If [Python](https://en.wikipedia.org/wiki/Python_(programming_language)) is inst
 
 To specify a particular version or location of Python, use the `PYTHON_EXECUTABLE` variable to set the name of the `python` executable:
 
-`cmake -DPYTHON_EXECUTABLE=`*`python`*
+```sh
+cmake -DPYTHON_EXECUTABLE=python ..
+```
 
 GNU Guile plugins
 -----------------
@@ -127,7 +129,9 @@ Note that many GNU/Linux distributions come with only the Guile program and shar
 
 If you want to specify a particular version or a nonstandard location of Guile, you should use the `GUILE_CONFIG_EXECUTABLE` and `GUILE_EXECUTABLE` variables to specify the locations of the `guile-config` and `guile` programs:
 
-`cmake -DGUILE_EXECUTABLE=`*`guile`*` GUILE_CONFIG_EXECUTABLE=`*`guile-config`*
+```sh
+cmake -DGUILE_EXECUTABLE=guile GUILE_CONFIG_EXECUTABLE=guile-config ..
+```
 
 (The `cmake` script uses these programs to determine the compiler flags and installation directories for Guile plugins.)
 
@@ -140,10 +144,9 @@ NLopt with C++ algorithms
 
 NLopt, as-is, is callable from C, C++, and Fortran, with optional Matlab and GNU Octave plugins (and even installs an `nlopt.hpp` C++ header file to allow you to call it in a more C++ style). By default, it includes only subroutines written in C (or written in Fortran and converted to C), to simplify linking. If you configure with:
 
+```sh
+cmake -DNLOPT_CXX=ON ..
 ```
-cmake -DNLOPT_CXX=ON .
-```
-
 
 however, it will also include algorithms implemented in C++ (currently, just the StoGO algorithm), and the resulting library will be called `libnlopt_cxx` and is linked with `-lnlopt_cxx`.
 
