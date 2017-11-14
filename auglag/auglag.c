@@ -34,7 +34,7 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
      unsigned j, k;
 
      L = d->f(n, x, grad, d->f_data);
-     d->stop->nevals++;
+     ++ *(d->stop->nevals_p);
      if (nlopt_stop_forced(d->stop)) return L;
 
      for (ii = i = 0; i < d->p; ++i) {
@@ -143,7 +143,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      /* starting rho suggested by B & M */
      if (d.p > 0 || d.m > 0) {
 	  double con2 = 0;
-	  d.stop->nevals++;
+	  ++ *(d.stop->nevals_p);
 	  fcur = f(n, xcur, NULL, f_data);
 	  if (nlopt_stop_forced(stop)) {
 	       ret = NLOPT_FORCED_STOP; goto done; }
@@ -191,14 +191,14 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  double prev_ICM = ICM;
 	  
 	  ret = nlopt_optimize_limited(sub_opt, xcur, &fcur,
-				       stop->maxeval - stop->nevals,
+				       stop->maxeval - *(stop->nevals_p),
 				       stop->maxtime - (nlopt_seconds() 
 							- stop->start));
 	  if (auglag_verbose)
 	       printf("auglag: subopt return code %d\n", ret);
 	  if (ret < 0) break;
 	  
-	  d.stop->nevals++;
+	  ++ *(d.stop->nevals_p);
 	  fcur = f(n, xcur, NULL, f_data);
 	  if (nlopt_stop_forced(stop)) {
 	       ret = NLOPT_FORCED_STOP; goto done; }

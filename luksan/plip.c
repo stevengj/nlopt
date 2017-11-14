@@ -279,7 +279,7 @@ static void plip_(int *nf, int *nb, double *x, int *
 	goto L11190;
     }
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
-    ++stop->nevals;
+    ++*(stop->nevals_p);
     ++stat_1->nfg;
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
 L11120:
@@ -384,7 +384,7 @@ L11170:
     luksan_mxudir__(nf, &r__, &s[1], &xo[1], &x[1], &ix[1], &kbf);
     luksan_pcbs04__(nf, &x[1], &ix[1], &xl[1], &xu[1], &eps9, &kbf);
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
-    ++stop->nevals;
+    ++*(stop->nevals_p);
     ++stat_1->nfg;
     p = luksan_mxudot__(nf, &gf[1], &s[1], &ix[1], &kbf);
     goto L11170;

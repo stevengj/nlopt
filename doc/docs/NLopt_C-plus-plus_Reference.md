@@ -229,6 +229,13 @@ double nlopt::opt::get_maxtime() const;
 
 Stop when the optimization time (in seconds) exceeds `maxtime`.
 
+```
+int nlopt::opt::get_numevals() const;
+```
+
+
+Request the number of evaluations.
+
 ### Forced termination
 
 In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. You can do this by throwing *any* exception inside your objective/constraint functions: the exception will be caught, the optimization will be halted gracefully, and another exception (possibly not the same one) will be rethrown. See [Exceptions](#Exceptions.md), below. The C++ equivalent of `nlopt_forced_stop` from the [C API](NLopt_Reference#Forced_termination.md) is to throw an `nlopt::forced_stop` exception.

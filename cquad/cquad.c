@@ -303,7 +303,7 @@ nlopt_result cquad_minimize(int n, nlopt_func f, void *f_data,
 	  model.model.q0 = f(n, x0, NULL, f_data);
 	  memcpy(X + (iM++ * n), x0, n * sizeof(double));
 	  memset(model.model.Q, 0, sizeof(double) * n*n);
-	  stop->nevals++;
+	  *(stop->nevals_p)++;
 	  feasible_cur = 1;
 	  for (i = 0; i < m; ++i) {
 	       modelc[i].model.q0 = fc(n, x0, NULL, fc_data + fc_datum_size*i);
@@ -330,7 +330,7 @@ nlopt_result cquad_minimize(int n, nlopt_func f, void *f_data,
 		    xcur[j] = x0[j] + (2*s - 1) * dx[j];
 		    fmp[s] = fcur = f(n, xcur, NULL, f_data);
 		    memcpy(X + (iM++ * n), xcur, n * sizeof(double));
-		    stop->nevals++;
+		    *(stop->nevals_p)++;
 		    feasible_cur = 1;
 		    for (i = 0; i < m; ++i) {
 			 fcmp[s][i] = fcval_cur[i] = 
@@ -416,7 +416,7 @@ nlopt_result cquad_minimize(int n, nlopt_func f, void *f_data,
 		    gcval[i] = cmodel_func(n, xcur, NULL, modelc + i);
 
 	       fcur = f(n, xcur, NULL, f_data);
-	       stop->nevals++;
+	       *(stop->nevals_p)++;
 	       feasible_cur = 1;
 	       inner_done = gval >= fcur;
 	       for (i = 0; i < m; ++i) {

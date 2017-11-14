@@ -86,6 +86,7 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
 	  opt->ftol_rel = opt->ftol_abs = 0;
 	  opt->xtol_rel = 0; opt->xtol_abs = NULL;
 	  opt->maxeval = 0;
+    opt->numevals = 0;
 	  opt->maxtime = 0;
 	  opt->force_stop = 0;
 	  opt->force_stop_child = NULL;
@@ -626,6 +627,8 @@ NLOPT_STDCALL nlopt_get_xtol_abs(const nlopt_opt opt, double *xtol_abs)
 }
 
 GETSET(maxeval, int, maxeval)
+
+GETSET(numevals, int, numevals)
 
 GETSET(maxtime, double, maxtime)
 

@@ -272,6 +272,14 @@ double nlopt_get_maxtime(nlopt_opt opt);
 
 Stop when the optimization time (in seconds) exceeds `maxtime`. (This is not a strict maximum: the time may exceed maxtime slightly, depending upon the algorithm and on how slow your function evaluation is.) Criterion is disabled if `maxtime` is non-positive.
 
+```
+int nlopt_get_numevals(nlopt_opt opt);
+```
+
+
+Request the number of evaluations.
+
+
 ### Forced termination
 
 In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. (This is used to implement exception handling in the NLopt wrappers for C++ and other languages.) In this case, it is possible to tell NLopt to halt the optimization gracefully, returning the best point found so far, by calling the following function from *within* your objective or constraint functions:

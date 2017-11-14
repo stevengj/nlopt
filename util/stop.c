@@ -87,7 +87,7 @@ int nlopt_stop_xs(const nlopt_stopping *s,
 
 int nlopt_stop_evals(const nlopt_stopping *s)
 {
-     return (s->maxeval > 0 && s->nevals >= s->maxeval);
+     return (s->maxeval > 0 && *(s->nevals_p) >= s->maxeval);
 }
 
 int nlopt_stop_time_(double start, double maxtime)

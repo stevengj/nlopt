@@ -2509,7 +2509,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	      }
 	      feasible_cur = 1; infeasibility_cur = 0;
 	      fcur = f(n, xcur, newgrad, f_data);
-	      stop->nevals++;
+	      ++ *(stop->nevals_p);
 	      if (nlopt_stop_forced(stop)) {
 		  fcur = HUGE_VAL; ret = NLOPT_FORCED_STOP; goto done; }
 	      if (nlopt_isfinite(fcur)) {

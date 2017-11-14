@@ -187,6 +187,14 @@ Set absolute tolerances on optimization parameters. The `tol` input must be a ve
 Stop when the number of function evaluations exceeds `maxeval`. (0 or negative for no limit.)
 
 ```
+(nlopt-opt-get-nevals opt)
+```
+
+
+Request the number of evaluations.
+
+
+```
 (nlopt-opt-set-maxtime opt maxtime)
 (nlopt-opt-get-maxtime opt)
 ```

@@ -12,7 +12,7 @@
 #include "tools.h"
 
 #ifdef NLOPT_UTIL_H
-#  define IF_NLOPT_CHECK_EVALS stop->nevals++; \
+#  define IF_NLOPT_CHECK_EVALS ++ *(stop->nevals_p); \
                                if (nlopt_stop_evalstime(stop)) \
                                   return LS_MaxEvalTime
 #else
@@ -44,7 +44,7 @@ static double f_local(int n, const double *x, double *grad, void *data_)
 				   grad?OBJECTIVE_AND_GRADIENT:OBJECTIVE_ONLY);
   if (grad) data->maxgrad = max(data->maxgrad, normInf(gv));
   xv.elements = gv.elements = 0; // prevent deallocation
-  data->stop->nevals++;
+  ++ *(data->stop->nevals_p);
   return f;
 }
 #endif
@@ -98,7 +98,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 				    stop->minf_max,
 				    stop->ftol_rel, stop->ftol_abs,
 				    stop->xtol_rel, stop->xtol_abs,
-				    stop->maxeval - stop->nevals,
+				    stop->maxeval - *(stop->nevals_p),
 				    stop->maxtime - stop->start);
   *mgr = data.maxgrad;
   T.xvals=x ; T.objval=f ;

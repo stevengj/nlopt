@@ -58,6 +58,7 @@ struct nlopt_opt_s {
      double ftol_rel, ftol_abs; /* relative/absolute f tolerances */
      double xtol_rel, *xtol_abs; /* rel/abs x tolerances */
      int maxeval; /* max # evaluations */
+     int numevals; /* number of evaluations */
      double maxtime; /* max time (seconds) */
 
      int force_stop; /* if nonzero, force a halt the next time we

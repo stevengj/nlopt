@@ -78,7 +78,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
      double fprev;
 
      *minf = f(n, x, NULL, f_data);
-     stop->nevals++;
+     ++ *(stop->nevals_p);
      if (nlopt_stop_forced(stop)) return NLOPT_FORCED_STOP;
      if (*minf < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
      if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
@@ -107,7 +107,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  double normi = 0;
 	  double normdx = 0;
 	  int ns, nsubs = 0;
-	  int nevals = stop->nevals;
+	  int nevals = *(stop->nevals_p);
 	  double fdiff, fdiff_max = 0;
 
 	  memcpy(xprev, x, n * sizeof(double));
@@ -153,13 +153,13 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 		    ubs[k-i] = ub[p[k]];
 	       }
 	       ++nsubs;
-	       nevals = stop->nevals;
+	       nevals = *(stop->nevals_p);
 	       ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
 				      xsstep, stop, psi, scratch, &fdiff);
 	       if (fdiff > fdiff_max) fdiff_max = fdiff;
 	       if (sbplx_verbose)
 		    printf("%d NM iterations for (%d,%d) subspace\n",
-			   stop->nevals - nevals, sd.is, ns);
+			   *(stop->nevals_p) - nevals, sd.is, ns);
 	       for (k = i; k < i+ns; ++k) x[p[k]] = xs[k-i];
 	       if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
 	       if (ret != NLOPT_XTOL_REACHED) goto done;
@@ -174,13 +174,13 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	       ubs[i-sd.is] = ub[p[i]];
 	  }
 	  ++nsubs;
-	  nevals = stop->nevals;
+	  nevals = *(stop->nevals_p);
 	  ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
 				 xsstep, stop, psi, scratch, &fdiff);
 	  if (fdiff > fdiff_max) fdiff_max = fdiff;
 	  if (sbplx_verbose)
 	       printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
-		      stop->nevals - nevals, sd.is, ns);
+		      *(stop->nevals_p) - nevals, sd.is, ns);
 	  for (i = sd.is; i < n; ++i) x[p[i]] = xs[i-sd.is];
 	  if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
 	  if (ret != NLOPT_XTOL_REACHED) goto done;

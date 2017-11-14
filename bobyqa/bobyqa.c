@@ -675,7 +675,7 @@ L260:
 /* L290: */
 	}
 
-	stop->nevals++;
+	++ *(stop->nevals_p);
 	f = calfun(*n, &w[1], calfun_data);
 	fval[kpt] = f;
 	if (f < fval[*kopt]) {
@@ -1877,7 +1877,7 @@ L50:
 	}
 /* L60: */
     }
-    stop->nevals++;
+    ++ *(stop->nevals_p);
     f = calfun(*n, &x[1], calfun_data);
     fval[nf] = f;
     if (nf == 1) {
@@ -2098,12 +2098,12 @@ static nlopt_result bobyqb_(int *n, int *npt, double *x,
 
     rho = *rhobeg;
     delta = rho;
-    nresc = stop->nevals;
+    nresc = *(stop->nevals_p);
     ntrits = 0;
     diffa = zero;
     diffb = zero;
     itest = 0;
-    nfsav = stop->nevals;
+    nfsav = *(stop->nevals_p);
 
 /*     Update GOPT if necessary before the first iteration and after each */
 /*     call of RESCUE that makes a call of CALFUN. */
@@ -2123,7 +2123,7 @@ L20:
 		gopt[i__] += hq[ih] * xopt[j];
 	    }
 	}
-	if (stop->nevals > *npt) {
+	if (*(stop->nevals_p) > *npt) {
 	    i__2 = *npt;
 	    for (k = 1; k <= i__2; ++k) {
 		temp = zero;
@@ -2161,7 +2161,7 @@ L60:
 /* Computing 2nd power */
 	d__1 = ten * rho;
 	distsq = d__1 * d__1;
-	if (stop->nevals <= nfsav + 2) {
+	if (*(stop->nevals_p) <= nfsav + 2) {
 	    goto L650;
 	}
 
@@ -2331,7 +2331,7 @@ L90:
 /*     useful safeguard, but is not invoked in most applications of BOBYQA. */
 
 L190:
-    nfsav = stop->nevals;
+    nfsav = *(stop->nevals_p);
     kbase = kopt;
     rc2 = rescue_(n, npt, &xl[1], &xu[1], 
 		  stop, calfun, calfun_data,
@@ -2359,9 +2359,9 @@ L190:
       rc = rc2;
       goto L720; 
     }
-    nresc = stop->nevals;
-    if (nfsav < stop->nevals) {
-	nfsav = stop->nevals;
+    nresc = *(stop->nevals_p);
+    if (nfsav < *(stop->nevals_p)) {
+	nfsav = *(stop->nevals_p);
 	goto L20;
     }
     if (ntrits > 0) {
@@ -2477,7 +2477,7 @@ L230:
 /* Computing 2nd power */
 	d__1 = vlag[knew];
 	if (denom <= half * (d__1 * d__1)) {
-	    if (stop->nevals > nresc) {
+	    if (*(stop->nevals_p) > nresc) {
 		goto L190;
 	    }
 	    /* Return from BOBYQA because of much cancellation in a
@@ -2540,7 +2540,7 @@ L350:
 	    ;
 	}
 	if (scaden <= half * biglsq) {
-	    if (stop->nevals > nresc) {
+	    if (*(stop->nevals_p) > nresc) {
 		goto L190;
 	    }
 	    /* Return from BOBYQA because of much cancellation in a
@@ -2579,7 +2579,7 @@ L360:
     else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
     if (rc != NLOPT_SUCCESS) goto L720;
 
-    stop->nevals++;
+    ++ *(stop->nevals_p);
     f = calfun(*n, &x[1], calfun_data);
     if (ntrits == -1) {
 	fsave = f;
@@ -2625,7 +2625,7 @@ L360:
     diffb = diffa;
     diffa = fabs(diff);
     if (dnorm > rho) {
-	nfsav = stop->nevals;
+	nfsav = *(stop->nevals_p);
     }
 
 /*     Pick the next value of DELTA after a trust region step. */
@@ -3015,7 +3015,7 @@ L680:
 	}
 	delta = MAX2(delta,rho);
 	ntrits = 0;
-	nfsav = stop->nevals;
+	nfsav = *(stop->nevals_p);
 	goto L60;
     }
 
