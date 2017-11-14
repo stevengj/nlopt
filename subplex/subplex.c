@@ -1384,7 +1384,7 @@ static int simplx_(D_fp f, void *fdata, integer *n, doublereal *step, integer *
     if (usubc_1.irepl > 0) {
 	isubc_1.new__ = FALSE_;
 	evalf_((D_fp)f,fdata, ns, &ips[1], &s[s_dim1 + 1], n, &x[1], &fs[1], nfe);
-	stop->nevals++;
+	*(stop->nevals_p)++;
     } else {
 	fs[1] = *fx;
     }
@@ -1393,7 +1393,7 @@ static int simplx_(D_fp f, void *fdata, integer *n, doublereal *step, integer *
     for (j = 2; j <= i__1; ++j) {
 	evalf_((D_fp)f, fdata,ns, &ips[1], &s[j * s_dim1 + 1], n, &x[1], &fs[j], 
 		nfe);
-	stop->nevals++;
+	*(stop->nevals_p)++;
 /* L10: */
     }
     il = 1;
@@ -1415,7 +1415,7 @@ L20:
 	goto L40;
     }
     evalf_((D_fp)f,fdata, ns, &ips[1], &s[itemp * s_dim1 + 1], n, &x[1], &fr, nfe);
-    stop->nevals++;
+    *(stop->nevals_p)++;
     if (fr < fs[il]) {
 
 /*         expand */
@@ -1427,7 +1427,7 @@ L20:
 	    goto L40;
 	}
 	evalf_((D_fp)f,fdata, ns, &ips[1], &s[ih * s_dim1 + 1], n, &x[1], &fe, nfe);
-	stop->nevals++;
+	*(stop->nevals_p)++;
 	if (fe < fr) {
 	    fs[ih] = fe;
 	} else {
@@ -1459,7 +1459,7 @@ L20:
 	}
 	evalf_((D_fp)f,fdata, ns, &ips[1], &s[itemp * s_dim1 + 1], n, &x[1], &fc, 
 		nfe);
-	stop->nevals++;
+	*(stop->nevals_p)++;
 /* Computing MIN */
 	d__1 = fr, d__2 = fs[ih];
 	if (fc < MIN2(d__1,d__2)) {
@@ -1481,7 +1481,7 @@ L20:
 		    }
 		    evalf_((D_fp)f,fdata, ns, &ips[1], &s[j * s_dim1 + 1], n, &x[1],
 			     &fs[j], nfe);
-		    stop->nevals++;
+		    *(stop->nevals_p)++;
 		}
 /* L30: */
 	    }
@@ -2037,7 +2037,7 @@ static int subplx_(D_fp f, void *fdata, integer *n,
 	isubc_1.new__ = TRUE_;
 	usubc_1.initx = TRUE_;
 	evalf_((D_fp)f, fdata, &c__0, &iwork[1], &dum, n, &x[1], &sfx, nfe);
-	stop->nevals++;
+	*(stop->nevals_p)++;
 	usubc_1.initx = FALSE_;
     } else {
 

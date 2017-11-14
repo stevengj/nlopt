@@ -82,7 +82,7 @@ typedef struct {
      double ftol_abs;
      double xtol_rel;
      const double *xtol_abs;
-     int nevals, maxeval;
+     int *nevals_p, maxeval;
      double maxtime, start;
      int *force_stop;
      char **stop_msg; /* pointer to msg string to update */

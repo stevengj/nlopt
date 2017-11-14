@@ -148,6 +148,7 @@ F77_GETSET(ftol_abs, FTOL_ABS, double)
 F77_GETSET(xtol_rel, XTOL_REL, double)
 F77_GETSETA(xtol_abs, XTOL_ABS, double)
 F77_GETSET(maxeval, MAXEVAL, int)
+F77_GET(numevals, NUMEVALS, int)
 F77_GETSET(maxtime, MAXTIME, double)
 
 F77_GETSET(force_stop, FORCE_STOP, int)

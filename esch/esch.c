@@ -165,7 +165,7 @@ nlopt_result chevolutionarystrategy(
 	  esparents[id].fitness =
 	       f(nparameters, esparents[id].parameters, NULL, data_f);
 	  estotal[id].fitness = esparents[id].fitness;
-	  stop->nevals++;
+	  ++ *(stop->nevals_p);
 	  if (*minf > esparents[id].fitness) {
 	       *minf = esparents[id].fitness;
 	       memcpy(x, esparents[id].parameters,
@@ -218,7 +218,7 @@ nlopt_result chevolutionarystrategy(
 	       /*esoffsprings[id].fitness = (double)fitness(esoffsprings[id].parameters, nparameters,fittype);*/
 	       esoffsprings[id].fitness = f(nparameters, esoffsprings[id].parameters, NULL, data_f);
 	       estotal[id+np].fitness = esoffsprings[id].fitness;
-	       stop->nevals++;
+	       ++ *(stop->nevals_p);
 	       if (*minf > esoffsprings[id].fitness) {
 		    *minf = esoffsprings[id].fitness;
 		    memcpy(x, esoffsprings[id].parameters,

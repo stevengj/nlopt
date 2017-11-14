@@ -131,7 +131,7 @@ static nlopt_result crs_trial(crs_data *d)
      random_trial(d, d->p + 1, best);
      do {
      	  d->p[0] = d->f(n, d->p + 1, NULL, d->f_data);
-	  d->stop->nevals++;
+	  ++ *(d->stop->nevals_p);
 	  if (nlopt_stop_forced(d->stop)) return NLOPT_FORCED_STOP;
 	  if (d->p[0] < worst->k[0]) break;
 	  if (nlopt_stop_evals(d->stop)) return NLOPT_MAXEVAL_REACHED;
@@ -203,7 +203,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
      /* generate initial points randomly, plus starting guess x */
      memcpy(d->ps + 1, x, sizeof(double) * n);
      d->ps[0] = f(n, x, NULL, f_data);
-     stop->nevals++;
+     ++ *(stop->nevals_p);
      if (!rb_tree_insert(&d->t, d->ps)) return NLOPT_OUT_OF_MEMORY;
      if (d->ps[0] < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
      if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
@@ -218,7 +218,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
 		    k[1 + j] = nlopt_urand(lb[j], ub[j]);
 	  }
 	  k[0] = f(n, k + 1, NULL, f_data);
-	  stop->nevals++;
+	  ++ *(stop->nevals_p);
 	  if (!rb_tree_insert(&d->t, k)) return NLOPT_OUT_OF_MEMORY;
 	  if (k[0] < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
 	  if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;

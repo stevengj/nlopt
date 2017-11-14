@@ -136,7 +136,7 @@ void luksan_pnint1__(double *rl, double *ru, double *fl,
 /* Common Block Declarations */
 typedef struct {
      int nres, ndec, nin, nit;
-     /* int nfv;   -- now stored in stop->nevals */
+     /* int nfv;   -- now stored in stop->nevals_p */
      int nfg, nfh;
 } stat_common;
 

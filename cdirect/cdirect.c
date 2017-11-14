@@ -139,7 +139,7 @@ static double function_eval(const double *x, params *p) {
 	  p->minf = f;
 	  memcpy(p->xmin, x, sizeof(double) * p->n);
      }
-     p->stop->nevals++;
+     ++ *(p->stop->nevals_p);
      return f;
 }
 #define FUNCTION_EVAL(fv,x,p,freeonerr) fv = function_eval(x, p); if (nlopt_stop_forced((p)->stop)) { free(freeonerr); return NLOPT_FORCED_STOP; } else if (p->minf < p->stop->minf_max) { free(freeonerr); return NLOPT_MINF_MAX_REACHED; } else if (nlopt_stop_evals((p)->stop)) { free(freeonerr); return NLOPT_MAXEVAL_REACHED; } else if (nlopt_stop_time((p)->stop)) { free(freeonerr); return NLOPT_MAXTIME_REACHED; }

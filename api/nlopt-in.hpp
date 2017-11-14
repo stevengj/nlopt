@@ -463,6 +463,12 @@ namespace nlopt {
     NLOPT_GETSET(double, xtol_rel)
     NLOPT_GETSET_VEC(xtol_abs)
     NLOPT_GETSET(int, maxeval)
+
+    int get_numevals() const {
+      if (!o) throw std::runtime_error("uninitialized nlopt::opt");
+      return nlopt_get_numevals(o);
+    }
+
     NLOPT_GETSET(double, maxtime)
 
     NLOPT_GETSET(int, force_stop)

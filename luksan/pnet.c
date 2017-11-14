@@ -300,7 +300,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
 	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
     }
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
-    ++stop->nevals;
+    ++(*stop->nevals_p);
     ++stat_1->nfg;
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11080; }
     ld = kd;
@@ -398,7 +398,7 @@ L12520:
     ld = 0;
     luksan_mxudir__(nf, &pp, &xs[1], &xo[1], &x[1], &ix[1], &kbf);
     objgrad(*nf, &x[1], &gf[1], objgrad_data);
-    ++stop->nevals;
+    ++*(stop->nevals_p);
     ++stat_1->nfg;
     ld = kd;
     luksan_mxvdif__(nf, &gf[1], &gn[1], &go[1]);
@@ -526,7 +526,7 @@ L11060:
     luksan_mxudir__(nf, &r__, &s[1], &xo[1], &x[1], &ix[1], &kbf);
     luksan_pcbs04__(nf, &x[1], &ix[1], &xl[1], &xu[1], &eps9, &kbf);
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
-    ++stop->nevals;
+    ++*(stop->nevals_p);
     ++stat_1->nfg;
     ld = kd;
     p = luksan_mxudot__(nf, &gf[1], &s[1], &ix[1], &kbf);

@@ -65,7 +65,7 @@ typedef struct {
 static double fcount(int n, const double *x, double *grad, void *p_)
 {
      params *p = (params *) p_;
-     p->stop->nevals++;
+     ++ *(p->stop->nevals_p);
      return p->f(n, x, grad, p->f_data);
 }
 
@@ -80,7 +80,7 @@ static nlopt_result optimize_rect(double *r, params *p)
      nlopt_result ret;
      
      if (stop->maxeval > 0 &&
-	 stop->nevals >= stop->maxeval) return NLOPT_MAXEVAL_REACHED;
+	 *(stop->nevals_p) >= stop->maxeval) return NLOPT_MAXEVAL_REACHED;
      if (stop->maxtime > 0 &&
 	 t - stop->start >= stop->maxtime) return NLOPT_MAXTIME_REACHED;
 
@@ -94,8 +94,8 @@ static nlopt_result optimize_rect(double *r, params *p)
 			  stop->xtol_rel, stop->xtol_abs,
 			  p->local_maxeval > 0 ?
 			  MIN(p->local_maxeval, 
-			      stop->maxeval - stop->nevals)
-			  : stop->maxeval - stop->nevals,
+			      stop->maxeval - *(stop->nevals_p))
+			  : stop->maxeval - *(stop->nevals_p),
 			  stop->maxtime - (t - stop->start));
      r[1] = -minf;
      if (ret > 0) {
@@ -144,7 +144,7 @@ static nlopt_result divide_largest(params *p)
      double wmax;
      nlopt_result ret;
 
-     /* printf("rect:, %d, %g, %g, %g, %g\n", p->stop->nevals, c[0], c[1], w[0], w[1]); */
+     /* printf("rect:, %d, %g, %g, %g, %g\n", p->stop->nevals_p, c[0], c[1], w[0], w[1]); */
 
      /* check xtol */
      for (i = 0; i < n; ++i)

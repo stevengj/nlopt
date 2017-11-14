@@ -2100,13 +2100,13 @@ L290:
     ++nf;
 L310:
     if (nlopt_stop_forced(stop)) rc = NLOPT_FORCED_STOP;
-    else if (stop->nevals > 0) {
+    else if (*(stop->nevals_p) > 0) {
 	 if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
 	 else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
     }
     if (rc != NLOPT_SUCCESS) goto L530;
 
-    stop->nevals++;
+    ++ *(stop->nevals_p);
     f = calfun(*n, &x[1], calfun_data);
     if (f < stop->minf_max) {
        rc = NLOPT_MINF_MAX_REACHED;

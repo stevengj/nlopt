@@ -383,7 +383,7 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
  * for the main calculation.
  */
 
-  stop->nevals = 0;
+  *(stop->nevals_p) = 0;
 
   if (n == 0)
   {
@@ -568,13 +568,13 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
 
 L40:
   if (nlopt_stop_forced(stop)) rc = NLOPT_FORCED_STOP;
-  else if (stop->nevals > 0) {
+  else if (*(stop->nevals_p) > 0) {
        if (nlopt_stop_evals(stop)) rc = NLOPT_MAXEVAL_REACHED;
        else if (nlopt_stop_time(stop)) rc = NLOPT_MAXTIME_REACHED;
   }
   if (rc != NLOPT_SUCCESS) goto L600;
 
-  stop->nevals++;
+  ++ *(stop->nevals_p);
   if (calcfc(*n, *m, &x[1], &f, &con[1], state))
   {
     if (*iprint >= 1) {
@@ -602,9 +602,9 @@ L40:
        goto L620; /* not L600 because we want to use current x, f, resmax */
   }
 
-  if (stop->nevals == *iprint - 1 || *iprint == 3) {
+  if (*(stop->nevals_p) == *iprint - 1 || *iprint == 3) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
-	    stop->nevals, f, resmax);
+	    *(stop->nevals_p), f, resmax);
     i__1 = iptem;
     fprintf(stderr, "cobyla: X =");
     for (i__ = 1; i__ <= i__1; ++i__) {
@@ -636,7 +636,7 @@ L40:
   for (k = 1; k <= i__1; ++k) {
     datmat[k + jdrop * datmat_dim1] = con[k];
   }
-  if (stop->nevals > np) {
+  if (*(stop->nevals_p) > np) {
     goto L130;
   }
 
@@ -671,8 +671,8 @@ L40:
       }
     }
   }
-  if (stop->nevals <= *n) { /* evaluating initial simplex */
-    jdrop = stop->nevals;
+  if (*(stop->nevals_p) <= *n) { /* evaluating initial simplex */
+    jdrop = *(stop->nevals_p);
     /* SGJ: was += rho, but using sim[jdrop,jdrop] enforces consistency
             if we change the stepsize above to stay in [lb,ub]. */
     x[jdrop] += sim[jdrop + jdrop * sim_dim1];
@@ -1179,7 +1179,7 @@ L550:
     }
     if (*iprint == 2) {
       fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
-        stop->nevals, datmat[mp + np * datmat_dim1], datmat[*mpp + np * datmat_dim1]);
+        *(stop->nevals_p), datmat[mp + np * datmat_dim1], datmat[*mpp + np * datmat_dim1]);
 
       fprintf(stderr, "cobyla: X =");
       i__1 = iptem;
@@ -1220,7 +1220,7 @@ L620:
   *minf = f;
   if (*iprint >= 1) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
-	    stop->nevals, f, resmax);
+	    *(stop->nevals_p), f, resmax);
     i__1 = iptem;
     fprintf(stderr, "cobyla: X =");
     for (i__ = 1; i__ <= i__1; ++i__) {

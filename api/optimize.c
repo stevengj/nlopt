@@ -411,7 +411,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
      stop.ftol_abs = opt->ftol_abs;
      stop.xtol_rel = opt->xtol_rel;
      stop.xtol_abs = opt->xtol_abs;
-     stop.nevals = 0;
+     stop.nevals_p = &(opt->numevals);
      stop.maxeval = opt->maxeval;
      stop.maxtime = opt->maxtime;
      stop.start = nlopt_seconds();

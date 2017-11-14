@@ -251,7 +251,7 @@ static pt *alloc_pt(int n)
 static double fcount(unsigned n, const double *x, double *grad, void *p_)
 {
      mlsl_data *p = (mlsl_data *) p_;
-     p->stop->nevals++;
+     ++ *(p->stop->nevals_p);
      return p->f(n, x, grad, p->f_data);
 }
 
@@ -333,7 +333,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 
      memcpy(p->x, x, n * sizeof(double));
      p->f = f(n, x, NULL, f_data);
-     stop->nevals++;
+     ++ *(stop->nevals_p);
      if (!rb_tree_insert(&d.pts, (rb_key) p)) { 
 	  free(p); ret = NLOPT_OUT_OF_MEMORY; 
      }
@@ -358,7 +358,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 		    for (j = 0; j < n; ++j) p->x[j] = nlopt_urand(lb[j],ub[j]);
 	       }
 	       p->f = f(n, p->x, NULL, f_data);
-	       stop->nevals++;
+	       ++ *(stop->nevals_p);
 	       if (!rb_tree_insert(&d.pts, (rb_key) p)) { 
 		    free(p); ret = NLOPT_OUT_OF_MEMORY;
 	       }
@@ -402,7 +402,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 		    if (!lm) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 		    memcpy(lm+1, p->x, sizeof(double) * n);
 		    lret = nlopt_optimize_limited(local_opt, lm+1, lm,
-						  stop->maxeval - stop->nevals,
+						  stop->maxeval - *(stop->nevals_p),
 						  stop->maxtime -
 						  (t - stop->start));
 		    p->minimized = 1;

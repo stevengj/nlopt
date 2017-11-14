@@ -182,7 +182,7 @@ nlopt_result praxis_(double t0, double machep, double h0,
     prev_fbest = q_1.fbest = global_1.fx = f(n, &x[1], f_data);
     memcpy(q_1.xbest, &x[1], n*sizeof(double));
     memcpy(prev_xbest, &x[1], n*sizeof(double));
-    stop->nevals++;
+    ++ *(stop->nevals_p);
     q_1.stop = stop;
     q_1.qf1 = global_1.fx;
     if (t0 > 0)
@@ -1236,7 +1236,7 @@ L2:
 L4:
     ++(*nf);
     ret_val = f(n, t, f_data);
-    stop->nevals++;
+    ++ *(stop->nevals_p);
     if (ret_val < q_1->fbest) {
 	 q_1->fbest = ret_val;
 	 memcpy(q_1->xbest, t, n * sizeof(double));

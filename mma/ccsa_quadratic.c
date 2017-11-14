@@ -333,7 +333,7 @@ nlopt_result ccsa_quadratic_minimize(
      }
 
      dd.fval = fcur = *minf = f(n, x, dfdx, f_data);
-     stop->nevals++;
+     ++ *(stop->nevals_p);
      memcpy(xcur, x, sizeof(double) * n);
      if (nlopt_stop_forced(stop)) { ret = NLOPT_FORCED_STOP; goto done; }
 
@@ -441,7 +441,7 @@ nlopt_result ccsa_quadratic_minimize(
 	       }
 
 	       fcur = f(n, xcur, dfdx_cur, f_data);
-	       stop->nevals++;
+	       ++ *(stop->nevals_p);
 	       if (nlopt_stop_forced(stop)) { 
 		    ret = NLOPT_FORCED_STOP; goto done; }
 	       feasible_cur = 1; infeasibility_cur = 0;

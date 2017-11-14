@@ -134,7 +134,7 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 	  for (k = 0; k < population; ++k) {
 	       int feasible = 1;
 	       double gpenalty;
-	       stop->nevals++;
+	       ++ *(stop->nevals_p);
 	       fval[k] = f(n, xs + k*n, NULL, f_data);
 	       if (nlopt_stop_forced(stop)) { 
 		    ret = NLOPT_FORCED_STOP; goto done; }
