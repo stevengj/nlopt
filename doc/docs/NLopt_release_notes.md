@@ -10,6 +10,7 @@ NLopt 2.5.0
 <small>TBA</small>
 
 -   Using CMake build system instead of autotools
+-   Add int nlopt_get_numevals() function
 
 NLopt 2.4.2
 -----------

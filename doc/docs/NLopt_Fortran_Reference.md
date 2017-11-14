@@ -256,7 +256,15 @@ call nlo_get_maxeval(maxeval, opt)
 ```
 
 
+
 Stop when the number of function evaluations exceeds the `integer` `maxeval`. (Zero or negative for no limit.)
+
+```
+call nlo_get_numevals(nevals, opt)
+```
+
+Request the number of evaluations.
+
 
 ```
 call nlo_set_maxtime(ires, opt, maxtime)

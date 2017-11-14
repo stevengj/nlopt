@@ -239,6 +239,17 @@ opt.get_maxtime()
 
 Stop when the optimization time (in seconds) exceeds `maxtime`. (0 or negative for no limit.)
 
+
+
+```
+opt.get_numevals()
+```
+
+
+Request the number of evaluations.
+
+
+
 ### Forced termination
 
 In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. You can do this by raise *any* exception inside your objective/constraint functions:the optimization will be halted gracefully, and the same exception will be raised to the caller. See [Exceptions](#Exceptions.md), below. The Python equivalent of `nlopt_forced_stop` from the [C API](NLopt_Reference#Forced_termination.md) is to throw an `nlopt.ForcedStop` exception.
