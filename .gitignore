@@ -7,8 +7,6 @@
 *.so
 *.do
 *.o
-*.lo
-*.la
 *.a
 *.dylib
 *.dSYM
@@ -18,31 +16,8 @@
 *.tar.gz
 *.zip
 
-# generated code
-nlopt_config.h
-nlopt.pc
-api/nlopt.f
-api/nlopt.hpp
-octave/nlopt_optimize_usage.h
-swig/nlopt-enum-renames.i
-swig/nlopt-guile.cpp
-swig/nlopt-python.cpp
-swig/nlopt.py
-swig/nlopt.scm
-
-# build output and test executables
+# build output: prefer out-of-tree builds
 build/
-test/testopt
-test/box
-test/lorentzfit
-util/mt19937ar_test
-util/redblack_test
-util/sobolseq_test
-direct/tstc
-stogo/prog
-stogo/testros
-stogo/tst
-stogo/tstc
 
 # MacOS
 .DS_Store

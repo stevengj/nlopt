@@ -171,30 +171,30 @@ endif ()
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
-configure_file (api/nlopt.h ${PROJECT_BINARY_DIR}/api/nlopt.h COPYONLY)
+configure_file (src/api/nlopt.h ${PROJECT_BINARY_DIR}/src/api/nlopt.h COPYONLY)
 
 set (NLOPT_HEADERS
-  ${PROJECT_BINARY_DIR}/api/nlopt.h ${PROJECT_BINARY_DIR}/api/nlopt.hpp ${PROJECT_BINARY_DIR}/api/nlopt.f
+  ${PROJECT_BINARY_DIR}/src/api/nlopt.h ${PROJECT_BINARY_DIR}/src/api/nlopt.hpp ${PROJECT_BINARY_DIR}/src/api/nlopt.f
 )
 
 set (NLOPT_SOURCES
-  direct/DIRect.c direct/direct_wrap.c direct/DIRserial.c direct/DIRsubrout.c direct/direct-internal.h direct/direct.h
-  cdirect/cdirect.c cdirect/hybrid.c cdirect/cdirect.h
-  praxis/praxis.c praxis/praxis.h
-  luksan/plis.c luksan/plip.c luksan/pnet.c luksan/mssubs.c luksan/pssubs.c luksan/luksan.h
-  crs/crs.c crs/crs.h
-  mlsl/mlsl.c mlsl/mlsl.h
-  mma/mma.c mma/mma.h mma/ccsa_quadratic.c
-  cobyla/cobyla.c cobyla/cobyla.h
-  newuoa/newuoa.c newuoa/newuoa.h
-  neldermead/nldrmd.c neldermead/neldermead.h neldermead/sbplx.c
-  auglag/auglag.c auglag/auglag.h
-  bobyqa/bobyqa.c bobyqa/bobyqa.h
-  isres/isres.c isres/isres.h
-  slsqp/slsqp.c slsqp/slsqp.h
-  esch/esch.c esch/esch.h
-  api/general.c api/options.c api/optimize.c api/deprecated.c api/nlopt-internal.h api/nlopt.h api/f77api.c api/f77funcs.h api/f77funcs_.h api/nlopt.hpp api/nlopt-in.hpp
-  util/mt19937ar.c util/sobolseq.c util/soboldata.h util/timer.c util/stop.c util/nlopt-util.h util/redblack.c util/redblack.h util/qsort_r.c util/rescale.c
+  src/algs/direct/DIRect.c src/algs/direct/direct_wrap.c src/algs/direct/DIRserial.c src/algs/direct/DIRsubrout.c src/algs/direct/direct-internal.h src/algs/direct/direct.h
+  src/algs/cdirect/cdirect.c src/algs/cdirect/hybrid.c src/algs/cdirect/cdirect.h
+  src/algs/praxis/praxis.c src/algs/praxis/praxis.h
+  src/algs/luksan/plis.c src/algs/luksan/plip.c src/algs/luksan/pnet.c src/algs/luksan/mssubs.c src/algs/luksan/pssubs.c src/algs/luksan/luksan.h
+  src/algs/crs/crs.c src/algs/crs/crs.h
+  src/algs/mlsl/mlsl.c src/algs/mlsl/mlsl.h
+  src/algs/mma/mma.c src/algs/mma/mma.h src/algs/mma/ccsa_quadratic.c
+  src/algs/cobyla/cobyla.c src/algs/cobyla/cobyla.h
+  src/algs/newuoa/newuoa.c src/algs/newuoa/newuoa.h
+  src/algs/neldermead/nldrmd.c src/algs/neldermead/neldermead.h src/algs/neldermead/sbplx.c
+  src/algs/auglag/auglag.c src/algs/auglag/auglag.h
+  src/algs/bobyqa/bobyqa.c src/algs/bobyqa/bobyqa.h
+  src/algs/isres/isres.c src/algs/isres/isres.h
+  src/algs/slsqp/slsqp.c src/algs/slsqp/slsqp.h
+  src/algs/esch/esch.c src/algs/esch/esch.h
+  src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h src/api/nlopt.hpp src/api/nlopt-in.hpp
+  src/util/mt19937ar.c src/util/sobolseq.c src/util/soboldata.h src/util/timer.c src/util/stop.c src/util/nlopt-util.h src/util/redblack.c src/util/redblack.h src/util/qsort_r.c src/util/rescale.c
 )
 
 if (NLOPT_CXX)
@@ -214,29 +214,29 @@ set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
 # INCLUDE DIRECTORIES
 #==============================================================================
 target_include_directories (${nlopt_lib} PRIVATE
-  ${PROJECT_BINARY_DIR}/api
+  ${PROJECT_BINARY_DIR}/src/api
   ${PROJECT_BINARY_DIR}
-  stogo
-  util
-  direct
-  cdirect
-  praxis
-  luksan
-  crs
-  mlsl
-  mma
-  cobyla
-  newuoa
-  neldermead
-  auglag
-  bobyqa
-  isres
-  slsqp
-  esch
-  api)
+  src/algs/stogo
+  src/util
+  src/algs/direct
+  src/algs/cdirect
+  src/algs/praxis
+  src/algs/luksan
+  src/algs/crs
+  src/algs/mlsl
+  src/algs/mma
+  src/algs/cobyla
+  src/algs/newuoa
+  src/algs/neldermead
+  src/algs/auglag
+  src/algs/bobyqa
+  src/algs/isres
+  src/algs/slsqp
+  src/algs/esch
+  src/api)
 
 get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES)
-target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/api>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/api>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions (${nlopt_lib} PUBLIC -DNLOPT_DLL)
@@ -263,7 +263,7 @@ if (MSVC AND BUILD_SHARED_LIBS AND NOT CMAKE_VERSION VERSION_LESS 3.1)
   install (FILES $<TARGET_PDB_FILE:${nlopt_lib}> DESTINATION ${RELATIVE_INSTALL_BIN_DIR} CONFIGURATIONS Debug RelWithDebInfo COMPONENT Debug)
 endif ()
 
-add_subdirectory (api)
+add_subdirectory (src/api)
 
 if (NLOPT_PYTHON)
   find_package (PythonInterp)
@@ -291,7 +291,7 @@ if (NLOPT_SWIG)
   find_package (SWIG)
 endif ()
 
-add_subdirectory (swig)
+add_subdirectory (src/swig)
 
 if (NLOPT_OCTAVE)
   find_package (Octave)
@@ -302,7 +302,7 @@ if (NLOPT_MATLAB)
 endif ()
 
 if (OCTAVE_FOUND OR Matlab_FOUND)
-  add_subdirectory (octave)
+  add_subdirectory (src/octave)
 endif ()
 
 enable_testing ()
@@ -350,4 +350,3 @@ install (FILES
           ${CMAKE_CURRENT_BINARY_DIR}/NLoptConfigVersion.cmake
          DESTINATION ${RELATIVE_INSTALL_CMAKE_DIR}
          COMPONENT Development)
-

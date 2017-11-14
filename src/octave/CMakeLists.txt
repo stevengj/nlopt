@@ -48,4 +48,3 @@ if (OCTAVE_FOUND)
 
   install (FILES ${M_DATA} DESTINATION ${INSTALL_M_DIR})
 endif ()
-

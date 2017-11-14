@@ -1,7 +1,7 @@
 
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-enum-renames.i)
   file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt-enum-renames.i "// AUTOMATICALLY GENERATED -- DO NOT EDIT\n")
-  file (STRINGS ${PROJECT_SOURCE_DIR}/api/nlopt.h NLOPT_H_LINES REGEX "    NLOPT_[A-Z0-9_]+")
+  file (STRINGS ${PROJECT_SOURCE_DIR}/src/api/nlopt.h NLOPT_H_LINES REGEX "    NLOPT_[A-Z0-9_]+")
   foreach (NLOPT_H_LINE ${NLOPT_H_LINES})
     string (REGEX REPLACE ".*NLOPT_([A-Z0-9_]+).*" "%rename(NLOPT_\\1) nlopt::\\1;\n" ENUM_LINE ${NLOPT_H_LINE})
     file (APPEND ${CMAKE_CURRENT_BINARY_DIR}/nlopt-enum-renames.i "${ENUM_LINE}")
@@ -56,7 +56,7 @@ if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXI
 
     set (guile_cpp_source ${CMAKE_CURRENT_BINARY_DIR}/nlopt-guile.cpp)
     add_custom_command (OUTPUT ${guile_cpp_source} nlopt.scm.in
-                        COMMAND ${SWIG_EXECUTABLE} -I${PROJECT_BINARY_DIR}/api -outdir ${CMAKE_CURRENT_BINARY_DIR} -c++ -guile -scmstub -o ${guile_cpp_source} ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i
+                        COMMAND ${SWIG_EXECUTABLE} -I${PROJECT_BINARY_DIR}/src/api -outdir ${CMAKE_CURRENT_BINARY_DIR} -c++ -guile -scmstub -o ${guile_cpp_source} ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i
                         COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm ${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm.in
                         COMMAND ${CMAKE_COMMAND} -DINFILE=${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm.in -DOUTFILE=${CMAKE_CURRENT_BINARY_DIR}/nlopt.scm -DNLOPT_SUFFIX=${NLOPT_SUFFIX} -P ${CMAKE_CURRENT_BINARY_DIR}/GenericConfigureFile.cmake)
   endif ()
