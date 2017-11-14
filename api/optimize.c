@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <stdlib.h>
@@ -245,7 +245,7 @@ static nlopt_opt elimdim_create(nlopt_opt opt)
      nlopt_munge munge_copy_save = opt->munge_on_copy;
      double *x, *grad = NULL;
      unsigned i;
-     
+
      opt->munge_on_copy = 0; /* hack: since this is an internal copy,
                                 we can leave it un-munged; see issue #26 */
      opt0 = nlopt_copy(opt);
@@ -274,8 +274,8 @@ static nlopt_opt elimdim_create(nlopt_opt opt)
      if (!opt0->f_data) goto bad;
 
      for (i = 0; i < opt->m; ++i) {
-	  opt0->fc[i].f = elimdim_func;
-	  opt0->fc[i].mf = elimdim_mfunc;
+	  opt0->fc[i].f = opt0->fc[i].f ? elimdim_func : NULL;
+	  opt0->fc[i].mf = opt0->fc[i].mf ? elimdim_mfunc : NULL;
 	  opt0->fc[i].f_data = elimdim_makedata(opt->fc[i].f, opt->fc[i].mf,
 						opt->fc[i].f_data,
 						opt->n, x, opt->lb, opt->ub,
@@ -284,8 +284,8 @@ static nlopt_opt elimdim_create(nlopt_opt opt)
      }
 
      for (i = 0; i < opt->p; ++i) {
-	  opt0->h[i].f = elimdim_func;
-	  opt0->h[i].mf = elimdim_mfunc;
+	  opt0->h[i].f = opt0->h[i].f ? elimdim_func : NULL;
+	  opt0->h[i].mf = opt0->h[i].mf ? elimdim_mfunc : NULL;
 	  opt0->h[i].f_data = elimdim_makedata(opt->h[i].f, opt->h[i].mf,
 					       opt->h[i].f_data,
 					       opt->n, x, opt->lb, opt->ub,
@@ -330,11 +330,11 @@ static int elimdim_wrapcheck(nlopt_opt opt)
      if (elimdim_dimension(opt->n, opt->lb, opt->ub) == opt->n) return 0;
      switch (opt->algorithm) {
 	 case NLOPT_GN_DIRECT:
-	 case NLOPT_GN_DIRECT_L: 
-	 case NLOPT_GN_DIRECT_L_RAND: 
+	 case NLOPT_GN_DIRECT_L:
+	 case NLOPT_GN_DIRECT_L_RAND:
 	 case NLOPT_GN_DIRECT_NOSCAL:
-	 case NLOPT_GN_DIRECT_L_NOSCAL: 
-	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
+	 case NLOPT_GN_DIRECT_L_NOSCAL:
+	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL:
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L:
          case NLOPT_GN_CRS2_LM:
@@ -379,7 +379,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
      /* reset stopping flag */
      nlopt_set_force_stop(opt, 0);
      opt->force_stop_child = NULL;
-     
+
      /* copy a few params to local vars for convenience */
      n = opt->n;
      ni = (int) n; /* most of the subroutines take "int" arg */
@@ -393,7 +393,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
      }
 
      *minf = HUGE_VAL;
-     
+
      /* make sure rand generator is inited */
      nlopt_srand_time_default(); /* default is non-deterministic */
 
@@ -420,31 +420,31 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 
      switch (algorithm) {
 	 case NLOPT_GN_DIRECT:
-	 case NLOPT_GN_DIRECT_L: 
-	 case NLOPT_GN_DIRECT_L_RAND: 
+	 case NLOPT_GN_DIRECT_L:
+	 case NLOPT_GN_DIRECT_L_RAND:
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
-	      return cdirect(ni, f, f_data, 
-			     lb, ub, x, minf, &stop, 0.0, 
+	      return cdirect(ni, f, f_data,
+			     lb, ub, x, minf, &stop, 0.0,
 			     (algorithm != NLOPT_GN_DIRECT)
-			     + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND 
+			     + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND
 				    ? 2 : (algorithm != NLOPT_GN_DIRECT))
-			     + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND 
+			     + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND
 				    ? 1 : (algorithm != NLOPT_GN_DIRECT)));
-	      
+
 	 case NLOPT_GN_DIRECT_NOSCAL:
-	 case NLOPT_GN_DIRECT_L_NOSCAL: 
-	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL: 
+	 case NLOPT_GN_DIRECT_L_NOSCAL:
+	 case NLOPT_GN_DIRECT_L_RAND_NOSCAL:
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
-	      return cdirect_unscaled(ni, f, f_data, lb, ub, x, minf, 
-				      &stop, 0.0, 
+	      return cdirect_unscaled(ni, f, f_data, lb, ub, x, minf,
+				      &stop, 0.0,
 				      (algorithm != NLOPT_GN_DIRECT)
 				      + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
 				      + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 1 : (algorithm != NLOPT_GN_DIRECT)));
-	      
+
 	 case NLOPT_GN_ORIG_DIRECT:
 	 case NLOPT_GN_ORIG_DIRECT_L: {
 	      direct_return_code dret;
@@ -462,7 +462,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				     pow(stop.xtol_rel, (double) n), -1.0,
 				     stop.force_stop,
 				     stop.minf_max, 0.0,
-				     NULL, 
+				     NULL,
 				     algorithm == NLOPT_GN_ORIG_DIRECT
 				     ? DIRECT_ORIGINAL
 				     : DIRECT_GABLONSKY);
@@ -527,7 +527,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 		   freedx = 1;
 		   if (nlopt_set_default_initial_step(opt, x) != NLOPT_SUCCESS)
 			return NLOPT_OUT_OF_MEMORY;
-	      }		       
+	      }
 	      iret = nlopt_subplex(f_bound, minf, x, n, opt, &stop, opt->dx);
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      switch (iret) {
@@ -550,24 +550,24 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
 		   return NLOPT_OUT_OF_MEMORY;
-	      return praxis_(0.0, DBL_EPSILON, 
+	      return praxis_(0.0, DBL_EPSILON,
 			     step, ni, x, f_bound, opt, &stop, minf);
 	 }
 
-	 case NLOPT_LD_LBFGS: 
-	      return luksan_plis(ni, f, f_data, lb, ub, x, minf, 
+	 case NLOPT_LD_LBFGS:
+	      return luksan_plis(ni, f, f_data, lb, ub, x, minf,
 				 &stop, opt->vector_storage);
 
-	 case NLOPT_LD_VAR1: 
-	 case NLOPT_LD_VAR2: 
-	      return luksan_plip(ni, f, f_data, lb, ub, x, minf, 
+	 case NLOPT_LD_VAR1:
+	 case NLOPT_LD_VAR2:
+	      return luksan_plip(ni, f, f_data, lb, ub, x, minf,
 				 &stop, opt->vector_storage,
 				 algorithm == NLOPT_LD_VAR1 ? 1 : 2);
 
-	 case NLOPT_LD_TNEWTON: 
-	 case NLOPT_LD_TNEWTON_RESTART: 
-	 case NLOPT_LD_TNEWTON_PRECOND: 
-	 case NLOPT_LD_TNEWTON_PRECOND_RESTART: 
+	 case NLOPT_LD_TNEWTON:
+	 case NLOPT_LD_TNEWTON_RESTART:
+	 case NLOPT_LD_TNEWTON_PRECOND:
+	 case NLOPT_LD_TNEWTON_PRECOND_RESTART:
 	      return luksan_pnet(ni, f, f_data, lb, ub, x, minf,
 				 &stop, opt->vector_storage,
 				 1 + (algorithm - NLOPT_LD_TNEWTON) % 2,
@@ -577,7 +577,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
-	      return crs_minimize(ni, f, f_data, lb, ub, x, minf, &stop, 
+	      return crs_minimize(ni, f, f_data, lb, ub, x, minf, &stop,
 				  (int) POP(0), 0);
 
 	 case NLOPT_G_MLSL:
@@ -591,7 +591,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
-	      if (!local_opt && (algorithm == NLOPT_G_MLSL 
+	      if (!local_opt && (algorithm == NLOPT_G_MLSL
 				 || algorithm == NLOPT_G_MLSL_LDS))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "local optimizer must be specified for G_MLSL");
@@ -669,7 +669,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
                        RETURN_ERR(NLOPT_OUT_OF_MEMORY, opt,
                                   "failed to allocate initial step");
 	      }
-	      ret = cobyla_minimize(n, f, f_data, 
+	      ret = cobyla_minimize(n, f, f_data,
                                     opt->m, opt->fc,
                                     opt->p, opt->h,
                                     lb, ub, x, minf, &stop,
@@ -677,7 +677,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      if (freedx) { free(opt->dx); opt->dx = NULL; }
 	      return ret;
 	 }
-				     
+
 	 case NLOPT_LN_NEWUOA: {
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
@@ -686,7 +686,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      return newuoa(ni, 2*n+1, x, 0, 0, step,
 			    &stop, minf, f_noderiv, opt);
 	 }
-				     
+
 	 case NLOPT_LN_NEWUOA_BOUND: {
 	      double step;
 	      if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
@@ -711,8 +711,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      return ret;
 	 }
 
-	 case NLOPT_LN_NELDERMEAD: 
-	 case NLOPT_LN_SBPLX: 
+	 case NLOPT_LN_NELDERMEAD:
+	 case NLOPT_LN_SBPLX:
 	 {
 	      nlopt_result ret;
 	      int freedx = 0;
@@ -744,7 +744,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
                              "local optimizer must be specified for AUGLAG");
 	      if (!local_opt) { /* default */
 		   local_opt = nlopt_create(
-			algorithm == NLOPT_LN_AUGLAG || 
+			algorithm == NLOPT_LN_AUGLAG ||
 			algorithm == NLOPT_LN_AUGLAG_EQ
 			? nlopt_local_search_alg_nonderiv
 			: nlopt_local_search_alg_deriv, n);
@@ -758,8 +758,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      }
 	      if (opt->dx) nlopt_set_initial_step(local_opt, opt->dx);
 	      opt->force_stop_child = local_opt;
-	      ret = auglag_minimize(ni, f, f_data, 
-				    opt->m, opt->fc, 
+	      ret = auglag_minimize(ni, f, f_data,
+				    opt->m, opt->fc,
 				    opt->p, opt->h,
 				    lb, ub, x, minf, &stop,
 				    local_opt,
@@ -775,7 +775,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
-	      return isres_minimize(ni, f, f_data, 
+	      return isres_minimize(ni, f, f_data,
 				    (int) (opt->m), opt->fc,
 				    (int) (opt->p), opt->h,
 				    lb, ub, x, minf, &stop,
@@ -785,7 +785,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
               if (!finite_domain(n, lb, ub))
                   RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                              "finite domain required for global algorithm");
-	      return chevolutionarystrategy(n, f, f_data, 
+	      return chevolutionarystrategy(n, f, f_data,
 					    lb, ub, x, minf, &stop,
 					    (unsigned) POP(0),
 					    (unsigned) (POP(0)*1.5));
@@ -795,7 +795,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 				 opt->m, opt->fc,
 				 opt->p, opt->h,
 				 lb, ub, x, minf, &stop);
-				     
+
 	 default:
 	      return NLOPT_INVALID_ARGS;
      }
@@ -833,7 +833,7 @@ static void pre_max(unsigned n, const double *x, const double *v,
      for (i = 0; i < n; ++i) vpre[i] = -vpre[i];
 }
 
-nlopt_result 
+nlopt_result
 NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
 {
      nlopt_func f; void *f_data; nlopt_precond pre;
@@ -846,11 +846,11 @@ NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
                                                "NULL args to nlopt_optimize");
      f = opt->f; f_data = opt->f_data; pre = opt->pre;
 
-     /* for maximizing, just minimize the f_max wrapper, which 
+     /* for maximizing, just minimize the f_max wrapper, which
 	flips the sign of everything */
      if ((maximize = opt->maximize)) {
 	  fmd.f = f; fmd.f_data = f_data; fmd.pre = pre;
-	  opt->f = f_max; opt->f_data = &fmd; 
+	  opt->f = f_max; opt->f_data = &fmd;
 	  if (opt->pre) opt->pre = pre_max;
 	  opt->stopval = -opt->stopval;
 	  opt->maximize = 0;
@@ -860,7 +860,7 @@ NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_f)
 	  nlopt_opt elim_opt = opt;
 	  if (elimdim_wrapcheck(opt)) {
 	       elim_opt = elimdim_create(opt);
-	       if (!elim_opt) { 
+	       if (!elim_opt) {
                    nlopt_set_errmsg(opt, "failure allocating elim_opt");
                    ret = NLOPT_OUT_OF_MEMORY;
                    goto done;
@@ -902,7 +902,7 @@ nlopt_result nlopt_optimize_limited(nlopt_opt opt, double *x, double *minf,
 
      save_maxeval = nlopt_get_maxeval(opt);
      save_maxtime = nlopt_get_maxtime(opt);
-     
+
      /* override opt limits if maxeval and/or maxtime are more stringent */
      if (save_maxeval <= 0 || (maxeval > 0 && maxeval < save_maxeval))
 	  nlopt_set_maxeval(opt, maxeval);
