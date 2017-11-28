@@ -29,6 +29,7 @@ option (NLOPT_OCTAVE "build octave bindings" ON)
 option (NLOPT_MATLAB "build matlab bindings" ON)
 option (NLOPT_GUILE "build guile bindings" ON)
 option (NLOPT_SWIG "use SWIG to build bindings" ON)
+option (NLOPT_LINK_PYTHON "link Python libs" ON)
 
 set (NLOPT_SUFFIX)
 if (NLOPT_CXX)
@@ -290,9 +291,10 @@ endif ()
 
 if (NLOPT_SWIG)
   find_package (SWIG)
+  if (SWIG_FOUND)
+    add_subdirectory (src/swig)
+  endif ()
 endif ()
-
-add_subdirectory (src/swig)
 
 if (NLOPT_OCTAVE)
   find_package (Octave)
