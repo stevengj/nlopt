@@ -39,7 +39,7 @@ To implement the above example in C or C++, we would first do:
 
 to include the NLopt header file as well as the standard math header file (needed for things like the `sqrt` function and the `HUGE_VAL` constant), then we would define our objective function as:
 
-```
+```c
 double myfunc(unsigned n, const double *x, double *grad, void *my_func_data)
 {
     if (grad) {
@@ -55,7 +55,7 @@ There are several things to notice here. First, since this is C, our indices are
 
 For the constraints, on the other hand, we *will* have additional data. Each constraint is parameterized by two numbers *a* and *b*, so we will declare a data structure to hold this information:
 
-```
+```c
 typedef struct {
     double a, b;
 } my_constraint_data;
@@ -64,7 +64,7 @@ typedef struct {
 
 Then, we implement our constraint function as follows.
 
-```
+```c
 double myconstraint(unsigned n, const double *x, double *grad, void *data)
 {
     my_constraint_data *d = (my_constraint_data *) data;
@@ -82,27 +82,27 @@ The form of the constraint function is the same as that of the objective functio
 
 Now, to specify this optimization problem, we create an "object" of type `nlopt_opt` (an opaque pointer type) and set its various parameters:
 
-```
+```c
 double lb[2] = { -HUGE_VAL, 0 }; /* lower bounds */
 nlopt_opt opt;
 ```
 
 
-```
+```c
 opt = nlopt_create(NLOPT_LD_MMA, 2); /* algorithm and dimensionality */
 nlopt_set_lower_bounds(opt, lb);
-nlopt_set_min_objective(opt, myfunc, NULL);
+nlopt_set_min_objective(opt, myfunc, NULL);
 ```
 
 
 Note that we do not need to set an upper bound (`nlopt_set_upper_bounds`), since we are happy with the default upper bounds (+∞). To add the two inequality constraints, we do:
 
-```
+```c
 my_constraint_data data[2] = { {2,0}, {-1,1} };
 ```
 
 
-```
+```c
 nlopt_add_inequality_constraint(opt, myconstraint, &data[0], 1e-8);
 nlopt_add_inequality_constraint(opt, myconstraint, &data[1], 1e-8);
 ```
@@ -110,14 +110,14 @@ nlopt_add_inequality_constraint(opt, myconstraint, &data[1], 1e-8);
 
 Here, the `1e-8` is an optional tolerance for the constraint: for purposes of convergence testing, a point will be considered feasible if the constraint is violated (is positive) by that tolerance (10<sup>−8</sup>). A nonzero tolerance is a good idea for many algorithms lest tiny errors prevent convergence. Speaking of convergence tests, we should also set one or more stopping criteria, e.g. a relative tolerance on the optimization parameters **x**:
 
-```
+```c
 nlopt_set_xtol_rel(opt, 1e-4);
 ```
 
 
 There are many more possible parameters that you can set to control the optimization, which are described in detail by the [reference manual](NLopt_Reference.md), but these are enough for our example here (any unspecified parameters are set to innocuous defaults). At this point, we can call nlopt_optimize to actually perform the optimization, starting with some initial guess:
 
-```
+```c
 double x[2] = { 1.234, 5.678 };  /* `*`some` `initial` `guess`*` */
 double minf; /* `*`the` `minimum` `objective` `value,` `upon` `return`*` */
 if (nlopt_optimize(opt, x, &minf) < 0) {
@@ -133,7 +133,7 @@ else {
 
 Finally, we should call nlopt_destroy to dispose of the `nlopt_opt` object when we are done with it:
 
-```
+```c
 nlopt_destroy(opt);
 ```
 
@@ -158,7 +158,7 @@ That is, it found the correct parameters to about 5 significant digits and the c
 
 Let's modify our program to print out the number of function evaluations that were required to obtain this result. First, we'll change our objective function to:
 
-```
+```c
 int count = 0;
 double myfunc(int n, const double *x, double *grad, void *my_func_data)
 {
@@ -174,7 +174,7 @@ double myfunc(int n, const double *x, double *grad, void *my_func_data)
 
 using a global variable `count` that is incremented for each function evaluation. (We could also pass a pointer to a counter variable as `my_func_data`, if we wanted to avoid global variables.) Then, adding a `printf`:
 
-```
+```c
 printf("found minimum after %d evaluations\n", count);
 ```
 
@@ -203,7 +203,7 @@ In such a low-dimensional problem, derivative-free algorithms usually work quite
 
 To do a fairer comparison of the two algorithms, we could set the **x** tolerance to zero and ask how many function evaluations each one requires to get the correct answer to three decimal places. We can specify this by using the `stopval` termination criterion, which allows us to halt the process as soon as a feasible point attains an objective function value less than `stopval`. In this case, we would set `stopval` to $\sqrt(8/27)+10^{-3}$, replacing `nlopt_set_xtol_rel` with the statement:
 
-```
+```c
 nlopt_set_stopval(opt, sqrt(8./27.)+1e-3);
 ```
 
@@ -215,35 +215,49 @@ The advantage of gradient-based algorithms over derivative-free algorithms typic
 Example in C++
 --------------
 
-Although it is perfectly possible to use the C interface from C++, many C++ programmers will find it more natural to use real C++ objects instead of opaque `nlopt_opt` pointers, `std::vector`<double> instead of arrays, and exceptions instead of error codes. NLopt provides a C++ header file `nlopt.hpp` that you can use for this purpose, which simply wraps a C++ object interface around the C interface above.
+Although it is perfectly possible to use the C interface from C++, many C++ programmers will find it more natural to use real C++ objects instead of opaque `nlopt_opt` pointers, `std::vector<double>` instead of arrays, and exceptions instead of error codes. NLopt provides a C++ header file `nlopt.hpp` that you can use for this purpose, which simply wraps a C++ object interface around the C interface above.
 
-`#include `<nlopt.hpp>
+```cpp
+#include <iomanip>
+#include <iostream>
+#include <vector>
+
+#include <nlopt.hpp>
+```
 
 The equivalent of the above example would then be:
 
-```
+```cpp
 nlopt::opt opt(nlopt::LD_MMA, 2);
-std::vector`<double>` lb(2);
+std::vector<double> lb(2);
 lb[0] = -HUGE_VAL; lb[1] = 0;
 opt.set_lower_bounds(lb);
-opt.set_min_objective(myfunc, NULL);
+opt.set_min_objective(myfunc, NULL);
 my_constraint_data data[2] = { {2,0}, {-1,1} };
 opt.add_inequality_constraint(myconstraint, &data[0], 1e-8);
 opt.add_inequality_constraint(myconstraint, &data[1], 1e-8);
 opt.set_xtol_rel(1e-4);
-std::vector`<double>` x(2);
+std::vector<double> x(2);
 x[0] = 1.234; x[1] = 5.678;
 double minf;
-nlopt::result result = opt.optimize(x, minf);
+
+try{
+    nlopt::result result = opt.optimize(x, minf);
+    std::cout << "found minimum at f(" << x[0] << "," << x[1] << ") = "
+        << std::setprecision(10) << minf << std::endl;
+}
+catch(std::exception &e) {
+    std::cout << "nlopt failed: " << e.what() << std::endl;
+}
 ```
 
 
 There is no need to deallocate the `opt` object; its destructor will do that for you once it goes out of scope. Also, there is no longer any need to check for error codes; the NLopt C++ functions will throw exceptions if there is an error, which you can `catch` normally.
 
-Here, we are using the same objective and constraint functions as in C, taking `double*` array arguments. Alternatively, you can define objective and constraint functions to take `std::vector`<double> arguments if you prefer. (Using `std::vector`<double> in the objective/constraint imposes a slight overhead because NLopt must copy the `double*` data to a `std::vector`<double>, but this overhead is unlikely to be significant in most real applications.) That is, you would do:
+Here, we are using the same objective and constraint functions as in C, taking `double*` array arguments. Alternatively, you can define objective and constraint functions to take `std::vector<double>` arguments if you prefer. (Using `std::vector<double>` in the objective/constraint imposes a slight overhead because NLopt must copy the `double*` data to a `std::vector<double>`, but this overhead is unlikely to be significant in most real applications.) That is, you would do:
 
-```
-double myvfunc(const std::vector`<double>` &x, std::vector`<double>` &grad, void *my_func_data)
+```cpp
+double myvfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data)
 {
     if (!grad.empty()) {
         grad[0] = 0.0;
@@ -254,10 +268,10 @@ double myvfunc(const std::vector`<double>` &x, std::vector`<double>` &grad,
 ```
 
 
-```
-double myvconstraint(const std::vector`<double>` &x, std::vector`<double>` &grad, void *data)
+```cpp
+double myvconstraint(const std::vector<double> &x, std::vector<double> &grad, void *data)
 {
-    my_constraint_data *d = reinterpret_cast`<my_constraint_data*>`(data);
+    my_constraint_data *d = reinterpret_cast<my_constraint_data*>(data);
     double a = d->a, b = d->b;
     if (!grad.empty()) {
         grad[0] = 3 * a * (a*x[0] + b) * (a*x[0] + b);
@@ -270,8 +284,8 @@ double myvconstraint(const std::vector`<double>` &x, std::vector`<double>` 
 
 Notice that, instead of checking whether `grad` is `NULL`, we check whether it is empty. (The vector arguments, if non-empty, are guaranteed to be of the same size as the dimension of the problem that you specified.) We then specify these in the same way as before:
 
-```
-opt.set_min_objective(myvfunc, NULL);
+```cpp
+opt.set_min_objective(myvfunc, NULL);
 opt.add_inequality_constraint(myvconstraint, &data[0], 1e-8);
 opt.add_inequality_constraint(myvconstraint, &data[1], 1e-8);
 ```
@@ -281,13 +295,13 @@ Note that the data pointers passed to these functions must remain valid (or rath
 
 Instead of passing a separate data pointer, some users may wish to define a C++ [function object](https://en.wikipedia.org/wiki/Function_object) class that contains all of the data needed by their function, with an overloaded `operator()` method to implement the function call. You can easily do this with a two-line helper function. If your function class is MyFunction, then you could define a static member function:
 
-```
+```cpp
 static double wrap(const std::vector`<double>` &x, std::vector`<double>` &grad, void *data) {
     return (*reinterpret_cast`<MyFunction*>`(data))(x, grad); }
 ```
 
 
-which you would then use e.g. by `opt.set_min_objective(MyFunction::wrap,` `&some_MyFunction)`. Again, you have to make sure that `some_MyFunction` does not go out of scope before you are done calling `nlopt::opt::optimize`.
+which you would then use e.g. by `opt.set_min_objective(MyFunction::wrap, &some_MyFunction)`. Again, you have to make sure that `some_MyFunction` does not go out of scope before you are done calling `nlopt::opt::optimize`.
 
 To link your program, just link to the C NLopt library (`-lnlopt` `-lm` on Unix).
 
@@ -296,7 +310,7 @@ Example in Matlab or GNU Octave
 
 To implement this objective function in Matlab (or GNU Octave), we would write a file myfunc.m that looks like:
 
-```
+```matlab
 function [val, gradient] = myfunc(x)
     val = sqrt(x(2));
     if (nargout > 1)
@@ -309,7 +323,7 @@ Notice that we check the Matlab builtin variable `nargout` (the number of output
 
 Our constraint function looks similar, except that it is parameterized by the coefficients *a* and *b*. We can just add these on as extra parameters, in a file `myconstraint.m`:
 
-```
+```matlab
 function [val, gradient] = myconstraint(x,a,b)
     val = (a*x(1) + b)^3 - x(2);
     if (nargout > 1)
@@ -320,7 +334,7 @@ function [val, gradient] = myconstraint(x,a,b)
 
 The equivalent of the `nlopt_opt` is just a [structure](http://www.mathworks.com/access/helpdesk/help/techdoc/matlab_prog/f2-88951.html), with fields corresponding to any parameters that we want to set. (Any structure fields that we don't include are equivalent to not setting those parameters, and using the defaults instead). You can get more information on the available parameters by typing `help` `nlopt_optimize` in Matlab. The equivalent of the C example above is to define an `opt` structure by:
 
-```
+```matlab
 opt.algorithm = NLOPT_LD_MMA
 opt.lower_bounds = [-inf, 0]
 opt.min_objective = @myfunc
@@ -334,7 +348,7 @@ We do not need to specify the dimension of the problem; this is implicitly speci
 
 Finally, we call `nlopt_optimize`:
 
-```
+```matlab
 [xopt, fmin, retcode] = nlopt_optimize(opt, [1.234 5.678])
 ```
 
@@ -353,7 +367,7 @@ retcode = 4
 
 (The [return code](NLopt_Reference#Return_values.md) `4` corresponds to `NLOPT_XTOL_REACHED`, which means it converged to the specified *x* tolerance.) To switch to a derivative-free algorithm like COBYLA, we just change `opt.algorithm` parameter:
 
-```
+```matlab
 opt.algorithm = NLOPT_LN_COBYLA
 ```
 
@@ -362,14 +376,14 @@ opt.algorithm = NLOPT_LN_COBYLA
 
 It is often useful to print out some status message to see what is happening, especially if your function evaluation is much slower or if a large number of evaluations are required (e.g. for global optimization). You can, of course, modify your function to print out whatever you want. As a shortcut, however, you can set a verbose option in NLopt's Matlab interface by:
 
-```
+```matlab
 opt.verbose = 1;
 ```
 
 
 If we do this, then running the MMA algorithm as above yields:
 
-```
+```matlab
 nlopt_minimize_constrained eval #1: 2.38286
 nlopt_minimize_constrained eval #2: 2.35613
 nlopt_minimize_constrained eval #3: 2.24586
@@ -386,7 +400,7 @@ nlopt_minimize_constrained eval #11: 0.544331
 
 This shows the objective function values at each intermediate step of the optimization. As in the C example above, it converges in 11 steps. The COBYLA algorithm requires a few more iterations, because it doesn't exploit the gradient information:
 
-```
+```matlab
 nlopt_optimize eval #1: 2.38286
 nlopt_optimize eval #2: 2.38286
 nlopt_optimize eval #3: 3.15222
@@ -428,7 +442,7 @@ Example in Python
 
 The same example in Python is:
 
-```
+```python
 import nlopt
 from numpy import *
 def myfunc(x, grad):
@@ -461,7 +475,7 @@ The objective and constraint functions take NumPy arrays as arguments; if the `g
 
 The result of running the above code should be:
 
-```
+```python
 optimum at  0.333333331366 0.296296292697
 minimum value =  0.544331050646
 result =  4
@@ -474,14 +488,14 @@ finding the same correct optimum as in the C interface (of course). (The [return
 
 The grad argument of your objective/constraint functions must be modified *in-place*. If you use an operation like
 
-```
+```python
 grad = 2*x
 ```
 
 
 however, Python allocates a new array to hold `2*x` and reassigns grad to point to it, rather than modifying the original contents of grad. **This will not work.** Instead, you should do:
 
-```
+```python
 grad[:] = 2*x
 ```
 
@@ -493,7 +507,7 @@ Example in GNU Guile (Scheme)
 
 In [GNU Guile](https://en.wikipedia.org/wiki/GNU_Guile), which is an implementation of the [Scheme programming language](https://en.wikipedia.org/wiki/Scheme_(programming_language)), the equivalent of the example above would be:
 
-```
+```guile
 (use-modules (nlopt))
 (define (myfunc x grad)
   (if grad
@@ -535,7 +549,7 @@ Example in Fortran
 
 In [Fortran](https://en.wikipedia.org/wiki/Fortran), the equivalent of the C example above would be as follows. First, we would write our functions as:
 
-```
+```fortran
      subroutine myfunc(val, n, x, grad, need_gradient, f_data)
      double precision val, x(n), grad(n)
      integer n, need_gradient
@@ -548,7 +562,7 @@ In [Fortran](https://en.wikipedia.org/wiki/Fortran), the equivalent of the C exa
 ```
 
 
-```
+```fortran
      subroutine myconstraint(val, n, x, grad, need_gradient, d)
      integer need_gradient
      double precision val, x(n), grad(n), d(2), a, b
@@ -571,7 +585,7 @@ So, here the first argument `val` is used for the return value. Also, because th
 
 Then, to run the optimization, we can use the following Fortran program:
 
-```
+```fortran
      program main
      external myfunc, myconstraint
      double precision lb(2)
@@ -623,7 +637,7 @@ There are a few things to note here:
 
 There is no standard Fortran 77 equivalent of C's `HUGE_VAL` constant, so instead we just call `nlo_get_lower_bounds` to get the default lower bounds (-∞) and then change one of them. In Fortran 90 (and supported as an extension in many Fortran 77 compilers), there is a `huge` intrinsic function that we could have used instead:
 
-```
+```fortran
      lb(1) = -huge(lb(1))
 ```
 
