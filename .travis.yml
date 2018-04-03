@@ -35,7 +35,6 @@ matrix:
     - os: osx
       install:
         - brew update
-        - brew tap homebrew/science
         # TODO: install guile once 2.2 is supported in swig
         - brew install swig octave || echo "nope"
       script:
