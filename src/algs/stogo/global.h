@@ -59,7 +59,7 @@ public:
 				   
   Global(RTBox, Pobj, Pgrad, GlobalParams);
   
-  virtual ~Global() = default;
+  virtual ~Global(){};
 
 //  Global& operator=(const Global &);
 
