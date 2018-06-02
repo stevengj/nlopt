@@ -23,6 +23,7 @@
 #include <octave/oct.h>
 #include <octave/oct-map.h>
 #include <octave/ov.h>
+#include <octave/parse.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -84,7 +85,12 @@ static double user_function(unsigned n, const double *x,
   for (unsigned i = 0; i < n; ++i)
     xm(i) = x[i];
   args(0) = xm;
-  octave_value_list res = data->f->do_multi_index_op(gradient ? 2 : 1, args); 
+  octave_value_list res
+#if (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
+    = octave::feval(data->f, args, gradient ? 2 : 1);
+#else
+    = data->f->do_multi_index_op(gradient ? 2 : 1, args);
+#endif
   if (res.length() < (gradient ? 2 : 1))
     gripe_user_supplied_eval("nlopt_optimize");
   else if (!res(0).is_real_scalar()
@@ -121,7 +127,12 @@ static double user_function1(unsigned n, const double *x,
   for (unsigned i = 0; i < n; ++i)
     xm(i) = x[i];
   args(0) = xm;
-  octave_value_list res = f->do_multi_index_op(gradient ? 2 : 1, args); 
+  octave_value_list res
+#if (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
+    = octave::feval(f, args, gradient ? 2 : 1);
+#else
+    = f->do_multi_index_op(gradient ? 2 : 1, args);
+#endif
   if (res.length() < (gradient ? 2 : 1))
     gripe_user_supplied_eval("nlopt_optimize");
   else if (!res(0).is_real_scalar()
