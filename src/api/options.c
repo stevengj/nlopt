@@ -628,7 +628,7 @@ NLOPT_STDCALL nlopt_get_xtol_abs(const nlopt_opt opt, double *xtol_abs)
 
 GETSET(maxeval, int, maxeval)
 
-GETSET(numevals, int, numevals)
+GET(numevals, int, numevals)
 
 GETSET(maxtime, double, maxtime)
 
