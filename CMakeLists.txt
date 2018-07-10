@@ -268,7 +268,7 @@ endif ()
 add_subdirectory (src/api)
 
 if (NLOPT_PYTHON)
-  find_package (PythonInterp)
+  find_package (PythonInterp ${NLOPT_PYTHON_VERSION})
   find_package (PythonLibs)
   find_package (NumPy)
 endif ()
