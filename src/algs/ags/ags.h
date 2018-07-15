@@ -50,20 +50,13 @@ extern "C" {
 
  */
 
-int ags_minimize();
-/*
-int ags_minimize(int n,
-                   objective_func fgrad, void *data,
-                   double *x, double *minf,
-                   const double *l, const double *u,
-#ifdef NLOPT_UTIL_H
-		   nlopt_stopping *stop,
-#else
-		   long int maxeval, double maxtime,
-#endif
-		   int nrandom);
-*/
-extern int ags_verbose; /* set to nonzero for verbose output */
+int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_constraint *fc,
+                 double *x, double *minf, const double *l, const double *u, nlopt_stopping *stop);
+
+extern double ags_r;
+extern double eps_res;
+extern unsigned evolvent_density;
+extern int ags_verbose;
 
 #ifdef __cplusplus
 }

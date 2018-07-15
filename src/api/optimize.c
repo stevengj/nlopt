@@ -511,9 +511,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
              if (!finite_domain(n, lb, ub))
                  RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                             "finite domain required for global algorithm");
-        //if (!ags_minimize(ni, f, f_data, x, minf, lb, ub, &stop, 0))
-	      if (!ags_minimize())
-		   return NLOPT_FAILURE;
+		    return ags_minimize(ni, f, f_data, opt->m, opt->fc, x, minf, lb, ub, &stop);
 	      break;
 #else
 	      return NLOPT_INVALID_ARGS;

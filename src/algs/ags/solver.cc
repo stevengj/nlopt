@@ -212,6 +212,7 @@ void NLPSolver::FirstIteration()
   RefillQueue();
   CalculateNextPoints();
   MakeTrials();
+  mIterationsCounter += 2;
 }
 
 void NLPSolver::MakeTrials()
@@ -396,9 +397,6 @@ double NLPSolver::GetNextPointCoordinate(Interval* i) const
   }
   else
     x = 0.5 * (i->pr.x + i->pl.x);
-
-  if (x >= i->pr.x || x <= i->pl.x)
-    throw std::runtime_error("Point is outside of interval\n");
 
   return x;
 }

@@ -15,6 +15,7 @@ Copyright (C) 2018 Sovrasov V. - All Rights Reserved
 #include <memory>
 #include <queue>
 #include <set>
+#include <functional>
 
 namespace ags
 {
@@ -81,7 +82,7 @@ protected:
   double GetNextPointCoordinate(Interval*) const;
 
 public:
-  using FuncPtr = double(*)(const double*);
+  using FuncPtr = std::function<double(const double*)>;
   NLPSolver();
 
   void SetParameters(const SolverParameters& params);
