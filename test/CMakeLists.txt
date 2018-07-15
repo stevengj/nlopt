@@ -7,12 +7,12 @@ target_link_libraries (testopt ${nlopt_lib})
 target_include_directories (testopt PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
 add_dependencies (tests testopt)
 
-foreach (algo_index RANGE 29)# 42
+foreach (algo_index RANGE 29)# 43
   foreach (obj_index RANGE 1)# 21
     set (enable_ TRUE)
     # cxx stogo
     if (NOT NLOPT_CXX)
-      if (algo_index STREQUAL 8 OR algo_index STREQUAL 9)
+      if (algo_index STREQUAL 8 OR algo_index STREQUAL 9 OR algo_index STREQUAL 43)
         set (enable_ FALSE)
       endif ()
     endif ()

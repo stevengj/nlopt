@@ -7,7 +7,7 @@
 
 double ags_r = 3;
 double eps_res = 0.001;
-unsigned evolvent_density = 11;
+unsigned evolvent_density = 12;
 int ags_verbose = 0;
 
 int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_constraint *fc,
@@ -34,7 +34,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 	ags::SolverParameters params;
 	params.r = ags_r;
 	params.itersLimit = stop->maxeval;
-	params.eps = 0;
+	params.eps = 1e-64;
 	params.evolventDensity = evolvent_density;
 	params.epsR = eps_res;
 
