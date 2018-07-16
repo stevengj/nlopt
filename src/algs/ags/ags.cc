@@ -47,7 +47,14 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 	ags::Trial optPoint;
 	try
 	{
-		optPoint = solver.Solve([stop](){ return (bool)nlopt_stop_evalstime(stop); });
+    auto external_stop_func = [stop, &ret_code](){
+        if (nlopt_stop_evalstime(stop)) {
+          ret_code = NLOPT_MAXTIME_REACHED;
+          return true;
+        }
+        else return false;
+    };
+		optPoint = solver.Solve(external_stop_func);
 	}
 	catch (const std::runtime_error& exp)
 	{
