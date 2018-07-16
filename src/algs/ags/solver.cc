@@ -298,7 +298,8 @@ void NLPSolver::CalculateNextPoints()
     mNextPoints[i].x = GetNextPointCoordinate(mNextIntervals[i]);
 
     if (mNextPoints[i].x >= mNextIntervals[i]->pr.x || mNextPoints[i].x <= mNextIntervals[i]->pl.x)
-      throw std::runtime_error("The next point is outside of the subdivided interval");
+      mNeedStop = true;
+      //std::cout << "Warning: resolution of evolvent is not enough to continue the search";
 
     mEvolvent.GetImage(mNextPoints[i].x, mNextPoints[i].y);
   }
