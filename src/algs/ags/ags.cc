@@ -47,7 +47,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 	ags::Trial optPoint;
 	try
 	{
-		optPoint = solver.Solve();
+		optPoint = solver.Solve([stop](){ return (bool)nlopt_stop_evalstime(stop); });
 	}
 	catch (const std::runtime_error& exp)
 	{

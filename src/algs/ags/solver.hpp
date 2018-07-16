@@ -93,6 +93,7 @@ public:
   void SetProblem(const std::vector<FuncPtr>& functions,
                   const std::vector<double>& leftBound, const std::vector<double>& rightBound);
 
+  Trial Solve(std::function<bool(void)> externalStopFunc);
   Trial Solve();
   std::vector<unsigned> GetCalculationsStatistics() const;
   std::vector<double> GetHolderConstantsEstimations() const;

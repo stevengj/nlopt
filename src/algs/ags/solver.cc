@@ -150,6 +150,11 @@ void NLPSolver::ClearDataStructures()
 
 Trial NLPSolver::Solve()
 {
+  return Solve([](){return false;});
+}
+
+Trial NLPSolver::Solve(std::function<bool(void)> externalStopFunc)
+{
   mNeedStop = false;
   InitDataStructures();
   FirstIteration();
@@ -161,7 +166,7 @@ Trial NLPSolver::Solve()
       RefillQueue();
     CalculateNextPoints();
     MakeTrials();
-    mNeedStop = mNeedStop || mMinDelta < mParameters.eps;
+    mNeedStop = mNeedStop || mMinDelta < mParameters.eps || externalStopFunc();
     mIterationsCounter++;
   } while(mIterationsCounter < mParameters.itersLimit && !mNeedStop);
 
