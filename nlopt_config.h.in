@@ -1,16 +1,16 @@
 /*==============================================================================
 # NLOPT CMake configuration file
-# 
-# NLopt is a free/open-source library for nonlinear optimization, providing 
-# a common interface for a number of different free optimization routines 
-# available online as well as original implementations of various other 
+#
+# NLopt is a free/open-source library for nonlinear optimization, providing
+# a common interface for a number of different free optimization routines
+# available online as well as original implementations of various other
 # algorithms
-# WEBSITE: http://ab-initio.mit.edu/wiki/index.php/NLopt 
+# WEBSITE: http://ab-initio.mit.edu/wiki/index.php/NLopt
 # AUTHOR: Steven G. Johnson
 #
 # This config.cmake.h.in file was created to compile NLOPT with the CMAKE utility.
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
-# Copyright (c) 2008-2009 Children's Hospital Boston 
+# Copyright (c) 2008-2009 Children's Hospital Boston
 #
 # Minor changes to the source was applied to make possible the compilation with
 # Cmake under Linux/Win32
@@ -149,6 +149,9 @@
 
 /* Define if compiled including C++-based routines */
 #cmakedefine NLOPT_CXX
+
+/* Define if compiled including C++11-based routines */
+#cmakedefine NLOPT_CXX11
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
