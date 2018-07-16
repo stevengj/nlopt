@@ -16,6 +16,7 @@ Copyright (C) 2018 Sovrasov V. - All Rights Reserved
 #include <queue>
 #include <set>
 #include <functional>
+#include <limits>
 
 namespace ags
 {
@@ -23,6 +24,7 @@ namespace ags
 struct SolverParameters
 {
   double eps = 0.01; //method tolerance in Holder metric on 1d interval. Less value -- better search precision, less probability of early stop.
+  double stopVal = std::numeric_limits<double>::lowest(); //method stops after objective becomes less than this value
   double r = 3; //reliability parameter. Higher value of r -- slower convergence, higher chance to cache the global minima.
   unsigned numPoints = 1; //number of new points per iteration. > 1 is useless in current implementation.
   unsigned itersLimit = 20000; // max number of iterations.
@@ -62,6 +64,7 @@ protected:
   std::vector<unsigned> mCalculationsCounters;
   unsigned mIterationsCounter;
   bool mNeedRefillQueue;
+  bool mNeedStop;
   double mMinDelta;
   int mMaxIdx;
 

@@ -4,6 +4,7 @@
 #include "ags.h"
 #include "solver.hpp"
 #include <iostream>
+#include <cstring>
 
 double ags_r = 3;
 double eps_res = 0.001;
@@ -37,6 +38,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 	params.eps = 1e-64;
 	params.evolventDensity = evolvent_density;
 	params.epsR = eps_res;
+	params.stopVal = stop->minf_max;
 
 	ags::NLPSolver solver;
 	solver.SetParameters(params);

@@ -8,7 +8,6 @@ Copyright (C) 2018 Sovrasov V. - All Rights Reserved
 #include "solver.hpp"
 
 #include <algorithm>
-#include <limits>
 #include <cmath>
 #include <iostream>
 
@@ -151,7 +150,7 @@ void NLPSolver::ClearDataStructures()
 
 Trial NLPSolver::Solve()
 {
-  bool needStop = false;
+  mNeedStop = false;
   InitDataStructures();
   FirstIteration();
 
@@ -162,9 +161,9 @@ Trial NLPSolver::Solve()
       RefillQueue();
     CalculateNextPoints();
     MakeTrials();
-    needStop = mMinDelta < mParameters.eps;
+    mNeedStop = mNeedStop || mMinDelta < mParameters.eps;
     mIterationsCounter++;
-  } while(mIterationsCounter < mParameters.itersLimit && !needStop);
+  } while(mIterationsCounter < mParameters.itersLimit && !mNeedStop);
 
   ClearDataStructures();
 
@@ -321,6 +320,9 @@ void NLPSolver::EstimateOptimum()
     {
       mOptimumEstimation = mNextPoints[i];
       mNeedRefillQueue = true;
+      if (mOptimumEstimation.idx == mProblem->GetConstraintsNumber() &&
+          mOptimumEstimation.g[mOptimumEstimation.idx] < mParameters.stopVal)
+        mNeedStop = true;
     }
   }
 }
