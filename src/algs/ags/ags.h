@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+//The algorithm supports 3 types of stop criterions: stop by execution time, stop by value and stop by exceeding limit of iterations.
+
 int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_constraint *fc,
                  double *x, double *minf, const double *l, const double *u, nlopt_stopping *stop);
 
