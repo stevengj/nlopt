@@ -9,6 +9,7 @@
 double ags_r = 3;
 double eps_res = 0.001;
 unsigned evolvent_density = 12;
+int ags_refine_loc = 0;
 int ags_verbose = 0;
 
 int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_constraint *fc,
@@ -39,6 +40,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 	params.evolventDensity = evolvent_density;
 	params.epsR = eps_res;
 	params.stopVal = stop->minf_max;
+  params.refineSolution = (bool)ags_refine_loc;
 
 	ags::NLPSolver solver;
 	solver.SetParameters(params);
@@ -48,7 +50,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 	try
 	{
     auto external_stop_func = [stop, &ret_code](){
-        if (nlopt_stop_evalstime(stop)) {
+        if (nlopt_stop_time(stop)) {
           ret_code = NLOPT_MAXTIME_REACHED;
           return true;
         }

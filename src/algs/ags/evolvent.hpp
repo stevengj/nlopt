@@ -12,12 +12,6 @@ Copyright (C) 2018 Sovrasov V. - All Rights Reserved
 namespace ags
 {
 
-enum MapType {
-  Simple = 1, Linear = 2, Noninjective = 3
-};
-
-constexpr int noninjectiveMaxPreimages = 32;
-
 class Evolvent
 {
 protected:
@@ -26,23 +20,18 @@ protected:
 
   std::vector<double> mRho;
   std::vector<double> mShiftScalars;
-  std::vector<double> p2;
 
   void TransformToStandardCube(const double *y, double *z);
   void TransformToSearchDomain(const double *y, double *z);
 
   bool mIsInitialized;
-private:
-  MapType mMapType;
-  int mMapKey;
 
 public:
   Evolvent();
-  Evolvent(int dimension, int tightness, const double* lb, const double* ub, MapType type = Simple);
+  Evolvent(int dimension, int tightness, const double* lb, const double* ub);
   ~Evolvent();
 
   virtual void GetImage(double x, double y[]);
-  virtual int GetAllPreimages(const double* p, double xp[]);
 };
 
 }

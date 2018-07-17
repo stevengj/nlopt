@@ -18,6 +18,7 @@ extern double eps_res; // parameter which prevents method from paying too much a
 // but global minima can be lost.
 extern unsigned evolvent_density; // density of evolvent. By default density is 2^-12 on hybercube [0,1]^N,
 // which means that maximum search accuracyis 2^-12. If search hypercube is large the density can be increased accordingly to achieve better accuracy.
+extern int ags_refine_loc; //refine the final optimum using built-in local optimizer
 extern int ags_verbose; //print additional info
 
 #ifdef __cplusplus
