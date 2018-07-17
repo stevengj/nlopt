@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cstring>
 
+double ags_eps = 0;
 double ags_r = 3;
 double eps_res = 0.001;
 unsigned evolvent_density = 12;
@@ -29,14 +30,18 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
   {
     if (fc[i].m != 1)
       return NLOPT_INVALID_ARGS;
-    functions.push_back([fc, data, n, i](const double* x) {return fc[i].f(n, x, NULL, data);});
+    functions.push_back([fc, data, n, i](const double* x) {
+      double val = 0;
+      nlopt_eval_constraint(&val, NULL, &fc[i], n, x);
+      return val;
+    });
   }
   functions.push_back([func, data, n](const double* x) {return func(n, x, NULL, data);});
 
   ags::SolverParameters params;
   params.r = ags_r;
   params.itersLimit = stop->maxeval;
-  params.eps = 1e-64;
+  params.eps = ags_eps;
   params.evolventDensity = evolvent_density;
   params.epsR = eps_res;
   params.stopVal = stop->minf_max;
