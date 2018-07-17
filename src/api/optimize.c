@@ -33,6 +33,8 @@
 
 #ifdef NLOPT_CXX
 #  include "stogo.h"
+#endif
+#ifdef NLOPT_CXX11
 #  include "ags.h"
 #endif
 
