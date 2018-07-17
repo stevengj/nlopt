@@ -350,7 +350,7 @@ static int elimdim_wrapcheck(nlopt_opt opt)
 	 case NLOPT_LN_SBPLX:
 	 case NLOPT_GN_ISRES:
 	 case NLOPT_GN_ESCH:
-   case NLOPT_AGS:
+	 case NLOPT_GN_AGS:
 	 case NLOPT_GD_STOGO:
          case NLOPT_GD_STOGO_RAND:
 	      return 1;
@@ -508,7 +508,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	      break;
 	 }
 
-   case NLOPT_AGS:
+	case NLOPT_GN_AGS:
 #ifdef NLOPT_CXX11
              if (!finite_domain(n, lb, ub))
                  RETURN_ERR(NLOPT_INVALID_ARGS, opt,

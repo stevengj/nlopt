@@ -151,7 +151,7 @@ typedef enum {
 
      NLOPT_GN_ESCH,
 
-     NLOPT_AGS,
+     NLOPT_GN_AGS,
 
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
