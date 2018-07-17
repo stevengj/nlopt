@@ -15,40 +15,40 @@ int ags_verbose = 0;
 int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_constraint *fc,
                  double *x, double *minf, const double *l, const double *u, nlopt_stopping *stop)
 {
-	int ret_code = NLOPT_SUCCESS;
+  int ret_code = NLOPT_SUCCESS;
 
-	if (n > ags::solverMaxDim)
-		return NLOPT_INVALID_ARGS;
-	if(m != nlopt_count_constraints(m, fc) || m > ags::solverMaxConstraints)
-		return NLOPT_INVALID_ARGS;
+  if (n > ags::solverMaxDim)
+    return NLOPT_INVALID_ARGS;
+  if(m != nlopt_count_constraints(m, fc) || m > ags::solverMaxConstraints)
+    return NLOPT_INVALID_ARGS;
 
-	std::vector<double> lb(l, l + n);
-	std::vector<double> ub(u, u + n);
-	std::vector<ags::NLPSolver::FuncPtr> functions;
-	for (unsigned i = 0; i < m; i++)
-	{
-		if (fc[i].m != 1)
-			return NLOPT_INVALID_ARGS;
-		functions.push_back([fc, data, n, i](const double* x) {return fc[i].f(n, x, NULL, data);});
-	}
-	functions.push_back([func, data, n](const double* x) {return func(n, x, NULL, data);});
+  std::vector<double> lb(l, l + n);
+  std::vector<double> ub(u, u + n);
+  std::vector<ags::NLPSolver::FuncPtr> functions;
+  for (unsigned i = 0; i < m; i++)
+  {
+    if (fc[i].m != 1)
+      return NLOPT_INVALID_ARGS;
+    functions.push_back([fc, data, n, i](const double* x) {return fc[i].f(n, x, NULL, data);});
+  }
+  functions.push_back([func, data, n](const double* x) {return func(n, x, NULL, data);});
 
-	ags::SolverParameters params;
-	params.r = ags_r;
-	params.itersLimit = stop->maxeval;
-	params.eps = 1e-64;
-	params.evolventDensity = evolvent_density;
-	params.epsR = eps_res;
-	params.stopVal = stop->minf_max;
+  ags::SolverParameters params;
+  params.r = ags_r;
+  params.itersLimit = stop->maxeval;
+  params.eps = 1e-64;
+  params.evolventDensity = evolvent_density;
+  params.epsR = eps_res;
+  params.stopVal = stop->minf_max;
   params.refineSolution = (bool)ags_refine_loc;
 
-	ags::NLPSolver solver;
-	solver.SetParameters(params);
-	solver.SetProblem(functions, lb, ub);
+  ags::NLPSolver solver;
+  solver.SetParameters(params);
+  solver.SetProblem(functions, lb, ub);
 
-	ags::Trial optPoint;
-	try
-	{
+  ags::Trial optPoint;
+  try
+  {
     auto external_stop_func = [stop, &ret_code](){
         if (nlopt_stop_time(stop)) {
           ret_code = NLOPT_MAXTIME_REACHED;
@@ -56,16 +56,16 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
         }
         else return false;
     };
-		optPoint = solver.Solve(external_stop_func);
-	}
-	catch (const std::runtime_error& exp)
-	{
-		std::cerr << "AGS internal error: " << std::string(exp.what()) << std::endl;
-		return NLOPT_FAILURE;
-	}
+    optPoint = solver.Solve(external_stop_func);
+  }
+  catch (const std::runtime_error& exp)
+  {
+    std::cerr << "AGS internal error: " << std::string(exp.what()) << std::endl;
+    return NLOPT_FAILURE;
+  }
 
-	if (ags_verbose)
-	{
+  if (ags_verbose)
+  {
     auto calcCounters = solver.GetCalculationsStatistics();
     auto holderConstEstimations = solver.GetHolderConstantsEstimations();
 
@@ -80,18 +80,18 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
     if (optPoint.idx != m)
       std::cout << "Feasible point not found" << "\n";
     std::cout << std::string(40, '-') << std::endl;
-	}
+  }
 
-	if (m == optPoint.idx)
-	{
-		memcpy(x, optPoint.y, n*sizeof(x[0]));
-		*minf = optPoint.g[optPoint.idx];
-	}
-	else //feasible point not found.
-		return NLOPT_FAILURE;
+  if (m == optPoint.idx)
+  {
+    memcpy(x, optPoint.y, n*sizeof(x[0]));
+    *minf = optPoint.g[optPoint.idx];
+  }
+  else //feasible point not found.
+    return NLOPT_FAILURE;
 
-	if (solver.GetCalculationsStatistics()[0] >= params.itersLimit)
-		return NLOPT_MAXEVAL_REACHED;
+  if (solver.GetCalculationsStatistics()[0] >= params.itersLimit)
+    return NLOPT_MAXEVAL_REACHED;
 
   return ret_code;
 }
