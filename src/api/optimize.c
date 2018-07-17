@@ -507,7 +507,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 	 }
 
    case NLOPT_AGS:
-#ifdef NLOPT_CXX
+#ifdef NLOPT_CXX11
              if (!finite_domain(n, lb, ub))
                  RETURN_ERR(NLOPT_INVALID_ARGS, opt,
                             "finite domain required for global algorithm");

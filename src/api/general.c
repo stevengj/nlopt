@@ -82,7 +82,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
      "Sequential Quadratic Programming (SQP) (local, derivative)",
      "CCSA (Conservative Convex Separable Approximations) with simple quadratic approximations (local, derivative)",
      "ESCH evolutionary strategy",
-#ifdef NLOPT_CXX
+#ifdef NLOPT_CXX11
       "AGS (global, no-derivative)"
 #else
       "AGS (NOT COMPILED)"
