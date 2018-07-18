@@ -72,7 +72,7 @@ void mapd(double x, int m, double* y, int n, int key)
   double d, mne, dd, dr;//,tmp;
   double p, r;
   int iw[11];
-  int it, is, i, j, k;
+  int it, is = 0, i, j, k;
   void node(int is, int n1, int nexp, int& l, int& iq, int iu[], int iv[]);
 
   p = 0.0;

@@ -73,7 +73,7 @@ void NLPSolver::SetParameters(const SolverParameters& params)
 void NLPSolver::SetProblem(std::shared_ptr<IGOProblem<double>> problem)
 {
   mProblem = problem;
-  NLP_SOLVER_ASSERT(mProblem->GetConstraintsNumber() <= solverMaxConstraints,
+  NLP_SOLVER_ASSERT(mProblem->GetConstraintsNumber() <= (int)solverMaxConstraints,
                     "Current implementation supports up to " + std::to_string(solverMaxConstraints) +
                     " nonlinear inequality constraints");
   InitLocalOptimizer();
@@ -85,7 +85,7 @@ void NLPSolver::SetProblem(const std::vector<FuncPtr>& functions,
   NLP_SOLVER_ASSERT(leftBound.size() == rightBound.size(), "Inconsistent dimensions of bounds");
   NLP_SOLVER_ASSERT(leftBound.size() > 0, "Zero problem dimension");
   mProblem = std::make_shared<ProblemInternal>(functions, leftBound, rightBound);
-  NLP_SOLVER_ASSERT(mProblem->GetConstraintsNumber() <= solverMaxConstraints,
+  NLP_SOLVER_ASSERT(mProblem->GetConstraintsNumber() <= (int)solverMaxConstraints,
                     "Current implementation supports up to " + std::to_string(solverMaxConstraints) +
                     " nonlinear inequality constraints");
   InitLocalOptimizer();
@@ -321,8 +321,8 @@ void NLPSolver::EstimateOptimum()
   for (size_t i = 0; i < mNextPoints.size(); i++)
   {
     if (mOptimumEstimation.idx < mNextPoints[i].idx ||
-        mOptimumEstimation.idx == mNextPoints[i].idx &&
-        mOptimumEstimation.g[mOptimumEstimation.idx] > mNextPoints[i].g[mNextPoints[i].idx])
+        (mOptimumEstimation.idx == mNextPoints[i].idx &&
+        mOptimumEstimation.g[mOptimumEstimation.idx] > mNextPoints[i].g[mNextPoints[i].idx]))
     {
       mOptimumEstimation = mNextPoints[i];
       mNeedRefillQueue = true;
@@ -335,7 +335,7 @@ void NLPSolver::EstimateOptimum()
 
 void NLPSolver::UpdateH(double newValue, int index)
 {
-  if (newValue > mHEstimations[index] || mHEstimations[index] == 1.0 && newValue > zeroHLevel)
+  if (newValue > mHEstimations[index] || (mHEstimations[index] == 1.0 && newValue > zeroHLevel))
   {
     mHEstimations[index] = newValue;
     mNeedRefillQueue = true;

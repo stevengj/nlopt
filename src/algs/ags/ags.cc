@@ -86,12 +86,12 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
     for (size_t i = 0; i < holderConstEstimations.size() - 1; i++)
       std::cout << "Estimation of Holder constant of function # " << i << ": " << holderConstEstimations[i] << "\n";
     std::cout << "Estimation of Holder constant of objective: " << holderConstEstimations.back() << "\n";
-    if (optPoint.idx != m)
+    if (optPoint.idx != (int)m)
       std::cout << "Feasible point not found" << "\n";
     std::cout << std::string(40, '-') << std::endl;
   }
 
-  if (m == optPoint.idx)
+  if ((int)m == optPoint.idx)
   {
     memcpy(x, optPoint.y, n*sizeof(x[0]));
     *minf = optPoint.g[optPoint.idx];
