@@ -40,11 +40,13 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
       return val;
     });
   }
-  functions.push_back([func, data, n](const double* x) {return func(n, x, NULL, data);});
+  functions.push_back([func, data, n, stop](const double* x) {
+    ++ *(stop->nevals_p);
+    return func(n, x, NULL, data);});
 
   ags::SolverParameters params;
   params.r = ags_r;
-  params.itersLimit = stop->maxeval;
+  params.itersLimit = stop->maxeval != 0 ? stop->maxeval : 5000;
   params.eps = ags_eps;
   params.evolventDensity = evolvent_density;
   params.epsR = eps_res;
