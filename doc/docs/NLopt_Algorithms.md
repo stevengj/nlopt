@@ -31,7 +31,7 @@ Better yet, run some algorithm for a really long time until the minimum *f*<sub>
 Global optimization
 -------------------
 
-All of the global-optimization algorithms currently require you to specify bound constraints on all the optimization parameters. Of these algorithms, only ISRES, AGS and ORIG_DIRECT support nonlinear inequality constraints, and only ISRES supports nonlinear equality constraints. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#Augmented_Lagrangian_algorithm.md) below.)
+All of the global-optimization algorithms currently require you to specify bound constraints on all the optimization parameters. Of these algorithms, only ISRES, AGS, and ORIG_DIRECT support nonlinear inequality constraints, and only ISRES supports nonlinear equality constraints. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#Augmented_Lagrangian_algorithm.md) below.)
 
 **Something you should consider** is that, after running the global optimization, it is often worthwhile to then use the global optimum as a starting point for a local optimization to "polish" the optimum to a greater accuracy. (Many of the global optimization algorithms devote more effort to searching the global parameter space than in finding the precise position of the local optimum accurately.)
 

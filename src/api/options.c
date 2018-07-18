@@ -438,7 +438,7 @@ static int inequality_ok(nlopt_algorithm algorithm) {
 	     || algorithm == NLOPT_GN_ISRES
 	     || algorithm == NLOPT_GN_ORIG_DIRECT
 	     || algorithm == NLOPT_GN_ORIG_DIRECT_L
-             || algorithm == NLOPT_GN_AGS);
+	     || algorithm == NLOPT_GN_AGS);
 }
 
 nlopt_result
