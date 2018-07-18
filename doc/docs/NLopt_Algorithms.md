@@ -129,7 +129,7 @@ This algorithm adapted from [this repo](https://github.com/sovrasov/glob_search_
 AGS can handle arbitrary objectives and nonlinear inequality constraints. Also bound constraints are required for this method. To guarantee convergence, objectives and constraints should satisfy the Lipschitz condition on the specified hyperrectangle.
 AGS is derivative-free and employs the Hilbert curve to reduce the source problem to the univariate one. The algorithm divides the univariate space into intervals, generating new points by using posterior probabilities. On each trial AGS tries to evaluate the constraints consequently one by one. If some constraint is violated at this point, the next ones won't be evaluated. If all constraints are preserved, i.e. the trial point is feasible, AGS will evaluate the objective. Thus, some of constraints (except the first one) and objective can be partially undefined inside the search hyperrectangle. Current implementation of AGS doesn't support vector constraints.
 
-Limitations of the machine arithmetic don't allow to build a tight approximation for Hilbert when the space dimension is greater than 5, so this implementation of AGS is restricted in that sense.
+Limitations of the machine arithmetic don't allow to build a tight approximation for Hilbert when the space dimension is greater than 5, so this implementation of AGS is restricted in that sense. It supports up to 10 dimensions, but the method can stop early in case of 6 and more ones.
 
 AGS, like StoGO, is written in C++, but it requires C++11. If the library is built with [C++](NLopt_Installation.md) and compiler supports C++11, AGS will be built too.
 

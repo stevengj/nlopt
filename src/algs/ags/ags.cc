@@ -5,6 +5,7 @@
 #include "solver.hpp"
 #include <iostream>
 #include <cstring>
+#include <exception>
 
 double ags_eps = 0;
 double ags_r = 3;
@@ -22,6 +23,9 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
     return NLOPT_INVALID_ARGS;
   if(m != nlopt_count_constraints(m, fc) || m > ags::solverMaxConstraints)
     return NLOPT_INVALID_ARGS;
+
+  if (ags_verbose && n > 5)
+    std::cout << "Warning: AGS is unstable when dimension > 5" << std::endl;
 
   std::vector<double> lb(l, l + n);
   std::vector<double> ub(u, u + n);
@@ -63,7 +67,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
     };
     optPoint = solver.Solve(external_stop_func);
   }
-  catch (const std::runtime_error& exp)
+  catch (const std::exception& exp)
   {
     std::cerr << "AGS internal error: " << std::string(exp.what()) << std::endl;
     return NLOPT_FAILURE;

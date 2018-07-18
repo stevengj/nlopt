@@ -16,7 +16,7 @@ Copyright (C) 2018 Sovrasov V. - All Rights Reserved
 namespace ags
 {
 
-const unsigned solverMaxDim = 5;
+const unsigned solverMaxDim = 10;
 const unsigned solverMaxConstraints = 10;
 
 template <class fptype>
