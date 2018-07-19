@@ -12,9 +12,13 @@ foreach (algo_index RANGE 29)# 43
     set (enable_ TRUE)
     # cxx stogo
     if (NOT NLOPT_CXX)
-      if (algo_index STREQUAL 8 OR algo_index STREQUAL 9 OR algo_index STREQUAL 43)
+      if (algo_index STREQUAL 8 OR algo_index STREQUAL 9)
         set (enable_ FALSE)
       endif ()
+    endif ()
+    # cxx11 ags
+    if (NOT NLOPT_CXX11 AND algo_index STREQUAL 43)
+      set (enable_ FALSE)
     endif ()
     # L-BFGS
     if (algo_index STREQUAL 10)
