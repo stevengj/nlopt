@@ -134,12 +134,16 @@ Limitations of the machine arithmetic don't allow to build a tight approximation
 AGS, like StoGO, is written in C++, but it requires C++11. If the library is built with [C++](NLopt_Installation.md) and compiler supports C++11, AGS will be built too.
 
 AGS is specified within NLopt by `NLOPT_GN_AGS`. Additional parameters of AGS which are not adjustable from the common NLOpt interface are declared and described in `ags.h`. Also an example of solving a constrained problem is given in the AGS source folder.
+
 References:
-- Yaroslav D. Sergeyev, Dmitri L. Markin: An algorithm for solving global optimization problems with nonlinear constraints, Journal of Global Optimization, 7(4), pp 407–419, 1995
-- Strongin R.G., Sergeyev Ya.D., 2000. Global optimization with non-convex constraints. Sequential and parallel algorithms. Kluwer Academic
-Publishers, Dordrecht.
-- Gergel V. and Lebedev I.: Heterogeneous Parallel Computations for Solving Global Optimization Problems. Proc. Comput. Science 66, pp. 53–62 (2015)
-- [Implementation](https://github.com/sovrasov/multicriterial-go) of AGS for constrained multi-objective problems.
+
+-   Yaroslav D. Sergeyev, Dmitri L. Markin: An algorithm for solving global optimization problems with nonlinear constraints, Journal of Global Optimization, 7(4), pp 407–419, 1995
+
+-   Strongin R.G., Sergeyev Ya.D., 2000. Global optimization with non-convex constraints. Sequential and parallel algorithms. Kluwer Academic Publishers, Dordrecht.
+
+-   Gergel V. and Lebedev I.: Heterogeneous Parallel Computations for Solving Global Optimization Problems. Proc. Comput. Science 66, pp. 53–62 (2015)
+
+-   [Implementation](https://github.com/sovrasov/multicriterial-go) of AGS for constrained multi-objective problems.
 
 ### ISRES (Improved Stochastic Ranking Evolution Strategy)
 
