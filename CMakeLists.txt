@@ -138,12 +138,17 @@ if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
 endif ()
 
 if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
-  check_cxx_symbol_exists (_LIBCPP_VERSION string SYSTEM_HAS_LIBCPP)
-  if (SYSTEM_HAS_LIBCPP)
+  check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
+  if (SYSTEM_HAS_CXX)
     check_cxx_compiler_flag ("-std=c++11" SUPPORTS_STDCXX11)
     if (SUPPORTS_STDCXX11)
       set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+      if (NLOPT_CXX)
+        set (NLOPT_CXX11 ON)
+      endif ()
     endif ()
+  else()
+    message (FATAL_ERROR "The compiler doesn't support CXX.")
   endif ()
 endif ()
 
@@ -202,6 +207,10 @@ if (NLOPT_CXX)
   list (APPEND NLOPT_SOURCES src/algs/stogo/global.cc src/algs/stogo/linalg.cc src/algs/stogo/local.cc src/algs/stogo/stogo.cc src/algs/stogo/tools.cc
         src/algs/stogo/global.h src/algs/stogo/linalg.h src/algs/stogo/local.h src/algs/stogo/stogo_config.h src/algs/stogo/stogo.h src/algs/stogo/tools.h)
 endif ()
+if (NLOPT_CXX11)
+  list (APPEND NLOPT_SOURCES src/algs/ags/data_types.hpp src/algs/ags/evolvent.hpp src/algs/ags/evolvent.cc src/algs/ags/solver.hpp src/algs/ags/solver.cc
+  src/algs/ags/local_optimizer.hpp src/algs/ags/local_optimizer.cc src/algs/ags/ags.h src/algs/ags/ags.cc)
+endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
 
@@ -219,6 +228,7 @@ target_include_directories (${nlopt_lib} PRIVATE
   ${PROJECT_BINARY_DIR}/src/api
   ${PROJECT_BINARY_DIR}
   src/algs/stogo
+  src/algs/ags
   src/util
   src/algs/direct
   src/algs/cdirect

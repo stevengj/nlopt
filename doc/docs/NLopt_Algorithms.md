@@ -31,7 +31,7 @@ Better yet, run some algorithm for a really long time until the minimum *f*<sub>
 Global optimization
 -------------------
 
-All of the global-optimization algorithms currently require you to specify bound constraints on all the optimization parameters. Of these algorithms, only ISRES and ORIG_DIRECT support nonlinear inequality constraints, and only ISRES supports nonlinear equality constraints. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#Augmented_Lagrangian_algorithm.md) below.)
+All of the global-optimization algorithms currently require you to specify bound constraints on all the optimization parameters. Of these algorithms, only ISRES, AGS, and ORIG_DIRECT support nonlinear inequality constraints, and only ISRES supports nonlinear equality constraints. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#Augmented_Lagrangian_algorithm.md) below.)
 
 **Something you should consider** is that, after running the global optimization, it is often worthwhile to then use the global optimum as a starting point for a local optimization to "polish" the optimum to a greater accuracy. (Many of the global optimization algorithms devote more effort to searching the global parameter space than in finding the precise position of the local optimum accurately.)
 
@@ -122,6 +122,24 @@ Some references on StoGO are:
 -   S. Zertchaninov and K. Madsen, "A C++ Programme for Global Optimization," IMM-REP-1998-04, Department of Mathematical Modelling, Technical University of Denmark, DK-2800 Lyngby, Denmark, 1998. A copy of this report is included in the `stogo` subdirectory of NLopt as `techreport.pdf`.
 
 Only bound-constrained problems are supported by this algorithm.
+
+### AGS
+
+This algorithm adapted from [this repo](https://github.com/sovrasov/glob_search_nlp_solver).
+AGS can handle arbitrary objectives and nonlinear inequality constraints. Also bound constraints are required for this method. To guarantee convergence, objectives and constraints should satisfy the Lipschitz condition on the specified hyperrectangle.
+AGS is derivative-free and employs the Hilbert curve to reduce the source problem to the univariate one. The algorithm divides the univariate space into intervals, generating new points by using posterior probabilities. On each trial AGS tries to evaluate the constraints consequently one by one. If some constraint is violated at this point, the next ones won't be evaluated. If all constraints are preserved, i.e. the trial point is feasible, AGS will evaluate the objective. Thus, some of constraints (except the first one) and objective can be partially undefined inside the search hyperrectangle. Current implementation of AGS doesn't support vector constraints.
+
+Limitations of the machine arithmetic don't allow to build a tight approximation for Hilbert when the space dimension is greater than 5, so this implementation of AGS is restricted in that sense. It supports up to 10 dimensions, but the method can stop early in case of 6 and more ones.
+
+AGS, like StoGO, is written in C++, but it requires C++11. If the library is built with [C++](NLopt_Installation.md) and compiler supports C++11, AGS will be built too.
+
+AGS is specified within NLopt by `NLOPT_GN_AGS`. Additional parameters of AGS which are not adjustable from the common NLOpt interface are declared and described in `ags.h`. Also an example of solving a constrained problem is given in the AGS source folder.
+References:
+- Yaroslav D. Sergeyev, Dmitri L. Markin: An algorithm for solving global optimization problems with nonlinear constraints, Journal of Global Optimization, 7(4), pp 407–419, 1995
+- Strongin R.G., Sergeyev Ya.D., 2000. Global optimization with non-convex constraints. Sequential and parallel algorithms. Kluwer Academic
+Publishers, Dordrecht.
+- Gergel V. and Lebedev I.: Heterogeneous Parallel Computations for Solving Global Optimization Problems. Proc. Comput. Science 66, pp. 53–62 (2015)
+- [Implementation](https://github.com/sovrasov/multicriterial-go) of AGS for constrained multi-objective problems.
 
 ### ISRES (Improved Stochastic Ranking Evolution Strategy)
 

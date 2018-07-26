@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #ifndef NLOPT_H
@@ -67,7 +67,7 @@ typedef void (*nlopt_mfunc)(unsigned m, double *result,
 			     double *gradient, /* NULL if not needed */
 			     void *func_data);
 
-/* A preconditioner, which preconditions v at x to return vpre. 
+/* A preconditioner, which preconditions v at x to return vpre.
    (The meaning of "preconditioning" is algorithm-dependent.) */
 typedef void (*nlopt_precond)(unsigned n, const double *x, const double *v,
 			      double *vpre, void *data);
@@ -75,10 +75,10 @@ typedef void (*nlopt_precond)(unsigned n, const double *x, const double *v,
 typedef enum {
      /* Naming conventions:
 
-        NLOPT_{G/L}{D/N}_* 
-	    = global/local derivative/no-derivative optimization, 
-              respectively 
- 
+        NLOPT_{G/L}{D/N}_*
+	    = global/local derivative/no-derivative optimization,
+              respectively
+
 	*_RAND algorithms involve some randomization.
 
 	*_NOSCAL algorithms are *not* scaled to a unit hypercube
@@ -151,6 +151,8 @@ typedef enum {
 
      NLOPT_GN_ESCH,
 
+     NLOPT_GN_AGS,
+
      NLOPT_NUM_ALGORITHMS /* not an algorithm, just the number of them */
 } nlopt_algorithm;
 
@@ -198,9 +200,9 @@ NLOPT_EXTERN(nlopt_opt) nlopt_copy(const nlopt_opt opt);
 NLOPT_EXTERN(nlopt_result) nlopt_optimize(nlopt_opt opt, double *x,
 					 double *opt_f);
 
-NLOPT_EXTERN(nlopt_result) nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_min_objective(nlopt_opt opt, nlopt_func f,
 						  void *f_data);
-NLOPT_EXTERN(nlopt_result) nlopt_set_max_objective(nlopt_opt opt, nlopt_func f, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_max_objective(nlopt_opt opt, nlopt_func f,
 						  void *f_data);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_precond_min_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
@@ -213,12 +215,12 @@ NLOPT_EXTERN(const char*) nlopt_get_errmsg(nlopt_opt opt);
 
 /* constraints: */
 
-NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bounds(nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bounds(nlopt_opt opt,
 						 const double *lb);
 NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bounds1(nlopt_opt opt, double lb);
-NLOPT_EXTERN(nlopt_result) nlopt_get_lower_bounds(const nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_get_lower_bounds(const nlopt_opt opt,
 						 double *lb);
-NLOPT_EXTERN(nlopt_result) nlopt_set_upper_bounds(nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_upper_bounds(nlopt_opt opt,
 						 const double *ub);
 NLOPT_EXTERN(nlopt_result) nlopt_set_upper_bounds1(nlopt_opt opt, double ub);
 NLOPT_EXTERN(nlopt_result) nlopt_get_upper_bounds(const nlopt_opt opt,
@@ -283,7 +285,7 @@ NLOPT_EXTERN(int) nlopt_get_force_stop(const nlopt_opt opt);
 
 /* more algorithm-specific parameters */
 
-NLOPT_EXTERN(nlopt_result) nlopt_set_local_optimizer(nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_local_optimizer(nlopt_opt opt,
 						    const nlopt_opt local_opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_population(nlopt_opt opt, unsigned pop);
@@ -292,12 +294,12 @@ NLOPT_EXTERN(unsigned) nlopt_get_population(const nlopt_opt opt);
 NLOPT_EXTERN(nlopt_result) nlopt_set_vector_storage(nlopt_opt opt, unsigned dim);
 NLOPT_EXTERN(unsigned) nlopt_get_vector_storage(const nlopt_opt opt);
 
-NLOPT_EXTERN(nlopt_result) nlopt_set_default_initial_step(nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_default_initial_step(nlopt_opt opt,
 							 const double *x);
-NLOPT_EXTERN(nlopt_result) nlopt_set_initial_step(nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_set_initial_step(nlopt_opt opt,
 						 const double *dx);
 NLOPT_EXTERN(nlopt_result) nlopt_set_initial_step1(nlopt_opt opt, double dx);
-NLOPT_EXTERN(nlopt_result) nlopt_get_initial_step(const nlopt_opt opt, 
+NLOPT_EXTERN(nlopt_result) nlopt_get_initial_step(const nlopt_opt opt,
 						 const double *x, double *dx);
 
 /* the following are functions mainly designed to be used internally
@@ -323,7 +325,7 @@ NLOPT_EXTERN(void) nlopt_munge_data(nlopt_opt opt,
 #if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
 #  define NLOPT_DEPRECATED __attribute__((deprecated))
 #else
-#  define NLOPT_DEPRECATED 
+#  define NLOPT_DEPRECATED
 #endif
 
 typedef double (*nlopt_func_old)(int n, const double *x,
