@@ -1,6 +1,8 @@
 # NLopt Release Notes
 
-## NLopt 2.5 (upcoming)
+## NLopt 2.5
+
+26 July 2018
 
 * New AGS global solver ([#194]), thanks to Vladislav Sovrasov.
 
