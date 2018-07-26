@@ -34,6 +34,11 @@
 #if OCTAVE_MAJOR_VERSION < 3 || (OCTAVE_MAJOR_VERSION == 3 && OCTAVE_MINOR_VERSION < 8)
 #  define octave_map Octave_map
 #endif
+#if OCTAVE_MAJOR_VERSION < 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION < 2)
+#  define err_user_supplied_eval gripe_user_supplied_eval
+#  define err_user_returned_invalid gripe_user_returned_invalid
+#  define numel length
+#endif
 
 static int struct_val_default(octave_map &m, const std::string& k,
 				 int dflt)
