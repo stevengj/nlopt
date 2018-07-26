@@ -4,6 +4,9 @@ add_custom_target (tests)
 add_executable (testopt testfuncs.c testfuncs.h testopt.c
   ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c ${PROJECT_SOURCE_DIR}/src/util/nlopt-getopt.c)
 target_link_libraries (testopt ${nlopt_lib})
+if (NLOPT_CXX)
+  set_target_properties(testopt PROPERTIES LINKER_LANGUAGE CXX)
+endif ()
 target_include_directories (testopt PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
 add_dependencies (tests testopt)
 
