@@ -20,6 +20,21 @@ endif ()
 
 project (nlopt)
 
+#==============================================================================
+# version
+set (NLOPT_MAJOR_VERSION "2")
+set (NLOPT_MINOR_VERSION "5")
+set (NLOPT_BUGFIX_VERSION "0")
+set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
+message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
+
+# This is the ABI version number, which differes from the API version above
+# (it indicates ABI compatibility), but they are typically incremented together.
+set(SO_MAJOR 0)
+set(SO_MINOR 9)
+set(SO_PATCH 0)
+#==============================================================================
+
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option (NLOPT_CXX "enable cxx routines" OFF)
@@ -153,15 +168,6 @@ if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
 endif ()
 
 #==============================================================================
-# version
-#==============================================================================
-set (NLOPT_MAJOR_VERSION "2")
-set (NLOPT_MINOR_VERSION "5")
-set (NLOPT_BUGFIX_VERSION "0")
-set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
-message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
-
-#==============================================================================
 # CREATE nlopt_config.h
 #==============================================================================
 
@@ -218,8 +224,8 @@ set (nlopt_lib nlopt${NLOPT_SUFFIX})
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
 target_link_libraries (${nlopt_lib} ${M_LIBRARY})
 
-set_target_properties (${nlopt_lib} PROPERTIES SOVERSION 0)
-set_target_properties (${nlopt_lib} PROPERTIES VERSION 0.9.0)
+set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${SO_MAJOR})
+set_target_properties (${nlopt_lib} PROPERTIES VERSION "${SO_MAJOR}.${SO_MINOR}.${SO_PATCH}")
 
 #==============================================================================
 # INCLUDE DIRECTORIES
