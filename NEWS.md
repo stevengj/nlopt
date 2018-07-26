@@ -1,5 +1,19 @@
 # NLopt Release Notes
 
+## NLopt 2.5 (upcoming)
+
+* New AGS global solver ([#194]), thanks to Vladislav Sovrasov.
+
+* New `nlopt_get_numevals` function providing a built-in evaluation counter ([#160]).
+
+* New `nlopt_get_errmsg` function for more descriptive error messages.
+
+* Build system is converted to `cmake` ([#49]), thanks to Julien Schueller
+
+* Plugins updated for recent Octave and Guile versions.
+
+* Various other build fixes and minor bug fixes.
+
 ## NLopt 2.4.2
 
 20 May 2014
@@ -387,3 +401,11 @@
 11 Nov. 2008
 
 * Initial public release.
+
+<!--- issue/PR links -->
+[#12]: https://github.com/stevengj/nlopt/issues/12
+[#13]: https://github.com/stevengj/nlopt/issues/13
+[#21]: https://github.com/stevengj/nlopt/issues/21
+[#49]: https://github.com/stevengj/nlopt/issues/49
+[#160]: https://github.com/stevengj/nlopt/issues/160
+[#194]: https://github.com/stevengj/nlopt/issues/194
