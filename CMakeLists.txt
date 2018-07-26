@@ -318,8 +318,10 @@ if (OCTAVE_FOUND OR Matlab_FOUND)
   add_subdirectory (src/octave)
 endif ()
 
-enable_testing ()
-add_subdirectory (test)
+if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+  enable_testing ()
+  add_subdirectory (test)
+endif ()
 
 set (CPACK_PACKAGE_NAME          "${CMAKE_PROJECT_NAME}")
 set (CPACK_PACKAGE_VERSION_MAJOR "${NLOPT_MAJOR_VERSION}")
