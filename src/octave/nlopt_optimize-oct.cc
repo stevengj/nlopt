@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <octave/oct.h>
@@ -39,7 +39,7 @@ static int struct_val_default(octave_map &m, const std::string& k,
 				 int dflt)
 {
   if (m.contains(k)) {
-    if (m.contents(k).length() == 1 && (m.contents(k))(0).is_real_scalar())
+    if (m.contents(k).numel() == 1 && (m.contents(k))(0).is_real_scalar())
       return (m.contents(k))(0).int_value();
   }
   return dflt;
@@ -49,7 +49,7 @@ static double struct_val_default(octave_map &m, const std::string& k,
 				 double dflt)
 {
   if (m.contains(k)) {
-    if (m.contents(k).length() == 1 && (m.contents(k))(0).is_real_scalar())
+    if (m.contents(k).numel() == 1 && (m.contents(k))(0).is_real_scalar())
       return (m.contents(k))(0).double_value();
   }
   return dflt;
@@ -59,9 +59,9 @@ static Matrix struct_val_default(octave_map &m, const std::string& k,
 				 Matrix &dflt)
 {
   if (m.contains(k)) {
-    if ((m.contents(k)).length() == 1) {
+    if ((m.contents(k)).numel() == 1) {
       if ((m.contents(k))(0).is_real_scalar())
-	return Matrix(1, dflt.length(), (m.contents(k))(0).double_value());
+	return Matrix(1, dflt.numel(), (m.contents(k))(0).double_value());
       else if ((m.contents(k))(0).is_real_matrix())
 	return (m.contents(k))(0).matrix_value();
     }
@@ -92,11 +92,11 @@ static double user_function(unsigned n, const double *x,
     = data->f->do_multi_index_op(gradient ? 2 : 1, args);
 #endif
   if (res.length() < (gradient ? 2 : 1))
-    gripe_user_supplied_eval("nlopt_optimize");
+    err_user_supplied_eval("nlopt_optimize");
   else if (!res(0).is_real_scalar()
 	   || (gradient && !res(1).is_real_matrix()
 	       && !(n == 1 && res(1).is_real_scalar())))
-    gripe_user_returned_invalid("nlopt_optimize");
+    err_user_returned_invalid("nlopt_optimize");
   else {
     if (gradient) {
       if (n == 1 && res(1).is_real_scalar())
@@ -108,14 +108,14 @@ static double user_function(unsigned n, const double *x,
       }
     }
     data->neval++;
-    if (data->verbose) printf("nlopt_optimize eval #%d: %g\n", 
+    if (data->verbose) printf("nlopt_optimize eval #%d: %g\n",
 			      data->neval, res(0).double_value());
     double f = res(0).double_value();
     if (f != f /* isnan(f) */) nlopt_force_stop(data->opt);
     return f;
   }
   return 0;
-}				 
+}
 
 static double user_function1(unsigned n, const double *x,
 			    double *gradient, /* NULL if not needed */
@@ -134,11 +134,11 @@ static double user_function1(unsigned n, const double *x,
     = f->do_multi_index_op(gradient ? 2 : 1, args);
 #endif
   if (res.length() < (gradient ? 2 : 1))
-    gripe_user_supplied_eval("nlopt_optimize");
+    err_user_supplied_eval("nlopt_optimize");
   else if (!res(0).is_real_scalar()
 	   || (gradient && !res(1).is_real_matrix()
 	       && !(n == 1 && res(1).is_real_scalar())))
-    gripe_user_returned_invalid("nlopt_optimize");
+    err_user_returned_invalid("nlopt_optimize");
   else {
     if (gradient) {
       if (n == 1 && res(1).is_real_scalar())
@@ -152,7 +152,7 @@ static double user_function1(unsigned n, const double *x,
     return res(0).double_value();
   }
   return 0;
-}				 
+}
 
 #define CHECK1(cond, msg) if (!(cond)) { fprintf(stderr, msg "\n\n"); nlopt_destroy(opt); nlopt_destroy(local_opt); return NULL; }
 
@@ -160,8 +160,8 @@ nlopt_opt make_opt(octave_map &opts, int n)
 {
   nlopt_opt opt = NULL, local_opt = NULL;
 
-  nlopt_algorithm algorithm = 
-    nlopt_algorithm(struct_val_default(opts, "algorithm", 
+  nlopt_algorithm algorithm =
+    nlopt_algorithm(struct_val_default(opts, "algorithm",
 				       NLOPT_NUM_ALGORITHMS));
   CHECK1(((int)algorithm) >= 0 && algorithm < NLOPT_NUM_ALGORITHMS,
 	"invalid opt.algorithm");
@@ -171,12 +171,12 @@ nlopt_opt make_opt(octave_map &opts, int n)
 
   Matrix m_inf(1, n, -HUGE_VAL);
   Matrix lb = struct_val_default(opts, "lower_bounds", m_inf);
-  CHECK1(n == lb.length(), "wrong length of opt.lower_bounds");
+  CHECK1(n == lb.numel(), "wrong length of opt.lower_bounds");
   CHECK1(nlopt_set_lower_bounds(opt, lb.data()) > 0, "nlopt: out of memory");
 
   Matrix p_inf(1, n, +HUGE_VAL);
   Matrix ub = struct_val_default(opts, "upper_bounds", p_inf);
-  CHECK1(n == ub.length(), "wrong length of opt.upper_bounds");
+  CHECK1(n == ub.numel(), "wrong length of opt.upper_bounds");
   CHECK1(nlopt_set_upper_bounds(opt, ub.data()) > 0, "nlopt: out of memory");
 
   nlopt_set_stopval(opt, struct_val_default(opts, "stopval", -HUGE_VAL));
@@ -187,7 +187,7 @@ nlopt_opt make_opt(octave_map &opts, int n)
   {
     Matrix zeros(1, n, 0.0);
     Matrix xtol_abs = struct_val_default(opts, "xtol_abs", zeros);
-    CHECK1(n == xtol_abs.length(), "stop.xtol_abs must have same length as x");
+    CHECK1(n == xtol_abs.numel(), "stop.xtol_abs must have same length as x");
     CHECK1(nlopt_set_xtol_abs(opt, xtol_abs.data())>0, "nlopt: out of memory");
   }
 
@@ -201,18 +201,18 @@ nlopt_opt make_opt(octave_map &opts, int n)
   if (opts.contains("initial_step")) {
     Matrix zeros(1, n, 0.0);
     Matrix initial_step = struct_val_default(opts, "initial_step", zeros);
-    CHECK1(n == initial_step.length(),
+    CHECK1(n == initial_step.numel(),
 	  "stop.initial_step must have same length as x");
     CHECK1(nlopt_set_initial_step(opt, initial_step.data()) > 0,
 	  "nlopt: out of memory");
   }
 
   if (opts.contains("local_optimizer")) {
-    CHECK1(opts.contents("local_optimizer").length() == 1 
+    CHECK1(opts.contents("local_optimizer").numel() == 1
 	  && (opts.contents("local_optimizer"))(0).is_map(),
 	  "opt.local_optimizer must be a structure");
     octave_map local_opts = (opts.contents("local_optimizer"))(0).map_value();
-    CHECK1((local_opt = make_opt(local_opts, n)), 
+    CHECK1((local_opt = make_opt(local_opts, n)),
 	  "error initializing local optimizer");
     nlopt_set_local_optimizer(opt, local_opt);
     nlopt_destroy(local_opt); local_opt = NULL;
@@ -238,7 +238,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
 	"x must be real vector");
   Matrix x = args(1).is_real_scalar() ?
     Matrix(1, 1, args(1).double_value()) : args(1).matrix_value();
-  int n = x.length();
+  int n = x.numel();
 
   CHECK((opt = make_opt(opts, n)), "error initializing nlopt options");
 
@@ -247,14 +247,14 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
   d.verbose = struct_val_default(opts, "verbose", 0);
   d.opt = opt;
   if (opts.contains("min_objective")) {
-    CHECK(opts.contents("min_objective").length() == 1 
+    CHECK(opts.contents("min_objective").numel() == 1
 	  && (opts.contents("min_objective"))(0).is_function_handle(),
 	  "opt.min_objective must be a function");
       d.f = (opts.contents("min_objective"))(0).function_value();
       nlopt_set_min_objective(opt, user_function, &d);
   }
   else if (opts.contains("max_objective")) {
-    CHECK(opts.contents("max_objective").length() == 1 
+    CHECK(opts.contents("max_objective").numel() == 1
 	  && (opts.contents("max_objective"))(0).is_function_handle(),
 	  "opt.max_objective must be a function");
       d.f = (opts.contents("max_objective"))(0).function_value();
@@ -264,14 +264,14 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
     CHECK(0,"either opt.min_objective or opt.max_objective must exist");
   }
 
-  if (opts.contains("fc") && opts.contents("fc").length() == 1) {
+  if (opts.contains("fc") && opts.contents("fc").numel() == 1) {
     CHECK((opts.contents("fc"))(0).is_cell(), "opt.fc must be cell array");
     Cell fc = (opts.contents("fc"))(0).cell_value();
-    Matrix zeros(1, fc.length(), 0.0);
+    Matrix zeros(1, fc.numel(), 0.0);
     Matrix fc_tol = struct_val_default(opts, "fc_tol", zeros);
-    CHECK(fc_tol.length() == fc.length(), 
+    CHECK(fc_tol.numel() == fc.numel(),
 	  "opt.fc must have same length as opt.fc_tol");
-    for (int i = 0; i < fc.length(); ++i) {
+    for (int i = 0; i < fc.numel(); ++i) {
       CHECK(fc(i).is_function() || fc(i).is_function_handle(),
 	    "opt.fc must be a cell array of function handles");
       CHECK(nlopt_add_inequality_constraint(opt, user_function1,
@@ -281,14 +281,14 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
     }
   }
 
-  if (opts.contains("h") && opts.contents("h").length() == 1) {
+  if (opts.contains("h") && opts.contents("h").numel() == 1) {
     CHECK((opts.contents("h"))(0).is_cell(), "opt.h must be cell array");
     Cell h = (opts.contents("h"))(0).cell_value();
-    Matrix zeros(1, h.length(), 0.0);
+    Matrix zeros(1, h.numel(), 0.0);
     Matrix h_tol = struct_val_default(opts, "h_tol", zeros);
-    CHECK(h_tol.length() == h.length(), 
+    CHECK(h_tol.numel() == h.numel(),
 	  "opt.h must have same length as opt.h_tol");
-    for (int i = 0; i < h.length(); ++i) {
+    for (int i = 0; i < h.numel(); ++i) {
       CHECK(h(i).is_function() || h(i).is_function_handle(),
 	    "opt.h must be a cell array of function handles");
       CHECK(nlopt_add_equality_constraint(opt, user_function1,
@@ -301,7 +301,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
 
   double opt_f;
   nlopt_result ret = nlopt_optimize(opt, x.fortran_vec(), &opt_f);
-				    
+
   retval(0) = x;
   if (nargout > 1)
     retval(1) = opt_f;
