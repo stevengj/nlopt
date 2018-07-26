@@ -28,43 +28,57 @@
    array of nonzero initial steps in each dimension.  */
 double *nlopt_compute_rescaling(unsigned n, const double *dx)
 {
-     double *s = (double *) malloc(sizeof(double) * n);
-     unsigned i;
+    double *s = (double *) malloc(sizeof(double) * n);
+    unsigned i;
 
-     if (!s) return NULL;
-     for (i = 0; i < n; ++i) s[i] = 1.0; /* default: no rescaling */
-     if (n == 1) return s;
+    if (!s)
+        return NULL;
+    for (i = 0; i < n; ++i)
+        s[i] = 1.0;             /* default: no rescaling */
+    if (n == 1)
+        return s;
 
-     for (i = 1; i < n && dx[i] == dx[i-1]; ++i) ;
-     if (i < n) { /* unequal initial steps, rescale to make equal to dx[0] */
-	  for (i = 1; i < n; ++i)
-	       s[i] = dx[i] / dx[0];
-     }
-     return s;
+    for (i = 1; i < n && dx[i] == dx[i - 1]; ++i);
+    if (i < n) {                /* unequal initial steps, rescale to make equal to dx[0] */
+        for (i = 1; i < n; ++i)
+            s[i] = dx[i] / dx[0];
+    }
+    return s;
 }
 
 void nlopt_rescale(unsigned n, const double *s, const double *x, double *xs)
 {
-     unsigned i;
-     if (!s) { for (i = 0; i < n;++i) xs[i] = x[i]; }
-     else { for (i = 0; i < n;++i) xs[i] = x[i] / s[i]; }
+    unsigned i;
+    if (!s) {
+        for (i = 0; i < n; ++i)
+            xs[i] = x[i];
+    } else {
+        for (i = 0; i < n; ++i)
+            xs[i] = x[i] / s[i];
+    }
 }
 
 void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs)
 {
-     unsigned i;
-     if (!s) { for (i = 0; i < n;++i) xs[i] = x[i]; }
-     else { for (i = 0; i < n;++i) xs[i] = x[i] * s[i]; }
+    unsigned i;
+    if (!s) {
+        for (i = 0; i < n; ++i)
+            xs[i] = x[i];
+    } else {
+        for (i = 0; i < n; ++i)
+            xs[i] = x[i] * s[i];
+    }
 }
 
 /* return a new array of length n equal to the original array
    x divided by the scale factors s, or NULL on a memory error */
 double *nlopt_new_rescaled(unsigned n, const double *s, const double *x)
 {
-     double *xs = (double *) malloc(sizeof(double) * n);
-     if (!xs) return NULL;
-     nlopt_rescale(n, s, x, xs);
-     return xs;
+    double *xs = (double *) malloc(sizeof(double) * n);
+    if (!xs)
+        return NULL;
+    nlopt_rescale(n, s, x, xs);
+    return xs;
 }
 
 /* since rescaling can flip the signs of the x components and the bounds,
@@ -72,11 +86,11 @@ double *nlopt_new_rescaled(unsigned n, const double *s, const double *x)
    remain in the correct order */
 void nlopt_reorder_bounds(unsigned n, double *lb, double *ub)
 {
-     unsigned i;
-     for (i = 0; i < n; ++i)
-	  if (lb[i] > ub[i]) {
-	       double t = lb[i];
-	       lb[i] = ub[i];
-	       ub[i] = t;
-	  }
+    unsigned i;
+    for (i = 0; i < n; ++i)
+        if (lb[i] > ub[i]) {
+            double t = lb[i];
+            lb[i] = ub[i];
+            ub[i] = t;
+        }
 }

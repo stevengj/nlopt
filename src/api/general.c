@@ -26,73 +26,74 @@
 
 void NLOPT_STDCALL nlopt_version(int *major, int *minor, int *bugfix)
 {
-     *major = MAJOR_VERSION;
-     *minor = MINOR_VERSION;
-     *bugfix = BUGFIX_VERSION;
+    *major = MAJOR_VERSION;
+    *minor = MINOR_VERSION;
+    *bugfix = BUGFIX_VERSION;
 }
 
 /*************************************************************************/
 
 static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
-     "DIRECT (global, no-derivative)",
-     "DIRECT-L (global, no-derivative)",
-     "Randomized DIRECT-L (global, no-derivative)",
-     "Unscaled DIRECT (global, no-derivative)",
-     "Unscaled DIRECT-L (global, no-derivative)",
-     "Unscaled Randomized DIRECT-L (global, no-derivative)",
-     "Original DIRECT version (global, no-derivative)",
-     "Original DIRECT-L version (global, no-derivative)",
+    "DIRECT (global, no-derivative)",
+    "DIRECT-L (global, no-derivative)",
+    "Randomized DIRECT-L (global, no-derivative)",
+    "Unscaled DIRECT (global, no-derivative)",
+    "Unscaled DIRECT-L (global, no-derivative)",
+    "Unscaled Randomized DIRECT-L (global, no-derivative)",
+    "Original DIRECT version (global, no-derivative)",
+    "Original DIRECT-L version (global, no-derivative)",
 #ifdef NLOPT_CXX
-     "StoGO (global, derivative-based)",
-     "StoGO with randomized search (global, derivative-based)",
+    "StoGO (global, derivative-based)",
+    "StoGO with randomized search (global, derivative-based)",
 #else
-     "StoGO (NOT COMPILED)",
-     "StoGO randomized (NOT COMPILED)",
+    "StoGO (NOT COMPILED)",
+    "StoGO randomized (NOT COMPILED)",
 #endif
-     "original L-BFGS code by Nocedal et al. (NOT COMPILED)",
-     "Limited-memory BFGS (L-BFGS) (local, derivative-based)",
-     "Principal-axis, praxis (local, no-derivative)",
-     "Limited-memory variable-metric, rank 1 (local, derivative-based)",
-     "Limited-memory variable-metric, rank 2 (local, derivative-based)",
-     "Truncated Newton (local, derivative-based)",
-     "Truncated Newton with restarting (local, derivative-based)",
-     "Preconditioned truncated Newton (local, derivative-based)",
-     "Preconditioned truncated Newton with restarting (local, derivative-based)",
-     "Controlled random search (CRS2) with local mutation (global, no-derivative)",
-     "Multi-level single-linkage (MLSL), random (global, no-derivative)",
-     "Multi-level single-linkage (MLSL), random (global, derivative)",
-     "Multi-level single-linkage (MLSL), quasi-random (global, no-derivative)",
-     "Multi-level single-linkage (MLSL), quasi-random (global, derivative)",
-     "Method of Moving Asymptotes (MMA) (local, derivative)",
-     "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)",
-     "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)",
-     "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)",
-     "Nelder-Mead simplex algorithm (local, no-derivative)",
-     "Sbplx variant of Nelder-Mead (re-implementation of Rowan's Subplex) (local, no-derivative)",
-     "Augmented Lagrangian method (local, no-derivative)",
-     "Augmented Lagrangian method (local, derivative)",
-     "Augmented Lagrangian method for equality constraints (local, no-derivative)",
-     "Augmented Lagrangian method for equality constraints (local, derivative)",
-     "BOBYQA bound-constrained optimization via quadratic models (local, no-derivative)",
-     "ISRES evolutionary constrained optimization (global, no-derivative)",
-     "Augmented Lagrangian method (needs sub-algorithm)",
-     "Augmented Lagrangian method for equality constraints (needs sub-algorithm)",
-     "Multi-level single-linkage (MLSL), random (global, needs sub-algorithm)",
-     "Multi-level single-linkage (MLSL), quasi-random (global, needs sub-algorithm)",
-     "Sequential Quadratic Programming (SQP) (local, derivative)",
-     "CCSA (Conservative Convex Separable Approximations) with simple quadratic approximations (local, derivative)",
-     "ESCH evolutionary strategy",
+    "original L-BFGS code by Nocedal et al. (NOT COMPILED)",
+    "Limited-memory BFGS (L-BFGS) (local, derivative-based)",
+    "Principal-axis, praxis (local, no-derivative)",
+    "Limited-memory variable-metric, rank 1 (local, derivative-based)",
+    "Limited-memory variable-metric, rank 2 (local, derivative-based)",
+    "Truncated Newton (local, derivative-based)",
+    "Truncated Newton with restarting (local, derivative-based)",
+    "Preconditioned truncated Newton (local, derivative-based)",
+    "Preconditioned truncated Newton with restarting (local, derivative-based)",
+    "Controlled random search (CRS2) with local mutation (global, no-derivative)",
+    "Multi-level single-linkage (MLSL), random (global, no-derivative)",
+    "Multi-level single-linkage (MLSL), random (global, derivative)",
+    "Multi-level single-linkage (MLSL), quasi-random (global, no-derivative)",
+    "Multi-level single-linkage (MLSL), quasi-random (global, derivative)",
+    "Method of Moving Asymptotes (MMA) (local, derivative)",
+    "COBYLA (Constrained Optimization BY Linear Approximations) (local, no-derivative)",
+    "NEWUOA unconstrained optimization via quadratic models (local, no-derivative)",
+    "Bound-constrained optimization via NEWUOA-based quadratic models (local, no-derivative)",
+    "Nelder-Mead simplex algorithm (local, no-derivative)",
+    "Sbplx variant of Nelder-Mead (re-implementation of Rowan's Subplex) (local, no-derivative)",
+    "Augmented Lagrangian method (local, no-derivative)",
+    "Augmented Lagrangian method (local, derivative)",
+    "Augmented Lagrangian method for equality constraints (local, no-derivative)",
+    "Augmented Lagrangian method for equality constraints (local, derivative)",
+    "BOBYQA bound-constrained optimization via quadratic models (local, no-derivative)",
+    "ISRES evolutionary constrained optimization (global, no-derivative)",
+    "Augmented Lagrangian method (needs sub-algorithm)",
+    "Augmented Lagrangian method for equality constraints (needs sub-algorithm)",
+    "Multi-level single-linkage (MLSL), random (global, needs sub-algorithm)",
+    "Multi-level single-linkage (MLSL), quasi-random (global, needs sub-algorithm)",
+    "Sequential Quadratic Programming (SQP) (local, derivative)",
+    "CCSA (Conservative Convex Separable Approximations) with simple quadratic approximations (local, derivative)",
+    "ESCH evolutionary strategy",
 #ifdef NLOPT_CXX11
-      "AGS (global, no-derivative)"
+    "AGS (global, no-derivative)"
 #else
-      "AGS (NOT COMPILED)"
+    "AGS (NOT COMPILED)"
 #endif
 };
 
-const char * NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)
+const char *NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)
 {
-     if (((int) a) < 0 || a >= NLOPT_NUM_ALGORITHMS) return "UNKNOWN";
-     return nlopt_algorithm_names[a];
+    if (((int) a) < 0 || a >= NLOPT_NUM_ALGORITHMS)
+        return "UNKNOWN";
+    return nlopt_algorithm_names[a];
 }
 
 /*************************************************************************/
@@ -118,17 +119,21 @@ const char * NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)
 /*************************************************************************/
 
 static THREADLOCAL int nlopt_srand_called = 0;
-void NLOPT_STDCALL nlopt_srand(unsigned long seed) {
-     nlopt_srand_called = 1;
-     nlopt_init_genrand(seed);
+void NLOPT_STDCALL nlopt_srand(unsigned long seed)
+{
+    nlopt_srand_called = 1;
+    nlopt_init_genrand(seed);
 }
 
-void NLOPT_STDCALL nlopt_srand_time(void) {
-     nlopt_srand(nlopt_time_seed() + (unsigned long)my_gettid() * 314159);
+void NLOPT_STDCALL nlopt_srand_time(void)
+{
+    nlopt_srand(nlopt_time_seed() + (unsigned long) my_gettid() * 314159);
 }
 
-void nlopt_srand_time_default(void) {
-     if (!nlopt_srand_called) nlopt_srand_time();
+void nlopt_srand_time_default(void)
+{
+    if (!nlopt_srand_called)
+        nlopt_srand_time();
 }
 
 /*************************************************************************/

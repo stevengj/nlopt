@@ -35,7 +35,7 @@ static double testfunc(unsigned n, const double *x)
     unsigned j;
     for (j = 1; j <= n; ++j) {
         double cj = pow((double) j, 0.3333333333333333333);
-        f *= (fabs(4*x[j-1] - 2) + cj) / (1 + cj);
+        f *= (fabs(4 * x[j - 1] - 2) + cj) / (1 + cj);
     }
     return f;
 }
@@ -60,16 +60,16 @@ int main(int argc, char **argv)
         testint_sobol += testfunc(sdim, x);
         if (j < 100) {
             printf("x[%u]: %g", j, x[0]);
-            for (i = 1; i < sdim; ++i) printf(", %g", x[i]);
+            for (i = 1; i < sdim; ++i)
+                printf(", %g", x[i]);
             printf("\n");
         }
-        for (i = 0; i < sdim; ++i) x[i] = nlopt_urand(0.,1.);
+        for (i = 0; i < sdim; ++i)
+            x[i] = nlopt_urand(0., 1.);
         testint_rand += testfunc(sdim, x);
     }
     nlopt_sobol_destroy(s);
-    printf("Test integral = %g using Sobol, %g using pseudorandom.\n",
-        testint_sobol / n, testint_rand / n);
-    printf("        error = %g using Sobol, %g using pseudorandom.\n",
-        testint_sobol / n - 1, testint_rand / n - 1);
+    printf("Test integral = %g using Sobol, %g using pseudorandom.\n", testint_sobol / n, testint_rand / n);
+    printf("        error = %g using Sobol, %g using pseudorandom.\n", testint_sobol / n - 1, testint_rand / n - 1);
     return 0;
 }

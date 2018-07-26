@@ -28,54 +28,56 @@
 /*-----------------------------------------------------------------------*/
 /* wrappers around f77 procedures */
 
-typedef void (*nlopt_f77_func)(double *val, const int *n, const double *x,
-			       double *gradient, const int *need_gradient,
-			       void *func_data);
+typedef void (*nlopt_f77_func) (double *val, const int *n, const double *x, double *gradient, const int *need_gradient, void *func_data);
 
-typedef void (*nlopt_f77_mfunc)(const int *m,
-				double *val, const int *n, const double *x,
-				double *gradient, const int *need_gradient,
-				void *func_data);
+typedef void (*nlopt_f77_mfunc) (const int *m, double *val, const int *n, const double *x, double *gradient, const int *need_gradient, void *func_data);
 
 typedef struct {
-     nlopt_f77_func f;
-     nlopt_f77_mfunc mf;
-     void *f_data;
+    nlopt_f77_func f;
+    nlopt_f77_mfunc mf;
+    void *f_data;
 } f77_func_data;
 
-static void *free_f77_func_data(void *p) { free(p); return NULL; }
-static void *dup_f77_func_data(void *p) { 
-     void *pnew = (void*) malloc(sizeof(f77_func_data));
-     if (pnew) memcpy(pnew, p, sizeof(f77_func_data));
-     return pnew;
+static void *free_f77_func_data(void *p)
+{
+    free(p);
+    return NULL;
+}
+
+static void *dup_f77_func_data(void *p)
+{
+    void *pnew = (void *) malloc(sizeof(f77_func_data));
+    if (pnew)
+        memcpy(pnew, p, sizeof(f77_func_data));
+    return pnew;
 }
 
 static double f77_func_wrap_old(int n, const double *x, double *grad, void *data)
 {
-     f77_func_data *d = (f77_func_data *) data;
-     double val;
-     int need_gradient = grad != 0;
-     d->f(&val, &n, x, grad, &need_gradient, d->f_data);
-     return val;
+    f77_func_data *d = (f77_func_data *) data;
+    double val;
+    int need_gradient = grad != 0;
+    d->f(&val, &n, x, grad, &need_gradient, d->f_data);
+    return val;
 }
 
 static double f77_func_wrap(unsigned n, const double *x, double *grad, void *data)
 {
-     f77_func_data *d = (f77_func_data *) data;
-     int ni = (int) n;
-     double val;
-     int need_gradient = grad != 0;
-     d->f(&val, &ni, x, grad, &need_gradient, d->f_data);
-     return val;
+    f77_func_data *d = (f77_func_data *) data;
+    int ni = (int) n;
+    double val;
+    int need_gradient = grad != 0;
+    d->f(&val, &ni, x, grad, &need_gradient, d->f_data);
+    return val;
 }
 
 static void f77_mfunc_wrap(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data)
 {
-     f77_func_data *d = (f77_func_data *) data;
-     int mi = (int) m;
-     int ni = (int) n;
-     int need_gradient = grad != 0;
-     d->mf(&mi, result, &ni, x, grad, &need_gradient, d->f_data);
+    f77_func_data *d = (f77_func_data *) data;
+    int mi = (int) m;
+    int ni = (int) n;
+    int need_gradient = grad != 0;
+    d->mf(&mi, result, &ni, x, grad, &need_gradient, d->f_data);
 }
 
 /*-----------------------------------------------------------------------*/

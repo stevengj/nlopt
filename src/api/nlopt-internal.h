@@ -27,67 +27,67 @@
 #include "nlopt-util.h"
 
 #ifdef __cplusplus
-extern "C"
-{
-#endif /* __cplusplus */
+extern "C" {
+#endif                          /* __cplusplus */
 
 /*********************************************************************/
 
-struct nlopt_opt_s {
-     nlopt_algorithm algorithm; /* the optimization algorithm (immutable) */
-     unsigned n; /* the dimension of the problem (immutable) */
+    struct nlopt_opt_s {
+        nlopt_algorithm algorithm;      /* the optimization algorithm (immutable) */
+        unsigned n;             /* the dimension of the problem (immutable) */
 
-     nlopt_func f; void *f_data; /* objective function to minimize */
-     nlopt_precond pre; /* optional preconditioner for f (NULL if none) */
-     int maximize; /* nonzero if we are maximizing, not minimizing */
+        nlopt_func f;
+        void *f_data;           /* objective function to minimize */
+        nlopt_precond pre;      /* optional preconditioner for f (NULL if none) */
+        int maximize;           /* nonzero if we are maximizing, not minimizing */
 
-     double *lb, *ub; /* lower and upper bounds (length n) */
+        double *lb, *ub;        /* lower and upper bounds (length n) */
 
-     unsigned m; /* number of inequality constraints */
-     unsigned m_alloc; /* number of inequality constraints allocated */
-     nlopt_constraint *fc; /* inequality constraints, length m_alloc */
+        unsigned m;             /* number of inequality constraints */
+        unsigned m_alloc;       /* number of inequality constraints allocated */
+        nlopt_constraint *fc;   /* inequality constraints, length m_alloc */
 
-     unsigned p; /* number of equality constraints */
-     unsigned p_alloc; /* number of inequality constraints allocated */
-     nlopt_constraint *h; /* equality constraints, length p_alloc */
+        unsigned p;             /* number of equality constraints */
+        unsigned p_alloc;       /* number of inequality constraints allocated */
+        nlopt_constraint *h;    /* equality constraints, length p_alloc */
 
-     nlopt_munge munge_on_destroy, munge_on_copy; /* hack for wrappers */
+        nlopt_munge munge_on_destroy, munge_on_copy;    /* hack for wrappers */
 
-     /* stopping criteria */
-     double stopval; /* stop when f reaches stopval or better */
-     double ftol_rel, ftol_abs; /* relative/absolute f tolerances */
-     double xtol_rel, *xtol_abs; /* rel/abs x tolerances */
-     int maxeval; /* max # evaluations */
-     int numevals; /* number of evaluations */
-     double maxtime; /* max time (seconds) */
+        /* stopping criteria */
+        double stopval;         /* stop when f reaches stopval or better */
+        double ftol_rel, ftol_abs;      /* relative/absolute f tolerances */
+        double xtol_rel, *xtol_abs;     /* rel/abs x tolerances */
+        int maxeval;            /* max # evaluations */
+        int numevals;           /* number of evaluations */
+        double maxtime;         /* max time (seconds) */
 
-     int force_stop; /* if nonzero, force a halt the next time we
-			try to evaluate the objective during optimization */
-     /* when local optimization is used, we need a force_stop in the
-	parent object to force a stop in child optimizations */
-     struct nlopt_opt_s *force_stop_child;
+        int force_stop;         /* if nonzero, force a halt the next time we
+                                   try to evaluate the objective during optimization */
+        /* when local optimization is used, we need a force_stop in the
+           parent object to force a stop in child optimizations */
+        struct nlopt_opt_s *force_stop_child;
 
-     /* algorithm-specific parameters */
-     nlopt_opt local_opt; /* local optimizer */
-     unsigned stochastic_population; /* population size for stochastic algs */
-     double *dx; /* initial step sizes (length n) for nonderivative algs */
-     unsigned vector_storage; /* max subspace dimension (0 for default) */
+        /* algorithm-specific parameters */
+        nlopt_opt local_opt;    /* local optimizer */
+        unsigned stochastic_population; /* population size for stochastic algs */
+        double *dx;             /* initial step sizes (length n) for nonderivative algs */
+        unsigned vector_storage;        /* max subspace dimension (0 for default) */
 
-     void *work; /* algorithm-specific workspace during optimization */
+        void *work;             /* algorithm-specific workspace during optimization */
 
-     char *errmsg; /* description of most recent error */
-};
+        char *errmsg;           /* description of most recent error */
+    };
 
 /*********************************************************************/
-extern void nlopt_srand_time_default(void); /* init the rand. seed only if unset */
+    extern void nlopt_srand_time_default(void); /* init the rand. seed only if unset */
 
 /*********************************************************************/
 /* global defaults set by deprecated API: */
 
-extern nlopt_algorithm nlopt_local_search_alg_deriv;
-extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
-extern int nlopt_local_search_maxeval;
-extern unsigned nlopt_stochastic_population;
+    extern nlopt_algorithm nlopt_local_search_alg_deriv;
+    extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
+    extern int nlopt_local_search_maxeval;
+    extern unsigned nlopt_stochastic_population;
 
 /*********************************************************************/
 
@@ -96,17 +96,16 @@ extern unsigned nlopt_stochastic_population;
     return err;                                 \
 } while (0)
 
-extern const char *nlopt_set_errmsg(nlopt_opt opt, const char *format, ...)
+    extern const char *nlopt_set_errmsg(nlopt_opt opt, const char *format, ...)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 2, 3)))
+        __attribute__ ((format(printf, 2, 3)))
 #endif
-;
-extern void nlopt_unset_errmsg(nlopt_opt opt);
+        ;
+    extern void nlopt_unset_errmsg(nlopt_opt opt);
 
 /*********************************************************************/
 
 #ifdef __cplusplus
-}  /* extern "C" */
-#endif /* __cplusplus */
-
-#endif /* NLOPT_INTERNAL_H */
+}                               /* extern "C" */
+#endif                          /* __cplusplus */
+#endif                          /* NLOPT_INTERNAL_H */
