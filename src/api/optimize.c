@@ -86,6 +86,7 @@ static double f_direct(int n, const double *x, int *undefined, void *data_)
      double f;
      unsigned i, j;
      f = data->f((unsigned) n, x, NULL, data->f_data);
+	 ++data->numevals;
      *undefined = nlopt_isnan(f) || nlopt_isinf(f);
      if (nlopt_get_force_stop(data)) return f;
      for (i = 0; i < data->m && !*undefined; ++i) {

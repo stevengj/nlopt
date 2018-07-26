@@ -86,10 +86,10 @@ typedef struct {
   void *f_data;
 } bounds_wrap_data;
 
-static double bounds_wrap_func(int n, const double *x, double *grad, void *d_)
+static double bounds_wrap_func(unsigned n, const double *x, double *grad, void *d_)
 {
   bounds_wrap_data *d = (bounds_wrap_data *) d_;
-  int i;
+  unsigned i;
   double b = 0;
   for (i = 0; i < n; ++i) {
     if (x[i] < d->lb[i]) {
@@ -102,13 +102,14 @@ static double bounds_wrap_func(int n, const double *x, double *grad, void *d_)
     }
   }
   if (i < n)
-    fprintf(stderr, "WARNING: bounds violated by x[%d] = %g = %g + %g\n",
+    fprintf(stderr, "WARNING: bounds violated by x[%u] = %g = %g + %g\n",
 	    i, x[i], b, x[i] - b);
   return d->f(n, x, grad, d->f_data);
 }
 
 static int test_function(int ifunc)
 {
+  nlopt_opt opt;
   testfunc func;
   int i, iter;
   double *x, minf, minf_max, f0, *xtabs, *lb, *ub;
@@ -218,12 +219,18 @@ static int test_function(int ifunc)
     }
     
     testfuncs_counter = 0;
-    ret = nlopt_minimize(algorithm,
-			 func.n, bounds_wrap_func, &bw,
-			 lb, ub,
-			 x, &minf,
-			 minf_max, ftol_rel, ftol_abs, xtol_rel, xtabs,
-			 maxeval, maxtime);
+    opt = nlopt_create(algorithm, func.n);
+    nlopt_set_min_objective(opt, bounds_wrap_func, &bw);
+    nlopt_set_lower_bounds(opt, lb);
+    nlopt_set_upper_bounds(opt, ub);
+    nlopt_set_stopval(opt, minf_max);
+    nlopt_set_ftol_rel(opt, ftol_rel);
+    nlopt_set_ftol_abs(opt, ftol_abs);
+    nlopt_set_xtol_rel(opt, xtol_rel);
+    nlopt_set_xtol_abs(opt, xtabs);
+    nlopt_set_maxeval(opt, maxeval);
+    nlopt_set_maxtime(opt, maxtime);
+    ret = nlopt_optimize(opt, x, &minf);
     printf("finished after %g seconds.\n", nlopt_seconds() - start);
     printf("return code %d from nlopt_minimize\n", ret);
     if (ret < 0 && ret != NLOPT_ROUNDOFF_LIMITED
@@ -232,8 +239,9 @@ static int test_function(int ifunc)
       free(x);
       return 0;
     }
-    printf("Found minimum f = %g after %d evaluations.\n", 
-	   minf, testfuncs_counter);
+    printf("Found minimum f = %g after %d evaluations (numevals = %d).\n", 
+	         minf, testfuncs_counter, nlopt_get_numevals(opt));
+    nlopt_destroy(opt);
     total_count += testfuncs_counter;
     if (testfuncs_counter > max_count) max_count = testfuncs_counter;
     if (testfuncs_counter < min_count) min_count = testfuncs_counter;
