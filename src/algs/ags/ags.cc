@@ -3,9 +3,11 @@
 
 #include "ags.h"
 #include "solver.hpp"
+
 #include <iostream>
 #include <cstring>
 #include <exception>
+#include <limits>
 
 double ags_eps = 0;
 double ags_r = 3;
@@ -46,7 +48,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
 
   ags::SolverParameters params;
   params.r = ags_r;
-  params.itersLimit = stop->maxeval != 0 ? stop->maxeval : 5000;
+  params.itersLimit = stop->maxeval != 0 ? stop->maxeval : std::numeric_limits<int>::max();
   params.eps = ags_eps;
   params.evolventDensity = evolvent_density;
   params.epsR = eps_res;
@@ -63,6 +65,10 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
     auto external_stop_func = [stop, &ret_code](){
         if (nlopt_stop_time(stop)) {
           ret_code = NLOPT_MAXTIME_REACHED;
+          return true;
+        }
+        else if (nlopt_stop_forced(stop)) {
+          ret_code = NLOPT_FORCED_STOP;
           return true;
         }
         else return false;
