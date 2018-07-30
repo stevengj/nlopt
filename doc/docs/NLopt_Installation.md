@@ -142,14 +142,13 @@ Note, however, that if you do this then Guile may not know where to load the `nl
 NLopt with C++ algorithms
 -------------------------
 
-NLopt, as-is, is callable from C, C++, and Fortran, with optional Matlab and GNU Octave plugins (and even installs an `nlopt.hpp` C++ header file to allow you to call it in a more C++ style). By default, it includes only subroutines written in C (or written in Fortran and converted to C), to simplify linking. If you configure with:
+NLopt, as-is, is callable from C, C++, and Fortran, with optional Matlab and GNU Octave plugins (and even installs an `nlopt.hpp` C++ header file to allow you to call it in a more C++ style). By default, it includes subroutines written in C (or written in Fortran and converted to C) and C++. If you configure with:
 
 ```sh
-cmake -DNLOPT_CXX=ON ..
+cmake -DNLOPT_CXX=OFF ..
 ```
 
-however, it will also include algorithms implemented in C++ (currently, just the StoGO algorithm), and the resulting library will be called `libnlopt_cxx` and is linked with `-lnlopt_cxx`.
+however, it will disable algorithms implemented in C++ (StoGO and AGS algorithms).
 
-The `libnlopt_cxx` has the *same* interface as the ordinary NLopt library, and can *still* be called from ordinary C and Fortran programs. However, to use it you must also *link* with the C++ standard libraries. The easiest way to do this is to link with the C++ linker: compile your source files into `.o` object files, and then call the C++ compiler to link these `.o` files with `-lnlopt_cxx` into your executable program.
+The resulting library has the *same* interface as the ordinary NLopt library, and can *still* be called from ordinary C, C++, and Fortran programs. However, one no longer has to link with the C++ standard libraries, which can sometimes be convenient for non-C++ programs, and allows libnlopt to be compatible with multiple C++ compilers simultaneously.
 
-It is because this linking process is somewhat annoying, and it only adds a single more algorithm (StoGO) to NLopt, that by default we omit StoGO to create a library that does not require the C++ standard libraries to link.
