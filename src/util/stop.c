@@ -29,6 +29,15 @@
 
 /* utility routines to implement the various stopping criteria */
 
+static double vector_norm(unsigned n, double *vec, double *w)
+{
+    unsigned i;
+    double ret;
+    for (i = 0; i < n; i++)
+        ret += (w ? w[i] : 1) * fabs(vec[i]);   /* this is L1 norm */
+    return ret;
+}
+
 static int relstop(double vold, double vnew, double reltol, double abstol)
 {
     if (nlopt_isinf(vold))
@@ -49,6 +58,7 @@ int nlopt_stop_f(const nlopt_stopping * s, double f, double oldf)
 int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 {
     unsigned i;
+    /* TODO: iterative calculation of ‖Δx‖ */
     for (i = 0; i < s->n; ++i)
         if (!relstop(oldx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
             return 0;
@@ -58,8 +68,10 @@ int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 int nlopt_stop_dx(const nlopt_stopping * s, const double *x, const double *dx)
 {
     unsigned i;
+    if (vector_norm(s->n, dx, NULL) <= s->xtol_rel * vector_norm(s->n, x, NULL))
+        return 1;
     for (i = 0; i < s->n; ++i)
-        if (!relstop(x[i] - dx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
+        if (!relstop(x[i] - dx[i], x[i], 0 /* may be not a good idea */ , s->xtol_abs[i]))
             return 0;
     return 1;
 }
@@ -74,6 +86,7 @@ static double sc(double x, double smin, double smax)
 int nlopt_stop_xs(const nlopt_stopping * s, const double *xs, const double *oldxs, const double *scale_min, const double *scale_max)
 {
     unsigned i;
+    /* TODO: iterative calculation of ‖Δx‖ */
     for (i = 0; i < s->n; ++i)
         if (!relstop(sc(oldxs[i], scale_min[i], scale_max[i]), sc(xs[i], scale_min[i], scale_max[i]), s->xtol_rel, s->xtol_abs[i]))
             return 0;
