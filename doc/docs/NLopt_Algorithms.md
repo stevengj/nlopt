@@ -45,7 +45,7 @@ and DIRECT-L is the "locally biased" variant proposed by:
 
 -   J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT algorithm," *J. Global Optimization*, vol. 21 (1), p. 27-37 (2001).
 
-These is are deterministic-search algorithms based on systematic division of the search domain into smaller and smaller hyperrectangles. The Gablonsky version makes the algorithm "more biased towards local search" so that it is more efficient for functions without too many local minima. NLopt contains several implementations of both of these algorithms. I would tend to try `NLOPT_GN_DIRECT_L` first; YMMV.
+These are deterministic-search algorithms based on systematic division of the search domain into smaller and smaller hyperrectangles. The Gablonsky version makes the algorithm "more biased towards local search" so that it is more efficient for functions without too many local minima. NLopt contains several implementations of both of these algorithms. I would tend to try `NLOPT_GN_DIRECT_L` first; YMMV.
 
 First, it contains a from-scratch re-implementation of both algorithms, specified by the constants `NLOPT_GN_DIRECT` and `NLOPT_GN_DIRECT_L`, respectively.
 
