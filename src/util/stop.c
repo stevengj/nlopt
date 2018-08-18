@@ -29,12 +29,16 @@
 
 /* utility routines to implement the various stopping criteria */
 
-static double vector_norm(unsigned n, double *vec, double *w)
+static double vector_norm(unsigned n, const double *vec, const double *w)
 {
     unsigned i;
-    double ret;
-    for (i = 0; i < n; i++)
-        ret += (w ? w[i] : 1) * fabs(vec[i]);   /* this is L1 norm */
+    double ret = 0;
+    if (w)
+        for (i = 0; i < n; i++)
+            ret += w[i] * fabs(vec[i]);
+    else
+        for (i = 0; i < n; i++)
+            ret += fabs(vec[i]);
     return ret;
 }
 
