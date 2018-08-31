@@ -78,5 +78,5 @@ static double func_guile(unsigned n, const double *x, double *grad, void *f) {
 %feature("constasvar", "1");
 
 %scheme %{
-(load-extension "libnlopt_guile.so" "SWIG_init")
+(load-extension "nlopt_guile" "SWIG_init")
 %}
