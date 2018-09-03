@@ -23,7 +23,7 @@ matrix:
         - pip install mkdocs python-markdown-math --user
         - PATH=$PATH:~/.local/bin mkdocs build
         - mkdir build && pushd build
-        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_GUILE=OFF -DNLOPT_MATLAB=OFF ..
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_MATLAB=OFF ..
         - make install -j2 && ctest -j2 --output-on-failure
         - rm -rf * ~/.local
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_PYTHON=OFF -DNLOPT_OCTAVE=OFF -DNLOPT_GUILE=OFF -DNLOPT_MATLAB=OFF -DCMAKE_TOOLCHAIN_FILE=$PWD/../cmake/toolchain-i686-w64-mingw32.cmake ..
@@ -35,8 +35,7 @@ matrix:
     - os: osx
       install:
         - brew update
-        # TODO: install guile once 2.2 is supported in swig
-        - brew install swig octave || echo "nope"
+        - brew install swig octave guile || echo "nope"
       script:
         - mkdir build && pushd build
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/python ..
