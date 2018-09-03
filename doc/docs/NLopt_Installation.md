@@ -114,10 +114,10 @@ Python plugins
 
 If [Python](https://en.wikipedia.org/wiki/Python_(programming_language)) is installed on your machine, and you configured NLopt as a shared library (see above), then NLopt will automatically compile and install a Python `nlopt` module. You also need [NumPy](https://en.wikipedia.org/wiki/NumPy) to be installed, as NLopt's Python interface uses NumPy array types.
 
-To specify a particular version or location of Python, use the `PYTHON_EXECUTABLE` variable to set the name of the `python` executable:
+To specify a particular version or location of Python, use the `PYTHON_EXECUTABLE` variable to set the full path to the `python` executable:
 
 ```sh
-cmake -DPYTHON_EXECUTABLE=python ..
+cmake -DPYTHON_EXECUTABLE=/usr/bin/python ..
 ```
 
 GNU Guile plugins
@@ -130,7 +130,7 @@ Note that many GNU/Linux distributions come with only the Guile program and shar
 If you want to specify a particular version or a nonstandard location of Guile, you should use the `GUILE_CONFIG_EXECUTABLE` and `GUILE_EXECUTABLE` variables to specify the locations of the `guile-config` and `guile` programs:
 
 ```sh
-cmake -DGUILE_EXECUTABLE=guile GUILE_CONFIG_EXECUTABLE=guile-config ..
+cmake -DGUILE_EXECUTABLE=/usr/bin/guile GUILE_CONFIG_EXECUTABLE=/usr/bin/guile-config ..
 ```
 
 (The `cmake` script uses these programs to determine the compiler flags and installation directories for Guile plugins.)
