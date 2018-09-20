@@ -138,7 +138,7 @@ if (NOT DEFINED HAVE_FPCLASSIFY)
 endif ()
 
 option (WITH_THREADLOCAL "check thread local keyword" ON)
-if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
+if (WITH_THREADLOCAL AND NOT DEFINED THREADLOCAL)
   foreach (_THREADLOCAL_KEY "__thread" "__declspec(thread)")
     unset (HAVE_THREAD_LOCAL_STORAGE CACHE)
     check_c_source_compiles("
@@ -147,11 +147,12 @@ if (WITH_THREADLOCAL AND NOT DEFINED HAVE_THREAD_LOCAL_STORAGE)
     int main(void) {
         return 0;
     }" HAVE_THREAD_LOCAL_STORAGE)
-    if (${HAVE_THREAD_LOCAL_STORAGE})
-      set (THREADLOCAL ${_THREADLOCAL_KEY})
+    if (HAVE_THREAD_LOCAL_STORAGE)
+      set (THREADLOCAL ${_THREADLOCAL_KEY} CACHE STRING "Thread local keyword")
     endif ()
   endforeach()
 endif ()
+
 
 if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
   check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
