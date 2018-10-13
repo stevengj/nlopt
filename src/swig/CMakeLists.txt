@@ -1,5 +1,6 @@
 
 include (UseSWIG)
+include (TargetLinkLibrariesWithDynamicLookup)
 
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-enum-renames.i)
   file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt-enum-renames.i "// AUTOMATICALLY GENERATED -- DO NOT EDIT\n")
@@ -27,9 +28,7 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND)
   target_include_directories (${SWIG_MODULE_nlopt_REAL_NAME} PUBLIC ${NUMPY_INCLUDE_DIRS})
 
   swig_link_libraries (nlopt ${nlopt_lib})
-  if (NLOPT_LINK_PYTHON)
-    swig_link_libraries (nlopt ${PYTHON_LIBRARIES})
-  endif ()
+  target_link_libraries_with_dynamic_lookup (${SWIG_MODULE_nlopt_REAL_NAME} ${PYTHON_LIBRARIES})
 
   set_target_properties (${SWIG_MODULE_nlopt_REAL_NAME} PROPERTIES OUTPUT_NAME _nlopt)
 
@@ -53,7 +52,7 @@ if (GUILE_FOUND AND (SWIG_VERSION VERSION_GREATER 2.0.9))
   target_include_directories (${SWIG_MODULE_nlopt_guile_REAL_NAME} PUBLIC ${GUILE_INCLUDE_DIRS})
 
   swig_link_libraries (nlopt_guile ${nlopt_lib})
-  swig_link_libraries (nlopt_guile ${GUILE_LIBRARIES})
+  target_link_libraries_with_dynamic_lookup (${SWIG_MODULE_nlopt_guile_REAL_NAME} ${GUILE_LIBRARIES})
 
   file (RELATIVE_PATH _REL_GUILE_SITE_PATH ${GUILE_ROOT_DIR} ${GUILE_SITE_DIR})
   set (GUILE_SITE_PATH ${_REL_GUILE_SITE_PATH})
