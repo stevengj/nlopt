@@ -58,7 +58,7 @@ namespace
           right[i] = mRightBound[i];
         }
       }
-      int GetOptimumPoint(double* y) const {return 0;}
+      int GetOptimumPoint(double*) const {return 0;}
       double GetOptimumValue() const {return 0;}
     };
 }

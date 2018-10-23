@@ -88,7 +88,7 @@ static nlopt_result optimize_rect(double *r, params *p)
 	  lb[i] = c[i] - 0.5 * w[i];
 	  ub[i] = c[i] + 0.5 * w[i];
      }
-     ret = nlopt_minimize(p->local_alg, n, fcount, p, 
+     ret = internal_nlopt_minimize(p->local_alg, n, fcount, p,
 			  lb, ub, x, &minf,
 			  stop->minf_max, stop->ftol_rel, stop->ftol_abs,
 			  stop->xtol_rel, stop->xtol_abs,

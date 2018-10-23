@@ -32,7 +32,8 @@ Trial HookeJeevesOptimizer::Optimize(std::shared_ptr<IGOProblem<double>> problem
 
   int k = 0, i=0;
   bool needRestart = true;
-  double currentFValue, nextFValue;
+  /* currentFvalue will be initialized below, init here to avoid maybe-uninitialized warning */
+  double currentFValue = 0.0, nextFValue;
 
   while (i < MAX_LOCAL_ITERATIONS_NUMBER)	{
     i++;

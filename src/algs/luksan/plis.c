@@ -113,6 +113,8 @@ static void plis_(int *nf, int *nb, double *x, int *
 		  int *iterm, stat_common *stat_1,
 		  nlopt_func objgrad, void *objgrad_data)
 {
+    (void) tolb;
+
     /* System generated locals */
     int i__1;
     double d__1, d__2;
@@ -127,8 +129,7 @@ static void plis_(int *nf, int *nb, double *x, int *
     double fo, fp, po, pp, ro, rp;
     int kbf, mfg;
     int mes, kit;
-    double alf1, alf2, eta0, eta9, par1, par2;
-    int mes1, mes2, mes3;
+    double alf1, alf2, eta9, par1, par2;
     double eps8, eps9;
     int mred, iold, nred;
     double maxf, dmax__;
@@ -185,10 +186,6 @@ static void plis_(int *nf, int *nb, double *x, int *
     ires2 = 0;
     mred = 10;
     mes = 4;
-    mes1 = 2;
-    mes2 = 2;
-    mes3 = 2;
-    eta0 = 1e-15;
     eta9 = 1e120;
     eps8 = 1.;
     eps9 = 1e-8;
