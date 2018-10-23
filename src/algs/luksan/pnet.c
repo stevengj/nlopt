@@ -137,6 +137,8 @@ static void pnet_(int *nf, int *nb, double *x, int *
 		  int *iterm, stat_common *stat_1,
 		  nlopt_func objgrad, void *objgrad_data)
 {
+	(void) tolb;
+
     /* System generated locals */
     int i__1;
     double d__1, d__2;
@@ -156,7 +158,6 @@ static void pnet_(int *nf, int *nb, double *x, int *
     double rho, eps;
     int mmx;
     double alf1, alf2, eta0, eta9, par1, par2;
-    int mes1, mes2, mes3;
     double rho1, rho2, eps8, eps9;
     int mred, iold, nred;
     double maxf, dmax__;
@@ -218,9 +219,6 @@ static void pnet_(int *nf, int *nb, double *x, int *
     ires2 = 0;
     mred = 10;
     mes = 4;
-    mes1 = 2;
-    mes2 = 2;
-    mes3 = 2;
     eps = .8;
     eta0 = 1e-15;
     eta9 = 1e120;

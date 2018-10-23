@@ -24,7 +24,7 @@ static void update_(int *n, int *npt, double *bmat,
     double d__1, d__2, d__3;
 
     /* Local variables */
-    int i__, j, k, jl, jp;
+    int i__, j, k, jp;
     double one, tau, temp;
     int nptm;
     double zero, alpha, tempa, tempb, ztest;
@@ -70,7 +70,6 @@ static void update_(int *n, int *npt, double *bmat,
 
 /*     Apply the rotations that put zeros in the KNEW-th row of ZMAT. */
 
-    jl = 1;
     i__2 = nptm;
     for (j = 2; j <= i__2; ++j) {
 	if ((d__1 = zmat[*knew + j * zmat_dim1], fabs(d__1)) > ztest) {
@@ -1179,7 +1178,7 @@ static void trsbox_(int *n, int *npt, double *xpt,
     int isav;
     double temp, zero, xsav = 0.0, xsum, angbd = 0.0, dredg = 0.0, sredg = 0.0;
     int iterc;
-    double resid, delsq, ggsav = 0.0, tempa, tempb, ratio, sqstp, redmax, 
+    double resid, delsq, ggsav = 0.0, tempa, tempb, redmax,
 	    dredsq = 0.0, redsav, onemin, gredsq = 0.0, rednew;
     int itcsav = 0;
     double rdprev, rdnext = 0.0, stplen, stepsq;
@@ -1259,7 +1258,6 @@ static void trsbox_(int *n, int *npt, double *xpt,
 
     iterc = 0;
     nact = 0;
-    sqstp = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	xbdi[i__] = zero;
@@ -1512,7 +1510,6 @@ L120:
 		xbdi[i__] = one;
 		goto L100;
 	    }
-	    ratio = one;
 /* Computing 2nd power */
 	    d__1 = d__[i__];
 /* Computing 2nd power */

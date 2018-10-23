@@ -57,7 +57,8 @@ typedef struct IndividualStructure {
 } Individual;
 
 static int CompareIndividuals(void *unused, const void *a_, const void *b_) {
-     /* (void) unused; */
+     (void) unused;
+
      const Individual *a = (const Individual *) a_;
      const Individual *b = (const Individual *) b_;
      return a->fitness < b->fitness ? -1 : (a->fitness > b->fitness ? +1 : 0);

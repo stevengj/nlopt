@@ -78,7 +78,6 @@
     integer mdeep, *point = 0, start;
     integer *anchor = 0, *length = 0	/* was [90000][64] */, *arrayi = 0;
     doublereal *levels = 0, *thirds = 0;
-    integer writed;
     doublereal epsfix;
     integer oldpos, minpos, maxpos, tstart, actdeep, ifreeold, oldmaxf;
     integer numfunc, version;
@@ -325,7 +324,6 @@
     --x;
 
     /* Function Body */
-    writed = 0;
     jones = *algmethod;
 /* +-----------------------------------------------------------------------+ */
 /* | Save the upper and lower bounds.                                      | */

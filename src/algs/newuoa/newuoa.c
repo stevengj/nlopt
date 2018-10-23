@@ -181,7 +181,7 @@ static nlopt_result trsapp_(int *n, int *npt, double *xopt,
 	      xtol[j] = 1e-7 * *delta; /* absolute x tolerance */
 	 }
 	 memset(&step[1], 0, sizeof(double) * *n);
-	 ret = nlopt_minimize_constrained(NLOPT_LD_MMA, *n, quad_model, &qmd,
+	 ret = internal_nlopt_minimize_constrained(NLOPT_LD_MMA, *n, quad_model, &qmd,
 				    1, rho_constraint, delta, sizeof(double),
 				    slb, sub, &step[1], &minf, -HUGE_VAL,
 				    0., 0., 0., xtol, 1000, 0.);
@@ -1238,7 +1238,7 @@ static nlopt_result biglag_(int *n, int *npt, double *xopt,
 	      xtol[j] = 1e-5 * *delta;
 	 }
 	 ld.flipsign = lag(*n, &d__[1], 0, &ld) > 0; /* maximize if > 0 */
-	 return nlopt_minimize_constrained(NLOPT_LD_MMA, *n, lag, &ld,
+	 return internal_nlopt_minimize_constrained(NLOPT_LD_MMA, *n, lag, &ld,
 				    1, rho_constraint, delta, sizeof(double),
 				    dlb, dub, &d__[1], &minf, -HUGE_VAL,
 				    0., 0., 0., xtol, 1000, 0.);

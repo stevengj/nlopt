@@ -33,6 +33,8 @@ static integer c__0 = 0;
 integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, integer 
 	*n, integer jones)
 {
+    (void) maxfunc;
+
     /* System generated locals */
     integer length_dim1, length_offset, ret_val, i__1;
 
@@ -273,6 +275,8 @@ L40:
 	maxpos, integer *point, doublereal *f, const integer *maxdeep, integer *
 	maxfunc, const integer *maxdiv, integer *ierror)
 {
+    (void)  maxdeep; (void) maxfunc;
+
     /* System generated locals */
     integer s_dim1, s_offset, i__1;
 
@@ -344,6 +348,8 @@ L40:
 integer direct_dirgetmaxdeep_(integer *pos, integer *length, integer *maxfunc, 
 	integer *n)
 {
+    (void) maxfunc;
+
     /* System generated locals */
     integer length_dim1, length_offset, i__1, i__2, i__3;
 
@@ -370,6 +376,8 @@ integer direct_dirgetmaxdeep_(integer *pos, integer *length, integer *maxfunc,
 static integer isinbox_(doublereal *x, doublereal *a, doublereal *b, integer *n, 
 	integer *lmaxdim)
 {
+    (void) lmaxdim;
+
     /* System generated locals */
     integer ret_val, i__1;
 
@@ -409,6 +417,8 @@ L1010:
 	maxfunc, integer *maxdim, const integer *maxdeep, FILE *logfile,
 					    integer jones)
 {
+    (void) maxdim; (void) maxdeep;
+
     /* System generated locals */
     integer length_dim1, length_offset, i__1;
 
@@ -502,7 +512,7 @@ L20:
 /* L30: */
 	    }
 L40:
-	    pos = pos;
+	    ;
 	}
     }
 } /* dirresortlist_ */
@@ -521,6 +531,8 @@ L40:
 	integer *maxfunc, const integer *maxdeep, integer *maxdim, integer *n, 
 	FILE *logfile, doublereal *fmax, integer jones)
 {
+    (void) freeold;
+
     /* System generated locals */
     integer c_dim1, c_offset, length_dim1, length_offset, i__1, i__2, i__3;
     doublereal d__1, d__2;
@@ -698,6 +710,8 @@ L40:
 	maxfunc, const integer *maxdeep, integer *n, integer *samp,
 					    integer jones)
 {
+    (void) maxdeep;
+
     /* System generated locals */
     integer length_dim1, length_offset, i__1;
 
@@ -865,6 +879,8 @@ L50:
 	 doublereal *minf, integer *minpos, doublereal *u, integer *n, 
 	integer *maxfunc, const integer *maxdeep, integer *oops)
 {
+    (void) minf; (void) minpos; (void) maxfunc; (void) maxdeep; (void) oops;
+
     /* System generated locals */
     integer length_dim1, length_offset, c_dim1, c_offset, i__1, i__2;
 
@@ -936,6 +952,8 @@ L50:
 	integer *list2, doublereal *w, integer *maxi, doublereal *f, integer *
 	maxfunc, const integer *maxdeep, integer *n)
 {
+    (void) maxfunc; (void) maxdeep;
+
     /* System generated locals */
     integer length_dim1, length_offset, list2_dim1, list2_offset, i__1, i__2;
     doublereal d__1, d__2;
@@ -1082,6 +1100,8 @@ L50:
 /* Subroutine */ void direct_dirget_i__(integer *length, integer *pos, integer *
 	arrayi, integer *maxi, integer *n, integer *maxfunc)
 {
+    (void) maxfunc;
+
     /* System generated locals */
     integer length_dim1, length_offset, i__1;
 
@@ -1154,7 +1174,6 @@ L50:
     integer i__, j;
     integer new__, help, oops;
     doublereal help2, delta;
-    doublereal costmin;
 
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Added variable to keep track of the maximum value found.  | */
@@ -1191,7 +1210,6 @@ L50:
 
     /* Function Body */
     *minf = HUGE_VAL;
-    costmin = *minf;
 /* JG 09/15/00 If Jones way of characterising rectangles is used, */
 /*             initialise thirds to reflect this. */
     if (jones == 0) {
@@ -1256,7 +1274,6 @@ L50:
     }
 /* JG 09/25/00 Remove IF */
     *minf = f[3];
-    costmin = f[3];
     *minpos = 1;
     *actdeep = 2;
     point[1] = 0;
@@ -1438,6 +1455,8 @@ L50:
 	integer *ierror, doublereal *epsfix, integer *iepschange, doublereal *
 	volper, doublereal *sigmaper)
 {
+    (void) maxdeep; (void) ierror;
+
     /* System generated locals */
     integer i__1;
 
@@ -1557,6 +1576,8 @@ L50:
 	l, doublereal *u, integer *n, doublereal *minf, doublereal *fglobal, 
 	integer *numfunc, integer *ierror)
 {
+    (void) ierror;
+
     /* Local variables */
     integer i__;
 

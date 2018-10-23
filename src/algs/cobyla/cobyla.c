@@ -30,10 +30,13 @@
  * 
  * The original source code can be found at :
  * http://plato.la.asu.edu/topics/problems/nlores.html
+ *
+ * Original RCS id
+ * static char const rcsid[] =
+ *  "	@(#) $Jeannot: cobyla.c,v 1.11 2004/04/18 09:51:36 js Exp $";
+ *
  */
 
-static char const rcsid[] =
-  "@(#) $Jeannot: cobyla.c,v 1.11 2004/04/18 09:51:36 js Exp $";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -1259,7 +1262,7 @@ static nlopt_result trstlp(int *n, int *m, double *a,
   double spabs;
   double temp, step;
   int icount;
-  int iout, i__, j, k;
+  int i__, j, k;
   int isave;
   int kk;
   int kl, kp, kw;
@@ -1476,10 +1479,8 @@ L130:
     temp = zdotv / zdota[k];
     if (temp > 0. && iact[k] <= *m) {
       tempa = vmultc[k] / temp;
-      if (ratio < 0. || tempa < ratio) {
+      if (ratio < 0. || tempa < ratio)
         ratio = tempa;
-        iout = k;
-      }
     }
     if (k >= 2) {
       kw = iact[k];

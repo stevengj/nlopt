@@ -2497,9 +2497,11 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 	  switch (mode) {
 	  case -1:  /* objective & gradient evaluation */
 	      if (prev_mode == -2 && !want_grad) break; /* just evaluated this point */
+	      /* fall through */
 	  case -2:
 	      eval_f_and_grad:
 	      want_grad = 1;
+	      /* fall through */
 	  case 1:{ /* don't need grad unless we don't have it yet */
 	      double *newgrad = 0;
 	      double *newcgrad = 0;
