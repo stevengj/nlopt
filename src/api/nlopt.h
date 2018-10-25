@@ -288,7 +288,6 @@ NLOPT_EXTERN(void) nlopt_munge_data(nlopt_opt opt, nlopt_munge2 munge, void *dat
    for code that uses a deprecated function */
 #if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
 #  define NLOPT_DEPRECATED __attribute__((deprecated))
-#  define COMPILER_PROVIDES_DEPRECATED_ATTRIBUTE
 #else
 #  define NLOPT_DEPRECATED
 #endif

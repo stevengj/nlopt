@@ -163,7 +163,7 @@ nlopt_result NLOPT_STDCALL nlopt_minimize_econstrained(nlopt_algorithm algorithm
 }
 
 /* don't emit inner deprecated warnings */
-#ifdef COMPILER_PROVIDES_DEPRECATED_ATTRIBUTE
+#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 

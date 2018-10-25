@@ -19,7 +19,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
  */
-#ifdef COMPILER_PROVIDES_DEPRECATED_ATTRIBUTE
+#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
