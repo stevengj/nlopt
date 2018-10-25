@@ -78,9 +78,6 @@ if(POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
 endif()
 
-set (CMAKE_C_FLAGS "-Wall -Wextra ${CMAKE_C_FLAGS}")
-set (CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
-
 include (CheckIncludeFiles)
 include (CheckFunctionExists)
 include (CheckTypeSize)
