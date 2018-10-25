@@ -1726,7 +1726,8 @@ static nlopt_result prelim_(int *n, int *npt, double *x,
     int i__, j, k, ih, np, nfm;
     double one;
     int nfx, ipt = 0, jpt = 0;
-    double two, fbeg, diff, half, temp, zero, recip, stepa = 0.0, stepb = 0.0;
+    /* fbeg will be initialized below, init here to avoid maybe-uninitilaized warning */
+    double two, fbeg = 0.0, diff, half, temp, zero, recip, stepa = 0.0, stepb = 0.0;
     int itemp;
     double rhosq;
 
