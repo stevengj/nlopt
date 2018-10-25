@@ -1070,7 +1070,8 @@ static nlopt_result biglag_(int *n, int *npt, double *xopt,
     int nptm;
     double zero, angle, scale, denom;
     int iterc, isave;
-    double delsq, tempa, tempb = 0.0, twopi, taubeg, tauold, taumax;
+    /* Note: tempa is initialized below, initialization here is only used to avoid 'maybe-uninitialized' warning */
+    double delsq, tempa = 0.0, tempb = 0.0, twopi, taubeg, tauold, taumax;
 
 
 /* N is the number of variables. */
