@@ -83,7 +83,7 @@ module nlopt_enums
 
     integer, parameter :: NLOPT_GN_ESCH = 42
 
-    integer, parameter :: NUM_ALGORITHMS = 43
+    integer, parameter :: NUM_ALGORITHMS = 43 ! not an algorithm, just the number of them
 
 
     !
@@ -336,12 +336,12 @@ module nlopt_interfaces
         integer(c_int) function nlopt_set_xtol_abs(opt,tol) bind(c,name="nlopt_set_xtol_abs")
             import c_int, c_ptr, c_double
             type(c_ptr), value :: opt
-            real(c_double), intent(in) :: tol(nlo_get_dimension(opt))
+            real(c_double), intent(in) :: tol(nlopt_get_dimension(opt))
         end function
         integer(c_int) function nlopt_get_xtol_abs(opt,tol) bind(c,name="nlopt_get_xtol_abs")
             import c_int, c_ptr, c_double
             type(c_ptr), value :: opt
-            real(c_double), intent(out) :: tol(nlo_get_dimension(opt))
+            real(c_double), intent(out) :: tol(nlopt_get_dimension(opt))
         end function
 
         integer(c_int) function nlopt_set_maxeval(opt,maxeval) bind(c,name="nlopt_set_maxeval")
@@ -416,12 +416,12 @@ module nlopt_interfaces
         integer(c_int) function nlopt_set_default_initial_step(opt,x) bind(c,name="nlopt_set_default_initial_step")
             import c_int, c_ptr, c_double
             type(c_ptr), value :: opt
-            real(c_double), intent(in) :: x(nlo_get_dimension(opt))
+            real(c_double), intent(in) :: x(nlopt_get_dimension(opt))
         end function
         integer(c_int) function nlopt_set_initial_step(opt,dx) bind(c,name="nlopt_set_initial_step")
             import c_int, c_ptr, c_double
             type(c_ptr), value :: opt
-            real(c_double), intent(in) :: dx(nlo_get_dimension(opt))
+            real(c_double), intent(in) :: dx(nlopt_get_dimension(opt))
         end function
         integer(c_int) function nlopt_set_initial_step1(opt,dx) bind(c,name="nlopt_set_initial_step1")
             import c_int, c_ptr, c_double
@@ -431,32 +431,420 @@ module nlopt_interfaces
         integer(c_int) function nlopt_get_initial_step(opt,x,dx) bind(c,name="nlopt_get_initial_step")
             import c_int, c_ptr, c_double
             type(c_ptr), value :: opt
-            real(c_double), intent(in) :: x(nlo_get_dimension(opt))
-            real(c_double), intent(out) :: dx(nlo_get_dimension(opt))
-        end function      
+            real(c_double), intent(in) :: x(nlopt_get_dimension(opt))
+            real(c_double), intent(out) :: dx(nlopt_get_dimension(opt))
+        end function
     end interface
+
+end module
 
 module nlopt
 
-    use nlopt_interfaces, srand => nlopt_srand, srand_time => nlopt_srand_time
+    use nlopt_enums
+    use nlopt_interfaces: srand => nlopt_srand, srand_time => nlopt_srand_time, &
+    func => nlopt_func, mfunc => nlopt_mfunc
 
     implicit none
 
-    type :: opt
-        type(c_ptr) :: o
-    contains
 
+    ! abstract interface
+    !     real(c_double) function vfunc(x,grad,data)
+    !         real(c_double), intent(in) :: x(:)
+    !         real(c_double), intent(in) :: grad(:)
+    !         type(c_ptr), value :: data
+    !     end function
+    ! end interface
+
+    type :: opt
+        type(c_ptr), private :: o = c_null_ptr
+        integer(c_int), private :: last_result = NLOPT_FAILURE
+        real(c_double), private :: last_optf = huge(last_optf)
+        integer(c_int), private :: forced_stop_reason = NLOPT_FORCED_STOP
+    contains
+        ! procedure, private :: mythrow
+
+        procedure, public :: optimize
+
+        procedure, public :: last_optimize_result
+        procedure, public :: last_optimum_value
+
+        procedure, public :: get_algorithm
+        procedure, public :: get_algorithm_name
+        procedure, public :: get_dimension
+
+        procedure, public :: set_min_objective
+        procedure, public :: set_max_objective
+
+        procedure, public :: nlopt_remove_inequality_constraints
+        procedure, public :: nlopt_add_inequality_constraint
+        procedure, public :: nlopt_remove_equality_constraints
+        procedure, public :: nlopt_add_equality_constraint
+
+        procedure, public :: set_lower_bounds
+        procedure, public :: get_lower_bounds
+        procedure, public :: set_upper_bounds
+        procedure, public :: get_upper_bounds
+        ! stopping criteria
+
+        procedure, public :: get_numevals
+
+        procedure, public :: get_maxtime
+        procedure, public :: set_maxtime
+
+        procedure, public :: get_force_stop
+        procedure, public :: set_force_stop
+        procedure, public :: force_stop
+
+        ! algorithm-specific parameters
+        procedure, public :: set_local_optimizer
+        procedure, public :: set_default_initial_step
+        procedure, public :: get_initial_step
+
+        procedure, private :: assign_opt
+        generic, public :: assignment(=) => assign_opt
+
+        ! Destructor
+        final, public :: destroy
     end type
 
     public :: srand, srand_time, version
 
+    ! Constructors
+    interface opt
+        module procedure new_opt
+        module procedure copy_opt
+    end interface
+
 contains
 
-    function new_opt(a,n) result(this)
-        type(algorithm), intent(in) :: a
-        integer, intent(in) :: n
+    type(opt) function new_opt(a,n) result(this)
+        integer(c_int), intent(in) :: a
+        integer(c_int), intent(in) :: n
 
+        this = nlopt_create(a,n)
+
+        this%last_result = NLOPT_FAILURE
+        this%last_optf = huge(this%last_optf)
+        this%forced_stop_reason = NLOPT_FORCED_STOP
     end function
+
+    type(opt) function copy_opt(f) result(this)
+        type(opt), intent(in) :: f
+
+        this%o = nlopt_copy(f%o)
+        this%last_result = f%last_result
+        this%last_optf = f%last_optf
+        this%forced_stop_reason = f%forced_stop_reason
+    end function
+
+    subroutine assign_opt(lhs,rhs)
+        class(opt), intent(inout) :: lhs
+        class(opt), intent(in) :: rhs
+
+        call nlopt_destroy(lhs%o)
+        lhs%o = nlopt_copy(rhs%o)
+        lhs%last_result = rhs%last_result
+        lhs%last_optf = rhs%last_optf
+        lhs%forced_stop_reason = rhs%forced_stop_reason
+    end subroutine
+
+
+    subroutine destroy(this)
+        call nlopt_destroy(this%o)
+    end subroutine
+
+    integer(c_int) function optimize(this,x,opt_f)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(inout) :: x(this%get_dimension())
+        real(c_double), intent(inout) :: opt_f
+        integer(c_int) :: ret
+        
+        this%forced_stop_reason = NLOPT_FORCED_STOP
+        ret = nlopt_optimize(this%o,x,opt_f)
+        this%last_result = ret
+        this%last_optf = opt_f
+        ! if (ret == NLOPT_FORCED_STOP) call mythrow(this%forced_stop_reason)
+        ! call mythrow(ret)
+        optimize = ret
+    end function
+
+    ! last_optimize_result
+    integer(c_int) function last_optimize_result(this)
+        class(opt), intent(in) :: this
+        last_optimize_result = this%last_optimize_result
+    end function
+
+    real(c_double) function last_optimum_value(this)
+        class(opt), intent(in) :: this
+        last_optimum_value = o%last_optf
+    end function
+
+
+    ! Accessors
+    integer(c_int) function get_algorithm(this)
+        class(opt), intent(in) :: this
+
+        get_algorithm = nlopt_get_algorithm(this%o)
+    end function
+
+    function get_algorithm_name(this) result(name)
+        class(opt), intent(in) :: this
+        character(len=256), allocatable :: name
+        character(len=256), pointer :: local
+        type(c_ptr) :: cptr
+        cptr = nlopt_algorithm_name(this%get_algorithm())
+        call c_f_pointer(cptr,local)
+        name = local
+    end function
+
+    integer(c_int) function get_dimension(this)
+        class(opt), intent(in) :: this
+        get_dimension = nlopt_get_dimension(this%o)
+    end function
+
+    ! Set the objective function
+
+    subroutine set_min_objective(this,f,f_data)
+        class(opt), intent(inout) :: this
+        procedure(func) :: f
+        type(c_ptr), intent(in) :: f_data
+        integer(c_int) :: ret
+        ret = nlopt_set_min_objective(this%o,f,f_data)
+        ! call mythrow(ret)
+    end subroutine
+    subroutine set_max_objective(this,f,f_data)
+        class(opt), intent(inout) :: this
+        procedure(func) :: f
+        type(c_ptr), intent(in) :: f_data
+        integer(c_int) :: ret
+        ret = nlopt_set_max_objective(this%o,f,f_data)
+        ! call mythrow(ret)
+    end subroutine
+
+    ! Nonlinear constraints
+
+    subroutine remove_inequality_constraints(this)
+        class(opt), intent(inout) :: this
+        integer(c_int) :: ret
+        ret = nlopt_remove_equality_constraints(this%o)
+        ! call mythrow(ret)
+    end subroutine
+    subroutine add_inequality_constraint(this,f,f_data,tol)
+        class(opt), intent(inout) :: this
+        procedure(func) :: f
+        type(c_ptr), value :: f_data
+        real(c_double), optional :: tol
+        real(c_double) :: tol_
+
+        tol_ = 0
+        if (present(tol)) tol_ = tol
+
+        ret = nlopt_add_inequality_constraint(this%o,f,f_data,tol_)
+        ! call mythrow(ret)
+    end subroutine
+
+    subroutine remove_equality_constraints(this)
+        class(opt), intent(inout) :: this
+        integer(c_int) :: ret
+        ret = nlopt_remove_inequality_constraints(this%o)
+        ! call mythrow(ret)
+    end subroutine
+    subroutine add_equality_constraint(this,f,f_data,tol)
+        class(opt), intent(inout) :: this
+        procedure(func) :: f
+        type(c_ptr), value :: f_data
+        real(c_double), optional :: tol
+        real(c_double) :: tol_
+
+        tol_ = 0
+        if (present(tol)) tol_ = tol
+
+        ret = nlopt_add_equality_constraint(this%o,f,f_data,tol_)
+        ! call mythrow(ret)
+    end subroutine
+    ! subroutine add_equality_mconstraint(this,mf,f_data,tol)
+    !     class(opt), intent(inout) :: this
+    !     procedure(mfunc) :: mf
+    !     type(c_ptr), value :: f_data
+    !     real(c_double), optional :: tol()
+    !     real(c_double) :: tol_
+
+    !     tol_ = 0
+    !     if (present(tol)) tol_ = tol
+
+    !     ret = nlopt_add_equality_mconstraint(this%o,f,f_data,tol_)
+    !     ! call mythrow(ret)
+    ! end subroutine
+
+
+    subroutine set_lower_bounds(this,lb)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: lb(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_set_lower_bounds(this%o,lb)
+    end subroutine
+    subroutine get_lower_bounds(this,lb)
+        class(opt), intent(in) :: this
+        real(c_double), intent(out) :: lb(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_get_lower_bounds(this%o,lb)
+    end subroutine
+    subroutine set_upper_bounds(this,ub)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: ub(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_set_upper_bounds(this%o,ub)
+    end subroutine
+    subroutine get_upper_bounds(this,ub)
+        class(opt), intent(in) :: this
+        real(c_double), intent(out) :: ub(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_get_upper_bounds(this%o,ub)
+    end subroutine
+
+
+    real(c_double) function get_stopval(this)
+        class(opt), intent(in) :: this
+        get_stopval = nlopt_get_stopval(this%o)
+    end function
+    subroutine set_stopval(this,stopval)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: stopval
+        integer(c_int) :: ret
+        ret = nlopt_set_stopval(this%o,stopval)
+    end subroutine
+
+    real(c_double) function get_ftol_rel(this)
+        class(opt), intent(in) :: this
+        get_ftol_rel = nlopt_get_ftol_rel(this%o)
+    end function
+    subroutine set_ftol_rel(this,tol)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: tol
+        integer(c_int) :: ret
+        ret = nlopt_set_ftol_rel(this%o,tol)
+    end subroutine
+
+    real(c_double) function get_ftol_abs(this)
+        class(opt), intent(in) :: this
+        get_ftol_abs = nlopt_get_ftol_abs(this%o)
+    end function
+    subroutine set_ftol_abs(this,tol)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: tol
+        integer(c_int) :: ret
+        ret = nlopt_set_ftol_abs(this%o,tol)
+    end subroutine
+
+    real(c_double) function get_xtol_rel(this)
+        class(opt), intent(in) :: this
+        get_xtol_rel = nlopt_get_xtol_rel(this%o)
+    end function
+    subroutine set_xtol_rel(this,tol)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: tol
+        integer(c_int) :: ret
+        ret = nlopt_set_xtol_rel(this%o,tol)
+    end subroutine
+    subroutine set_xtol_abs(this,tol)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: tol(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_set_xtol_abs(this%o,tol)
+    end subroutine
+    subroutine get_xtol_abs(this,tol)
+        class(opt), intent(in) :: this
+        real(c_double), intent(out) :: tol(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_get_xtol_abs(this%o,tol)
+    end subroutine
+
+
+    integer(c_int) function get_maxeval(this)
+        class(opt), intent(in) :: this
+        ! if (.not. associated(this%o)) 
+        get_maxeval = nlopt_get_maxeval(this%o)
+    end function
+    subroutine set_maxeval(this,maxeval)
+        class(opt), intent(inout) :: this
+        integer(c_int), intent(in) :: maxval
+        integer(c_int) :: ret
+        ret = nlopt_set_maxeval(this%o,maxeval)
+        ! call mythrow(ret)
+    end subroutine
+
+    integer(c_int) function get_numevals(this)
+        class(opt), intent(in) :: this
+        get_numevals = nlopt_get_numevals(this%o)
+    end function
+
+
+    real(c_double) function get_maxtime(this)
+        class(opt), intent(in) :: this
+        get_maxtime = nlopt_get_maxtime(this%o)
+    end function
+    subroutine set_maxtime(this,maxtime)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: maxtime
+        integer(c_int) :: ret
+        ret = nlopt_set_maxtime(this%o,maxtime)
+    end subroutine
+
+    integer(c_int) function get_force_stop(this)
+        class(opt), intent(in) :: this
+        ! if (.not. associated(this%o)) 
+        get_force_stop = nlopt_get_force_stop(this%o)
+    end function
+    subroutine set_force_stop(this,ival)
+        class(opt), intent(inout) :: this
+        integer(c_int), intent(in) :: ival
+        integer(c_int) :: ret
+        ret = nlopt_set_force_stop(this%o,ival)
+        ! call mythrow(ret)
+    end subroutine
+    subroutine force_stop(this)
+        class(opt), intent(in) :: this
+        call this%set_force_stop(1_c_int)
+    end subroutine
+
+
+    subroutine set_local_optimizer(this,lo)
+        class(opt), intent(inout) :: this
+        class(opt), intent(in) :: lo
+        integer(c_int) :: ret
+        ret = nlopt_set_local_optimizer(this%o,lo%o)
+        ! call mythrow(ret)
+    end subroutine
+
+    subroutine set_default_initial_step(this,x)
+        class(opt), intent(inout) :: this
+        real(c_double), intent(in) :: x(this%get_dimension())
+        integer(c_int) :: ret
+
+        ret = nlopt_set_default_initial_step(this%o,x)
+        ! call mythrow(ret)
+    end subroutine
+
+    subroutine get_initial_step(this,x,dx)
+        class(opt), intent(in) :: this    
+        real(c_double), intent(in) :: x(this%get_dimension()), dx(this%get_dimension())
+        integer(c_int) :: ret
+        ret = nlopt_get_initial_step(this%o,x,dx)
+        ! call mythrow(ret)
+    end subroutine
+
+    ! subroutine mythrow(ret)
+    !     integer, intent(in) :: ret
+
+    !     select case(ret)
+    !     case(NLOPT_FAILURE)
+    !     case(NLOPT_OUT_OF_MEMORY)
+    !     case(NLOPT_INVALID_ARGS)
+    !     case(NLOPT_ROUNDOFF_LIMITED)
+    !     case(NLOPT_FORCED_STOP)
+    !     case default
+    ! end subroutine
+
 
     integer function version_major() result(major)
         integer :: minor, bugfix
@@ -472,5 +860,15 @@ contains
         integer :: major, minor
         call version(major,minor,bugfix)
     end interface
+
+    function algorithm_name(a) result(name)
+        integer(c_int), intent(in) :: a
+        character(len=256), allocatable :: name
+        character(len=256), pointer :: local
+        type(c_ptr) :: cptr
+        cptr = nlopt_algorithm_name(a)
+        call c_f_pointer(cptr,local)
+        name = local
+    end function
 
 end module nlopt
