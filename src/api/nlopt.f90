@@ -108,15 +108,17 @@ module nlopt_interfaces
     use iso_c_binding
     implicit none
 
+    public
+
     abstract interface
-        real(c_double) function nlopt_func(n,x,gradient,func_data) bind(c,name="nlopt_func")
-            import c_double, c_int, c_ptr
+        real(c_double) function nlopt_func(n,x,gradient,func_data) bind(c)
+            use iso_c_binding, only: c_double, c_int, c_ptr
             integer(c_int), intent(in), value :: n
             real(c_double), intent(in) :: x(n)
             real(c_double), intent(out), optional :: gradient(n)
             type(c_ptr), value :: func_data
         end function
-        subroutine nlopt_mfunc(m,result,n,x,gradient,func_data) bind(c,name="nlopt_mfunc")
+        subroutine nlopt_mfunc(m,result,n,x,gradient,func_data) bind(c)
             import c_int, c_double, c_ptr
             integer(c_int), intent(in), value :: m
             real(c_double), intent(out) :: result(m)
@@ -127,7 +129,7 @@ module nlopt_interfaces
         end subroutine
         ! A preconditioner, which preconditions v at x to return vpre.
         ! (The meaning of "preconditioning" is algorithm-dependent.)
-        subroutine nlopt_precond(n,x,v,vpre,data) bind(c,name="nlopt_precond")
+        subroutine nlopt_precond(n,x,v,vpre,data) bind(c)
             import c_int, c_double, c_ptr
             integer(c_int) :: n
             real(c_double), intent(in) :: x(n)
@@ -138,10 +140,9 @@ module nlopt_interfaces
     end interface
 
     interface
-
         function nlopt_algorithm_name(algorithm) bind(c,name="nlopt_algorithm_name")
             import c_int, c_ptr
-            type(c_ptr) :: nlo_algorithm_name
+            type(c_ptr) :: nlopt_algorithm_name
             integer(c_int), value :: algorithm
         end function
 
@@ -174,7 +175,7 @@ module nlopt_interfaces
             type(c_ptr), intent(in), value :: opt
         end function
 
-        integer(c_int) function nlo_optimize(opt,x,opt_f) bind(c,name="nlopt_optimize")
+        integer(c_int) function nlopt_optimize(opt,x,opt_f) bind(c,name="nlopt_optimize")
             import c_int, c_ptr, c_double
             type(c_ptr), intent(in), value :: opt
             real(c_double), intent(inout) :: x(nlopt_get_dimension(opt))
@@ -188,7 +189,7 @@ module nlopt_interfaces
             type(c_ptr), value :: f_data
         end function
         integer(c_int) function nlopt_set_max_objective(opt,f,f_data) bind(c,name="nlopt_set_max_objective")
-            import only : c_int, c_ptr, c_funptr
+            import c_int, c_ptr, c_funptr
             type(c_ptr), value :: opt
             type(c_funptr), value :: f
             type(c_ptr), value :: f_data
@@ -272,11 +273,11 @@ module nlopt_interfaces
         !integer(c_int) nlopt_add_precond_inequality_constraint
         !integer(c_int) nlopt_add_inequality_mconstraint
 
-        integer(c_int) function nlo_remove_equality_constraints(opt) bind(c,name="nlopt_remove_equality_constraints")
+        integer(c_int) function nlopt_remove_equality_constraints(opt) bind(c,name="nlopt_remove_equality_constraints")
             import c_int, c_ptr
             type(c_ptr), intent(in) :: opt
         end function
-        integer(c_int) function nlo_add_equality_constraint(opt,h,h_data,tol) bind(c,name="nlopt_add_equality_constraint")
+        integer(c_int) function nlopt_add_equality_constraint(opt,h,h_data,tol) bind(c,name="nlopt_add_equality_constraint")
             import c_int, c_ptr, c_funptr, c_double
             type(c_ptr), value :: opt
             type(c_funptr), value :: h
@@ -441,8 +442,8 @@ end module
 module nlopt
 
     use nlopt_enums
-    use nlopt_interfaces: srand => nlopt_srand, srand_time => nlopt_srand_time, &
-    func => nlopt_func, mfunc => nlopt_mfunc
+    use nlopt_interfaces, srand => nlopt_srand, srand_time => nlopt_srand_time, &
+    func => nlopt_func, mfunc => nlopt_mfunc, version => nlopt_version
 
     implicit none
 
@@ -455,10 +456,12 @@ module nlopt
     !     end function
     ! end interface
 
+    public :: opt
+
     type :: opt
         type(c_ptr), private :: o = c_null_ptr
         integer(c_int), private :: last_result = NLOPT_FAILURE
-        real(c_double), private :: last_optf = huge(last_optf)
+        real(c_double), private :: last_optf = huge(1.0_c_double)
         integer(c_int), private :: forced_stop_reason = NLOPT_FORCED_STOP
     contains
         ! procedure, private :: mythrow
@@ -475,16 +478,30 @@ module nlopt
         procedure, public :: set_min_objective
         procedure, public :: set_max_objective
 
-        procedure, public :: nlopt_remove_inequality_constraints
-        procedure, public :: nlopt_add_inequality_constraint
-        procedure, public :: nlopt_remove_equality_constraints
-        procedure, public :: nlopt_add_equality_constraint
+        procedure, public :: remove_inequality_constraints
+        procedure, public :: add_inequality_constraint
+        procedure, public :: remove_equality_constraints
+        procedure, public :: add_equality_constraint
 
         procedure, public :: set_lower_bounds
         procedure, public :: get_lower_bounds
         procedure, public :: set_upper_bounds
         procedure, public :: get_upper_bounds
+        
         ! stopping criteria
+        procedure, public :: set_stopval
+        procedure, public :: get_stopval
+        procedure, public :: set_ftol_rel
+        procedure, public :: get_ftol_rel
+        procedure, public :: set_ftol_abs
+        procedure, public :: get_ftol_abs
+        procedure, public :: set_xtol_rel
+        procedure, public :: get_xtol_rel
+        procedure, public :: set_xtol_abs
+        procedure, public :: get_xtol_abs
+
+        procedure, public :: set_maxeval
+        procedure, public :: get_maxeval
 
         procedure, public :: get_numevals
 
@@ -504,13 +521,13 @@ module nlopt
         generic, public :: assignment(=) => assign_opt
 
         ! Destructor
-        final, public :: destroy
+        final :: destroy
     end type
 
     public :: srand, srand_time, version
 
     ! Constructors
-    interface opt
+    interface opt_init
         module procedure new_opt
         module procedure copy_opt
     end interface
@@ -521,8 +538,7 @@ contains
         integer(c_int), intent(in) :: a
         integer(c_int), intent(in) :: n
 
-        this = nlopt_create(a,n)
-
+        this%o = nlopt_create(a,n)
         this%last_result = NLOPT_FAILURE
         this%last_optf = huge(this%last_optf)
         this%forced_stop_reason = NLOPT_FORCED_STOP
@@ -550,12 +566,13 @@ contains
 
 
     subroutine destroy(this)
+        type(opt), intent(inout) :: this
         call nlopt_destroy(this%o)
     end subroutine
 
     integer(c_int) function optimize(this,x,opt_f)
         class(opt), intent(inout) :: this
-        real(c_double), intent(inout) :: x(this%get_dimension())
+        real(c_double), intent(inout) :: x(get_dimension(this))
         real(c_double), intent(inout) :: opt_f
         integer(c_int) :: ret
         
@@ -571,12 +588,12 @@ contains
     ! last_optimize_result
     integer(c_int) function last_optimize_result(this)
         class(opt), intent(in) :: this
-        last_optimize_result = this%last_optimize_result
+        last_optimize_result = this%last_result
     end function
 
     real(c_double) function last_optimum_value(this)
         class(opt), intent(in) :: this
-        last_optimum_value = o%last_optf
+        last_optimum_value = this%last_optf
     end function
 
 
@@ -597,7 +614,7 @@ contains
         name = local
     end function
 
-    integer(c_int) function get_dimension(this)
+    pure integer(c_int) function get_dimension(this)
         class(opt), intent(in) :: this
         get_dimension = nlopt_get_dimension(this%o)
     end function
@@ -609,7 +626,9 @@ contains
         procedure(func) :: f
         type(c_ptr), intent(in) :: f_data
         integer(c_int) :: ret
-        ret = nlopt_set_min_objective(this%o,f,f_data)
+        type(c_funptr) :: cf
+        cf = c_funloc(f)
+        ret = nlopt_set_min_objective(this%o,cf,f_data)
         ! call mythrow(ret)
     end subroutine
     subroutine set_max_objective(this,f,f_data)
@@ -617,7 +636,9 @@ contains
         procedure(func) :: f
         type(c_ptr), intent(in) :: f_data
         integer(c_int) :: ret
-        ret = nlopt_set_max_objective(this%o,f,f_data)
+        type(c_funptr) :: cf
+        cf = c_funloc(f)
+        ret = nlopt_set_max_objective(this%o,cf,f_data)
         ! call mythrow(ret)
     end subroutine
 
@@ -635,11 +656,14 @@ contains
         type(c_ptr), value :: f_data
         real(c_double), optional :: tol
         real(c_double) :: tol_
-
+        integer(c_int) :: ret
+        type(c_funptr) :: cf
         tol_ = 0
         if (present(tol)) tol_ = tol
 
-        ret = nlopt_add_inequality_constraint(this%o,f,f_data,tol_)
+        cf = c_funloc(f)
+
+        ret = nlopt_add_inequality_constraint(this%o,cf,f_data,tol_)
         ! call mythrow(ret)
     end subroutine
 
@@ -655,11 +679,17 @@ contains
         type(c_ptr), value :: f_data
         real(c_double), optional :: tol
         real(c_double) :: tol_
+        integer(c_int) :: ret
+
+        type(c_funptr) :: cf
 
         tol_ = 0
         if (present(tol)) tol_ = tol
 
-        ret = nlopt_add_equality_constraint(this%o,f,f_data,tol_)
+
+        cf = c_funloc(f)
+
+        ret = nlopt_add_equality_constraint(this%o,cf,f_data,tol_)
         ! call mythrow(ret)
     end subroutine
     ! subroutine add_equality_mconstraint(this,mf,f_data,tol)
@@ -679,25 +709,25 @@ contains
 
     subroutine set_lower_bounds(this,lb)
         class(opt), intent(inout) :: this
-        real(c_double), intent(in) :: lb(this%get_dimension())
+        real(c_double), intent(in) :: lb(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_set_lower_bounds(this%o,lb)
     end subroutine
     subroutine get_lower_bounds(this,lb)
         class(opt), intent(in) :: this
-        real(c_double), intent(out) :: lb(this%get_dimension())
+        real(c_double), intent(out) :: lb(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_get_lower_bounds(this%o,lb)
     end subroutine
     subroutine set_upper_bounds(this,ub)
         class(opt), intent(inout) :: this
-        real(c_double), intent(in) :: ub(this%get_dimension())
+        real(c_double), intent(in) :: ub(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_set_upper_bounds(this%o,ub)
     end subroutine
     subroutine get_upper_bounds(this,ub)
         class(opt), intent(in) :: this
-        real(c_double), intent(out) :: ub(this%get_dimension())
+        real(c_double), intent(out) :: ub(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_get_upper_bounds(this%o,ub)
     end subroutine
@@ -748,13 +778,13 @@ contains
     end subroutine
     subroutine set_xtol_abs(this,tol)
         class(opt), intent(inout) :: this
-        real(c_double), intent(in) :: tol(this%get_dimension())
+        real(c_double), intent(in) :: tol(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_set_xtol_abs(this%o,tol)
     end subroutine
     subroutine get_xtol_abs(this,tol)
         class(opt), intent(in) :: this
-        real(c_double), intent(out) :: tol(this%get_dimension())
+        real(c_double), intent(out) :: tol(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_get_xtol_abs(this%o,tol)
     end subroutine
@@ -767,7 +797,7 @@ contains
     end function
     subroutine set_maxeval(this,maxeval)
         class(opt), intent(inout) :: this
-        integer(c_int), intent(in) :: maxval
+        integer(c_int), intent(in) :: maxeval
         integer(c_int) :: ret
         ret = nlopt_set_maxeval(this%o,maxeval)
         ! call mythrow(ret)
@@ -803,7 +833,7 @@ contains
         ! call mythrow(ret)
     end subroutine
     subroutine force_stop(this)
-        class(opt), intent(in) :: this
+        class(opt), intent(inout) :: this
         call this%set_force_stop(1_c_int)
     end subroutine
 
@@ -818,7 +848,7 @@ contains
 
     subroutine set_default_initial_step(this,x)
         class(opt), intent(inout) :: this
-        real(c_double), intent(in) :: x(this%get_dimension())
+        real(c_double), intent(in) :: x(get_dimension(this))
         integer(c_int) :: ret
 
         ret = nlopt_set_default_initial_step(this%o,x)
@@ -827,7 +857,8 @@ contains
 
     subroutine get_initial_step(this,x,dx)
         class(opt), intent(in) :: this    
-        real(c_double), intent(in) :: x(this%get_dimension()), dx(this%get_dimension())
+        real(c_double), intent(in) :: x(get_dimension(this))
+        real(c_double), intent(out) :: dx(get_dimension(this))
         integer(c_int) :: ret
         ret = nlopt_get_initial_step(this%o,x,dx)
         ! call mythrow(ret)
@@ -859,7 +890,7 @@ contains
     integer function version_bugfix() result(bugfix)
         integer :: major, minor
         call version(major,minor,bugfix)
-    end interface
+    end function
 
     function algorithm_name(a) result(name)
         integer(c_int), intent(in) :: a
@@ -872,3 +903,181 @@ contains
     end function
 
 end module nlopt
+
+module my_test_problem
+
+    use iso_c_binding
+    implicit none
+
+    public :: myfunc, myconstraint
+
+contains
+
+    real(c_double) function myfunc(n,x,grad,data)
+        integer(c_int), intent(in), value :: n
+        real(c_double), intent(in) :: x(n)
+        real(c_double), intent(out), optional :: grad(n)
+        type(c_ptr), value :: data
+
+        if (present(grad)) then
+            grad(1) = 0.0_c_double
+            grad(2) = 0.5_c_double/sqrt(x(2))
+        end if
+        myfunc = sqrt(x(2))
+    end function
+
+    real(c_double) function myconstraint(n,x,gradient,func_data) bind(c)
+        integer(c_int), intent(in), value :: n
+        real(c_double), intent(in) :: x(n)
+        real(c_double), intent(out), optional :: gradient(n)
+        type(c_ptr), value :: func_data
+
+        real(c_double), pointer :: d(:)
+        real(c_double) :: a, b
+
+        call c_f_pointer(func_data,d,[2])
+
+        a = d(1)
+        b = d(2)
+
+        if (present(gradient)) then
+            gradient(1) = 3._c_double*a*(a*x(1) + b)**2
+            gradient(2) = 0.0_c_double
+        end if
+        myconstraint = (a*x(1) + b)**3 - x(2)
+    end function
+
+end module
+
+ program main
+
+    use my_test_problem
+    use nlopt
+    use nlopt_interfaces
+    use nlopt_enums, only : NLOPT_LD_MMA
+
+    implicit none
+
+    call procedural_example
+
+    call oo_example
+
+contains
+
+    subroutine procedural_example()
+
+        integer :: major, minor, bugfix
+        integer, parameter :: n = 2
+
+        type(c_ptr) :: opt, opt_copy, cd1,cd2
+
+        real(8), dimension(n) :: x, lb
+        real(8), target :: d1(2), d2(2)
+        integer :: ires
+        real(8) :: optf
+
+        type(c_funptr) :: c_func, c_constraint
+
+        print *, "========= PROCEDURAL EXAMPLE =========="
+
+        call nlopt_version(major,minor,bugfix)
+        print *, "NLopt version ",major,minor,bugfix
+
+        opt = nlopt_create(NLOPT_LD_MMA,n)
+        print *, "Algorithm = ", algorithm_name(nlopt_get_algorithm(opt))
+        print *, "Dimension = ", nlopt_get_dimension(opt)
+
+        lb = [-huge(1.0_c_double),0.0_c_double]
+        ires = nlopt_set_lower_bounds(opt,lb)
+        print *, "Lower bounds are = ", lb, " with return status ", ires
+
+        ! Fortran function to C function pointer
+        c_func = c_funloc(myfunc)
+        ires = nlopt_set_min_objective(opt,c_func,c_null_ptr)
+
+
+        ! Fortran constraint to C function pointer
+        c_constraint = c_funloc(myconstraint)
+
+        d1 = [2.0_c_double,0.0_c_double]
+        cd1 = c_loc(d1)
+        ires = nlopt_add_inequality_constraint(opt,c_constraint,cd1,1.d-8)
+        
+        d2 = [-1._c_double, 1.0_c_double]
+        cd2 = c_loc(d2)
+        ires = nlopt_add_inequality_constraint(opt,c_constraint,cd2,1.d-8)
+
+        ires = nlopt_set_xtol_rel(opt,1.d-4)
+
+
+        x = [1.234_c_double,5.678_c_double]
+        ires = nlopt_optimize(opt,x,optf)
+
+        if (ires < 0) then
+            print *, "Nlopt failed!"
+        else
+            print *, "Found minimum at ", x
+            print *, "Minimum value = ", optf
+        end if
+
+        ! opt_copy = nlopt_copy(opt)
+        call nlopt_destroy(opt)
+
+        ! print *, opt, opt_copy
+    end subroutine
+
+
+    subroutine oo_example()
+
+        integer(c_int) :: major, minor, bugfix
+        integer(c_int), parameter :: n = 2
+
+        type(opt) :: myopt
+        type(c_ptr) :: cd1, cd2
+
+        real(c_double), dimension(n) :: x, lb
+        real(c_double), target :: d1(2), d2(2)
+        integer(c_int) :: ires
+        real(c_double) :: optf
+
+        type(c_funptr) :: c_func, c_constraint
+
+        print *, "========= OO EXAMPLE =========="
+
+        call version(major,minor,bugfix)
+        print *, "NLopt version ",major,minor,bugfix
+
+        myopt = new_opt(NLOPT_LD_MMA,n)
+        print *, "Algorithm = ", myopt%get_algorithm_name()
+        print *, "Dimension = ", myopt%get_dimension()
+
+        lb = [-huge(1.0_c_double),0.0_c_double]
+        call myopt%set_lower_bounds(lb)
+
+        ! Fortran function to C function pointer
+        ! c_func = c_funloc(myfunc)
+        call myopt%set_min_objective(myfunc,c_null_ptr)
+
+        d1 = [2.0_c_double,0.0_c_double]
+        cd1 = c_loc(d1)
+        call myopt%add_inequality_constraint(myconstraint,cd1,1.d-8)
+        
+        d2 = [-1._c_double, 1.0_c_double]
+        cd2 = c_loc(d2)
+        call myopt%add_inequality_constraint(myconstraint,cd2,1.d-8)
+
+        call myopt%set_xtol_rel(1.d-6)
+        
+        x = [1.234_c_double,5.678_c_double]
+        ires = myopt%optimize(x,optf)
+
+        if (myopt%last_optimize_result() < 0) then
+            print *, "Nlopt failed!"
+        else
+            print *, "Found minimum at ", x
+            print *, "Minimum value = ", optf
+        end if
+
+        ! automatic finalization
+    end subroutine
+end program
