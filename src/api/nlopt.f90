@@ -446,20 +446,15 @@ module nlopt
     func => nlopt_func, mfunc => nlopt_mfunc, version => nlopt_version
 
     implicit none
+    private
 
+    public :: opt, version, version_major, version_minor, version_bugfix
+    public :: algorithm_name, srand, srand_time, new_opt, copy_opt
 
-    ! abstract interface
-    !     real(c_double) function vfunc(x,grad,data)
-    !         real(c_double), intent(in) :: x(:)
-    !         real(c_double), intent(in) :: grad(:)
-    !         type(c_ptr), value :: data
-    !     end function
-    ! end interface
-
-    public :: opt
 
     type :: opt
-        type(c_ptr), private :: o = c_null_ptr
+        ! type(c_ptr), private :: o = c_null_ptr
+        type(c_ptr) :: o = c_null_ptr
         integer(c_int), private :: last_result = NLOPT_FAILURE
         real(c_double), private :: last_optf = huge(1.0_c_double)
         integer(c_int), private :: forced_stop_reason = NLOPT_FORCED_STOP
@@ -904,10 +899,86 @@ contains
 
 end module nlopt
 
+module nlopt_user_func_mod
+
+    use iso_c_binding
+    implicit none
+    private
+
+    public :: nlopt_user_func
+
+    type, abstract :: nlopt_user_func
+    contains
+        procedure(nlopt_user_func_if), deferred, public :: eval
+    end type
+
+    abstract interface
+        real(c_double) function nlopt_user_func_if(this,n,x,grad)
+            import nlopt_user_func, c_double, c_int
+            class(nlopt_user_func), intent(in) :: this
+            integer(c_int), intent(in) :: n
+            real(c_double), intent(in) :: x(n)
+            real(c_double), intent(out), optional :: grad(n)
+        end function
+    end interface
+
+end module
+
+module adaptor_mod
+
+    use nlopt_user_func_mod, only: nlopt_user_func
+    use iso_c_binding, only: c_int, c_double, c_ptr, c_funptr, c_f_pointer, c_loc, c_funloc
+    use nlopt_interfaces
+
+    implicit none
+    private
+
+    public :: fancy_set_min_objective
+
+    type :: adaptor
+        class(nlopt_user_func), pointer :: p => null()
+    end type
+
+contains
+
+    real(c_double) function func_aux(n,x,grad,data)
+        integer(c_int), intent(in), value :: n
+        real(c_double), intent(in) :: x(n)
+        real(c_double), intent(out), optional :: grad(n)
+        type(c_ptr), value :: data
+
+        type(adaptor), pointer :: fdata
+
+        call c_f_pointer(data,fdata)
+
+        func_aux = fdata%p%eval(n,x,grad)
+    end function
+
+
+    subroutine fancy_set_min_objective(opt,func)
+        type(c_ptr), intent(inout) :: opt
+        class(nlopt_user_func), intent(in), target :: func
+
+        type(adaptor), pointer :: fdata
+        type(c_ptr) :: data
+        type(c_funptr) :: cfunc
+        integer(c_int) :: ret
+
+        allocate(fdata)
+        fdata%p => func
+
+        data = c_loc(fdata)
+        cfunc = c_funloc(func_aux)
+        ret = nlopt_set_min_objective(opt,cfunc,data)
+    end subroutine
+end module
+
+
 module my_test_problem
 
     use iso_c_binding
     implicit none
+    private
 
     public :: myfunc, myconstraint
 
@@ -949,38 +1020,78 @@ contains
 
 end module
 
- program main
+module functor_mod
 
-    use my_test_problem
-    use nlopt
+    use iso_c_binding, only: c_int, c_double
+    use nlopt_user_func_mod, only: nlopt_user_func
+
+    implicit none
+    private
+
+    public :: square
+
+    type, extends(nlopt_user_func) :: square
+    contains
+        procedure, public :: eval => eval_square
+    end type
+
+contains
+
+    real(c_double) function eval_square(this,n,x,grad)
+        class(square), intent(in) :: this
+        integer(c_int), intent(in) :: n
+        real(c_double), intent(in) :: x(n)
+        real(c_double), intent(out), optional :: grad(n)
+
+        if (present(grad)) then
+            grad(1) = 0.0_c_double
+            grad(2) = 0.5_c_double/sqrt(x(2))
+        end if
+        eval_square = sqrt(x(2))
+    end function
+
+end module functor_mod
+
+program main
+
+    use iso_c_binding, only: c_int, c_double, c_ptr
+    use my_test_problem, only: myfunc, myconstraint
+
+    use nlopt, only: algorithm_name, version, opt, new_opt
+
     use nlopt_interfaces
+    
     use nlopt_enums, only : NLOPT_LD_MMA
+
+    use adaptor_mod, only: fancy_set_min_objective
+
+    use functor_mod, only: square
 
     implicit none
 
-    call procedural_example
 
+    call procedural_example
     call oo_example
 
 contains
 
     subroutine procedural_example()
 
-        integer :: major, minor, bugfix
-        integer, parameter :: n = 2
+        integer(c_int) :: major, minor, bugfix
+        integer(c_int), parameter :: n = 2
 
         type(c_ptr) :: opt, opt_copy, cd1,cd2
 
-        real(8), dimension(n) :: x, lb
-        real(8), target :: d1(2), d2(2)
-        integer :: ires
-        real(8) :: optf
+        real(c_double), dimension(n) :: x, lb
+        real(c_double), target :: d1(2), d2(2)
+        integer(c_int) :: ires
+        real(c_double) :: optf
 
         type(c_funptr) :: c_func, c_constraint
 
         print *, "========= PROCEDURAL EXAMPLE =========="
 
-        call nlopt_version(major,minor,bugfix)
+        call version(major,minor,bugfix)
         print *, "NLopt version ",major,minor,bugfix
 
         opt = nlopt_create(NLOPT_LD_MMA,n)
@@ -1041,6 +1152,7 @@ contains
         real(c_double) :: optf
 
         type(c_funptr) :: c_func, c_constraint
+        type(square) :: square_func
 
         print *, "========= OO EXAMPLE =========="
 
@@ -1056,7 +1168,10 @@ contains
 
         ! Fortran function to C function pointer
         ! c_func = c_funloc(myfunc)
-        call myopt%set_min_objective(myfunc,c_null_ptr)
+        ! call myopt%set_min_objective(myfunc,c_null_ptr)
+
+        call fancy_set_min_objective(myopt%o,square_func)
+
 
         d1 = [2.0_c_double,0.0_c_double]
         cd1 = c_loc(d1)
@@ -1066,7 +1181,7 @@ contains
         cd2 = c_loc(d2)
         call myopt%add_inequality_constraint(myconstraint,cd2,1.d-8)
 
-        call myopt%set_xtol_rel(1.d-6)
+        call myopt%set_xtol_rel(1.d-4)
         
         x = [1.234_c_double,5.678_c_double]
         ires = myopt%optimize(x,optf)
@@ -1080,4 +1195,7 @@ contains
 
         ! automatic finalization
     end subroutine
+
+
+
 end program
