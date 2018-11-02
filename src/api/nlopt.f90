@@ -211,11 +211,11 @@ module nlopt_interfaces
 
         pure integer(c_int) function nlopt_get_algorithm(opt) bind(c,name="nlopt_get_algorithm")
             import c_int, c_ptr
-            type(c_ptr), value :: opt
+            type(c_ptr), intent(in), value :: opt
         end function
         pure integer(c_int) function nlopt_get_dimension(opt) bind(c,name="nlopt_get_dimension")
             import c_int, c_ptr
-            type(c_ptr), value :: opt
+            type(c_ptr), intent(in), value :: opt ! ?!?!?!
         end function
 
 
@@ -441,6 +441,7 @@ end module
 
 module nlopt
 
+    use, intrinsic :: iso_c_binding
     use nlopt_enums
     use nlopt_interfaces, srand => nlopt_srand, srand_time => nlopt_srand_time, &
     func => nlopt_func, mfunc => nlopt_mfunc, version => nlopt_version
@@ -456,10 +457,9 @@ module nlopt
         ! type(c_ptr), private :: o = c_null_ptr
         type(c_ptr) :: o = c_null_ptr
         integer(c_int), private :: last_result = NLOPT_FAILURE
-        real(c_double), private :: last_optf = huge(1.0_c_double)
+        real(c_double), private :: last_optf = huge(1._c_double)
         integer(c_int), private :: forced_stop_reason = NLOPT_FORCED_STOP
     contains
-        ! procedure, private :: mythrow
 
         procedure, public :: optimize
 
@@ -478,9 +478,16 @@ module nlopt
         procedure, public :: remove_equality_constraints
         procedure, public :: add_equality_constraint
 
-        procedure, public :: set_lower_bounds
+        procedure, public :: set_lower_bounds ! will be deleted
+        ! procedure, private :: set_lower_bounds_array
+        ! procedure, private :: set_lower_bounds_scalar
+        ! generic, public :: set_lower_bounds => set_lower_bounds_array, set_lower_bounds_scalar
         procedure, public :: get_lower_bounds
-        procedure, public :: set_upper_bounds
+
+        procedure, public :: set_upper_bounds ! will be deleted
+        ! procedure, private :: set_upper_bounds_array
+        ! procedure, private :: set_upper_bounds_scalar
+        ! generic, public :: set_upper_bounds => set_upper_bounds_array, set_upper_bounds_scalar
         procedure, public :: get_upper_bounds
         
         ! stopping criteria
@@ -512,6 +519,7 @@ module nlopt
         procedure, public :: set_default_initial_step
         procedure, public :: get_initial_step
 
+        ! Overload assignment
         procedure, private :: assign_opt
         generic, public :: assignment(=) => assign_opt
 
@@ -519,39 +527,40 @@ module nlopt
         final :: destroy
     end type
 
-    public :: srand, srand_time, version
-
     ! Constructors
-    interface opt_init
+    interface opt
         module procedure new_opt
+        module procedure copy_opt
+    end interface
+
+    interface copy
         module procedure copy_opt
     end interface
 
 contains
 
-    type(opt) function new_opt(a,n) result(this)
+    type(opt) function new_opt(a,n)
         integer(c_int), intent(in) :: a
         integer(c_int), intent(in) :: n
-
-        this%o = nlopt_create(a,n)
-        this%last_result = NLOPT_FAILURE
-        this%last_optf = huge(this%last_optf)
-        this%forced_stop_reason = NLOPT_FORCED_STOP
+        new_opt%o = nlopt_create(a,n)
+        new_opt%last_result = NLOPT_FAILURE
+        new_opt%last_optf = huge(new_opt%last_optf)
+        new_opt%forced_stop_reason = NLOPT_FORCED_STOP
     end function
 
-    type(opt) function copy_opt(f) result(this)
+    ! Copy constructor
+    type(opt) function copy_opt(f)
         type(opt), intent(in) :: f
-
-        this%o = nlopt_copy(f%o)
-        this%last_result = f%last_result
-        this%last_optf = f%last_optf
-        this%forced_stop_reason = f%forced_stop_reason
+        copy_opt%o = nlopt_copy(f%o)
+        copy_opt%last_result = f%last_result
+        copy_opt%last_optf = f%last_optf
+        copy_opt%forced_stop_reason = f%forced_stop_reason
     end function
 
+    ! Assignment
     subroutine assign_opt(lhs,rhs)
         class(opt), intent(inout) :: lhs
         class(opt), intent(in) :: rhs
-
         call nlopt_destroy(lhs%o)
         lhs%o = nlopt_copy(rhs%o)
         lhs%last_result = rhs%last_result
@@ -559,12 +568,13 @@ contains
         lhs%forced_stop_reason = rhs%forced_stop_reason
     end subroutine
 
-
+    ! Finalizer/destructor
     subroutine destroy(this)
         type(opt), intent(inout) :: this
         call nlopt_destroy(this%o)
     end subroutine
 
+    ! Do the optimization
     integer(c_int) function optimize(this,x,opt_f)
         class(opt), intent(inout) :: this
         real(c_double), intent(inout) :: x(get_dimension(this))
@@ -580,25 +590,24 @@ contains
         optimize = ret
     end function
 
-    ! last_optimize_result
+
     integer(c_int) function last_optimize_result(this)
         class(opt), intent(in) :: this
         last_optimize_result = this%last_result
     end function
-
     real(c_double) function last_optimum_value(this)
         class(opt), intent(in) :: this
         last_optimum_value = this%last_optf
     end function
 
-
+    !
     ! Accessors
+    !
+
     integer(c_int) function get_algorithm(this)
         class(opt), intent(in) :: this
-
         get_algorithm = nlopt_get_algorithm(this%o)
     end function
-
     function get_algorithm_name(this) result(name)
         class(opt), intent(in) :: this
         character(len=256), allocatable :: name
@@ -608,13 +617,14 @@ contains
         call c_f_pointer(cptr,local)
         name = local
     end function
-
     pure integer(c_int) function get_dimension(this)
         class(opt), intent(in) :: this
         get_dimension = nlopt_get_dimension(this%o)
     end function
 
+    !
     ! Set the objective function
+    !
 
     subroutine set_min_objective(this,f,f_data)
         class(opt), intent(inout) :: this
@@ -872,18 +882,18 @@ contains
     ! end subroutine
 
 
-    integer function version_major() result(major)
-        integer :: minor, bugfix
+    integer(c_int) function version_major() result(major)
+        integer(c_int) :: minor, bugfix
         call version(major,minor,bugfix)
     end function
 
-    integer function version_minor() result(minor)
-        integer :: major, bugfix
+    integer(c_int) function version_minor() result(minor)
+        integer(c_int) :: major, bugfix
         call version(major,minor,bugfix)
     end function
 
-    integer function version_bugfix() result(bugfix)
-        integer :: major, minor
+    integer(c_int) function version_bugfix() result(bugfix)
+        integer(c_int) :: major, minor
         call version(major,minor,bugfix)
     end function
 
@@ -1080,7 +1090,7 @@ contains
         integer(c_int) :: major, minor, bugfix
         integer(c_int), parameter :: n = 2
 
-        type(c_ptr) :: opt, opt_copy, cd1,cd2
+        type(c_ptr) :: opt, cd1,cd2
 
         real(c_double), dimension(n) :: x, lb
         real(c_double), target :: d1(2), d2(2)
@@ -1143,7 +1153,7 @@ contains
         integer(c_int) :: major, minor, bugfix
         integer(c_int), parameter :: n = 2
 
-        type(opt) :: myopt
+        type(opt) :: myopt, myopt2
         type(c_ptr) :: cd1, cd2
 
         real(c_double), dimension(n) :: x, lb
@@ -1151,7 +1161,6 @@ contains
         integer(c_int) :: ires
         real(c_double) :: optf
 
-        type(c_funptr) :: c_func, c_constraint
         type(square) :: square_func
 
         print *, "========= OO EXAMPLE =========="
@@ -1159,7 +1168,8 @@ contains
         call version(major,minor,bugfix)
         print *, "NLopt version ",major,minor,bugfix
 
-        myopt = new_opt(NLOPT_LD_MMA,n)
+        myopt = opt(a=NLOPT_LD_MMA,n=n)
+        myopt2 = opt(myopt)
         print *, "Algorithm = ", myopt%get_algorithm_name()
         print *, "Dimension = ", myopt%get_dimension()
 
