@@ -75,7 +75,7 @@ int nlopt_stop_f(const nlopt_stopping * s, double f, double oldf)
 int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 {
     unsigned i;
-    if (diff_norm(s->n, x, oldx, NULL) <= s->xtol_rel * diff_norm(s->n, x, oldx, NULL))
+    if (diff_norm(s->n, x, oldx, s->x_weights) <= s->xtol_rel * diff_norm(s->n, x, oldx, s->x_weights))
         return 1;
     for (i = 0; i < s->n; ++i)
         if (fabs(x[i] - oldx[i]) > s->xtol_abs[i])
@@ -86,7 +86,7 @@ int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 int nlopt_stop_dx(const nlopt_stopping * s, const double *x, const double *dx)
 {
     unsigned i;
-    if (vector_norm(s->n, dx, NULL) <= s->xtol_rel * vector_norm(s->n, x, NULL))
+    if (vector_norm(s->n, dx, s->x_weights) <= s->xtol_rel * vector_norm(s->n, x, s->x_weights))
         return 1;
     for (i = 0; i < s->n; ++i)
         if (fabs(dx[i]) > s->xtol_abs[i])
