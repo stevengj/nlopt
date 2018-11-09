@@ -243,6 +243,9 @@ NLOPT_EXTERN(double) nlopt_get_xtol_rel(const nlopt_opt opt);
 NLOPT_EXTERN(nlopt_result) nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
 NLOPT_EXTERN(nlopt_result) nlopt_set_xtol_abs(nlopt_opt opt, const double *tol);
 NLOPT_EXTERN(nlopt_result) nlopt_get_xtol_abs(const nlopt_opt opt, double *tol);
+NLOPT_EXTERN(nlopt_result) nlopt_set_x_weights1(nlopt_opt opt, double tol);
+NLOPT_EXTERN(nlopt_result) nlopt_set_x_weights(nlopt_opt opt, const double *tol);
+NLOPT_EXTERN(nlopt_result) nlopt_get_x_weights(const nlopt_opt opt, double *tol);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_maxeval(nlopt_opt opt, int maxeval);
 NLOPT_EXTERN(int) nlopt_get_maxeval(const nlopt_opt opt);

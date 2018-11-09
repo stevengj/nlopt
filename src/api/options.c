@@ -52,6 +52,7 @@ void NLOPT_STDCALL nlopt_destroy(nlopt_opt opt)
         free(opt->lb);
         free(opt->ub);
         free(opt->xtol_abs);
+        free(opt->x_weights);
         free(opt->fc);
         free(opt->h);
         nlopt_destroy(opt->local_opt);
