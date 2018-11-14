@@ -70,9 +70,18 @@ module adaptor_mod
         class(nlopt_user_func), pointer :: f => null()
         class(nlopt_user_mfunc), pointer :: mf => null()
         class(nlopt_user_precond), pointer :: pre => null()
+    contains
+        final :: destroy
     end type
 
 contains
+
+    subroutine destroy(this)
+        type(adaptor), intent(inout) :: this
+        nullify(this%f)
+        nullify(this%mf)
+        nullify(this%pre)
+    end subroutine
 
     real(c_double) function func_aux(n,x,grad,data)
         integer(c_int), intent(in), value :: n
@@ -125,27 +134,16 @@ module nlopt
     use nlopt_user_func_mod
     use adaptor_mod
 
-    use handler_mod
-
     implicit none
     private
 
-    public :: opt, new_opt, copy_opt
+    public :: opt
     public :: version, version_major, version_minor, version_bugfix
     public :: srand, srand_time, algorithm_name
 
     ! Expose abstract types in order for the user to extend them!
     public :: nlopt_user_func, nlopt_user_mfunc, nlopt_user_precond
 
-
-    type :: handler
-        private
-        character(len=200) :: info = ''
-        character(len=200) :: object_name = 'anonymous'
-    contains
-        procedure, non_overridable :: throw
-        procedure, non_overridable :: set_info
-    end type
 
     type :: opt
         private
@@ -155,8 +153,8 @@ module nlopt
         integer(c_int) :: forced_stop_reason = NLOPT_FORCED_STOP
 
         integer(c_int) :: n = 0 ! remember dimension for convenience
-
-        type(handler), pointer, public :: h => null()
+        
+        type(adaptor), pointer :: objective => null()
     contains
 
         procedure, public :: optimize
@@ -251,90 +249,21 @@ module nlopt
         final :: destroy
     end type opt
 
-    ! Constructors
+    ! Overwrite Constructors
     interface opt
         module procedure new_opt
         module procedure copy_opt
     end interface
 
-    interface copy
-        module procedure copy_opt
-    end interface
-
 contains
 
-    function setup_handler(object_name) result(h)
-        character(len=*), intent(in), optional :: object_name
-        type(handler), pointer :: h
-        
-        allocate(h)
-        if (present(object_name)) h%object_name(:) = object_name
-        print *, "handler setup", associated(h)
-    end function
-
-
-    subroutine throw(my_handler,msg)
-        class(handler), intent(in) :: my_handler
-        character(len=*), intent(in), optional :: msg
-        write(*,'("nlopt::throw on object ",A)') trim(my_handler%object_name)
-        if (present(msg)) then
-            write(*,'("   with message ***",A,"***")') trim(msg)
-        end if
-    end subroutine
-
-    subroutine set_info(my_handler,info)
-        class(handler), intent(inout) :: my_handler
-        character(len=*), intent(in) :: info
-        my_handler%info = info
-    end subroutine
-
-    subroutine mythrow(this,ret)
-        class(opt), intent(in) :: this
-        integer(c_int), intent(in) :: ret
-
-        character(len=:,kind=c_char), allocatable :: errmsg
-
-        select case(ret)
-        case(NLOPT_FAILURE)
-            if (this%get_errmsg(errmsg)) then
-                call this%h%throw(errmsg)
-            else
-                call this%h%throw("nlopt failure")
-            end if
-            stop 0
-        case(NLOPT_OUT_OF_MEMORY)
-            call this%h%throw("nlopt bad alloc")
-            stop 0
-        case(NLOPT_INVALID_ARGS)
-            if (this%get_errmsg(errmsg)) then
-                if (allocated(errmsg)) call this%h%throw(errmsg)
-            else
-                call this%h%throw("nlopt invalid argument")
-            end if
-            stop 0
-        case(NLOPT_ROUNDOFF_LIMITED)
-            call this%h%throw("nlopt roundoff-limited")
-            stop 0
-        case(NLOPT_FORCED_STOP)
-            call this%h%throw("nlopt forced stop")
-            stop 0
-        case default
-            return
-        end select
-    end subroutine
-
-
-    type(opt) function new_opt(a,n,object_name)
+    type(opt) function new_opt(a,n)
         integer(c_int), intent(in) :: a
         integer(c_int), intent(in) :: n
-        character(len=*), intent(in), optional :: object_name
         new_opt%o = nlopt_create(a,n)
         new_opt%last_result = NLOPT_FAILURE
         new_opt%last_optf = huge(new_opt%last_optf)
         new_opt%forced_stop_reason = NLOPT_FORCED_STOP
-
-        allocate(new_opt%h)
-        if (present(object_name)) new_opt%h => setup_handler(object_name)
     end function
 
     ! Copy constructor
@@ -344,27 +273,23 @@ contains
         copy_opt%last_result = f%last_result
         copy_opt%last_optf = f%last_optf
         copy_opt%forced_stop_reason = f%forced_stop_reason
-        allocate(copy_opt%h,source=f%h)
     end function
 
     ! Assignment
     subroutine assign_opt(lhs,rhs)
         class(opt), intent(inout) :: lhs
         class(opt), intent(in) :: rhs
-        if (c_associated(lhs%o,rhs%o)) return ! self-assignment
         call nlopt_destroy(lhs%o)
-        nullify(lhs%h)
-
-        lhs%o = nlopt_copy(rhs%o)
+        lhs%o = rhs%o ! nlopt_copy leads to a memory leak here?
         lhs%last_result = rhs%last_result
         lhs%last_optf = rhs%last_optf
         lhs%forced_stop_reason = rhs%forced_stop_reason
-        lhs%h => rhs%h
     end subroutine
 
     ! Finalizer/destructor
     subroutine destroy(this)
         type(opt), intent(inout) :: this
+        nullify(this%objective)
         call nlopt_destroy(this%o)
     end subroutine
 
@@ -379,8 +304,6 @@ contains
         ret = nlopt_optimize(this%o,x,opt_f)
         this%last_result = ret
         this%last_optf = opt_f
-        ! if (ret == NLOPT_FORCED_STOP) call mythrow(this%forced_stop_reason)
-        ! call mythrow(ret)
         optimize = ret
     end function
 
@@ -415,47 +338,53 @@ contains
     !
     ! Set the objective function
     !
-    subroutine set_min_objective_classic(this,f,f_data)
+    subroutine set_min_objective_classic(this,f,f_data,ires)
         class(opt), intent(inout) :: this
         procedure(func) :: f
         type(c_ptr), intent(in) :: f_data
+        integer(c_int), intent(out), optional :: ires
         integer(c_int) :: ret
         ret = nlopt_set_min_objective(this%o,c_funloc(f),f_data)
-        ! call mythrow(ret)
+        if (present(ires)) ires = ret
     end subroutine
-    subroutine set_max_objective_classic(this,f,f_data)
+    subroutine set_max_objective_classic(this,f,f_data,ires)
         class(opt), intent(inout) :: this
         procedure(func) :: f
         type(c_ptr), intent(in) :: f_data
+        integer(c_int), intent(out), optional :: ires
         integer(c_int) :: ret
         ret = nlopt_set_max_objective(this%o,c_funloc(f),f_data)
-        ! call mythrow(ret)
+        if (present(ires)) ires = ret
     end subroutine
 
     !
     ! Set the objective function (object-oriented way)
     !
-    subroutine set_min_objective_oo(this,f)
+    subroutine set_min_objective_oo(this,f,ires)
         class(opt), intent(inout) :: this
         class(nlopt_user_func), intent(in), target :: f
+        integer(c_int), intent(out), optional :: ires
         integer(c_int) :: ret
 
-        type(adaptor), pointer :: data => null()
-        allocate(data)
-        data%f => f
+        if (associated(this%objective)) nullify(this%objective)
+        allocate(this%objective)
+        this%objective%f => f
 
-        ret = nlopt_set_min_objective(this%o,c_funloc(func_aux),c_loc(data))
+        ret = nlopt_set_min_objective(this%o,c_funloc(func_aux),c_loc(this%objective))
+        if (present(ires)) ires = ret
     end subroutine
-    subroutine set_max_objective_oo(this,f)
+    subroutine set_max_objective_oo(this,f,ires)
         class(opt), intent(inout) :: this
         class(nlopt_user_func), intent(in), target :: f
+        integer(c_int), intent(out), optional :: ires
         integer(c_int) :: ret
 
-        type(adaptor), pointer :: data => null()
-        allocate(data)
-        data%f => f
+        if (associated(this%objective)) nullify(this%objective)
+        allocate(this%objective)
+        this%objective%f => f
 
-        ret = nlopt_set_max_objective(this%o,c_funloc(func_aux),c_loc(data))
+        ret = nlopt_set_max_objective(this%o,c_funloc(func_aux),c_loc(this%objective))
+        if (present(ires)) ires = ret
     end subroutine
 
     !
@@ -465,7 +394,7 @@ contains
         class(opt), intent(inout) :: this
         integer(c_int), intent(out), optional :: ires
         integer(c_int) :: ret
-        ret = nlopt_remove_equality_constraints(this%o)
+        ret = nlopt_remove_inequality_constraints(this%o)
         if (present(ires)) ires = ret
     end subroutine
     subroutine add_inequality_constraint_classic(this,fc,fc_data,tol,ires)
@@ -481,15 +410,15 @@ contains
         if (present(tol)) tol_ = tol
 
         ret = nlopt_add_inequality_constraint(this%o,c_funloc(fc),fc_data,tol_)
-        call mythrow(this,ret)
         if (present(ires)) ires = ret
     end subroutine
-    subroutine add_inequality_mconstraint_classic(this,m,fc,fc_data,tol)
+    subroutine add_inequality_mconstraint_classic(this,m,fc,fc_data,tol,ires)
         class(opt), intent(inout) :: this
         integer(c_int), intent(in) :: m
         procedure(mfunc) :: fc
         type(c_ptr), value :: fc_data
         real(c_double), intent(in), optional :: tol(get_dimension(this))
+        integer(c_int), intent(out), optional :: ires
         real(c_double) :: tol_(get_dimension(this))
         integer(c_int) :: ret
 
@@ -497,27 +426,35 @@ contains
         if (present(tol)) tol_ = tol
         
         ret = nlopt_add_inequality_mconstraint(this%o,m,c_funloc(fc),fc_data,tol_)
+        if (present(ires)) ires = ret
     end subroutine
-    subroutine add_inequality_constraint_oo(this,fc,tol)
+    subroutine add_inequality_constraint_oo(this,fc,tol,ires,cptr)
         class(opt), intent(inout) :: this
         class(nlopt_user_func), intent(in), target :: fc
         real(c_double), intent(in), optional :: tol
+        integer(c_int), intent(out), optional :: ires
         real(c_double) :: tol_
         integer(c_int) :: ret
         type(adaptor), pointer :: fc_data => null()
+        type(c_ptr), intent(out), optional :: cptr
 
         tol_ = 0.0_c_double
         if (present(tol)) tol_ = tol
 
         allocate(fc_data)
         fc_data%f => fc
+
+        if (present(cptr)) cptr = c_loc(fc_data)
+
         ret = nlopt_add_inequality_constraint(this%o,c_funloc(func_aux),c_loc(fc_data),tol_)
+        if (present(ires)) ires = ret
     end subroutine
-    subroutine add_inequality_mconstraint_oo(this,m,fc,tol)
+    subroutine add_inequality_mconstraint_oo(this,m,fc,tol,ires)
         class(opt), intent(inout) :: this
         integer(c_int), intent(in) :: m
         class(nlopt_user_mfunc), intent(in), target :: fc
         real(c_double), intent(in), optional :: tol(get_dimension(this))
+        integer(c_int), intent(out), optional :: ires
         real(c_double) :: tol_(get_dimension(this))
         integer(c_int) :: ret
         type(adaptor), pointer :: fc_data => null()
@@ -527,6 +464,7 @@ contains
         allocate(fc_data)
         fc_data%mf => fc
         ret = nlopt_add_inequality_mconstraint(this%o,m,c_funloc(mfunc_aux),c_loc(fc_data),tol_)
+        if (present(ires)) ires = ret
     end subroutine
 
     subroutine remove_equality_constraints(this,ires)
@@ -536,11 +474,12 @@ contains
         ret = nlopt_remove_inequality_constraints(this%o)
         if (present(ires)) ires = ret
     end subroutine
-    subroutine add_equality_constraint_cptr(this,h,h_data,tol)
+    subroutine add_equality_constraint_cptr(this,h,h_data,tol,ires)
         class(opt), intent(inout) :: this
         procedure(func) :: h
         type(c_ptr), value :: h_data
         real(c_double), optional :: tol
+        integer(c_int), intent(out), optional :: ires
         real(c_double) :: tol_
         integer(c_int) :: ret
 
@@ -548,13 +487,15 @@ contains
         if (present(tol)) tol_ = tol
 
         ret = nlopt_add_equality_constraint(this%o,c_funloc(h),h_data,tol_)
+        if (present(ires)) ires = ret
     end subroutine
-    subroutine add_equality_mconstraint_cptr(this,m,h,h_data,tol)
+    subroutine add_equality_mconstraint_cptr(this,m,h,h_data,tol,ires)
         class(opt), intent(inout) :: this
         integer(c_int), intent(in) :: m
         procedure(mfunc) :: h
         type(c_ptr), value :: h_data
         real(c_double), optional :: tol(get_dimension(this))
+        integer(c_int), intent(out), optional :: ires
         real(c_double) :: tol_(get_dimension(this))
         integer(c_int) :: ret
 
@@ -562,6 +503,7 @@ contains
         if (present(tol)) tol_ = tol
 
         ret = nlopt_add_equality_mconstraint(this%o,m,c_funloc(h),h_data,tol_)
+        if (present(ires)) ires = ret
     end subroutine
     subroutine add_equality_constraint_oo(this,h,tol)
         class(opt), intent(inout) :: this
@@ -765,30 +707,28 @@ contains
     end subroutine
 
 
-    logical function get_errmsg(this,errmsg)
+    function get_errmsg(this) result(errmsg)
         class(opt), intent(in) :: this
-        character(len=:,kind=c_char), allocatable, intent(out), optional :: errmsg
+        character(len=:,kind=c_char), allocatable :: errmsg
         type(c_ptr) :: c_string
         character(len=1000,kind=c_char), pointer :: f_string
         
         c_string = nlopt_get_errmsg(this%o)
         if (.not. c_associated(c_string)) then
-            get_errmsg = .false.
+            errmsg = ""
         else
-            get_errmsg = .true.
-            if (present(errmsg)) then
-                call c_f_pointer(c_string,f_string)
-                errmsg = f_string(1:index(f_string,c_null_char))
-            end if
+            call c_f_pointer(c_string,f_string)
+            errmsg = f_string(1:index(f_string,c_null_char))
         end if
     end function
 
-    subroutine set_local_optimizer(this,lo)
+    subroutine set_local_optimizer(this,lo,ires)
         class(opt), intent(inout) :: this
         class(opt), intent(in) :: lo
+        integer(c_int), intent(out), optional :: ires
         integer(c_int) :: ret
         ret = nlopt_set_local_optimizer(this%o,lo%o)
-        ! call mythrow(ret)
+        if (present(ires)) ires = ret
     end subroutine
 
     integer(c_int) function get_population(this)
@@ -904,19 +844,17 @@ contains
         myfunc = sqrt(x(2))
     end function
 
-    real(c_double) function myconstraint(n,x,gradient,func_data) bind(c)
+    real(c_double) function myconstraint(n,x,gradient,func_data)
         integer(c_int), intent(in), value :: n
         real(c_double), intent(in) :: x(n)
         real(c_double), intent(out), optional :: gradient(n)
         type(c_ptr), value :: func_data
 
-        real(c_double), pointer :: d(:)
-        real(c_double) :: a, b
+        real(c_double), pointer :: d(:), a, b
 
-        call c_f_pointer(func_data,d,[2])
-
-        a = d(1)
-        b = d(2)
+        call c_f_pointer(func_data,d,[2]) ! unpack data from C pointer
+        a => d(1)
+        b => d(2)
 
         if (present(gradient)) then
             gradient(1) = 3._c_double*a*(a*x(1) + b)**2
@@ -930,16 +868,23 @@ end module
 module functor_mod
 
     use iso_c_binding, only: c_int, c_double
-    use nlopt_user_func_mod, only: nlopt_user_func
+    use nlopt, only: nlopt_user_func
 
     implicit none
     private
 
-    public :: square
+    public :: square, cubic
 
     type, extends(nlopt_user_func) :: square
     contains
         procedure, public :: eval => eval_square
+    end type
+
+    type, extends(nlopt_user_func) :: cubic
+        real(c_double) :: a, b
+        real(c_double) :: leak(10000) = 0
+    contains
+        procedure, public :: eval => eval_cubic
     end type
 
 contains
@@ -957,25 +902,39 @@ contains
         eval_square = sqrt(x(2))
     end function
 
+    real(c_double) function eval_cubic(this,n,x,grad)
+        class(cubic), intent(in) :: this
+        integer(c_int), intent(in) :: n
+        real(c_double), intent(in) :: x(n)
+        real(c_double), intent(out), optional :: grad(n)
+
+        associate(a => this%a, b=>this%b)
+        if (present(grad)) then
+            grad(1) = 3._c_double*a*(a*x(1) + b)**2
+            grad(2) = 0.0_c_double
+        end if
+        eval_cubic = (a*x(1) + b)**3 - x(2)
+        end associate
+    end function
 end module functor_mod
 
 program main
 
-    use iso_c_binding, only: c_int, c_double, c_ptr
+    use iso_c_binding
     use my_test_problem, only: myfunc, myconstraint
 
-    use nlopt, only: algorithm_name, version, opt, new_opt
+    use nlopt, only: algorithm_name, version, opt
 
     use nlopt_c_interface
     
     use nlopt_enum, only : NLOPT_LD_MMA
 
-    use functor_mod, only: square
+    use functor_mod, only: square, cubic
 
     implicit none
 
 
-    call procedural_example
+    ! call procedural_example
     call oo_example
 
 contains
@@ -992,7 +951,9 @@ contains
         integer(c_int) :: ires
         real(c_double) :: optf
 
-        type(c_funptr) :: c_func, c_constraint
+        integer :: irepeat
+
+        type(c_funptr) :: c_myfunc, c_myconstraint
 
         print *, "========= PROCEDURAL EXAMPLE =========="
 
@@ -1008,27 +969,39 @@ contains
         print *, "Lower bounds are = ", lb, " with return status ", ires
 
         ! Fortran function to C function pointer
-        c_func = c_funloc(myfunc)
-        ires = nlopt_set_min_objective(opt,c_func,c_null_ptr)
+        c_myfunc = c_funloc(myfunc)
+        ires = nlopt_set_min_objective(opt,c_myfunc,c_null_ptr)
 
 
         ! Fortran constraint to C function pointer
-        c_constraint = c_funloc(myconstraint)
+        c_myconstraint = c_funloc(myconstraint)
+
 
         d1 = [2.0_c_double,0.0_c_double]
-        cd1 = c_loc(d1)
-        ires = nlopt_add_inequality_constraint(opt,c_constraint,cd1,1.d-8)
+        ires = nlopt_add_inequality_constraint(opt,c_myconstraint,c_loc(d1),1.d-8)
         
         d2 = [-1._c_double, 1.0_c_double]
-        cd2 = c_loc(d2)
-        ires = nlopt_add_inequality_constraint(opt,c_constraint,cd2,1.d-8)
+        ires = nlopt_add_inequality_constraint(opt,c_myconstraint,c_loc(d2),1.d-8)
+
+        do irepeat = 1, 200
+            ires = nlopt_remove_inequality_constraints(opt)
+
+            d1 = [2.0_c_double,0.0_c_double]
+            ires = nlopt_add_inequality_constraint(opt,c_myconstraint,c_loc(d1),1.d-8)
+            
+            d2 = [-1._c_double, 1.0_c_double]
+            ires = nlopt_add_inequality_constraint(opt,c_myconstraint,c_loc(d2),1.d-8)
+
+        end do
+        ! stop ires
+
 
         ires = nlopt_set_xtol_rel(opt,1.d-4)
-
+        print*, "set_xtol_rel", ires
 
         x = [1.234_c_double,5.678_c_double]
         ires = nlopt_optimize(opt,x,optf)
-
+        print *, ires, nlopt_get_errmsg(opt)
         if (ires < 0) then
             print *, "Nlopt failed!"
         else
@@ -1036,10 +1009,7 @@ contains
             print *, "Minimum value = ", optf
         end if
 
-        ! opt_copy = nlopt_copy(opt)
         call nlopt_destroy(opt)
-
-        ! print *, opt, opt_copy
     end subroutine
 
 
@@ -1048,27 +1018,24 @@ contains
         integer(c_int) :: major, minor, bugfix
         integer(c_int), parameter :: n = 2
 
-        type(opt) :: myopt, myopt2
-        type(c_ptr) :: cd1, cd2
+        type(opt) :: myopt
 
         real(c_double), dimension(n) :: x, lb
         real(c_double), target :: d1(2), d2(2)
         integer(c_int) :: ires
         real(c_double) :: optf
-
         type(square) :: square_func
+        type(cubic) :: constraint
+        integer :: i
 
         print *, "========= OO EXAMPLE =========="
 
         call version(major,minor,bugfix)
         print *, "NLopt version ",major,minor,bugfix
 
-        myopt = opt(a=NLOPT_LD_MMA,n=n,object_name="myopt")
-        ! myopt2 = opt(myopt)
+        myopt = opt(a=NLOPT_LD_MMA,n=n)
         print *, "Algorithm = ", myopt%get_algorithm_name()
         print *, "Dimension = ", myopt%get_dimension()
-
-        print*, "algorithm_name = "//algorithm_name(5)
 
         lb = [-huge(1.0_c_double),0.0_c_double]
         call myopt%set_lower_bounds(lb)
@@ -1080,32 +1047,61 @@ contains
 
 
         d1 = [2.0_c_double,0.0_c_double]
-        call myopt%add_inequality_constraint(myconstraint,c_loc(d1),tol=-1.d-8,ires=ires)
-        ! if (ires < 0) then
-        !     write(*,*) "something went wrong: ", myopt%get_errmsg()
-        !     stop 0
-        ! end if
-        ! print *, "errmsg: ", myopt%get_errmsg()
+        call myopt%add_inequality_constraint(myconstraint,c_loc(d1),tol=1.d-8,ires=ires)
+        if (ires < 0) then
+            write(*,*) "something went wrong"
+            stop myopt%get_errmsg()
+        end if
 
-        d2 = [-1._c_double, 1.0_c_double]
-        cd2 = c_loc(d2)
-        call myopt%add_inequality_constraint(myconstraint,cd2,1.d-8)
+        constraint%a = -1._c_double
+        constraint%b = 1.0_c_double
+        ! d2 = [-1._c_double, 1.0_c_double]
+        call myopt%add_inequality_constraint(constraint,1.d-8,ires)
+        ! call myopt%add_inequality_constraint(myconstraint,c_loc(d2),tol=1.d-8,ires=ires)
+        if (ires < 0) then
+            print *, ires
+            stop myopt%get_errmsg()
+        end if
+
+        ! do i = 1, 90000
+
+        ! call myopt%remove_inequality_constraints(ires)
+        ! ! print *, d1, constraint%a, constraint%b
+        ! if (ires < 0) then
+        !     print *, ires
+        !     stop myopt%get_errmsg()
+        ! end if
+
+        ! d1 = [2.0_c_double,0.0_c_double]
+        ! call myopt%add_inequality_constraint(myconstraint,c_loc(d1),tol=1.d-8,ires=ires)
+        ! if (ires < 0) then
+        !     write(*,*) "something went wrong"
+        !     stop myopt%get_errmsg()
+        ! end if
+
+        ! constraint%a = -1._c_double
+        ! constraint%b = 1.0_c_double
+        ! ! d2 = [-1._c_double, 1.0_c_double]
+        ! call myopt%add_inequality_constraint(constraint,1.d-8,ires)
+        ! ! call myopt%add_inequality_constraint(myconstraint,c_loc(d2),tol=1.d-8,ires=ires)
+        ! if (ires < 0) then
+        !     print *, ires
+        !     stop myopt%get_errmsg()
+        ! end if
+
+        ! end do
 
         call myopt%set_xtol_rel(1.d-4)
         
         x = [1.234_c_double,5.678_c_double]
         ires = myopt%optimize(x,optf)
 
-        if (myopt%last_optimize_result() < 0) then
+        if (ires < 0) then
             print *, "Nlopt failed!"
         else
             print *, "Found minimum at ", x
             print *, "Minimum value = ", optf
         end if
-
-        ! automatic finalization
     end subroutine
-
-
 
 end program
