@@ -59,3 +59,9 @@ if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXI
   add_test (NAME test_guile COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm)
   set_tests_properties (test_guile PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
 endif ()
+
+if (NLOPT_FORTRAN)
+  add_executable (t_fortran t_fortran.f90)
+  target_link_libraries (t_fortran ${nlopt_lib})
+  add_test (NAME test_fortran COMMAND t_fortran)
+endif ()
