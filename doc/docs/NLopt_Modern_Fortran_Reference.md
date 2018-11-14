@@ -4,7 +4,7 @@ NLopt is written in C and the C NLopt programming interface (API), as described 
 
 However, we also provide another Modern Fortran (from here on just Fortran) module in file nlopt.f90, that wraps a more natural Fortran interface around the NLopt API, which may be more convenient for Fortran programmers used to using derived types.
 
-The main distinction of the Modern Fortran API are:
+The main distinctions of the Modern Fortran API are:
 
 * Use of an `nlopt` module.
 * Use of a Fortran derived-type `opt`, with constructors, destructors, and member functions.
@@ -113,8 +113,8 @@ where the arguments `fc` and `h` have the same from as the objective function ab
 To remove all of the inequality and/or equality constraints from a given problem, you can call the following methods:
 
 ```Fortran
-call myopt%remove_inequality_constraints([ires]);
-void myopt%remove_equality_constraints([ires]);
+call myopt%remove_inequality_constraints([ires])
+call myopt%remove_equality_constraints([ires])
 ```
 
 ### Vector-valued constraints

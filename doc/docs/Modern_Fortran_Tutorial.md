@@ -209,7 +209,7 @@ end program
 ```
 
 There are a few things to note here:
-* Just like in the C-API most `nlopt_` functions return a integer result flag.
-* The "`nlopt_opt`" variable `opt` is now declared as a `type(c_ptr)` (and not an `integer*8` like in the old Fortran interface).
-* Data needed by the user functions should be first converted to a `type(c_ptr)` using the intrinsic function `c_loc()`. For functions that do not require any data a `c_null_ptr` can be passed instead.
-* The objective function and constraint function are converted to C function pointers using the intrinsic function `c_funloc(f)` that returns a `type(c_funptr)` object.
+* Just like in the C-API most of the `nlopt_` functions return an integer result flag (positive values indicate success).
+* The "`nlopt_opt`" variable `opt` is now declared as a `type(c_ptr)` object (and not an `integer*8` anymore like in the old Fortran interface).
+* The objective function and constraints are converted to C function pointers using the intrinsic function `c_funloc()` that returns a `type(c_funptr)` object.
+* Data needed by the user functions is converted to a `type(c_ptr)` using the intrinsic function `c_loc()`. For functions that do not require any data a `c_null_ptr` can be passed instead. The data has to be unpacked correctly within the callback functions.
