@@ -5,7 +5,6 @@ repo_url: https://github.com/stevengj/NLopt/
 docs_dir: 'doc/docs'
 site_dir: 'doc/site'
 
-# theme_dir: 'doc/nlopt-mkdocs-theme'
 theme: readthedocs
 
 python:
