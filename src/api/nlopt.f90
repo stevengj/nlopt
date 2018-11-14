@@ -74,6 +74,11 @@ module adaptor_mod
         final :: destroy
     end type
 
+    type :: adaptor_list
+        type(adaptor) :: me
+        type(adaptor), pointer :: next
+    end type
+
 contains
 
     subroutine destroy(this)
@@ -152,9 +157,8 @@ module nlopt
         real(c_double) :: last_optf = huge(1._c_double)
         integer(c_int) :: forced_stop_reason = NLOPT_FORCED_STOP
 
-        integer(c_int) :: n = 0 ! remember dimension for convenience
-        
-        type(adaptor), pointer :: objective => null()
+        type(adaptor), pointer :: objective => null() ! keep objective on Fortran side
+        ! type(adaptor_list) :: cons
     contains
 
         procedure, public :: optimize
@@ -289,7 +293,13 @@ contains
     ! Finalizer/destructor
     subroutine destroy(this)
         type(opt), intent(inout) :: this
-        nullify(this%objective)
+
+        ! Fortran handle to objective
+        if (associated(this%objective)) then
+            deallocate(this%objective)
+            nullify(this%objective)
+        end if
+
         call nlopt_destroy(this%o)
     end subroutine
 
@@ -983,7 +993,7 @@ contains
         d2 = [-1._c_double, 1.0_c_double]
         ires = nlopt_add_inequality_constraint(opt,c_myconstraint,c_loc(d2),1.d-8)
 
-        do irepeat = 1, 200
+        do irepeat = 1, 80000
             ires = nlopt_remove_inequality_constraints(opt)
 
             d1 = [2.0_c_double,0.0_c_double]
@@ -1055,9 +1065,9 @@ contains
 
         constraint%a = -1._c_double
         constraint%b = 1.0_c_double
-        ! d2 = [-1._c_double, 1.0_c_double]
-        call myopt%add_inequality_constraint(constraint,1.d-8,ires)
-        ! call myopt%add_inequality_constraint(myconstraint,c_loc(d2),tol=1.d-8,ires=ires)
+        d2 = [-1._c_double, 1.0_c_double]
+        ! call myopt%add_inequality_constraint(constraint,1.d-8,ires)
+        call myopt%add_inequality_constraint(myconstraint,c_loc(d2),tol=1.d-8,ires=ires)
         if (ires < 0) then
             print *, ires
             stop myopt%get_errmsg()
