@@ -38,7 +38,7 @@ set(SO_PATCH 0)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option (NLOPT_CXX "enable cxx routines" ON)
-option (NLOPT_FORTRAN "enable fotran tests" OFF)
+option (NLOPT_FORTRAN "enable fortran tests" OFF)
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 option (NLOPT_PYTHON "build python bindings" ON)
 option (NLOPT_OCTAVE "build octave bindings" ON)
