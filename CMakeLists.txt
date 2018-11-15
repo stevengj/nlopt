@@ -224,7 +224,16 @@ if (NLOPT_CXX11)
   src/algs/ags/local_optimizer.hpp src/algs/ags/local_optimizer.cc src/algs/ags/ags.h src/algs/ags/ags.cc)
 endif ()
 
+if (NLOPT_FORTRAN)
+  list (APPEND NLOPT_SOURCES src/api/nlopt.f90 src/api/nlopt_c_interface.f90 src/api/nlopt_enum.f90)
+  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/mod_files)
+  install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/ DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
+endif ()
+
+
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
+
+
 
 set (nlopt_lib nlopt)
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
