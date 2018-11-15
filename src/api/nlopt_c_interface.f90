@@ -149,7 +149,7 @@ module nlopt_c_interface
             type(c_ptr), value :: opt
             real(c_double), intent(in) :: ub(nlopt_get_dimension(opt))
         end function
-        integer(c_int) function nlopt_set_upper_bounds1(opt,ub) bind(c,name="nlopt_set_lower_bounds1")
+        integer(c_int) function nlopt_set_upper_bounds1(opt,ub) bind(c,name="nlopt_set_upper_bounds1")
             import c_int, c_ptr, c_double
             type(c_ptr), intent(in), value :: opt
             real(c_double), intent(in), value :: ub
