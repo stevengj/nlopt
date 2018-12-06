@@ -22,6 +22,10 @@
 #include "nlopt-util.h"
 #include <stdlib.h>
 
+#if defined(_MSC_VER)
+#define inline __inline
+#endif
+
 typedef int		 cmp_t(void *, const void *, const void *);
 
 static inline char	*med3(char *, char *, char *, cmp_t *, void *);
