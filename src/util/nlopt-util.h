@@ -50,7 +50,7 @@ extern "C" {
     int nlopt_istiny(double x);
     int nlopt_isnan(double x);
 
-/* re-entrant qsort */
+/* re-entrant qsort, uses the BSD convention */
     extern void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk, int (*compar) (void *, const void *, const void *));
 
 /* seconds timer */
