@@ -184,8 +184,8 @@ void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk, cmp_t* c
     wrapper.compar = compar;
     wrapper.thunk = thunk;
     qsort_r(base_, nmemb, size, qsort_cmp_wrap, &wrapper);
-#elif defined(_WIN32)
-  qsort_s(base_, nmemb, size, compar, thunk);
+/*#elif defined(_WIN32)
+  qsort_s(base_, nmemb, size, compar, thunk);*/
 #else
   qsort_r_fallback(base_, nmemb, size, thunk, compar);
 #endif
