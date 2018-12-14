@@ -174,7 +174,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  *minf = fcur;
 	  minf_penalty = penalty;
 	  minf_feasible = feasible;
-	  d.rho = MAX(1e-6, MIN(10, 2 * fabs(*minf) / con2));
+	  d.rho = (con2 > 0) ? MAX(1e-6, MIN(10, 2 * fabs(*minf) / con2)) : 10;
      }
      else
 	  d.rho = 1; /* whatever, doesn't matter */
