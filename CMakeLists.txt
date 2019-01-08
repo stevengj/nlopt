@@ -82,6 +82,10 @@ if(POLICY CMP0042)
   # Set MACOSX_RPATH to ON
   cmake_policy(SET CMP0042 NEW)
 endif()
+if (POLICY CMP0086)
+  # UseSWIG honors SWIG_MODULE_NAME via -module flag
+  cmake_policy(SET CMP0086 NEW)
+endif ()
 
 include (CheckIncludeFiles)
 include (CheckFunctionExists)

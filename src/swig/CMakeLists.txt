@@ -41,7 +41,10 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND)
   swig_link_libraries (nlopt_python ${nlopt_lib})
   target_link_libraries_with_dynamic_lookup (${nlopt_python} ${PYTHON_LIBRARIES})
 
-  set_target_properties (${nlopt_python} PROPERTIES OUTPUT_NAME _nlopt)
+  set_target_properties (${nlopt_python} PROPERTIES OUTPUT_NAME nlopt)
+  if (CMAKE_VERSION VERSION_LESS 3.13)
+    set_target_properties (${nlopt_python} PROPERTIES PREFIX "_")
+  endif ()
 
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION ${INSTALL_PYTHON_DIR})
   install (TARGETS ${nlopt_python} LIBRARY DESTINATION ${INSTALL_PYTHON_DIR})
