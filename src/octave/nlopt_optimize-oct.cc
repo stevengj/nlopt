@@ -39,6 +39,11 @@
 #  define err_user_returned_invalid gripe_user_returned_invalid
 #  define numel length
 #endif
+#if OCTAVE_MAJOR_VERSION < 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION < 4)
+#  define iscell is_cell
+#  define isstruct is_map
+#endif
+
 
 static int struct_val_default(octave_map &m, const std::string& k,
 				 int dflt)
@@ -91,7 +96,7 @@ static double user_function(unsigned n, const double *x,
     xm(i) = x[i];
   args(0) = xm;
   octave_value_list res
-#if (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
+#if OCTAVE_MAJOR_VERSION > 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
     = octave::feval(data->f, args, gradient ? 2 : 1);
 #else
     = data->f->do_multi_index_op(gradient ? 2 : 1, args);
@@ -133,7 +138,7 @@ static double user_function1(unsigned n, const double *x,
     xm(i) = x[i];
   args(0) = xm;
   octave_value_list res
-#if (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
+#if OCTAVE_MAJOR_VERSION > 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
     = octave::feval(f, args, gradient ? 2 : 1);
 #else
     = f->do_multi_index_op(gradient ? 2 : 1, args);
@@ -214,7 +219,7 @@ nlopt_opt make_opt(octave_map &opts, int n)
 
   if (opts.contains("local_optimizer")) {
     CHECK1(opts.contents("local_optimizer").numel() == 1
-	  && (opts.contents("local_optimizer"))(0).is_map(),
+	  && (opts.contents("local_optimizer"))(0).isstruct(),
 	  "opt.local_optimizer must be a structure");
     octave_map local_opts = (opts.contents("local_optimizer"))(0).map_value();
     CHECK1((local_opt = make_opt(local_opts, n)),
@@ -231,12 +236,11 @@ nlopt_opt make_opt(octave_map &opts, int n)
 DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
 {
   octave_value_list retval;
-  double A;
   nlopt_opt opt = NULL;
 
   CHECK(args.length() == 2 && nargout <= 3, "wrong number of args");
 
-  CHECK(args(0).is_map(), "opt must be structure")
+  CHECK(args(0).isstruct(), "opt must be structure")
   octave_map opts = args(0).map_value();
 
   CHECK(args(1).is_real_matrix() || args(1).is_real_scalar(),
@@ -270,7 +274,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
   }
 
   if (opts.contains("fc") && opts.contents("fc").numel() == 1) {
-    CHECK((opts.contents("fc"))(0).is_cell(), "opt.fc must be cell array");
+    CHECK((opts.contents("fc"))(0).iscell(), "opt.fc must be cell array");
     Cell fc = (opts.contents("fc"))(0).cell_value();
     Matrix zeros(1, fc.numel(), 0.0);
     Matrix fc_tol = struct_val_default(opts, "fc_tol", zeros);
@@ -287,7 +291,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
   }
 
   if (opts.contains("h") && opts.contents("h").numel() == 1) {
-    CHECK((opts.contents("h"))(0).is_cell(), "opt.h must be cell array");
+    CHECK((opts.contents("h"))(0).iscell(), "opt.h must be cell array");
     Cell h = (opts.contents("h"))(0).cell_value();
     Matrix zeros(1, h.numel(), 0.0);
     Matrix h_tol = struct_val_default(opts, "h_tol", zeros);
