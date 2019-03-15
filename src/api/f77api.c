@@ -82,12 +82,12 @@ static void f77_mfunc_wrap(unsigned m, double *result, unsigned n, const double 
 
 /*-----------------------------------------------------------------------*/
 
-#define F77_GET(name,NAME,T) void F77_(nlo_get_##name,NLO_GET_##NAME)(T *val, nlopt_opt *opt) { *val = (T) nlopt_get_##name(*opt); }
-#define F77_SET(name,NAME,T) void F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, *val); }
+#define F77_GET(name,NAME,T) NLOPT_EXTERN(void) F77_(nlo_get_##name,NLO_GET_##NAME)(T *val, nlopt_opt *opt) { *val = (T) nlopt_get_##name(*opt); }
+#define F77_SET(name,NAME,T) NLOPT_EXTERN(void) F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, *val); }
 #define F77_GETSET(name,NAME,T) F77_GET(name,NAME,T) F77_SET(name,NAME,T)
 
-#define F77_GETA(name,NAME,T) void F77_(nlo_get_##name,NLO_GET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_get_##name(*opt, val); }
-#define F77_SETA(name,NAME,T) void F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, val); }
+#define F77_GETA(name,NAME,T) NLOPT_EXTERN(void) F77_(nlo_get_##name,NLO_GET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_get_##name(*opt, val); }
+#define F77_SETA(name,NAME,T) NLOPT_EXTERN(void) F77_(nlo_set_##name,NLO_SET_##NAME)(int *ret, nlopt_opt *opt, T *val) { *ret = (int) nlopt_set_##name(*opt, val); }
 #define F77_GETSETA(name,NAME,T) F77_GETA(name,NAME,T) F77_SETA(name,NAME,T) F77_SET(name##1,NAME##1,T)
 
 /*-----------------------------------------------------------------------*/
