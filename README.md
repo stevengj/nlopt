@@ -7,10 +7,11 @@ functions with and without gradient information.  It is designed as
 a simple, unified interface and packaging of several free/open-source
 nonlinear optimization libraries.
 
-The latest release and a complete manual may be found at the NLopt
-home page: http://ab-initio.mit.edu/nlopt
+The latest release can be downloaded from the [NLopt releases](https://github.com/stevengj/nlopt/releases) page on Github, and the 
+[NLopt manual](
+https://nlopt.readthedocs.io/en/latest/) is hosted on readthedocs.
 
-NLopt is compiled and installed with the [CMake][1] build system
+NLopt is compiled and installed with the [CMake](https://cmake.org/) build system
 (see `CMakeLists.txt` file for available options):
 
     git clone git://github.com/stevengj/nlopt
@@ -21,22 +22,14 @@ NLopt is compiled and installed with the [CMake][1] build system
     make
     sudo make install
 
-(To build the latest development sources from git, you will need [SWIG][2]
+(To build the latest development sources from git, you will need [SWIG](http://www.swig.org/)
 to generate the Python and Guile bindings.)
 
 Once it is installed, `#include <nlopt.h>` in your C/C++ programs and
 link it with `-lnlopt -lm`.  You may need to use a C++ compiler to link
 in order to include the C++ libraries (which are used internally by NLopt,
-even though it exports a C API).
+even though it exports a C API).  See the [C reference manual](https://nlopt.readthedocs.io/en/latest/NLopt_Reference/).
 
-The minimization function, `nlopt_minimize`, is described in the [manpage][3]
-(`api/nlopt_minimize.3`, which is installed by `make install`).
-See also the manual on our web page.
-
-There are also interfaces for Fortran, Python, MATLAB, GNU Octave, OCaml,
-GNU Guile, GNU R, Lua, and Julia.  Interfaces for other languages may
+There are also interfaces for [C++](https://nlopt.readthedocs.io/en/latest/NLopt_C-plus-plus_Reference/), [Fortran](https://nlopt.readthedocs.io/en/latest/NLopt_Fortran_Reference/), [Python](https://nlopt.readthedocs.io/en/latest/NLopt_Python_Reference/), [Matlab or GNU Octave](https://nlopt.readthedocs.io/en/latest/NLopt_Matlab_Reference/), [OCaml](https://bitbucket.org/mkur/nlopt-ocaml),
+[GNU Guile](https://nlopt.readthedocs.io/en/latest/NLopt_Guile_Reference/), [GNU R](https://www.ucl.ac.uk/~uctpjyy/nloptr.html), [Lua](https://github.com/rochus-keller/LuaNLopt), [Rust](https://github.com/jesskfullwood/rust-nlopt), and [Julia](https://github.com/JuliaOpt/NLopt.jl).  Interfaces for other languages may
 be added in the future.
-
-[1]: https://cmake.org/
-[2]: http://www.swig.org/
-[3]: https://en.wikipedia.org/wiki/Man_page
