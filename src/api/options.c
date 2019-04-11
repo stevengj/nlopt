@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <stdio.h>
@@ -308,6 +308,20 @@ nlopt_result NLOPT_STDCALL nlopt_set_lower_bounds1(nlopt_opt opt, double lb)
     return NLOPT_INVALID_ARGS;
 }
 
+nlopt_result NLOPT_STDCALL nlopt_set_lower_bound(nlopt_opt opt, int i, double lb)
+{
+    nlopt_unset_errmsg(opt);
+    if (opt) {
+        if (i < 0 || i >= opt->n)
+            return ERR(NLOPT_INVALID_ARGS, opt, "invalid bound index");
+        opt->lb[i] = lb;
+        if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
+            opt->lb[i] = opt->ub[i];
+        return NLOPT_SUCCESS;
+    }
+    return NLOPT_INVALID_ARGS;
+}
+
 nlopt_result NLOPT_STDCALL nlopt_get_lower_bounds(const nlopt_opt opt, double *lb)
 {
     nlopt_unset_errmsg(opt);
@@ -343,6 +357,20 @@ nlopt_result NLOPT_STDCALL nlopt_set_upper_bounds1(nlopt_opt opt, double ub)
             if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
                 opt->ub[i] = opt->lb[i];
         }
+        return NLOPT_SUCCESS;
+    }
+    return NLOPT_INVALID_ARGS;
+}
+
+nlopt_result NLOPT_STDCALL nlopt_set_upper_bound(nlopt_opt opt, int i, double ub)
+{
+    nlopt_unset_errmsg(opt);
+    if (opt) {
+        if (i < 0 || i >= opt->n)
+            return ERR(NLOPT_INVALID_ARGS, opt, "invalid bound index");
+        opt->ub[i] = ub;
+        if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
+            opt->ub[i] = opt->lb[i];
         return NLOPT_SUCCESS;
     }
     return NLOPT_INVALID_ARGS;
@@ -410,7 +438,7 @@ static nlopt_result add_constraint(nlopt_opt opt,
 
     *m += 1;
     if (*m > *m_alloc) {
-        /* allocate by repeated doubling so that 
+        /* allocate by repeated doubling so that
            we end up with O(log m) mallocs rather than O(m). */
         *m_alloc = 2 * (*m);
         *c = (nlopt_constraint *) realloc(*c, sizeof(nlopt_constraint)

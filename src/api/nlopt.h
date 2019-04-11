@@ -211,9 +211,11 @@ NLOPT_EXTERN(const char *) nlopt_get_errmsg(nlopt_opt opt);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bounds(nlopt_opt opt, const double *lb);
 NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bounds1(nlopt_opt opt, double lb);
+NLOPT_EXTERN(nlopt_result) nlopt_set_lower_bound(nlopt_opt opt, int i, double lb);
 NLOPT_EXTERN(nlopt_result) nlopt_get_lower_bounds(const nlopt_opt opt, double *lb);
 NLOPT_EXTERN(nlopt_result) nlopt_set_upper_bounds(nlopt_opt opt, const double *ub);
 NLOPT_EXTERN(nlopt_result) nlopt_set_upper_bounds1(nlopt_opt opt, double ub);
+NLOPT_EXTERN(nlopt_result) nlopt_set_upper_bound(nlopt_opt opt, int i, double ub);
 NLOPT_EXTERN(nlopt_result) nlopt_get_upper_bounds(const nlopt_opt opt, double *ub);
 
 NLOPT_EXTERN(nlopt_result) nlopt_remove_inequality_constraints(nlopt_opt opt);

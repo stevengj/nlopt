@@ -118,11 +118,14 @@ It is permitted to set `lb[i]` `==` `ub[i]` in one or more dimensions; this is e
 
 Note, however, that some of the algorithms in NLopt, in particular most of the global-optimization algorithms, do not support unconstrained optimization and will return an error in `nlopt_optimize` if you do not supply finite lower and upper bounds.
 
-For convenience, the following two functions are supplied in order to set the lower/upper bounds for all optimization parameters to a single constant (so that you don’t have to fill an array with a constant value):
+For convenience, the functions `nlopt_set_*_bounds1` are supplied in order to set the lower/upper bounds for all optimization parameters to a single constant (so that you don’t have to fill an array with a constant value), along with `nlopt_set_*_bound` to set the bound for
+a single variable `x[i]`:
 
 ```
 nlopt_result nlopt_set_lower_bounds1(nlopt_opt opt, double lb);
 nlopt_result nlopt_set_upper_bounds1(nlopt_opt opt, double ub);
+nlopt_result nlopt_set_lower_bound(nlopt_opt opt, int i, double lb);
+nlopt_result nlopt_set_upper_bound(nlopt_opt opt, int i, double ub);
 ```
 
 
