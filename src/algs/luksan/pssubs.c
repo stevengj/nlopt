@@ -518,13 +518,15 @@ void luksan_pulsp3__(int *n, int *m, int *mf,
 	double *r__, double *po, double *sig, int *iterh, 
 	int *met3)
 {
+    (void) r__; (void) po;
+
     /* System generated locals */
     double d__1, d__2, d__3, d__4;
 
     /* Builtin functions */
 
     /* Local variables */
-    double a, b, c__, aa, bb, ah, den, par, pom;
+    double a, b, aa, bb, ah, den, par, pom;
 
     /* Parameter adjustments */
     --go;
@@ -545,7 +547,6 @@ void luksan_pulsp3__(int *n, int *m, int *mf,
     ah = luksan_mxvdot__(n, &go[1], &go[1]);
     aa = luksan_mxvdot__(m, &gr[1], &gr[1]);
     a = aa + ah * *sig;
-    c__ = -(*r__) * *po;
 
 /*     DETERMINATION OF THE PARAMETER SIG (SHIFT) */
 
@@ -647,13 +648,15 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
 	double *sig, int *iterh, int *met2, int *met3, 
 	int *met5)
 {
+    (void) po;
+
     /* System generated locals */
     double d__1, d__2, d__3, d__4;
 
     /* Builtin functions */
 
     /* Local variables */
-    double a, b, c__, aa, bb, cc, ah, den, par, pom, zet;
+    double a, b, aa, bb, cc, ah, den, par, pom, zet;
 
     /* Parameter adjustments */
     --go;
@@ -689,7 +692,6 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
     bb = luksan_mxvdot__(m, &gr[1], &xr[1]);
     cc = luksan_mxvdot__(m, &xr[1], &xr[1]);
     a = aa + ah * *sig;
-    c__ = -(*r__) * *po;
 
 /*     DETERMINATION OF THE PARAMETER SIG (SHIFT) */
 

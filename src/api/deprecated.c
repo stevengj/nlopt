@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include "nlopt.h"
@@ -162,6 +162,11 @@ nlopt_result NLOPT_STDCALL nlopt_minimize_econstrained(nlopt_algorithm algorithm
     return ret;
 }
 
+/* don't emit inner deprecated warnings */
+#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 nlopt_result NLOPT_STDCALL nlopt_minimize_constrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size, const double *lb, const double *ub,   /* bounds */
                                                       double *x,        /* in: initial guess, out: minimizer */
                                                       double *minf,     /* out: minimum */
@@ -170,6 +175,7 @@ nlopt_result NLOPT_STDCALL nlopt_minimize_constrained(nlopt_algorithm algorithm,
     return nlopt_minimize_econstrained(algorithm, n, f, f_data,
                                        m, fc, fc_data, fc_datum_size, 0, NULL, NULL, 0, lb, ub, x, minf, minf_max, ftol_rel, ftol_abs, xtol_rel, xtol_abs, ftol_rel, ftol_abs, maxeval, maxtime);
 }
+
 
 nlopt_result NLOPT_STDCALL nlopt_minimize(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, const double *lb, const double *ub, /* bounds */
                                           double *x,    /* in: initial guess, out: minimizer */

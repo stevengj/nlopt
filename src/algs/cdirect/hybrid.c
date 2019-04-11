@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <math.h>
@@ -32,7 +32,7 @@
 /* Hybrid algorithm, inspired by DIRECT, that uses another local
  * optimization algorithm within each rectangle, and then looks
  * in the largest remaining rectangle (breaking ties by minimum
- * function value and then by age. 
+ * function value and then by age.
  *
  * Each hyperrect is represented by an array of length 3*n+3 consisting
  * of (d, -f, -a, x, c, w), where d=diameter, f=f(x), a=age, x=local optimum
@@ -49,9 +49,9 @@ typedef struct {
      rb_tree rtree; /* red-black tree of rects, sorted by (d,-f,-a) */
      int age; /* age for next new rect */
      double *work; /* workspace of length >= 2*n */
-     
-     nlopt_algorithm local_alg; /* local search algorithm */
-     int local_maxeval; /* max # local iterations (0 if unlimited) */
+
+     nlopt_opt local_opt;  /* local search algorithm */
+     int local_maxeval;
 
      int randomized_div; /* 1 to use randomized division algorithm */
 } params;
@@ -62,7 +62,7 @@ typedef struct {
 
 /************************************************************************/
 
-static double fcount(int n, const double *x, double *grad, void *p_)
+static double fcount(unsigned n, const double *x, double *grad, void *p_)
 {
      params *p = (params *) p_;
      ++ *(p->stop->nevals_p);
@@ -78,7 +78,8 @@ static nlopt_result optimize_rect(double *r, params *p)
      double minf;
      nlopt_stopping *stop = p->stop;
      nlopt_result ret;
-     
+     nlopt_opt opt;
+
      if (stop->maxeval > 0 &&
 	 *(stop->nevals_p) >= stop->maxeval) return NLOPT_MAXEVAL_REACHED;
      if (stop->maxtime > 0 &&
@@ -88,15 +89,18 @@ static nlopt_result optimize_rect(double *r, params *p)
 	  lb[i] = c[i] - 0.5 * w[i];
 	  ub[i] = c[i] + 0.5 * w[i];
      }
-     ret = nlopt_minimize(p->local_alg, n, fcount, p, 
-			  lb, ub, x, &minf,
-			  stop->minf_max, stop->ftol_rel, stop->ftol_abs,
-			  stop->xtol_rel, stop->xtol_abs,
-			  p->local_maxeval > 0 ?
-			  MIN(p->local_maxeval, 
-			      stop->maxeval - *(stop->nevals_p))
-			  : stop->maxeval - *(stop->nevals_p),
-			  stop->maxtime - (t - stop->start));
+     ret = nlopt_set_lower_bounds(p->local_opt, lb);
+     if (ret != NLOPT_SUCCESS) return ret;
+     ret = nlopt_set_upper_bounds(p->local_opt, ub);
+     if (ret != NLOPT_SUCCESS) return ret;
+     if (p->local_maxeval > 0) {
+          ret = nlopt_set_maxeval(p->local_opt,
+               MIN(p->local_maxeval, stop->maxeval - *(stop->nevals_p)));
+          if (ret != NLOPT_SUCCESS) return ret;
+     }
+     ret = nlopt_set_maxtime(p->local_opt, stop->maxtime - (t - stop->start));
+     if (ret != NLOPT_SUCCESS) return ret;
+     ret = nlopt_optimize(p->local_opt, x, &minf);
      r[1] = -minf;
      if (ret > 0) {
 	  if (minf < p->minf) {
@@ -248,14 +252,13 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
      p.xmin = x;
      p.age = 0;
      p.work = 0;
-     p.local_alg = local_alg;
-     p.local_maxeval = local_maxeval;
      p.randomized_div = randomized_div;
+     p.local_opt = 0;
 
      rb_tree_init(&p.rtree, cdirect_hyperrect_compare);
      p.work = (double *) malloc(sizeof(double) * (2*n));
      if (!p.work) goto done;
-     
+
      if (!(rnew = (double *) malloc(sizeof(double) * p.L))) goto done;
      for (i = 0; i < n; ++i) {
           rnew[3+i] = rnew[3+n+i] = 0.5 * (lb[i] + ub[i]);
@@ -263,6 +266,28 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
      }
      rnew[0] = longest(n, rnew+2*n);
      rnew[2] = p.age--;
+
+     p.local_opt = nlopt_create(local_alg, n);
+     if (!p.local_opt) {
+          ret = NLOPT_INVALID_ARGS;
+          goto done;
+     }
+     p.local_maxeval = local_maxeval;
+     ret = nlopt_set_stopval(p.local_opt, stop->minf_max);
+     if (ret != NLOPT_SUCCESS) goto done;
+     ret = nlopt_set_ftol_rel(p.local_opt, stop->ftol_rel);
+     if (ret != NLOPT_SUCCESS) goto done;
+     ret = nlopt_set_ftol_abs(p.local_opt, stop->ftol_abs);
+     if (ret != NLOPT_SUCCESS) goto done;
+     ret = nlopt_set_xtol_rel(p.local_opt, stop->xtol_rel);
+     if (ret != NLOPT_SUCCESS) goto done;
+     if (stop->xtol_abs) {
+          ret = nlopt_set_xtol_abs(p.local_opt, stop->xtol_abs);
+          if (ret != NLOPT_SUCCESS) goto done;
+     }
+     ret = nlopt_set_min_objective(p.local_opt, fcount, &p);
+     if (ret != NLOPT_SUCCESS) goto done;
+
      ret = optimize_rect(rnew, &p);
      if (ret != NLOPT_SUCCESS) { free(rnew); goto done; }
      if (!rb_tree_insert(&p.rtree, rnew)) { free(rnew); goto done; }
@@ -274,7 +299,8 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
  done:
      rb_tree_destroy_with_keys(&p.rtree);
      free(p.work);
-	      
+     nlopt_destroy(p.local_opt);
+
      *minf = p.minf;
      return ret;
 }
@@ -297,7 +323,7 @@ nlopt_result cdirect_hybrid(int n, nlopt_func f, void *f_data,
      d.f = f; d.f_data = f_data; d.lb = lb; d.ub = ub;
      d.x = (double *) malloc(sizeof(double) * n*4);
      if (!d.x) return NLOPT_OUT_OF_MEMORY;
-     
+
      for (i = 0; i < n; ++i) {
 	  x[i] = (x[i] - lb[i]) / (ub[i] - lb[i]);
 	  d.x[n+i] = 0;
@@ -306,7 +332,7 @@ nlopt_result cdirect_hybrid(int n, nlopt_func f, void *f_data,
      }
      xtol_abs_save = stop->xtol_abs;
      stop->xtol_abs = d.x + 3*n;
-     ret = cdirect_hybrid_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n, 
+     ret = cdirect_hybrid_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n,
 				   x, minf, stop, local_alg, local_maxeval,
 				   randomized_div);
      stop->xtol_abs = xtol_abs_save;

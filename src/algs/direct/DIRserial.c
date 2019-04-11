@@ -22,6 +22,9 @@
 	const integer *maxdeep, integer *oops, doublereal *fmax, integer *
 	ifeasiblef, integer *iinfesiblef, void *fcn_data, int *force_stop)
 {
+    (void) logfile; (void) free; (void) maxfunc; (void) maxdeep; (void) oops;
+    (void) delta; (void) sample;
+
     /* System generated locals */
     integer length_dim1, length_offset, c_dim1, c_offset, i__1, i__2;
     doublereal d__1;

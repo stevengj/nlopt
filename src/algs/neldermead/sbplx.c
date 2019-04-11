@@ -75,7 +75,6 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
      int *p; /* permuted indices of x sorted by decreasing magnitude |dx| */
      int i;
      subspace_data sd;
-     double fprev;
 
      *minf = f(n, x, NULL, f_data);
      ++ *(stop->nevals_p);
@@ -111,7 +110,6 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  double fdiff, fdiff_max = 0;
 
 	  memcpy(xprev, x, n * sizeof(double));
-	  fprev = *minf;
 
 	  /* sort indices into the progress vector dx by decreasing
 	     order of magnitude |dx| */
