@@ -301,25 +301,11 @@ NLOPT_EXTERN(nlopt_result) nlopt_minimize(nlopt_algorithm algorithm, int n, nlop
                                           double *minf, /* out: minimum */
                                           double minf_max, double ftol_rel, double ftol_abs, double xtol_rel, const double *xtol_abs, int maxeval, double maxtime) NLOPT_DEPRECATED;
 
-/* this is still used internally by a few algorithms, it's the same as nlopt_minimize, but without the deprecation */
-NLOPT_EXTERN(nlopt_result) internal_nlopt_minimize(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data,
-                                          const double *lb, const double *ub, /* bounds */
-                                          double *x,    /* in: initial guess, out: minimizer */
-                                          double *minf, /* out: minimum */
-                                          double minf_max, double ftol_rel, double ftol_abs, double xtol_rel, const double *xtol_abs, int maxeval, double maxtime);
-
 NLOPT_EXTERN(nlopt_result) nlopt_minimize_constrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size,
                                                       const double *lb, const double *ub,   /* bounds */
                                                       double *x,        /* in: initial guess, out: minimizer */
                                                       double *minf,     /* out: minimum */
                                                       double minf_max, double ftol_rel, double ftol_abs, double xtol_rel, const double *xtol_abs, int maxeval, double maxtime) NLOPT_DEPRECATED;
-
-/* this is still used internally by a few algorithms, it's the same as nlopt_minimize_constrained, but without the deprecation */
-NLOPT_EXTERN(nlopt_result) internal_nlopt_minimize_constrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size,
-                                                      const double *lb, const double *ub,   /* bounds */
-                                                      double *x,        /* in: initial guess, out: minimizer */
-                                                      double *minf,     /* out: minimum */
-                                                      double minf_max, double ftol_rel, double ftol_abs, double xtol_rel, const double *xtol_abs, int maxeval, double maxtime);
 
 NLOPT_EXTERN(nlopt_result) nlopt_minimize_econstrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size, int p, nlopt_func_old h, void *h_data, ptrdiff_t h_datum_size,
                                                        const double *lb, const double *ub,   /* bounds */
