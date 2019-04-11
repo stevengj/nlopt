@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <math.h>
@@ -75,9 +75,9 @@ int nlopt_stop_xs(const nlopt_stopping * s, const double *xs, const double *oldx
 {
     unsigned i;
     for (i = 0; i < s->n; ++i)
-        if (relstop(sc(oldxs[i], scale_min[i], scale_max[i]), sc(xs[i], scale_min[i], scale_max[i]), s->xtol_rel, s->xtol_abs[i]))
-            return 1;
-    return 0;
+        if (!relstop(sc(oldxs[i], scale_min[i], scale_max[i]), sc(xs[i], scale_min[i], scale_max[i]), s->xtol_rel, s->xtol_abs[i]))
+            return 0;
+    return 1;
 }
 
 int nlopt_stop_evals(const nlopt_stopping * s)
