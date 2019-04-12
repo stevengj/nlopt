@@ -22,8 +22,8 @@
 #include "nlopt-util.h"
 #include <stdlib.h>
 
-#if defined(_MSC_VER)
-#define inline __inline
+#if (__STDC_VERSION__ < 199901L)
+#define inline
 #endif
 
 typedef int		 cmp_t(void *, const void *, const void *);

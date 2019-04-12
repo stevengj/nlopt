@@ -136,7 +136,7 @@ if (NOT DEFINED HAVE_FPCLASSIFY)
   message(STATUS "Looking for fpclassify")
   file (WRITE ${PROJECT_BINARY_DIR}/fpclassify.c "#include <math.h>\n")
   file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "int main(void) {\n")
-  file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "if (!fpclassify(3.14159)) fpclassify(2.7183);\n")
+  file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "if (!fpclassify(3.14159)) fpclassify(2.7183); int subn = FP_SUBNORMAL;\n")
   file (APPEND ${PROJECT_BINARY_DIR}/fpclassify.c "  return 0; }\n")
   try_compile (HAVE_FPCLASSIFY
   ${PROJECT_BINARY_DIR}/build_fpclassify

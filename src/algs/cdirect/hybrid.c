@@ -78,7 +78,6 @@ static nlopt_result optimize_rect(double *r, params *p)
      double minf;
      nlopt_stopping *stop = p->stop;
      nlopt_result ret;
-     nlopt_opt opt;
 
      if (stop->maxeval > 0 &&
 	 *(stop->nevals_p) >= stop->maxeval) return NLOPT_MAXEVAL_REACHED;
