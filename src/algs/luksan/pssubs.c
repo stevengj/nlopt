@@ -1,5 +1,6 @@
 #include <math.h>
 #include "luksan.h"
+#include "nlopt-util.h"
 
 #define FALSE_ 0
 #define MAX2(a,b) ((a) > (b) ? (a) : (b))
