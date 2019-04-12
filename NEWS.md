@@ -1,5 +1,15 @@
 # NLopt Release Notes
 
+## NLopt 2.6
+
+12 April 2019
+
+* New `nlopt_set_upper_bound` and `nlopt_set_lower_bound` functions in the low-level C API to set one bound at a time ([#257]).
+
+* There is no longer a separate `libnlopt_cxx` library — C++ algorithms (stogo) are compiled and included by default ([#198]).
+
+* Various build fixes ([#197], [#216], [#245], [#250], [#230], [#261], etc.), other fixes ([#242], [#258]).
+
 ## NLopt 2.5
 
 26 July 2018
@@ -403,11 +413,19 @@
 11 Nov. 2008
 
 * Initial public release.
-
-<!--- issue/PR links -->
 [#12]: https://github.com/stevengj/nlopt/issues/12
 [#13]: https://github.com/stevengj/nlopt/issues/13
 [#21]: https://github.com/stevengj/nlopt/issues/21
 [#49]: https://github.com/stevengj/nlopt/issues/49
 [#160]: https://github.com/stevengj/nlopt/issues/160
 [#194]: https://github.com/stevengj/nlopt/issues/194
+[#197]: https://github.com/stevengj/nlopt/issues/197
+[#198]: https://github.com/stevengj/nlopt/issues/198
+[#216]: https://github.com/stevengj/nlopt/issues/216
+[#230]: https://github.com/stevengj/nlopt/issues/230
+[#242]: https://github.com/stevengj/nlopt/issues/242
+[#245]: https://github.com/stevengj/nlopt/issues/245
+[#250]: https://github.com/stevengj/nlopt/issues/250
+[#257]: https://github.com/stevengj/nlopt/issues/257
+[#258]: https://github.com/stevengj/nlopt/issues/258
+[#261]: https://github.com/stevengj/nlopt/issues/261
