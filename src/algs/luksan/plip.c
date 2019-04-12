@@ -110,18 +110,16 @@
 /* PROBLEMS. */
 
 static void plip_(int *nf, int *nb, double *x, int *
-		  ix, double *xl, double *xu, double *gf, double *s, 
-		  double *xo, double *go, double *so, double *xm, 
-		  double *xr, double *gr, double *xmax, double *tolx, 
-		  double *tolf, double *tolb, double *tolg, 
+		  ix, double *xl, double *xu, double *gf, double *s,
+		  double *xo, double *go, double *so, double *xm,
+		  double *xr, double *gr, double *xmax, double *tolx,
+		  double *tolf, double *tolb, double *tolg,
 		  nlopt_stopping *stop, double *
-		  minf_est, double *gmax, double *f, int *mit, int *mfv, 
-		  int *iest, int *met, int *mf, 
+		  minf_est, double *gmax, double *f, int *mit, int *mfv,
+		  int *iest, int *met, int *mf,
 		  int *iterm, stat_common *stat_1,
 		  nlopt_func objgrad, void *objgrad_data)
 {
-    (void) tolb;
-
     /* System generated locals */
     int i__1;
     double d__1, d__2;
@@ -156,6 +154,8 @@ static void plip_(int *nf, int *nb, double *x, int *
     double snorm;
     int mtesx, ntesx;
     ps1l01_state state;
+
+    (void) tolb;
 
 /*     INITIATION */
 
@@ -281,8 +281,8 @@ static void plip_(int *nf, int *nb, double *x, int *
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
 L11120:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
-    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg, 
-	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, &mfg, 
+    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg,
+	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, &mfg,
 	    &ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
 	    iters, iterm);
     if (*iterm != 0) {
@@ -371,7 +371,7 @@ L11130:
 	goto L11175;
     }
 L11170:
-    luksan_ps1l01__(&r__, &rp, f, &fo, &fp, &p, &po, &pp, minf_est, &maxf, &rmin, 
+    luksan_ps1l01__(&r__, &rp, f, &fo, &fp, &p, &po, &pp, minf_est, &maxf, &rmin,
 	    &rmax, &tols, &tolp, &par1, &par2, &kd, &ld, &stat_1->nit, &kit, &
 	    nred, &mred, &maxst, iest, &inits, &iters, &kters, &mes,
 		    &isys, &state);
@@ -450,9 +450,9 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
      }
 
  retry_alloc:
-     work = (double*) malloc(sizeof(double) * (n * 7 + MAX2(n,n*mf) + 
+     work = (double*) malloc(sizeof(double) * (n * 7 + MAX2(n,n*mf) +
 					       MAX2(n,mf)*2));
-     if (!work) { 
+     if (!work) {
 	  if (mf > 0) {
 	       mf = 0; /* allocate minimal memory */
 	       goto retry_alloc;
@@ -480,7 +480,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 	arrays to zero by default? */
      memset(xo, 0, sizeof(double) * MAX2(n,n*mf));
 
-     plip_(&n, &nb, x, ix, xl, xu, 
+     plip_(&n, &nb, x, ix, xl, xu,
 	   gf, s, xo, go, so, xm, xr, gr,
 	   &xmax,
 

@@ -22,7 +22,7 @@
 *  II  KBF  SPECIFICATION OF SIMPLE BOUNDS. KBF=0-NO SIMPLE BOUNDS.
 *         KBF=1-ONE SIDED SIMPLE BOUNDS. KBF=2=TWO SIDED SIMPLE BOUNDS.
 */
-void luksan_pcbs04__(int *nf, double *x, int *ix, 
+void luksan_pcbs04__(int *nf, double *x, int *ix,
 	double *xl, double *xu, double *eps9, int *kbf)
 {
     /* System generated locals */
@@ -88,8 +88,8 @@ void luksan_pcbs04__(int *nf, double *x, int *ix,
 /* METHOD : */
 /* EXTRAPOLATION OR INTERPOLATION WITH STANDARD MODEL FUNCTIONS. */
 
-void luksan_pnint1__(double *rl, double *ru, double *fl, 
-	double *fu, double *pl, double *pu, double *r__, 
+void luksan_pnint1__(double *rl, double *ru, double *fl,
+	double *fu, double *pl, double *pu, double *r__,
 	int *mode, int *mtyp, int *merr)
 {
     /* System generated locals */
@@ -279,13 +279,13 @@ L1:
 * SAFEGUARDED EXTRAPOLATION AND INTERPOLATION WITH STANDARD TERMINATION
 * CRITERIA.
 */
-void luksan_ps1l01__(double *r__, double *rp, 
-	double *f, double *fo, double *fp, double *p, 
-	double *po, double *pp, double *minf, double *maxf, 
+void luksan_ps1l01__(double *r__, double *rp,
+	double *f, double *fo, double *fp, double *p,
+	double *po, double *pp, double *minf, double *maxf,
 	double *rmin, double *rmax, double *tols, double *
-	tolp, double *par1, double *par2, int *kd, int *ld, 
+	tolp, double *par1, double *par2, int *kd, int *ld,
 	int *nit, int *kit, int *nred, int *mred, int *
-	maxst, int *iest, int *inits, int *iters, int *kters, 
+	maxst, int *iest, int *inits, int *iters, int *kters,
 	int *mes, int *isys, ps1l01_state *state)
 {
     /* System generated locals */
@@ -398,12 +398,12 @@ L3:
 	m2 = FALSE_;
 	m3 = l3;
 	if (mes3 >= 1) {
-	    m1 = fabs(*p) <= fabs(*po) * .01 && *fo - *f >= fabs(*fo) * 
+	    m1 = fabs(*p) <= fabs(*po) * .01 && *fo - *f >= fabs(*fo) *
 		    9.9999999999999994e-12;
 	    l3 = l3 || m1;
 	}
 	if (mes3 >= 2) {
-	    m2 = fabs(*p) <= fabs(*po) * .5 && (d__1 = *fo - *f, fabs(d__1)) <= 
+	    m2 = fabs(*p) <= fabs(*po) * .5 && (d__1 = *fo - *f, fabs(d__1)) <=
 		    fabs(*fo) * 2.0000000000000001e-13;
 	    l3 = l3 || m2;
 	}
@@ -513,13 +513,11 @@ L4:
 * METHOD :
 * SHIFTED BFGS METHOD IN THE PRODUCT FORM.
 */
-void luksan_pulsp3__(int *n, int *m, int *mf, 
-	double *xm, double *gr, double *xo, double *go, 
-	double *r__, double *po, double *sig, int *iterh, 
+void luksan_pulsp3__(int *n, int *m, int *mf,
+	double *xm, double *gr, double *xo, double *go,
+	double *r__, double *po, double *sig, int *iterh,
 	int *met3)
 {
-    (void) r__; (void) po;
-
     /* System generated locals */
     double d__1, d__2, d__3, d__4;
 
@@ -527,6 +525,8 @@ void luksan_pulsp3__(int *n, int *m, int *mf,
 
     /* Local variables */
     double a, b, aa, bb, ah, den, par, pom;
+
+    (void) r__; (void) po;
 
     /* Parameter adjustments */
     --go;
@@ -559,14 +559,14 @@ void luksan_pulsp3__(int *n, int *m, int *mf,
 	    d__1 = 0., d__2 = 1. - aa / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) *
 		    pom;
 	} else {
 /* Computing MAX */
 	    d__1 = 0., d__2 = *sig * ah / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) *
 		    pom;
 	}
 /* Computing MAX */
@@ -642,14 +642,12 @@ L22:
 * METHOD :
 * RANK-ONE LIMITED-STORAGE VARIABLE-METRIC METHOD IN THE PRODUCT FORM.
 */
-void luksan_pulvp3__(int *n, int *m, double *xm, 
-	double *xr, double *gr, double *s, double *so, 
-	double *xo, double *go, double *r__, double *po, 
-	double *sig, int *iterh, int *met2, int *met3, 
+void luksan_pulvp3__(int *n, int *m, double *xm,
+	double *xr, double *gr, double *s, double *so,
+	double *xo, double *go, double *r__, double *po,
+	double *sig, int *iterh, int *met2, int *met3,
 	int *met5)
 {
-    (void) po;
-
     /* System generated locals */
     double d__1, d__2, d__3, d__4;
 
@@ -657,6 +655,8 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
 
     /* Local variables */
     double a, b, aa, bb, cc, ah, den, par, pom, zet;
+
+    (void) po;
 
     /* Parameter adjustments */
     --go;
@@ -703,14 +703,14 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
 	    d__1 = 0., d__2 = 1. - aa / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) *
 		    pom;
 	} else {
 /* Computing MAX */
 	    d__1 = 0., d__2 = *sig * ah / a;
 /* Computing MAX */
 	    d__3 = 0., d__4 = 1. - b * b / (den * ah);
-	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) * 
+	    *sig = sqrt((MAX2(d__1,d__2))) / (sqrt((MAX2(d__3,d__4))) + 1.) *
 		    pom;
 	}
 /* Computing MAX */
@@ -787,7 +787,7 @@ L22:
 *  RI  XU(NF)  VECTOR CONTAINING UPPER BOUNDS FOR VARIABLES.
 *  IO  INEW  NUMBER OF ACTIVE CONSTRAINTS.
 */
-void luksan_pyadc0__(int *nf, int *n, double *x, 
+void luksan_pyadc0__(int *nf, int *n, double *x,
 	int *ix, double *xl, double *xu, int *inew)
 {
     /* System generated locals */
@@ -882,13 +882,13 @@ void luksan_pyadc0__(int *nf, int *n, double *x,
 *         ITERATIONS. ITERM=12-TERMINATION AFTER MAXIMUM NUMBER OF
 *         COMPUTED FUNCTION VALUES.
 */
-void luksan_pyfut1__(int *n, double *f, double *fo, double *umax, 
+void luksan_pyfut1__(int *n, double *f, double *fo, double *umax,
 		     double *gmax, int xstop, /* double *dmax__,  */
 		     const nlopt_stopping *stop,
-		     double *tolg, int *kd, int *nit, int *kit, int *mit, 
-		     int *nfg, int *mfg, int *ntesx, 
-	int *mtesx, int *ntesf, int *mtesf, int *ites, 
-	int *ires1, int *ires2, int *irest, int *iters, 
+		     double *tolg, int *kd, int *nit, int *kit, int *mit,
+		     int *nfg, int *mfg, int *ntesx,
+	int *mtesx, int *ntesf, int *mtesf, int *ites,
+	int *ires1, int *ires2, int *irest, int *iters,
 	int *iterm)
 {
     /* System generated locals */
@@ -985,8 +985,8 @@ L1:
 *  II  IOLD  NUMBER OF REMOVED CONSTRAINTS.
 *  IU  IREST  RESTART INDICATOR.
 */
-void luksan_pyrmc0__(int *nf, int *n, int *ix, 
-	double *g, double *eps8, double *umax, double *gmax, 
+void luksan_pyrmc0__(int *nf, int *n, int *ix,
+	double *g, double *eps8, double *umax, double *gmax,
 	double *rmax, int *iold, int *irest)
 {
     /* System generated locals */
@@ -1061,9 +1061,9 @@ L2:
 *  S   MXVSAV  DIFFERENCE OF TWO VECTORS WITH COPYING AND SAVING THE
 *         SUBSTRACTED ONE.
 */
-void luksan_pytrcd__(int *nf, double *x, int *ix, 
-	double *xo, double *g, double *go, double *r__, 
-	double *f, double *fo, double *p, double *po, 
+void luksan_pytrcd__(int *nf, double *x, int *ix,
+	double *xo, double *g, double *go, double *r__,
+	double *f, double *fo, double *p, double *po,
 	double *dmax__, int *kbf, int *kd, int *ld, int *
 	iters)
 {
@@ -1135,8 +1135,8 @@ L1:
 * SUBPROGRAMS USED :
 *  RF  MXVMAX  L-INFINITY NORM OF A VECTOR.
 */
-void luksan_pytrcg__(int *nf, int *n, int *ix, 
-	double *g, double *umax, double *gmax, int *kbf, 
+void luksan_pytrcg__(int *nf, int *n, int *ix,
+	double *g, double *umax, double *gmax, int *kbf,
 	int *iold)
 {
     /* System generated locals */
@@ -1212,10 +1212,10 @@ void luksan_pytrcg__(int *nf, int *n, int *ix,
 * SUBPROGRAMS USED :
 *  S   MXVCOP  COPYING OF A VECTOR.
 */
-void luksan_pytrcs__(int *nf, double *x, int *ix, 
-	double *xo, double *xl, double *xu, double *g, 
-	double *go, double *s, double *ro, double *fp, 
-	double *fo, double *f, double *po, double *p, 
+void luksan_pytrcs__(int *nf, double *x, int *ix,
+	double *xo, double *xl, double *xu, double *g,
+	double *go, double *s, double *ro, double *fp,
+	double *fo, double *f, double *po, double *p,
 	double *rmax, double *eta9, int *kbf)
 {
     /* System generated locals */

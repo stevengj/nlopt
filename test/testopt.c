@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <stdlib.h>
@@ -290,16 +290,20 @@ static void usage(FILE * f)
             " -a <n> : use optimization algorithm <n>\n"
             " -o <n> : use objective function <n>\n"
             " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
-            " -b <dim0,dim1,...>: eliminate given dims by equating bounds\n"
+            " -b <dim0,dim1,...>: eliminate given dims by equating bounds\n");
+    fprintf(f,
             "     -c : starting guess at center of cell\n"
             "     -C : put optimum outside of bound constraints\n"
             " -e <n> : use at most <n> evals (default: %d, 0 to disable)\n"
             " -t <t> : use at most <t> seconds (default: disabled)\n"
             " -x <t> : relative tolerance <t> on x (default: disabled)\n"
-            " -X <t> : absolute tolerance <t> on x (default: disabled)\n"
+            " -X <t> : absolute tolerance <t> on x (default: disabled)\n", maxeval);
+    fprintf(f,
             " -f <t> : relative tolerance <t> on f (default: disabled)\n"
             " -F <t> : absolute tolerance <t> on f (default: disabled)\n"
-            " -m <m> : stop when minf+<m> is reached (default: disabled)\n" " -i <n> : iterate optimization <n> times (default: 1)\n" " -r <s> : use random seed <s> for starting guesses\n", maxeval);
+            " -m <m> : stop when minf+<m> is reached (default: disabled)\n"
+            " -i <n> : iterate optimization <n> times (default: 1)\n"
+            " -r <s> : use random seed <s> for starting guesses\n");
 }
 
 int main(int argc, char **argv)

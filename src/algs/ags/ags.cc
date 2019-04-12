@@ -36,7 +36,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
   {
     if (fc[i].m != 1)
       return NLOPT_INVALID_ARGS;
-    functions.push_back([fc, data, n, i](const double* x) {
+    functions.push_back([fc, n, i](const double* x) {
       double val = 0;
       nlopt_eval_constraint(&val, NULL, &fc[i], n, x);
       return val;

@@ -312,7 +312,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_lower_bound(nlopt_opt opt, int i, double lb
 {
     nlopt_unset_errmsg(opt);
     if (opt) {
-        if (i < 0 || i >= opt->n)
+        if (i < 0 || i >= (int) opt->n)
             return ERR(NLOPT_INVALID_ARGS, opt, "invalid bound index");
         opt->lb[i] = lb;
         if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))
@@ -366,7 +366,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_upper_bound(nlopt_opt opt, int i, double ub
 {
     nlopt_unset_errmsg(opt);
     if (opt) {
-        if (i < 0 || i >= opt->n)
+        if (i < 0 || i >= (int) opt->n)
             return ERR(NLOPT_INVALID_ARGS, opt, "invalid bound index");
         opt->ub[i] = ub;
         if (opt->lb[i] < opt->ub[i] && nlopt_istiny(opt->ub[i] - opt->lb[i]))

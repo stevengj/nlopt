@@ -7,28 +7,25 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "nlopt-util.h"
 #include <stdlib.h>
-
-#if defined(_MSC_VER)
-#define inline __inline
-#endif
+#include <stddef.h>
 
 typedef int		 cmp_t(void *, const void *, const void *);
 
-static inline char	*med3(char *, char *, char *, cmp_t *, void *);
+static char	*med3(char *, char *, char *, cmp_t *, void *);
 
 #define	MIN(a, b)	((a) < (b) ? a : b)
 
@@ -36,7 +33,7 @@ static inline char	*med3(char *, char *, char *, cmp_t *, void *);
  * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
  */
 
-static inline void
+static void
 swapfunc(char *a, char *b, size_t es)
 {
 	char t;
@@ -53,7 +50,7 @@ swapfunc(char *a, char *b, size_t es)
 
 #define	CMP(t, x, y) (cmp((t), (x), (y)))
 
-static inline char *
+static char *
 med3(char *a, char *b, char *c, cmp_t *cmp, void *thunk)
 {
 	return CMP(thunk, a, b) < 0 ?
@@ -73,7 +70,7 @@ loop:
 	swap_cnt = 0;
 	if (n < 7) {
 		for (pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
-			for (pl = pm; 
+			for (pl = pm;
 			     pl > (char *)a && CMP(thunk, pl - es, pl) > 0;
 			     pl -= es)
 				swapfunc(pl, pl - es, es);
@@ -122,7 +119,7 @@ loop:
 	}
 	if (swap_cnt == 0) {  /* Switch to insertion sort */
 		for (pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
-			for (pl = pm; 
+			for (pl = pm;
 			     pl > (char *)a && CMP(thunk, pl - es, pl) > 0;
 			     pl -= es)
 				swapfunc(pl, pl - es, es);
@@ -132,7 +129,7 @@ loop:
 	pn = (char *)a + n * es;
 	d1 = MIN(pa - (char *)a, pb - pa);
 	vecswap(a, pb - d1, d1);
-	d1 = MIN(pd - pc, pn - pd - es);
+	d1 = MIN(pd - pc, (ptrdiff_t) (pn - pd - es));
 	vecswap(pb, pn - d1, d1);
 
 	d1 = pb - pa;
@@ -169,11 +166,13 @@ typedef struct {
   void *thunk;
 } qsort_wrapper;
 
+#if defined(HAVE_QSORT_R) && defined(__linux__)
 static int qsort_cmp_wrap(const void *a, const void *b, void *thunk)
 {
   qsort_wrapper *wrap = (qsort_wrapper *) thunk;
   return (*wrap->compar)(wrap->thunk, a, b);
 }
+#endif
 
 void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk, cmp_t* compar)
 {
