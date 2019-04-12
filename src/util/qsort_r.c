@@ -179,6 +179,9 @@ void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk, cmp_t* c
 #if defined(HAVE_QSORT_R) && (defined(__APPLE__) || defined(__FreeBSD__))
     qsort_r(base_, nmemb, size, thunk, compar);
 #elif defined(HAVE_QSORT_R) && defined(__linux__)
+    extern void qsort_r(void *base, size_t nmemb, size_t size,
+                        int (*compar)(const void *, const void *, void *),
+                        void *arg);
     qsort_wrapper wrapper;
     wrapper.compar = compar;
     wrapper.thunk = thunk;

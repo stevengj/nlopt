@@ -384,15 +384,10 @@ static integer isinbox_(doublereal *x, doublereal *a, doublereal *b, integer *n,
 
     (void) lmaxdim;
 
-    /* Parameter adjustments */
-    --b;
-    --a;
-    --x;
-
     /* Function Body */
     outofbox = 1;
     i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
+    for (i__ = 0; i__ < i__1; ++i__) {
 	if (a[i__] > x[i__] || b[i__] < x[i__]) {
 	    outofbox = 0;
 	    goto L1010;

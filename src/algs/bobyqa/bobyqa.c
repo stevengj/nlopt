@@ -157,7 +157,7 @@ static nlopt_result rescue_(int *n, int *npt, const double *xl, const double *xu
     /* Local variables */
     double f;
     int i__, j, k, ih, jp, ip, iq, np, iw;
-    double xp = 0.0, xq, den;
+    double xp = 0.0, xq = 0.0, den;
     int ihp = 0;
     double one;
     int ihq, jpn, kpt;
