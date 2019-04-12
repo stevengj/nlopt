@@ -39,7 +39,7 @@
 #ifndef HAVE_COPYSIGN
    /* not quite right for y == -0, but good enough for us */
 #  define copysign(x, y) ((y) < 0 ? -fabs(x) : fabs(x))
-#elif __STDC_VERSION__ < 199901
+#elif __STDC_VERSION__ < 199901 && !defined(__cplusplus)
 extern double copysign(double x, double y); /* may not be declared in C89 */
 #endif
 
