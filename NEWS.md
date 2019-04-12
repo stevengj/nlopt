@@ -6,7 +6,7 @@
 
 * New `nlopt_set_upper_bound` and `nlopt_set_lower_bound` functions in the low-level C API to set one bound at a time ([#257]).
 
-* There is no longer a separate `libnlopt_cxx` library: C++ algorithms (STOGO) are compiled and included by default ([#198]).
+* There is no longer a separate `libnlopt_cxx` library: C++ algorithms (STOGO and AGS) are compiled and included by default ([#198]).
 
 * Various build fixes ([#197], [#216], [#245], [#250], [#230], [#261], etc.), other fixes ([#242], [#258]).
 
