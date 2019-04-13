@@ -1,6 +1,7 @@
 site_name: NLopt Documentation
 site_author: S. G. Johnson et al.
 repo_url: https://github.com/stevengj/nlopt/
+edit_uri: edit/master/doc/docs
 
 docs_dir: 'doc/docs'
 site_dir: 'doc/site'
