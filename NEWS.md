@@ -4,7 +4,7 @@
 
 13 April 2019
 
-* Fix `NLOPT_*_VERSION` definitions for 2.6.x.
+* Fix `nlopt_version` result for 2.6.x and update soname.
 
 ## NLopt 2.6
 
