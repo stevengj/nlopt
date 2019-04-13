@@ -158,4 +158,4 @@ Initially, my plan was to handle only bound constraints, and leave general nonli
 
 Overall, I've found that this has been surprisingly fun. Every once in a while, I come across a new algorithm to try, and now that I've implemented a few algorithms and built up a certain amount of infrastructure, it is relatively easy to add new ones (much more so than when I first started out). So, I expect that NLopt will continue to grow, albeit perhaps more slowly now that it seems to include decent algorithms for a wide variety of problems.
 
-[Category:NLopt](index.md)
+

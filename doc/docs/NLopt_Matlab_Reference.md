@@ -174,4 +174,4 @@ If you set `opt.verbose` to `1`, the Matlab interface will output information as
 
 Of course, your objective function and constraints can also output anything you wish, using `disp` and similar Matlab functions.
 
-[Category:NLopt](index.md)
+

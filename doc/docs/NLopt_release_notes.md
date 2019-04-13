@@ -258,4 +258,4 @@ NLopt 1.0
 
 -   Initial public release.
 
-[Category:NLopt](index.md)
+

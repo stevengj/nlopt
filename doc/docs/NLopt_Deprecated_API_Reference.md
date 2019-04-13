@@ -438,4 +438,4 @@ and not create any other fields of `stop`.
 
 This is equivalent to calling `nlopt_minimize_constrained` with no nonlinear constraints, i.e. `fc` = `fc_data` = `{}`.
 
-[Category:NLopt](index.md)
+

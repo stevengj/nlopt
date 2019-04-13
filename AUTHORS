@@ -1,6 +1,11 @@
-NLopt was written/packaged by:
+NLopt was originally written/packaged by:
 
 Steven G. Johnson <stevenj@alum.mit.edu>
+
+with subsequent contributions by Julien Schueller and other contributors
+that can be found in the git history, summarized here:
+
+     https://github.com/stevengj/nlopt/graphs/contributors
 
 See the subdirectories for the authors of the original nonlinear optimization
 libraries utilized by NLopt.

@@ -37,4 +37,4 @@ The most common cause of convergence problems is if you use a gradient-based alg
 
 You could also try switching algorithms to see if it is a problem in a particular algorithm (but check the gradient first!).
 
-[Category:NLopt](index.md)
+

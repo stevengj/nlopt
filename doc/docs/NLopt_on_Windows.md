@@ -5,18 +5,14 @@
 NLopt on Windows
 ----------------
 
-NLopt works fine on Microsoft Windows computers. To simplify installation, we provide a precompiled 32-bit and 64-bit Windows [DLLs](https://en.wikipedia.org/wiki/Dynamic-link_library), built with [MinGW](https://en.wikipedia.org/wiki/MinGW):
+NLopt works fine on Microsoft Windows computers, and you can compile it directly using the included [CMake](https://en.wikipedia.org/wiki/CMake) build scripts.
 
--   [nlopt-2.4.2-dll32.zip](http://ab-initio.mit.edu/nlopt/nlopt-2.4.2-dll32.zip) (32-bit)
--   [nlopt-2.4.2-dll64.zip](http://ab-initio.mit.edu/nlopt/nlopt-2.4.2-dll64.zip) (64-bit)
+To simplify installation, there are also precompiled 32-bit and 64-bit Windows [DLLs](https://en.wikipedia.org/wiki/Dynamic-link_library) (along with binaries for many other systems) at [NLoptBuilder/releases](https://github.com/stevengj/NLoptBuilder/releases).  In particular, the Windows builds are
 
-Be sure to read the `README-WINDOWS` file included in this [zip](https://en.wikipedia.org/wiki/ZIP_(file_format)) archive for how to build an [import library](http://msdn.microsoft.com/en-us/library/0b9xe492.aspx) for the DLL before using, by running the `lib` `/def:libnlopt-0.def` command (which comes with Microsoft compilers). If you are using GNU compilers (MinGW), run `dlltool` `--input-def` `libnlopt-0.def` `--dllname` `libnlopt-0.dll` `--output-lib` `libnlopt-0.lib` (dlltool comes with MinGW).
+-  [NLopt.v2.6.0.i686-w64-mingw32.tar.gz](https://github.com/stevengj/NLoptBuilder/releases/download/v2.6.0/NLopt.v2.6.0.i686-w64-mingw32.tar.gz) (32-bit)
+-  [NLopt.v2.6.0.x86_64-w64-mingw32.tar.gz](https://github.com/stevengj/NLoptBuilder/releases/download/v2.6.0/NLopt.v2.6.0.x86_64-w64-mingw32.tar.gz) (64-bit)
 
-(For source code, download the [main `.tar.gz` package](NLopt#Download_and_installation.md).)
-
-Alternatively, you can use the following files, provided by Benoit Scherrer (`benoitscherrer` ατ `gmail.com`), to compile NLopt from source on Windows (with the Microsoft compiler) using [CMake](https://en.wikipedia.org/wiki/CMake):
-
--   [CMakeLists.txt](http://ab-initio.mit.edu/nlopt/CMakeLists.txt) and [config.cmake.h.in](http://ab-initio.mit.edu/nlopt/config.cmake.h.in)
+These `.tar.gz` files unpack (with a variety of Windows software, e.g. 7-zip) into a folder with a `bin` subdirectory that contains `libnlopt.dll`.  To link with this in your compiler, you will typically also want the [import library](https://stackoverflow.com/questions/3573475/how-does-the-import-library-work-details) for the DLL, which can be found in the `lib` subdirectory and is called `libnlopt.dll.a` (this can be used similarly to the `.lib` files you may be used to).
 
 Unofficial Python binaries for Windows are available from Christoph Gohike:
 
@@ -24,11 +20,9 @@ Unofficial Python binaries for Windows are available from Christoph Gohike:
 
 ### Octave plugin
 
-To build the NLopt plugin for [GNU Octave](https://en.wikipedia.org/wiki/GNU_Octave) (a free Matlab clone, which uses the [same NLopt interface as in Matlab](NLopt_Matlab_Reference.md)), you will need the following additional steps. (See [Octave for Windows](http://wiki.octave.org/wiki.pl?OctaveForWindows) on the Octave web page to download Octave.)
+To build the NLopt plugin for [GNU Octave](https://en.wikipedia.org/wiki/GNU_Octave) (a free Matlab clone, which uses the [same NLopt interface as in Matlab](NLopt_Matlab_Reference.md)), you will need the following additional steps. (See [Octave for Windows](https://wiki.octave.org/Octave_for_Microsoft_Windows) on the Octave web page to download Octave.)
 
-1.  First, download *both* the `.zip` file above and the main `.tar.gz` package of NLopt. Use `dlltool` (which comes with Octave in the *octave*`\mingw23\bin` directory) to create the `.lib` import library as explained above.
-2.  Unpack the NLopt .tar.gz file, and copy the `nlopt_optimize-oct.cc` from the *nlopt*`\octave` directory, along with downloading [nlopt_optimize_usage.h](http://jdj.mit.edu/~stevenj/nlopt_optimize_usage.h), and put them together with your `.lib` and `.dll` files (from the `.zip`).
-3.  Compile the Octave plugin (`.oct` file) with `mkoctfile` `-lnlopt-0` `--output` `nlopt_optimize.oct` `nlopt_optimize-oct.cc` (`mkoctfile` is a program included with Octave).
-4.  Finally, move `libnlopt-0.dll` to the *octave*`\bin` directory so that Octave can find it.
-
-[Category:NLopt](index.md)
+1.  First, download the `.dll` and import library (`.dll.a`) from above.
+2.  Download [`nlopt_optimize-oct.cc`](https://github.com/stevengj/nlopt/raw/master/src/octave/nlopt_optimize-oct.cc) and put it in the same directory as the `.dll` and `.dll.a` files.
+3.  Compile the Octave plugin (`.oct` file) with `mkoctfile -lnlopt --output nlopt_optimize.oct nlopt_optimize-oct.cc` (`mkoctfile` is a program included with Octave).
+4.  Finally, move `libnlopt.dll` to the *octave*``bin` directory (the location of `octave.exe`) so that Octave can find it.

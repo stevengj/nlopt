@@ -60,7 +60,7 @@ setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/foo/bar/lib
 
 in [csh](https://en.wikipedia.org/wiki/csh) or [w:tcsh](https://en.wikipedia.org/wiki/tcsh).
 
-Alternatively, in GNU/Linux systems, you can add the library directory to the system-wide file `/etc/ld.so.conf` and then (as root) run `/sbin/ldconfig`. [Category:NLopt](index.md)
+Alternatively, in GNU/Linux systems, you can add the library directory to the system-wide file `/etc/ld.so.conf` and then (as root) run `/sbin/ldconfig`.
 
 Static libraries
 ----------------

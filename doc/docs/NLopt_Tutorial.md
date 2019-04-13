@@ -647,4 +647,4 @@ Example in Julia
 
 The same example in the [Julia programming language](https://en.wikipedia.org/wiki/Julia_(programming_language)) can be found at the [NLopt.jl](https://github.com/stevengj/NLopt.jl) web page.
 
-[Category:NLopt](index.md)
+

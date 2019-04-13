@@ -521,4 +521,4 @@ void nlopt_version(int *major, int *minor, int *bugfix);
 
 For example, NLopt version 3.1.4 would return `*major=3`, `*minor=1`, and `*bugfix=4`.
 
-[Category:NLopt](index.md)
+

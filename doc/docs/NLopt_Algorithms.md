@@ -387,4 +387,4 @@ The augmented Lagrangian method is specified in NLopt as `NLOPT_AUGLAG`. We also
 
 While NLopt uses an independent re-implementation of the Birgin and Martínez algorithm, those authors provide their own free-software implementation of the method as part of the [TANGO](http://www.ime.usp.br/~egbirgin/tango/) project, and implementations can also be found in [semi-free](http://www.gnu.org/philosophy/categories.html#semi-freeSoftware) packages like [LANCELOT](http://www.numerical.rl.ac.uk/lancelot/blurb.html).
 
-[Category:NLopt](index.md)
+

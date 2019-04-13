@@ -86,7 +86,7 @@ The return value should be the value of the function at the point `x`, where `x`
 
 In addition, if the argument `grad` is not empty, i.e. `!grad.empty()` or equivalently `grad.size()>0`, then `grad` is a vector of length `n` which should (upon return) be set to the gradient of the function with respect to the optimization parameters at `x`. That is, `grad[i]` should upon return contain the partial derivative $\partial f / \partial x_i$, for $0 \leq i < n$, if `grad` is non-empty. Not all of the optimization algorithms (below) use the gradient information: for algorithms listed as "derivative-free," the `grad` argument will always be empty and need never be computed. (For algorithms that do use gradient information, however, `grad` may still be empty for some calls.)
 
-The `f_data` argument is the same as the one passed to `nlopt_set_min_objective` or `nlopt_set_max_objective`, and may be used to pass any additional data through to the function. (That is, it may be a pointer to some caller-defined data structure/type containing information your function needs, which you convert from `void*` by a typecast.) You can just pass `NULL` for `f_data` if you don't want to pass any additional information. Note that the `nlopt::opt` object does *not* make a copy of whatever is pointed to by your `f_data` pointer; you must not deallocate its contents until *after* you are done calling `nlopt::opt::optimize`. (There is a low-level way to make the nlopt::opt object "take ownership" of the f_data pointer, which is mainly used for wrapping other languages.) 
+The `f_data` argument is the same as the one passed to `nlopt_set_min_objective` or `nlopt_set_max_objective`, and may be used to pass any additional data through to the function. (That is, it may be a pointer to some caller-defined data structure/type containing information your function needs, which you convert from `void*` by a typecast.) You can just pass `NULL` for `f_data` if you don't want to pass any additional information. Note that the `nlopt::opt` object does *not* make a copy of whatever is pointed to by your `f_data` pointer; you must not deallocate its contents until *after* you are done calling `nlopt::opt::optimize`. (There is a low-level way to make the nlopt::opt object "take ownership" of the f_data pointer, which is mainly used for wrapping other languages.)
 
 Technically, in order to use `std::vector`<double> arguments for your objective function, wrapping the C API which only uses `double*`, NLopt has to make a copy of the C `double*` array to convert it to `std::vector`<double>. This incurs a slight memory and time overhead, which is likely to be negligible in most applications, but can be avoided by instead passing a C-style objective function:
 
@@ -388,4 +388,4 @@ int nlopt::version_bugfix();
 ```
 
 
-[Category:NLopt](index.md)
+

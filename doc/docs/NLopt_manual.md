@@ -11,4 +11,4 @@ Welcome to the manual for [NLopt](index.md), our nonlinear optimization library.
 -   [NLopt Algorithms](NLopt_Algorithms.md) — the optimization algorithms available in NLopt (including literature citations and links to original source code, where available)
 -   [NLopt License and Copyright](NLopt_License_and_Copyright.md) — legal information
 
-[Category:NLopt](index.md)
+
