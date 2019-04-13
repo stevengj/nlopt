@@ -31,7 +31,7 @@ message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 # This is the ABI version number, which differes from the API version above
 # (it indicates ABI compatibility), but they are typically incremented together.
 set(SO_MAJOR 0)
-set(SO_MINOR 9)
+set(SO_MINOR 10)
 set(SO_PATCH 0)
 #==============================================================================
 

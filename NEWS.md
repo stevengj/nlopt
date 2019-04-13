@@ -1,5 +1,11 @@
 # NLopt Release Notes
 
+## NLopt 2.6.1
+
+13 April 2019
+
+* Fix `NLOPT_*_VERSION` definitions for 2.6.x.
+
 ## NLopt 2.6
 
 12 April 2019
