@@ -23,11 +23,11 @@ See the [NLopt Introduction](NLopt_Introduction.md) for a further overview of th
 Download and installation
 -------------------------
 
-Version 2.5.0 of NLopt is the latest version available from GitHub:
+Version 2.6.0 of NLopt is the latest version available from GitHub:
 
--   [nlopt-2.5.0.tar.gz](https://github.com/stevengj/nlopt/archive/v2.5.0.tar.gz)
+-   [v2.6.0.tar.gz](https://github.com/stevengj/nlopt/archive/v2.6.0.tar.gz)
 
-See the [NLopt release notes](NLopt_release_notes.md) for the release history. NLopt is designed to be installed on any Unix-like system (GNU/Linux is fine) with a C compiler, using the standard
+See the [NLopt release notes](https://github.com/stevengj/nlopt/blob/master/NEWS.md) for the release history. NLopt is designed to be installed on any Unix-like system (GNU/Linux is fine) with a C compiler, using the standard
 
 ```
 cmake . && make && sudo make install
@@ -65,8 +65,6 @@ We are grateful to the many authors who have published useful optimization algor
 Contact and Feedback
 --------------------
 
+For bug reports and feature requests, please [file a github issue](https://github.com/stevengj/nlopt/issues).
+
 If you have questions or problems regarding NLopt, you are encouraged query the [nlopt-discuss mailing list](http://ab-initio.mit.edu/cgi-bin/mailman/listinfo/nlopt-discuss) (see above). As your first resort, please look at the [nlopt-discuss archives](http://ab-initio.mit.edu/pipermail/nlopt-discuss/).
-
-Alternatively, you may directly contact [Steven G. Johnson](http://math.mit.edu/~stevenj) at <stevenj@alum.mit.edu>.
-
-[—Steven G. Johnson](User:Stevenj.md) 18:13, 1 September 2008 (EDT)

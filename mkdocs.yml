@@ -25,7 +25,6 @@ extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX
 pages:
  - NLopt:
     - Overview: index.md
-    - Release Notes: NLopt_release_notes.md
     - FAQ: NLopt_FAQ.md
  - NLopt manual:
     - NLopt manual: NLopt_manual.md
