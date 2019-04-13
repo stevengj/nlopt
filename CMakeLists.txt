@@ -23,7 +23,7 @@ project (nlopt)
 #==============================================================================
 # version
 set (NLOPT_MAJOR_VERSION "2")
-set (NLOPT_MINOR_VERSION "5")
+set (NLOPT_MINOR_VERSION "6")
 set (NLOPT_BUGFIX_VERSION "0")
 set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
 message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
