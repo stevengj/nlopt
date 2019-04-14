@@ -6,6 +6,8 @@ endif ()
 
 # Tell the user project where to find our headers and libraries
 
+set (NLOPT_VERSION "@NLOPT_VERSION_STRING@")
+
 set (NLOPT_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_NLOPT_INCLUDE_DIRS@")
 set (NLOPT_LIBRARY_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_NLOPT_LIB_DIR@")
 
