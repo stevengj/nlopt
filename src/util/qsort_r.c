@@ -172,16 +172,18 @@ static int qsort_cmp_wrap(const void *a, const void *b, void *thunk)
   qsort_wrapper *wrap = (qsort_wrapper *) thunk;
   return (*wrap->compar)(wrap->thunk, a, b);
 }
+
+extern void qsort_r(void *base, size_t nmemb, size_t size,
+                    int (*compar)(const void *, const void *, void *),
+                    void *arg);
 #endif
+
 
 void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk, cmp_t* compar)
 {
 #if defined(HAVE_QSORT_R) && (defined(__APPLE__) || defined(__FreeBSD__))
     qsort_r(base_, nmemb, size, thunk, compar);
 #elif defined(HAVE_QSORT_R) && defined(__linux__)
-    extern void qsort_r(void *base, size_t nmemb, size_t size,
-                        int (*compar)(const void *, const void *, void *),
-                        void *arg);
     qsort_wrapper wrapper;
     wrapper.compar = compar;
     wrapper.thunk = thunk;
