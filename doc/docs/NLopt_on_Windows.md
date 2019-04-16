@@ -18,6 +18,10 @@ Unofficial Python binaries for Windows are available from Christoph Gohike:
 
 -   [Python binaries for 64-bit Windows](http://www.lfd.uci.edu/~gohlke/pythonlibs/#nlopt)
 
+### NLopt with MinGW
+
+If you want to compile NLopt on Windows with [MinGW](http://www.mingw.org/), be sure to install the MinGW version of `cmake` (e.g. with `pacman -S mingw-w64-x86_64-cmake`) and then build via `cmake -G"MSYS Makefiles" . && make` in order to ensure that `cmake` produces the correct type of makefile.
+
 ### Octave plugin
 
 To build the NLopt plugin for [GNU Octave](https://en.wikipedia.org/wiki/GNU_Octave) (a free Matlab clone, which uses the [same NLopt interface as in Matlab](NLopt_Matlab_Reference.md)), you will need the following additional steps. (See [Octave for Windows](https://wiki.octave.org/Octave_for_Microsoft_Windows) on the Octave web page to download Octave.)
