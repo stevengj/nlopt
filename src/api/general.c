@@ -21,6 +21,7 @@
  */
 
 #include "nlopt-internal.h"
+#include <string.h>
 
 /*************************************************************************/
 
@@ -95,6 +96,114 @@ const char *NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)
         return "UNKNOWN";
     return nlopt_algorithm_names[a];
 }
+
+
+/*************************************************************************/
+
+const char *nlopt_algorithm_to_string(nlopt_algorithm algorithm)
+{
+  switch(algorithm)
+  {
+    case NLOPT_GN_DIRECT: return "GN_DIRECT";
+    case NLOPT_GN_DIRECT_L: return "GN_DIRECT_L";
+    case NLOPT_GN_DIRECT_L_RAND: return "GN_DIRECT_L_RAND";
+    case NLOPT_GN_DIRECT_NOSCAL: return "GN_DIRECT_NOSCAL";
+    case NLOPT_GN_DIRECT_L_NOSCAL: return "GN_DIRECT_L_NOSCAL";
+    case NLOPT_GN_DIRECT_L_RAND_NOSCAL: return "GN_DIRECT_L_RAND_NOSCAL";
+    case NLOPT_GN_ORIG_DIRECT: return "GN_ORIG_DIRECT";
+    case NLOPT_GN_ORIG_DIRECT_L: return "GN_ORIG_DIRECT_L";
+    case NLOPT_GD_STOGO: return "GD_STOGO";
+    case NLOPT_GD_STOGO_RAND: return "GD_STOGO_RAND";
+    case NLOPT_LD_LBFGS_NOCEDAL: return "LD_LBFGS_NOCEDAL";
+    case NLOPT_LD_LBFGS: return "LD_LBFGS";
+    case NLOPT_LN_PRAXIS: return "LN_PRAXIS";
+    case NLOPT_LD_VAR1: return "LD_VAR1";
+    case NLOPT_LD_VAR2: return "LD_VAR2";
+    case NLOPT_LD_TNEWTON: return "LD_TNEWTON";
+    case NLOPT_LD_TNEWTON_RESTART: return "LD_TNEWTON_RESTART";
+    case NLOPT_LD_TNEWTON_PRECOND: return "LD_TNEWTON_PRECOND";
+    case NLOPT_LD_TNEWTON_PRECOND_RESTART: return "LD_TNEWTON_PRECOND_RESTART";
+    case NLOPT_GN_CRS2_LM: return "GN_CRS2_LM";
+    case NLOPT_GN_MLSL: return "GN_MLSL";
+    case NLOPT_GD_MLSL: return "GD_MLSL";
+    case NLOPT_GN_MLSL_LDS: return "GN_MLSL_LDS";
+    case NLOPT_GD_MLSL_LDS: return "GD_MLSL_LDS";
+    case NLOPT_LD_MMA: return "LD_MMA";
+    case NLOPT_LN_COBYLA: return "LN_COBYLA";
+    case NLOPT_LN_NEWUOA: return "LN_NEWUOA";
+    case NLOPT_LN_NEWUOA_BOUND: return "LN_NEWUOA_BOUND";
+    case NLOPT_LN_NELDERMEAD: return "LN_NELDERMEAD";
+    case NLOPT_LN_SBPLX: return "LN_SBPLX";
+    case NLOPT_LN_AUGLAG: return "LN_AUGLAG";
+    case NLOPT_LD_AUGLAG: return "LD_AUGLAG";
+    case NLOPT_LN_AUGLAG_EQ: return "LN_AUGLAG_EQ";
+    case NLOPT_LD_AUGLAG_EQ: return "LD_AUGLAG_EQ";
+    case NLOPT_LN_BOBYQA: return "LN_BOBYQA";
+    case NLOPT_GN_ISRES: return "GN_ISRES";
+    case NLOPT_AUGLAG: return "AUGLAG";
+    case NLOPT_AUGLAG_EQ: return "AUGLAG_EQ";
+    case NLOPT_G_MLSL: return "G_MLSL";
+    case NLOPT_G_MLSL_LDS: return "G_MLSL_LDS";
+    case NLOPT_LD_SLSQP: return "LD_SLSQP";
+    case NLOPT_LD_CCSAQ: return "LD_CCSAQ";
+    case NLOPT_GN_ESCH: return "GN_ESCH";
+    case NLOPT_GN_AGS: return "GN_AGS";
+    case NLOPT_NUM_ALGORITHMS: return NULL;
+  }
+  return NULL;
+}
+
+
+nlopt_algorithm nlopt_algorithm_from_string(const char * name)
+{
+  int i;
+  if (name == NULL)
+    return -1;
+  for (i = 0; i < NLOPT_NUM_ALGORITHMS; ++i)
+  {
+    if (strcmp (name, nlopt_algorithm_to_string(i)) == 0)
+      return i;
+  }
+  return -1;
+}
+
+/*************************************************************************/
+
+
+const char *nlopt_result_to_string(nlopt_result result)
+{
+  switch(result)
+  {
+    case NLOPT_FAILURE: return "FAILURE";
+    case NLOPT_INVALID_ARGS: return "INVALID_ARGS";
+    case NLOPT_OUT_OF_MEMORY: return "OUT_OF_MEMORY";
+    case NLOPT_ROUNDOFF_LIMITED: return "ROUNDOFF_LIMITED";
+    case NLOPT_FORCED_STOP: return "FORCED_STOP";
+    case NLOPT_SUCCESS: return "SUCCESS";
+    case NLOPT_STOPVAL_REACHED: return "STOPVAL_REACHED";
+    case NLOPT_FTOL_REACHED: return "FTOL_REACHED";
+    case NLOPT_XTOL_REACHED: return "XTOL_REACHED";
+    case NLOPT_MAXEVAL_REACHED: return "MAXEVAL_REACHED";
+    case NLOPT_MAXTIME_REACHED: return "MAXTIME_REACHED";
+    case NLOPT_NUM_RESULTS: return NULL;
+  }
+  return NULL;
+}
+
+
+nlopt_result nlopt_result_from_string(const char * name)
+{
+  int i;
+  if (name == NULL)
+    return -1;
+  for (i = 0; i < NLOPT_NUM_RESULTS; ++i)
+  {
+    if (strcmp(name, nlopt_result_to_string(i)) == 0)
+      return i;
+  }
+  return -1;
+}
+
 
 /*************************************************************************/
 /* get thread id, if possible, for use in nlopt_srand_time to ensure that

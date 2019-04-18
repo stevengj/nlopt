@@ -155,6 +155,10 @@ typedef enum {
 
 NLOPT_EXTERN(const char *) nlopt_algorithm_name(nlopt_algorithm a);
 
+/* nlopt_algorithm enum <-> string conversion */
+NLOPT_EXTERN(const char *) nlopt_algorithm_to_string(nlopt_algorithm algorithm);
+NLOPT_EXTERN(nlopt_algorithm) nlopt_algorithm_from_string(const char *name);
+
 typedef enum {
     NLOPT_FAILURE = -1,         /* generic failure code */
     NLOPT_INVALID_ARGS = -2,
@@ -166,8 +170,13 @@ typedef enum {
     NLOPT_FTOL_REACHED = 3,
     NLOPT_XTOL_REACHED = 4,
     NLOPT_MAXEVAL_REACHED = 5,
-    NLOPT_MAXTIME_REACHED = 6
+    NLOPT_MAXTIME_REACHED = 6,
+    NLOPT_NUM_RESULTS           /* not a result, just the number of them */
 } nlopt_result;
+
+/* nlopt_result enum <-> string conversion */
+NLOPT_EXTERN(const char *) nlopt_result_to_string(nlopt_result algorithm);
+NLOPT_EXTERN(nlopt_result) nlopt_result_from_string(const char *name);
 
 #define NLOPT_MINF_MAX_REACHED NLOPT_STOPVAL_REACHED
 
@@ -206,6 +215,7 @@ NLOPT_EXTERN(nlopt_algorithm) nlopt_get_algorithm(const nlopt_opt opt);
 NLOPT_EXTERN(unsigned) nlopt_get_dimension(const nlopt_opt opt);
 
 NLOPT_EXTERN(const char *) nlopt_get_errmsg(nlopt_opt opt);
+
 
 /* constraints: */
 
