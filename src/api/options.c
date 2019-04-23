@@ -624,8 +624,12 @@ nlopt_result NLOPT_STDCALL nlopt_set_xtol_abs1(nlopt_opt opt, double xtol_abs)
 
 nlopt_result NLOPT_STDCALL nlopt_get_xtol_abs(const nlopt_opt opt, double *xtol_abs)
 {
-    memcpy(xtol_abs, opt->xtol_abs, opt->n * sizeof(double));
-    return NLOPT_SUCCESS;
+    nlopt_unset_errmsg(opt);
+    if (opt && (opt->n == 0 || xtol_abs)) {
+        memcpy(xtol_abs, opt->xtol_abs, opt->n * sizeof(double));
+        return NLOPT_SUCCESS;
+    }
+    return NLOPT_INVALID_ARGS;
 }
 
 GETSET(maxeval, int, maxeval)
