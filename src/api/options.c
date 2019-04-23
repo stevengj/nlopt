@@ -662,8 +662,12 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights1(nlopt_opt opt, double x_weights)
 
 nlopt_result NLOPT_STDCALL nlopt_get_x_weights(const nlopt_opt opt, double *x_weights)
 {
-    memcpy(x_weights, opt->x_weights, opt->n * sizeof(double));
-    return NLOPT_SUCCESS;
+    nlopt_unset_errmsg(opt);
+    if (opt && (opt->n == 0 || x_weights)) {
+        memcpy(x_weights, opt->x_weights, sizeof(double) * (opt->n));
+        return NLOPT_SUCCESS;
+    }
+    return NLOPT_INVALID_ARGS;
 }
 
 GETSET(maxeval, int, maxeval)
