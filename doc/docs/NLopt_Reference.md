@@ -239,8 +239,20 @@ nlopt_result nlopt_set_xtol_rel(nlopt_opt opt, double tol);
 double nlopt_get_xtol_rel(const nlopt_opt opt);
 ```
 
+Set relative tolerance on optimization parameters: stop when an optimization step (or an estimate of the optimum) causes a relative change in L1 norm of parameters by less than `tol`. (If there is any chance that an optimal parameter is close to zero, you might want to set an absolute tolerance with `nlopt_set_xtol_abs` as well.) Criterion is disabled if `tol` is non-positive.
 
-Set relative tolerance on optimization parameters: stop when an optimization step (or an estimate of the optimum) changes every parameter by less than `tol` multiplied by the absolute value of the parameter. (If there is any chance that an optimal parameter is close to zero, you might want to set an absolute tolerance with `nlopt_set_xtol_abs` as well.) Criterion is disabled if `tol` is non-positive.
+```
+nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double* tol);
+nlopt_result nlopt_get_xtol_abs(const nlopt_opt opt, double *tol);
+```
+
+Set weights used when computing L1 norm of parameters to check relative tolerance on optimization parameters.
+
+For convenience, the following function may be used to set the weights in all `n` optimization parameters to the same value:
+
+```c
+nlopt_result nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
+```
 
 ```
 nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double* tol);
