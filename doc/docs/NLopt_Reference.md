@@ -239,37 +239,25 @@ nlopt_result nlopt_set_xtol_rel(nlopt_opt opt, double tol);
 double nlopt_get_xtol_rel(const nlopt_opt opt);
 ```
 
-Set relative tolerance on optimization parameters: stop when an optimization step (or an estimate of the optimum) causes a relative change in L1 norm of parameters by less than `tol`. (If there is any chance that an optimal parameter is close to zero, you might want to set an absolute tolerance with `nlopt_set_xtol_abs` as well.) Criterion is disabled if `tol` is non-positive.
+Set relative tolerance on optimization parameters: stop when an optimization step (or an estimate of the optimum) causes a relative change the parameters $x$ by less than `tol`, i.e. $\Vert \Delta x \Vert_w < \mbox{tol}\cdot\Vert x \Vert_w$ as measured by a weighted L₁ norm $\Vert x \Vert_w = \sum_i w_i |x_i|$, where the weights $w_i$ default to $1$.
+(If there is any chance that the optimal $\Vert x \Vert$ is close to zero, you might want to set an absolute tolerance with `nlopt_set_xtol_abs` as well.) Criterion is disabled if `tol` is non-positive.
 
 ```
-nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double* tol);
+nlopt_result nlopt_set_x_weights(nlopt_opt opt, const double *w);
+nlopt_result nlopt_set_x_weights1(nlopt_opt opt, const double w);
+nlopt_result nlopt_get_x_weights(const nlopt_opt opt, double *w);
+```
+
+Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above, where `*w` must point to an array of length equal to the number of optimization parameters in `opt`.   `nlopt_set_x_weights1` can be used to set all of the weights to the same value `w`.   The weights default to `1`, but non-constant weights can be used to handle situations where the different parameters `x` have different units or importance, for example.
+
+```
+nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double *tol);
+nlopt_result nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
 nlopt_result nlopt_get_xtol_abs(const nlopt_opt opt, double *tol);
 ```
 
-Set weights used when computing L1 norm of parameters to check relative tolerance on optimization parameters.
 
-For convenience, the following function may be used to set the weights in all `n` optimization parameters to the same value:
-
-```c
-nlopt_result nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
-```
-
-```
-nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double* tol);
-nlopt_result nlopt_get_xtol_abs(const nlopt_opt opt, double *tol);
-```
-
-
-Set absolute tolerances on optimization parameters. `tol` is a pointer to an array of length `n` (the dimension from `nlopt_create`) giving the tolerances: stop when an optimization step (or an estimate of the optimum) changes every parameter `x[i]` by less than `tol[i]`. (Note that this function makes a copy of the `tol` array, so subsequent changes to the caller's `tol` have no effect on `opt`.) In `nlopt_get_xtol_abs`, `tol` must be an array of length `n`, which upon successful return contains a copy of the current tolerances.
-
-For convenience, the following function may be used to set the absolute tolerances in all `n` optimization parameters to the same value:
-
-```
-nlopt_result nlopt_set_xtol_abs1(nlopt_opt opt, double tol);
-```
-
-
-Criterion is disabled if `tol` is non-positive.
+Set absolute tolerances on optimization parameters. `tol` is a pointer to an array of length `n` (the dimension from `nlopt_create`) giving the tolerances: stop when an optimization step (or an estimate of the optimum) changes every parameter `x[i]` by less than `tol[i]`. (Note that `nlopt_set_xtol_abs` makes a copy of the `tol` array, so subsequent changes to the caller's `tol` have no effect on `opt`.) In `nlopt_get_xtol_abs`, `tol` must be an array of length `n`, which upon successful return contains a copy of the current tolerances.  For convenience, the `nlopt_set_xtol_abs1` may be used to set the absolute tolerances in all `n` optimization parameters to the same value.  Criterion is disabled if `tol` is non-positive.
 
 ```
 nlopt_result nlopt_set_maxeval(nlopt_opt opt, int maxeval);
