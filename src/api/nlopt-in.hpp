@@ -218,6 +218,14 @@ namespace nlopt {
       if (!o) throw std::bad_alloc();
       nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
     }
+    opt(const char * algo_str, unsigned n) :
+      o(nlopt_create(nlopt_algorithm_from_string(algo_str), n)),
+      xtmp(0), gradtmp(0), gradtmp0(0),
+      last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
+      forced_stop_reason(NLOPT_FORCED_STOP) {
+      if (!o) throw std::bad_alloc();
+      nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
+    }
     opt(const opt& f) : o(nlopt_copy(f.o)), 
 			xtmp(f.xtmp), gradtmp(f.gradtmp), gradtmp0(0),
 			last_result(f.last_result), last_optf(f.last_optf),

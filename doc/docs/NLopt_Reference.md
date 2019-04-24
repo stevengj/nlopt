@@ -72,6 +72,13 @@ You can get a descriptive (null-terminated) string corresponding to a particular
 const char *nlopt_algorithm_name(nlopt_algorithm algorithm);
 ```
 
+You can convert an `nlopt_algorithm` to/from a string identifier (`NLOPT_FOO` converts to/from `"FOO"`) by calling:
+
+```
+const char *nlopt_algorithm_to_string(nlopt_algorithm algorithm);
+nlopt_algorithm nlopt_algorithm_from_string(const char *name);
+```
+
 
 Objective function
 ------------------
@@ -96,6 +103,7 @@ The return value should be the value of the function at the point `x`, where `x`
 In addition, if the argument `grad` is not `NULL`, then `grad` points to an array of length `n` which should (upon return) be set to the gradient of the function with respect to the optimization parameters at `x`. That is, `grad[i]` should upon return contain the partial derivative $\partial f / \partial x_i$, for $0 \leq i < n$, if `grad` is non-`NULL`. Not all of the optimization algorithms (below) use the gradient information: for algorithms listed as "derivative-free," the `grad` argument will always be `NULL` and need never be computed. (For algorithms that do use gradient information, however, `grad` may still be `NULL` for some calls.)
 
 The `f_data` argument is the same as the one passed to `nlopt_set_min_objective` or `nlopt_set_max_objective`, and may be used to pass any additional data through to the function. (That is, it may be a pointer to some caller-defined data structure/type containing information your function needs, which you convert from `void*` by a typecast.)
+
 
 Bound constraints
 -----------------
@@ -398,6 +406,15 @@ NLOPT_FORCED_STOP` `=` `-5
 ```
 
 Halted because of a [forced termination](#Forced_termination.md): the user called `nlopt_force_stop(opt)` on the optimization’s `nlopt_opt` object `opt` from the user’s objective function or constraints.
+
+
+You can convert an `nlopt_result` to/from a string identifier (`NLOPT_FOO` converts to/from `"FOO"`) by calling:
+
+```
+const char *nlopt_result_to_string(nlopt_result result);
+nlopt_result nlopt_result_from_string(const char *name);
+```
+
 
 Local/subsidiary optimization algorithm
 ---------------------------------------
