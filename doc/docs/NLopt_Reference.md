@@ -72,7 +72,7 @@ You can get a descriptive (null-terminated) string corresponding to a particular
 const char *nlopt_algorithm_name(nlopt_algorithm algorithm);
 ```
 
-You can match a particular algorithm to its string identifier by calling:
+You can convert an `nlopt_algorithm` to/from a string identifier (`NLOPT_FOO` converts to/from `"FOO"`) by calling:
 
 ```
 const char *nlopt_algorithm_to_string(nlopt_algorithm algorithm);
@@ -408,7 +408,7 @@ NLOPT_FORCED_STOP` `=` `-5
 Halted because of a [forced termination](#Forced_termination.md): the user called `nlopt_force_stop(opt)` on the optimization’s `nlopt_opt` object `opt` from the user’s objective function or constraints.
 
 
-You can match a particular result code to its string identifier by calling:
+You can convert an `nlopt_result` to/from a string identifier (`NLOPT_FOO` converts to/from `"FOO"`) by calling:
 
 ```
 const char *nlopt_result_to_string(nlopt_result result);
