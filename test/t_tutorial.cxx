@@ -30,7 +30,7 @@ double myvconstraint(const std::vector<double> &x, std::vector<double> &grad, vo
 
 int main() {
 
-  nlopt::opt opt("MMA", 2);
+  nlopt::opt opt("LD_MMA", 2);
   std::vector<double> lb(2);
   lb[0] = -HUGE_VAL; lb[1] = 0;
   opt.set_lower_bounds(lb);
