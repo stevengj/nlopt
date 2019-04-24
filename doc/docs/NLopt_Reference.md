@@ -239,7 +239,7 @@ nlopt_result nlopt_set_xtol_rel(nlopt_opt opt, double tol);
 double nlopt_get_xtol_rel(const nlopt_opt opt);
 ```
 
-Set relative tolerance on optimization parameters: stop when an optimization step (or an estimate of the optimum) causes a relative change the parameters $x$ by less than `tol`, i.e. $\Vert \Delta x \Vert_w < \mbox{tol}\cdot\Vert x \Vert_w$ as measured by a weighted L₁ norm $\Vert x \Vert_w = \sum_i w_i |x_i|$, where the weights $w_i$ default to $1$.
+Set relative tolerance on optimization parameters: stop when an optimization step (or an estimate of the optimum) causes a relative change the parameters $x$ by less than `tol`, i.e. $\Vert \Delta x \Vert_w < \mbox{tol}\cdot\Vert x \Vert_w$ as measured by a weighted L₁ norm $\Vert x \Vert_w = \sum_i w_i |x_i|$, where the weights $w_i$ default to 1.
 (If there is any chance that the optimal $\Vert x \Vert$ is close to zero, you might want to set an absolute tolerance with `nlopt_set_xtol_abs` as well.) Criterion is disabled if `tol` is non-positive.
 
 ```
