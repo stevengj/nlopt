@@ -641,36 +641,31 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights(nlopt_opt opt, const double *x_we
     if (opt) {
         unsigned i;
         nlopt_unset_errmsg(opt);
-        for (i = 0; i < opt->n; i++) {
-            if (x_weights[i] <= 0)
+        for (i = 0; i < opt->n; i++)
+            if (x_weights[i] < 0)
                 return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");
-        }
-        if (!opt->x_weights) {
+        if (!opt->x_weights && opt->n > 0) {
             opt->x_weights = (double *) calloc(opt->n, sizeof(double));
-            if (!opt->x_weights) {
-                return NLOPT_OUT_OF_MEMORY;
-            }
+            if (!opt->x_weights) return NLOPT_OUT_OF_MEMORY;
         }
-        memcpy(opt->x_weights, x_weights, opt->n * sizeof(double));
+        if (opt->n > 0) memcpy(opt->x_weights, x_weights, opt->n * sizeof(double));
         return NLOPT_SUCCESS;
     }
     return NLOPT_INVALID_ARGS;
 }
 
-nlopt_result NLOPT_STDCALL nlopt_set_x_weights1(nlopt_opt opt, double x_weights)
+nlopt_result NLOPT_STDCALL nlopt_set_x_weights1(nlopt_opt opt, double x_weight)
 {
-    if (x_weights <= 0) return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");
     if (opt) {
         unsigned i;
+        if (x_weight < 0) return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");
         nlopt_unset_errmsg(opt);
-        if (!opt->x_weights) {
+        if (!opt->x_weights && opt->n > 0) {
             opt->x_weights = (double *) calloc(opt->n, sizeof(double));
-            if (!opt->x_weights) {
-                return NLOPT_OUT_OF_MEMORY;
-            }
+            if (!opt->x_weights) return NLOPT_OUT_OF_MEMORY;
         }
         for (i = 0; i < opt->n; ++i)
-            opt->x_weights[i] = x_weights;
+            opt->x_weights[i] = x_weight;
         return NLOPT_SUCCESS;
     }
     return NLOPT_INVALID_ARGS;
@@ -678,8 +673,9 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights1(nlopt_opt opt, double x_weights)
 
 nlopt_result NLOPT_STDCALL nlopt_get_x_weights(const nlopt_opt opt, double *x_weights)
 {
-    nlopt_unset_errmsg(opt);
-    if (opt && (opt->n == 0 || x_weights)) {
+    if (opt) {
+	if (opt->n > 0 && !x_weights) return ERR(NLOPT_INVALID_ARGS, opt, "invalid NULL weights");
+        nlopt_unset_errmsg(opt);
         if (opt->x_weights) {
             memcpy(x_weights, opt->x_weights, sizeof(double) * (opt->n));
         } else {
