@@ -639,8 +639,8 @@ nlopt_result NLOPT_STDCALL nlopt_get_xtol_abs(const nlopt_opt opt, double *xtol_
 nlopt_result NLOPT_STDCALL nlopt_set_x_weights(nlopt_opt opt, const double *x_weights)
 {
     if (opt) {
-        nlopt_unset_errmsg(opt);
         unsigned i;
+        nlopt_unset_errmsg(opt);
         for (i = 0; i < opt->n; i++) {
             if (x_weights[i] <= 0)
                 return NLOPT_INVALID_ARGS;
