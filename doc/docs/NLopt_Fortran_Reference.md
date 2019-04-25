@@ -242,6 +242,15 @@ call nlo_get_xtol_rel(tol, opt)
 Set relative tolerance on optimization parameters.
 
 ```
+call nlo_set_x_weights(ires, opt, w)
+call nlo_set_x_weights1(ires, opt, w1)
+call nlo_get_x_weights(ires, opt, w)
+```
+
+
+Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above.
+
+```
 call nlo_set_xtol_abs(ires, opt, tol)
 call nlo_set_xtol_abs1(ires, opt, tol1)
 call nlo_get_xtol_abs(ires, opt, tol)
