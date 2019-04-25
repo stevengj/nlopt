@@ -179,6 +179,14 @@ Set relative tolerance on optimization parameters.
 Set absolute tolerances on optimization parameters. The `tol` input must be a vector or list of length `n` (the dimension specified in the `nlopt.opt` constructor); alternatively, you can pass a single number in order to set the same tolerance for all optimization parameters. `get-xtol-abs()` returns the tolerances as a vector.
 
 ```
+(nlopt-opt-set-x-weights opt x)
+(nlopt-opt-get-x-weights opt x)
+```
+
+
+Set the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above.
+
+```
 (nlopt-opt-set-maxeval opt maxeval)
 (nlopt-opt-get-maxeval opt)
 ```
