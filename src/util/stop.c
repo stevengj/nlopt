@@ -29,6 +29,55 @@
 
 /* utility routines to implement the various stopping criteria */
 
+static double sc(double x, double smin, double smax)
+{
+    return smin + x * (smax - smin);
+}
+
+static double vector_norm(unsigned n, const double *vec, const double *w, const double *scale_min, const double *scale_max)
+{
+    unsigned i;
+    double ret = 0;
+    if (scale_min && scale_max) {
+        if (w)
+            for (i = 0; i < n; i++)
+                ret += w[i] * fabs(sc(vec[i], scale_min[i], scale_max[i]));
+        else
+            for (i = 0; i < n; i++)
+                ret += fabs(sc(vec[i], scale_min[i], scale_max[i]));
+    } else {
+        if (w)
+            for (i = 0; i < n; i++)
+                ret += w[i] * fabs(vec[i]);
+        else
+            for (i = 0; i < n; i++)
+                ret += fabs(vec[i]);
+    }
+    return ret;
+}
+
+static double diff_norm(unsigned n, const double *x, const double *oldx, const double *w, const double *scale_min, const double *scale_max)
+{
+    unsigned i;
+    double ret = 0;
+    if (scale_min && scale_max) {
+        if (w)
+            for (i = 0; i < n; i++)
+                ret += w[i] * fabs(sc(x[i], scale_min[i], scale_max[i]) - sc(oldx[i], scale_min[i], scale_max[i]));
+        else
+            for (i = 0; i < n; i++)
+                ret += fabs(sc(x[i], scale_min[i], scale_max[i]) - sc(oldx[i], scale_min[i], scale_max[i]));
+    } else {
+        if (w)
+            for (i = 0; i < n; i++)
+                ret += w[i] * fabs(x[i] - oldx[i]);
+        else
+            for (i = 0; i < n; i++)
+                ret += fabs(x[i] - oldx[i]);
+    }
+    return ret;
+}
+
 static int relstop(double vold, double vnew, double reltol, double abstol)
 {
     if (nlopt_isinf(vold))
@@ -49,8 +98,10 @@ int nlopt_stop_f(const nlopt_stopping * s, double f, double oldf)
 int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 {
     unsigned i;
+    if (diff_norm(s->n, x, oldx, s->x_weights, NULL, NULL) <= s->xtol_rel * vector_norm(s->n, x, s->x_weights, NULL, NULL))
+        return 1;
     for (i = 0; i < s->n; ++i)
-        if (!relstop(oldx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
+        if (fabs(x[i] - oldx[i]) > s->xtol_abs[i])
             return 0;
     return 1;
 }
@@ -58,15 +109,12 @@ int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 int nlopt_stop_dx(const nlopt_stopping * s, const double *x, const double *dx)
 {
     unsigned i;
+    if (vector_norm(s->n, dx, s->x_weights, NULL, NULL) <= s->xtol_rel * vector_norm(s->n, x, s->x_weights, NULL, NULL))
+        return 1;
     for (i = 0; i < s->n; ++i)
-        if (!relstop(x[i] - dx[i], x[i], s->xtol_rel, s->xtol_abs[i]))
+        if (fabs(dx[i]) > s->xtol_abs[i])
             return 0;
     return 1;
-}
-
-static double sc(double x, double smin, double smax)
-{
-    return smin + x * (smax - smin);
 }
 
 /* some of the algorithms rescale x to a unit hypercube, so we need to
@@ -74,8 +122,10 @@ static double sc(double x, double smin, double smax)
 int nlopt_stop_xs(const nlopt_stopping * s, const double *xs, const double *oldxs, const double *scale_min, const double *scale_max)
 {
     unsigned i;
+    if (diff_norm(s->n, xs, oldxs, s->x_weights, scale_min, scale_max) <= s->xtol_rel * vector_norm(s->n, xs, s->x_weights, scale_min, scale_max))
+        return 1;
     for (i = 0; i < s->n; ++i)
-        if (!relstop(sc(oldxs[i], scale_min[i], scale_max[i]), sc(xs[i], scale_min[i], scale_max[i]), s->xtol_rel, s->xtol_abs[i]))
+        if (fabs(sc(xs[i], scale_min[i], scale_max[i]) - sc(oldxs[i], scale_min[i], scale_max[i])) > s->xtol_abs[i])
             return 0;
     return 1;
 }

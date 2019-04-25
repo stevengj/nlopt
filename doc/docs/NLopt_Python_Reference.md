@@ -224,6 +224,14 @@ opt.get_xtol_abs()
 Set absolute tolerances on optimization parameters. The `tol` input must be an array (NumPy array or Python list) of length `n` (the dimension specified in the `nlopt.opt` constructor); alternatively, you can pass a single number in order to set the same tolerance for all optimization parameters. `get_xtol_abs()` returns the tolerances as a NumPy array.
 
 ```
+opt.set_x_weights(w)
+opt.get_x_weights()
+```
+
+
+Set the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above.
+
+```
 opt.set_maxeval(maxeval)
 opt.get_maxeval()
 ```

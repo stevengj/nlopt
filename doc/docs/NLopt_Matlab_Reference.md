@@ -102,6 +102,13 @@ opt.xtol_rel
 Set relative tolerance on optimization parameters.
 
 ```
+opt.x_weights
+```
+
+
+Set the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above. The `opt.x_weights` value must be a vector of length `n` (the same length as the initial guess passed to `nlopt_optimize`).
+
+```
 opt.xtol_abs
 ```
 

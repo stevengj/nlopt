@@ -470,6 +470,7 @@ namespace nlopt {
     NLOPT_GETSET(double, ftol_abs)
     NLOPT_GETSET(double, xtol_rel)
     NLOPT_GETSET_VEC(xtol_abs)
+    NLOPT_GETSET_VEC(x_weights)
     NLOPT_GETSET(int, maxeval)
 
     int get_numevals() const {

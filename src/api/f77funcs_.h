@@ -152,6 +152,7 @@ F77_GETSET(stopval, STOPVAL, double)
 F77_GETSET(ftol_rel, FTOL_REL, double)
 F77_GETSET(ftol_abs, FTOL_ABS, double)
 F77_GETSET(xtol_rel, XTOL_REL, double) F77_GETSETA(xtol_abs, XTOL_ABS, double) F77_GETSET(maxeval, MAXEVAL, int) F77_GET(numevals, NUMEVALS, int) F77_GETSET(maxtime, MAXTIME, double)
+F77_GETSETA(x_weights, X_WEIGHTS, double)
  F77_GETSET(force_stop, FORCE_STOP, int)
 NLOPT_EXTERN(void) F77_(nlo_force_stop, NLO_FORCE_STOP) (int *ret, nlopt_opt * opt)
 {

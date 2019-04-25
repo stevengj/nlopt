@@ -204,6 +204,16 @@ double nlopt::opt::get_xtol_rel() const;
 Set relative tolerance on optimization parameters.
 
 ```
+void nlopt::opt::set_x_weights(const std::vector`<double>` &w);
+void nlopt::opt::set_x_weights(double w);
+void nlopt::opt::get_x_weights(std::vector`<double>` &w) const;
+std::vector`<double>` nlopt::opt::get_x_weights() const;
+```
+
+
+Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above.
+
+```
 void nlopt::opt::set_xtol_abs(const std::vector`<double>` &tol);
 void nlopt::opt::set_xtol_abs(double tol);
 void nlopt::opt::get_xtol_abs(std::vector`<double>` &tol) const;
