@@ -643,7 +643,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights(nlopt_opt opt, const double *x_we
         nlopt_unset_errmsg(opt);
         for (i = 0; i < opt->n; i++) {
             if (x_weights[i] <= 0)
-                return NLOPT_INVALID_ARGS;
+                return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");
         }
         if (!opt->x_weights) {
             opt->x_weights = (double *) calloc(opt->n, sizeof(double));
@@ -659,7 +659,8 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights(nlopt_opt opt, const double *x_we
 
 nlopt_result NLOPT_STDCALL nlopt_set_x_weights1(nlopt_opt opt, double x_weights)
 {
-    if (opt && x_weights > 0) {
+    if (x_weights <= 0) return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");
+    if (opt) {
         unsigned i;
         nlopt_unset_errmsg(opt);
         if (!opt->x_weights) {
