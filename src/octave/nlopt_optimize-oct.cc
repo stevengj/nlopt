@@ -200,6 +200,12 @@ nlopt_opt make_opt(octave_map &opts, int n)
     CHECK1(n == xtol_abs.numel(), "stop.xtol_abs must have same length as x");
     CHECK1(nlopt_set_xtol_abs(opt, xtol_abs.data())>0, "nlopt: out of memory");
   }
+  {
+    Matrix ones(1, n, 1.0);
+    Matrix x_weights = struct_val_default(opts, "x_weights", ones);
+    CHECK1(n == x_weights.numel(), "stop.x_weights must have same length as x");
+    CHECK1(nlopt_set_x_weights(opt, x_weights.data())>0, "nlopt: invalid x_weights or out of memory");
+  }
 
   nlopt_set_maxeval(opt, struct_val_default(opts, "maxeval", 0) < 0 ?
 		    0 : struct_val_default(opts, "maxeval", 0));
