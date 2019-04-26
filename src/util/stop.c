@@ -98,10 +98,10 @@ int nlopt_stop_f(const nlopt_stopping * s, double f, double oldf)
 int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 {
     unsigned i;
-    if (diff_norm(s->n, x, oldx, s->x_weights, NULL, NULL) <= s->xtol_rel * vector_norm(s->n, x, s->x_weights, NULL, NULL))
+    if (diff_norm(s->n, x, oldx, s->x_weights, NULL, NULL) < s->xtol_rel * vector_norm(s->n, x, s->x_weights, NULL, NULL))
         return 1;
     for (i = 0; i < s->n; ++i)
-        if (fabs(x[i] - oldx[i]) > s->xtol_abs[i])
+        if (fabs(x[i] - oldx[i]) >= s->xtol_abs[i])
             return 0;
     return 1;
 }
@@ -109,10 +109,10 @@ int nlopt_stop_x(const nlopt_stopping * s, const double *x, const double *oldx)
 int nlopt_stop_dx(const nlopt_stopping * s, const double *x, const double *dx)
 {
     unsigned i;
-    if (vector_norm(s->n, dx, s->x_weights, NULL, NULL) <= s->xtol_rel * vector_norm(s->n, x, s->x_weights, NULL, NULL))
+    if (vector_norm(s->n, dx, s->x_weights, NULL, NULL) < s->xtol_rel * vector_norm(s->n, x, s->x_weights, NULL, NULL))
         return 1;
     for (i = 0; i < s->n; ++i)
-        if (fabs(dx[i]) > s->xtol_abs[i])
+        if (fabs(dx[i]) >= s->xtol_abs[i])
             return 0;
     return 1;
 }
@@ -122,10 +122,10 @@ int nlopt_stop_dx(const nlopt_stopping * s, const double *x, const double *dx)
 int nlopt_stop_xs(const nlopt_stopping * s, const double *xs, const double *oldxs, const double *scale_min, const double *scale_max)
 {
     unsigned i;
-    if (diff_norm(s->n, xs, oldxs, s->x_weights, scale_min, scale_max) <= s->xtol_rel * vector_norm(s->n, xs, s->x_weights, scale_min, scale_max))
+    if (diff_norm(s->n, xs, oldxs, s->x_weights, scale_min, scale_max) < s->xtol_rel * vector_norm(s->n, xs, s->x_weights, scale_min, scale_max))
         return 1;
     for (i = 0; i < s->n; ++i)
-        if (fabs(sc(xs[i], scale_min[i], scale_max[i]) - sc(oldxs[i], scale_min[i], scale_max[i])) > s->xtol_abs[i])
+        if (fabs(sc(xs[i], scale_min[i], scale_max[i]) - sc(oldxs[i], scale_min[i], scale_max[i])) >= s->xtol_abs[i])
             return 0;
     return 1;
 }
