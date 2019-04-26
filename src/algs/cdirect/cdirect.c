@@ -383,7 +383,7 @@ static int small(double *w, params *p)
 {
      int i;
      for (i = 0; i < p->n; ++i)
-	  if (w[i] > p->stop->xtol_abs[i] &&
+	  if (w[i] > (p->stop->xtol_abs ? p->stop->xtol_abs[i] : 0) &&
 	      w[i] > (p->ub[i] - p->lb[i]) * p->stop->xtol_rel)
 	       return 0;
      return 1;
@@ -575,21 +575,24 @@ nlopt_result cdirect(int n, nlopt_func f, void *f_data,
 {
      cdirect_uf_data d;
      nlopt_result ret;
-     const double *xtol_abs_save;
+     const double *xtol_abs_save = NULL;
      int i;
 
      d.f = f; d.f_data = f_data; d.lb = lb; d.ub = ub;
-     d.x = (double *) malloc(sizeof(double) * n*4);
+     d.x = (double *) malloc(sizeof(double) * n * (stop->xtol_abs ? 4 : 3));
      if (!d.x) return NLOPT_OUT_OF_MEMORY;
      
      for (i = 0; i < n; ++i) {
 	  x[i] = (x[i] - lb[i]) / (ub[i] - lb[i]);
 	  d.x[n+i] = 0;
 	  d.x[2*n+i] = 1;
-	  d.x[3*n+i] = stop->xtol_abs[i] / (ub[i] - lb[i]);
      }
-     xtol_abs_save = stop->xtol_abs;
-     stop->xtol_abs = d.x + 3*n;
+     if (stop->xtol_abs) {
+       for (i = 0; i < n; ++i)
+         d.x[3*n+i] = stop->xtol_abs[i] / (ub[i] - lb[i]);
+       xtol_abs_save = stop->xtol_abs;
+       stop->xtol_abs = d.x + 3*n;
+     }
      ret = cdirect_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n, x, minf, stop,
 			    magic_eps, which_alg);
      stop->xtol_abs = xtol_abs_save;
