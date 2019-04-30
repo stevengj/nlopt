@@ -26,12 +26,7 @@ typedef objgrad* Pobjgrad ;
 
 class GlobalParams {
 public:
-#ifdef NLOPT_UTIL_H
   nlopt_stopping *stop;
-#else
-  double maxtime;
-  long int maxeval;
-#endif
   double eps_cl, mu, rshift;
   int det_pnts, rnd_pnts;
 };
@@ -57,9 +52,9 @@ public:
        }
        return 0.0;
   }
-				   
+
   Global(RTBox, Pobj, Pgrad, GlobalParams);
-  
+
   virtual ~Global(){};
 
 //  Global& operator=(const Global &);
