@@ -20,10 +20,6 @@ const int max_iter=50 ;            // Max iterations = max_iter*dim. of problem
 
 extern double MacEpsilon ;   //  min {x >= 0 : 1 + x > 1}
 
-int local(Trial &, TBox &, TBox &, double, double*, Global&, int, RCRVector
-#ifdef NLOPT_UTIL_H
-	  , nlopt_stopping *stop
-#endif
-     );
+int local(Trial &, TBox &, TBox &, double, double*, Global&, int, RCRVector, nlopt_stopping *stop);
 
 #endif

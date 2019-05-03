@@ -11,14 +11,6 @@
 #include "local.h"
 #include "tools.h"
 
-#ifdef NLOPT_UTIL_H
-#  define IF_NLOPT_CHECK_EVALS ++ *(stop->nevals_p); \
-                               if (nlopt_stop_evalstime(stop)) \
-                                  return LS_MaxEvalTime
-#else
-#  define IF_NLOPT_CHECK_EVALS 
-#endif
-
 ////////////////////////////////////////////////////////////////////////
 // SGJ, 2007: allow local to use local optimizers in NLopt, to compare
 // to the BFGS code below
@@ -80,7 +72,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 #endif
      T.objval=tmp;
      return LS_Old ;
-   } 
+   }
 
 #if 0
 
@@ -94,7 +86,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
   data.stop = stop;
   nlopt_result ret = nlopt_minimize(NLOPT_LOCAL_LBFGS, n, f_local, &data,
 				    box.lb.raw_data(), box.ub.raw_data(),
-				    x.raw_data(), &f, 
+				    x.raw_data(), &f,
 				    stop->minf_max,
 				    stop->ftol_rel, stop->ftol_abs,
 				    stop->xtol_rel, stop->xtol_abs,
@@ -108,7 +100,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     return LS_New;
   else
     return LS_Out; // failure
-  
+
 #else /* not using NLopt local optimizer ... use original STOgo BFGS code */
 
   int k_max, info, outside = 0;
@@ -139,7 +131,9 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     f=glob.ObjectiveGradient(x_av,g_av,OBJECTIVE_AND_GRADIENT);
     g(0)=g_av(axis);
   }
-  IF_NLOPT_CHECK_EVALS;
+  ++ *(stop->nevals_p);
+  if (nlopt_stop_evalstime(stop))
+    return LS_MaxEvalTime;
   FC++;GC++;
 
   if (axis == -1) {
@@ -237,8 +231,8 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       }
       else {
 	// Combination of Newton and SD steps
-	d2 = delta*delta ; 
-	copy(h_sd,s) ; 
+	d2 = delta*delta ;
+	copy(h_sd,s) ;
 	s2=nrm_sd*nrm_sd ;
 	nom = d2 - s2 ;
 	snrm_hn=nrm_hn*nrm_hn ;
@@ -249,7 +243,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 	  break ;
 	}
 	// Normalization (N38, eq. 3.31)
-	beta = nom/den ; 
+	beta = nom/den ;
 	copy(h_n,h_dl) ;
 	scal(beta,h_dl) ;
 	axpy((1-beta),h_sd,h_dl) ;
@@ -284,7 +278,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       break ;
     }
     else {
-      outside=0 ;  
+      outside=0 ;
     }
 
     // Compute the gain
@@ -294,7 +288,9 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       x_av(axis)=x_new(0);
       f_new=glob.ObjectiveGradient(x_av,g_av,OBJECTIVE_AND_GRADIENT);
     }
-    IF_NLOPT_CHECK_EVALS;
+    ++ *(stop->nevals_p);
+    if (nlopt_stop_evalstime(stop))
+      return LS_MaxEvalTime;
     FC++; GC++;
     gemv('N',0.5,B,h_dl,0.0,z);
     ro = (f_new-f) / (dot(g,h_dl) + dot(h_dl,z)); // Quadratic model
@@ -306,20 +302,8 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     }
     if (ro > 0) {
       // Update the Hessian and it's inverse using the BFGS formula
-#if 0 // changed by SGJ to compute OBJECTIVE_AND_GRADIENT above
-      if (axis==-1)
-	glob.ObjectiveGradient(x_new,g_new,GRADIENT_ONLY);
-      else {
-	x_av(axis)=x_new(0);
-	glob.ObjectiveGradient(x_av,g_av,GRADIENT_ONLY);
-	g_new(0)=g_av(axis);
-      }
-      GC++;
-      IF_NLOPT_CHECK_EVALS;
-#else
       if (axis != -1)
-	g_new(0)=g_av(axis);
-#endif
+        g_new(0)=g_av(axis);
 
       // y=g_new-g
       copy(g_new,y);
@@ -383,7 +367,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       cout << "Step is no good, ro=" << ro << " delta=" << delta << endl ;
 #endif
     }
-    
+
   } // wend
 
   // Make sure the routine returns correctly...

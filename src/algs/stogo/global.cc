@@ -35,34 +35,12 @@ Global::Global(RTBox D, Pobj o, Pgrad g, GlobalParams P): Domain(D) {
   Gradient=g;
 
   // Initialize parameters
-#ifdef NLOPT_UTIL_H
   stop = P.stop;
-#else
-  maxtime=P.maxtime;
-  maxeval = P.maxeval;
-#endif
   numeval = 0;
   eps_cl=P.eps_cl; mu=P.mu; rshift=P.rshift;
   det_pnts=P.det_pnts; rnd_pnts=P.rnd_pnts;
   fbound=DBL_MAX;
 }
-
-#if 0 // not necessary; default copy is sufficient 
-Global& Global::operator=(const Global &G) {
-  // Copy the problem info and parameter settings
-  Domain=G.Domain; Objective=G.Objective;  Gradient=G.Gradient;
-#ifdef NLOPT_UTIL_H
-  stop = G.stop;
-#else
-  maxtime=G.maxtime;
-  maxeval = G.maxeval;
-#endif
-  numeval = G.numeval;
-  eps_cl=G.eps_cl; mu=G.mu; rshift=G.rshift;
-  det_pnts=G.det_pnts; rnd_pnts=G.rnd_pnts;
-  return *this;
-}
-#endif
 
 void Global::FillRegular(RTBox SampleBox, RTBox box) {
   // Generation of regular sampling points
@@ -76,11 +54,11 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
     tmpTrial.objval=DBL_MAX ;
     // Add the rest
     i=1 ; flag=1 ; dir=0 ;
-    x=m ; 
+    x=m ;
     while (i<det_pnts) {
       w=box.Width(dir) ;
       x(dir)=m(dir)+flag*rshift*w ;
-      tmpTrial.xvals=x ; 
+      tmpTrial.xvals=x ;
       SampleBox.AddTrial(tmpTrial) ;
       flag=-flag;
       if (flag==1 && dir<dim) {
@@ -90,7 +68,7 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
       i++ ;
     }
     // Add midpoint
-    tmpTrial.xvals=m ; 
+    tmpTrial.xvals=m ;
     SampleBox.AddTrial(tmpTrial) ;
   }
 }
@@ -123,11 +101,7 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
   while ( !SampleBox.EmptyBox() ) {
     SampleBox.RemoveTrial(tmpTrial) ;
     info = local(tmpTrial, box, Domain, eps_cl, &maxgrad, *this,
-		 axis, x_av
-#ifdef NLOPT_UTIL_H
-		 , stop
-#endif
-		 ) ;
+		 axis, x_av, stop) ;
     // What should we do when info=LS_Unstable?
     if (info == LS_Out)
       nout++;
@@ -135,15 +109,13 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
       box.AddTrial(tmpTrial) ;
 
       if (tmpTrial.objval<=fbound+mu && tmpTrial.objval<=box.minf+mu) {
-	if (stogo_verbose) {
-	  cout << "Found a candidate, x=" << tmpTrial.xvals;
-	  cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
-	}
-	SolSet.push_back(tmpTrial);
-#ifdef NLOPT_UTIL_H
-	if (tmpTrial.objval < stop->minf_max)
-	  break;
-#endif
+        if (stogo_verbose) {
+          cout << "Found a candidate, x=" << tmpTrial.xvals;
+          cout << " F=" <<tmpTrial.objval << " FC=" << FC << endl;
+        }
+        SolSet.push_back(tmpTrial);
+        if (tmpTrial.objval < stop->minf_max)
+          break;
       }
 #ifdef GS_DEBUG
       cout << "Found a stationary point, X= " << tmpTrial.xvals;
@@ -240,12 +212,10 @@ void Global::Search(int axis, RCRVector x_av){
 #endif
       ReduceOrSubdivide(box, axis, x_av);
 
-#ifdef NLOPT_UTIL_H
       if (!NoMinimizers() && OneMinimizer(x) < stop->minf_max) {
-	done = TRUE;
-	break;
+        done = TRUE;
+        break;
       }
-#endif
       if (!InTime()) {
         done=TRUE;
 	if (stogo_verbose)
@@ -256,7 +226,7 @@ void Global::Search(int axis, RCRVector x_av){
     } // inner while-loop
     if (stogo_verbose)
       cout << endl << "*** Inner loop completed ***" << endl ;
-    
+
     // Reduce SolSet if necessary
     SolSet.erase(remove_if(SolSet.begin(), SolSet.end(),
 			   TrialGT(fbound+mu)),SolSet.end());
@@ -302,11 +272,7 @@ double Global::GetTime()
 
 bool Global::InTime()
 {
-#ifdef NLOPT_UTIL_H
   return !nlopt_stop_evalstime(stop);
-#else
- return (maxtime <= 0.0 || GetTime()<maxtime) && (!maxeval || numeval<maxeval);
-#endif
 }
 
 double Global::GetMinValue() {
