@@ -6,6 +6,9 @@ if (Matlab_FOUND AND Matlab_MX_LIBRARY)
   cmake_minimum_required (VERSION 3.3) # for the matlab_add_mex macro
 
   matlab_add_mex (NAME nlopt_optimize-mex SRC nlopt_optimize-mex.c OUTPUT_NAME nlopt_optimize LINK_TO ${nlopt_lib})
+  if (NLOPT_CXX)
+    set_target_properties (nlopt_optimize-mex PROPERTIES LINKER_LANGUAGE CXX)
+  endif ()
 
   if (NOT DEFINED INSTALL_MEX_DIR)
     set (INSTALL_MEX_DIR ${INSTALL_LIB_DIR}/matlab)

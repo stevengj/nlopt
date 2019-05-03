@@ -327,7 +327,7 @@ if (NLOPT_OCTAVE)
 endif ()
 
 if (NLOPT_MATLAB)
-  find_package (Matlab COMPONENTS MX_LIBRARY)
+  find_package (Matlab COMPONENTS MX_LIBRARY MAIN_PROGRAM)
 endif ()
 
 if (OCTAVE_FOUND OR Matlab_FOUND)
