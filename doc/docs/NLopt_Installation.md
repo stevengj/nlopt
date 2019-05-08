@@ -99,6 +99,12 @@ cmake -DINSTALL_MEX_DIR=dir ..
 
 to install the Matlab plugins in directory *dir*. In this case, however, when you run Matlab you will either need to run in the *dir* directory or explicitly add *dir* to your Matlab path (see the Matlab `path` command).
 
+Matlab's standard C++ library might be incompatible with the one used by your compiler, in that case you can try to disable the C++ algorithms:
+
+```sh
+cmake -DNLOPT_CXX=OFF ..
+```
+
 ### Octave
 
 For the Octave plugins to be installed, you need to have the Octave `mkoctfile` program in your PATH. `mkoctfile` is Octave's equivalent of `mex`. If you are using a GNU/Linux system, and you installed Octave using one of the precompiled packages for your distribution, then you probably need to install a *separate package* to get `mkoctfile`. For example, on Debian you need to install the `octave-headers` package, and on Redhat you need the `octave-devel` package.
