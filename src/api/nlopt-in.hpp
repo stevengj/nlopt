@@ -219,10 +219,13 @@ namespace nlopt {
       nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
     }
     opt(const char * algo_str, unsigned n) :
-      o(nlopt_create(nlopt_algorithm_from_string(algo_str), n)),
-      xtmp(0), gradtmp(0), gradtmp0(0),
+      o(NULL), xtmp(0), gradtmp(0), gradtmp0(0),
       last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
       forced_stop_reason(NLOPT_FORCED_STOP) {
+      const nlopt_algorithm a = nlopt_algorithm_from_string(algo_str);
+      if (a < 0)
+        throw std::invalid_argument("wrong algorithm string");
+      o = nlopt_create(a, n);
       if (!o) throw std::bad_alloc();
       nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
     }
