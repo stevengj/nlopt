@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package>
+  <name>nlopt</name>
+  <description>
+    NLopt is a library for nonlinear local and global optimization, for functions with and without gradient information. It is designed as a simple, unified interface and packaging of several free/open-source nonlinear optimization libraries.
+  </description>
+  <version>2.6.1</version>
+  <maintainer email="oehler@sim.tu-darmstadt.de">Martin Oehler</maintainer>
+  <license>LGPL</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
