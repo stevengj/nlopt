@@ -20,6 +20,8 @@ endif ()
 
 project (nlopt)
 
+find_package(catkin REQUIRED)
+
 #==============================================================================
 # version
 set (NLOPT_MAJOR_VERSION "2")
@@ -231,6 +233,12 @@ endif ()
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
 
 set (nlopt_lib nlopt)
+
+catkin_package(
+  INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src/api
+  LIBRARIES ${nlopt_lib}
+)
+
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
 target_link_libraries (${nlopt_lib} ${M_LIBRARY})
 
@@ -334,10 +342,10 @@ if (OCTAVE_FOUND OR Matlab_FOUND)
   add_subdirectory (src/octave)
 endif ()
 
-if (NLOPT_TESTS)
-  enable_testing ()
-  add_subdirectory (test)
-endif ()
+# if (NLOPT_TESTS)
+#   enable_testing ()
+#   add_subdirectory (test)
+# endif ()
 
 set (CPACK_PACKAGE_NAME          "${CMAKE_PROJECT_NAME}")
 set (CPACK_PACKAGE_VERSION_MAJOR "${NLOPT_MAJOR_VERSION}")
