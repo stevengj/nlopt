@@ -36,7 +36,7 @@ public:
   friend ostream & operator << (ostream &, RCTrial) ;
 };
 
-#if (!defined(_WIN32) && (__cplusplus < 201103L)) || (defined(_WIN32) && (_MSVC_LANG < 201103L))
+#if (!defined(_MSC_VER) && (__cplusplus < 201103L)) || (defined(_MSC_VER) && (_MSVC_LANG < 201103L))
 class TrialGT : public unary_function<Trial, bool>
 #else
 class TrialGT
