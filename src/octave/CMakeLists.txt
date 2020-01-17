@@ -6,7 +6,12 @@ if (Matlab_FOUND AND Matlab_MX_LIBRARY)
   cmake_minimum_required (VERSION 3.3) # for the matlab_add_mex macro
 
   matlab_add_mex (NAME nlopt_optimize-mex SRC nlopt_optimize-mex.c OUTPUT_NAME nlopt_optimize LINK_TO ${nlopt_lib})
-  set_target_properties(nlopt_optimize-mex PROPERTIES COMPILE_FLAGS "-fvisibility=default")
+  if (CMAKE_VERSION VERSION_LESS 3.14.0)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+      message("Forcing mexFunction visibility to default")
+      set_target_properties(nlopt_optimize-mex PROPERTIES COMPILE_FLAGS "-fvisibility=default")
+    endif()
+  endif()
   
   if (NLOPT_CXX)
     set_target_properties (nlopt_optimize-mex PROPERTIES LINKER_LANGUAGE CXX)
