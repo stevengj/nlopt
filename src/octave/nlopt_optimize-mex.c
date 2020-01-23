@@ -161,7 +161,7 @@ static void user_mfunction(unsigned m, double* result, unsigned n, const double*
         mexPrintf("%g\n", result[n - 1]);
     }
 
-    for (size_t i = 0; i < n - 1; i++) {
+    for (size_t i = 0; i < n; i++) {
         if (mxIsNaN(result[i])) {
             nlopt_force_stop(d->opt);
             break;
