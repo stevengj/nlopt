@@ -144,10 +144,14 @@ static void user_mfunction(unsigned m, double* result, unsigned n, const double*
 
     if (gradient) {
         CHECK0(mxIsDouble(d->plhs[1]) && !mxIsComplex(d->plhs[1])
-                && (mxGetM(d->plhs[1]) == m || mxGetN(d->plhs[1]) == m)
-                && mxGetM(d->plhs[1]) * mxGetN(d->plhs[1]) == m * n,
-            "gradient vector from user mfunction is the wrong size");
-        memcpy(gradient, mxGetPr(d->plhs[1]), m * n * sizeof(double));
+                && (mxGetM(d->plhs[1]) == m && mxGetN(d->plhs[1]) == n),
+            "gradient vector from user mfunction is the wrong size (mxn)");
+        double* ptr = mxGetPr(d->plhs[1]);
+        for (size_t j = 0; j < n; j++) {
+            for (size_t i = 0; i < m; i++) {
+                gradient[(i * n) + j] = ptr[i + (j * m)];
+            }
+        }
         mxDestroyArray(d->plhs[1]);
     }
 
