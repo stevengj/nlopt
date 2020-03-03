@@ -62,6 +62,8 @@
 
 #define U(n) ((unsigned) (n))
 
+#define ZERO_CONSTANT 1E-150
+
 /**************************************************************************/
 /* SGJ, 2008: NLopt-style interface function: */
 
@@ -217,6 +219,11 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      if (!s.xtmp) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 
      /* SGJ, 2008: compute rhoend from NLopt stop info */
+     if (fabs(s.scale[0]) < ZERO_CONSTANT)
+     {
+         ret = NLOPT_FAILURE;
+         goto done;
+     }
      rhobeg = fabs(dx[0] / s.scale[0]);
      rhoend = stop->xtol_rel * (rhobeg);
      for (j = 0; j < n; ++j)
@@ -534,6 +541,10 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
       "cobyla: the initial value of RHO is %12.6E and PARMU is set to zero.\n",
       rho);
   }
+  if (fabs(rho) < ZERO_CONSTANT)
+  {
+      goto L621;
+  }
   temp = 1. / rho;
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
@@ -557,6 +568,10 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
     }
 #endif
     sim[i__ + i__ * sim_dim1] = rhocur;
+    if (fabs(rhocur) < ZERO_CONSTANT)
+    {
+        goto L621;
+    }
     simi[i__ + i__ * simi_dim1] = 1.0 / rhocur;
   }
   jdrop = np;
@@ -802,6 +817,10 @@ L140:
       d__1 = sim[i__ + j * sim_dim1];
       weta += d__1 * d__1;
     }
+    if (fabs(wsig) < ZERO_CONSTANT)
+    {
+        goto L621;
+    }
     vsig[j] = 1. / sqrt(wsig);
     veta[j] = sqrt(weta);
     if (vsig[j] < parsig || veta[j] > pareta) {
@@ -892,6 +911,10 @@ L140:
   }
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
+      if (fabs(temp) < ZERO_CONSTANT)
+      {
+          goto L621;
+      }
     simi[jdrop + i__ * simi_dim1] /= temp;
   }
   i__1 = *n;
@@ -1083,6 +1106,10 @@ L440:
   }
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
+      if (fabs(temp) < ZERO_CONSTANT)
+      {
+          goto L621;
+      }
     simi[jdrop + i__ * simi_dim1] /= temp;
   }
   i__1 = *n;
@@ -1173,6 +1200,10 @@ L550:
       if (denom == 0.) {
         parmu = 0.;
       } else if (cmax - cmin < parmu * denom) {
+          if (fabs(denom) < ZERO_CONSTANT)
+          {
+              goto L621;
+          }
         parmu = (cmax - cmin) / denom;
       }
     }
@@ -1240,6 +1271,8 @@ L620:
     fprintf(stderr, "\n");
   }
   return rc;
+L621:
+  return NLOPT_FAILURE;
 } /* cobylb */
 
 /* ------------------------------------------------------------------------- */
@@ -1428,6 +1461,10 @@ L100:
     } else {
       kp = k + 1;
       temp = sqrt(sp * sp + tot * tot);
+      if (fabs(temp) < ZERO_CONSTANT)
+      {
+          goto L501;
+      }
       alpha = sp / temp;
       beta = tot / temp;
       tot = temp;
@@ -1476,8 +1513,16 @@ L130:
   acca = zdvabs + fabs(zdotv) * .1;
   accb = zdvabs + fabs(zdotv) * .2;
   if (zdvabs < acca && acca < accb) {
+      if (fabs(zdota[k]) < ZERO_CONSTANT)
+      {
+          goto L501;
+      }
     temp = zdotv / zdota[k];
     if (temp > 0. && iact[k] <= *m) {
+        if (fabs(temp) < ZERO_CONSTANT)
+        {
+            goto L501;
+        }
       tempa = vmultc[k] / temp;
       if (ratio < 0. || tempa < ratio)
         ratio = tempa;
@@ -1530,6 +1575,10 @@ L170:
     }
     d__1 = zdota[kp];
     temp = sqrt(sp * sp + d__1 * d__1);
+    if (fabs(temp) < ZERO_CONSTANT)
+    {
+        goto L501;
+    }
     alpha = zdota[kp] / temp;
     beta = sp / temp;
     zdota[kp] = alpha * zdota[k];
@@ -1578,6 +1627,10 @@ L210:
     }
     d__1 = zdota[nact];
     temp = sqrt(sp * sp + d__1 * d__1);
+    if (fabs(temp) < ZERO_CONSTANT)
+    {
+        goto L501;
+    }
     alpha = zdota[nact] / temp;
     beta = sp / temp;
     zdota[nact] = alpha * zdota[k];
@@ -1610,6 +1663,10 @@ L210:
     temp += sdirn[i__] * a[i__ + kk * a_dim1];
   }
   temp += -1.;
+  if (fabs(zdota[nact]) < ZERO_CONSTANT)
+  {
+      goto L501;
+  }
   temp /= zdota[nact];
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
@@ -1634,6 +1691,10 @@ L270:
     }
     d__1 = zdota[kp];
     temp = sqrt(sp * sp + d__1 * d__1);
+    if (fabs(temp) < ZERO_CONSTANT)
+    {
+        goto L501;
+    }
     alpha = zdota[kp] / temp;
     beta = sp / temp;
     zdota[kp] = alpha * zdota[k];
@@ -1677,6 +1738,10 @@ L270:
 /* Pick the next search direction of stage two. */
 
 L320:
+  if (fabs(zdota[nact]) < ZERO_CONSTANT)
+  {
+      goto L501;
+  }
   temp = 1. / zdota[nact];
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
@@ -1768,6 +1833,10 @@ L390:
   if (zdwabs >= acca || acca >= accb) {
     zdotw = 0.;
   }
+  if (fabs(zdota[k]) < ZERO_CONSTANT)
+  {
+      goto L501;
+  }
   vmultd[k] = zdotw / zdota[k];
   if (k >= 2) {
     kk = iact[k];
@@ -1818,6 +1887,10 @@ L390:
   i__1 = mcon;
   for (k = 1; k <= i__1; ++k) {
     if (vmultd[k] < 0.) {
+        if (vmultc[k] == vmultd[k])
+        {
+            goto L501;
+        }
       temp = vmultc[k] / (vmultc[k] - vmultd[k]);
       if (temp < ratio) {
         ratio = temp;
@@ -1868,4 +1941,6 @@ L490:
   *ifull = 0;
 L500:
   return NLOPT_SUCCESS;
+L501:
+  return NLOPT_FAILURE;
 } /* trstlp */
