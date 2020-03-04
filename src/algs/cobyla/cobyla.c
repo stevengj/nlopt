@@ -41,7 +41,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
+#include <stdbool.h>
 #include "cobyla.h"
 
 /* SGJ, 2008: modified COBYLA code to take explicit account of bound
@@ -62,10 +62,24 @@
 
 #define U(n) ((unsigned) (n))
 
-#define ZERO_CONSTANT 1E-150
+#define ZERO_CONSTANT 0
 
+inline bool check_if_zero(const double var)
+{
+    if (fabs(var) <= ZERO_CONSTANT)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
 /**************************************************************************/
 /* SGJ, 2008: NLopt-style interface function: */
+
+
 
 typedef struct {
      nlopt_func f;
@@ -219,7 +233,8 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      if (!s.xtmp) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 
      /* SGJ, 2008: compute rhoend from NLopt stop info */
-     if (fabs(s.scale[0]) < ZERO_CONSTANT)
+     
+     if (check_if_zero(s.scale[0]))
      {
          ret = NLOPT_FAILURE;
          goto done;
@@ -541,7 +556,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
       "cobyla: the initial value of RHO is %12.6E and PARMU is set to zero.\n",
       rho);
   }
-  if (fabs(rho) < ZERO_CONSTANT)
+  if (check_if_zero(rho))
   {
       goto L621;
   }
@@ -568,7 +583,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
     }
 #endif
     sim[i__ + i__ * sim_dim1] = rhocur;
-    if (fabs(rhocur) < ZERO_CONSTANT)
+    if (check_if_zero(rhocur))
     {
         goto L621;
     }
@@ -817,7 +832,7 @@ L140:
       d__1 = sim[i__ + j * sim_dim1];
       weta += d__1 * d__1;
     }
-    if (fabs(wsig) < ZERO_CONSTANT)
+    if (check_if_zero(wsig))
     {
         goto L621;
     }
@@ -911,7 +926,7 @@ L140:
   }
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
-      if (fabs(temp) < ZERO_CONSTANT)
+      if (check_if_zero(temp))
       {
           goto L621;
       }
@@ -1106,7 +1121,7 @@ L440:
   }
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
-      if (fabs(temp) < ZERO_CONSTANT)
+      if (check_if_zero(temp))
       {
           goto L621;
       }
@@ -1200,7 +1215,7 @@ L550:
       if (denom == 0.) {
         parmu = 0.;
       } else if (cmax - cmin < parmu * denom) {
-          if (fabs(denom) < ZERO_CONSTANT)
+          if (check_if_zero(denom))
           {
               goto L621;
           }
@@ -1461,7 +1476,7 @@ L100:
     } else {
       kp = k + 1;
       temp = sqrt(sp * sp + tot * tot);
-      if (fabs(temp) < ZERO_CONSTANT)
+      if (check_if_zero(temp))
       {
           goto L501;
       }
@@ -1513,13 +1528,13 @@ L130:
   acca = zdvabs + fabs(zdotv) * .1;
   accb = zdvabs + fabs(zdotv) * .2;
   if (zdvabs < acca && acca < accb) {
-      if (fabs(zdota[k]) < ZERO_CONSTANT)
+      if (check_if_zero(zdota[k]))
       {
           goto L501;
       }
     temp = zdotv / zdota[k];
     if (temp > 0. && iact[k] <= *m) {
-        if (fabs(temp) < ZERO_CONSTANT)
+        if (check_if_zero(temp))
         {
             goto L501;
         }
@@ -1575,7 +1590,7 @@ L170:
     }
     d__1 = zdota[kp];
     temp = sqrt(sp * sp + d__1 * d__1);
-    if (fabs(temp) < ZERO_CONSTANT)
+    if (check_if_zero(temp))
     {
         goto L501;
     }
@@ -1627,7 +1642,7 @@ L210:
     }
     d__1 = zdota[nact];
     temp = sqrt(sp * sp + d__1 * d__1);
-    if (fabs(temp) < ZERO_CONSTANT)
+    if (check_if_zero(temp))
     {
         goto L501;
     }
@@ -1663,7 +1678,7 @@ L210:
     temp += sdirn[i__] * a[i__ + kk * a_dim1];
   }
   temp += -1.;
-  if (fabs(zdota[nact]) < ZERO_CONSTANT)
+  if (check_if_zero(zdota[nact]))
   {
       goto L501;
   }
@@ -1691,7 +1706,7 @@ L270:
     }
     d__1 = zdota[kp];
     temp = sqrt(sp * sp + d__1 * d__1);
-    if (fabs(temp) < ZERO_CONSTANT)
+    if (check_if_zero(temp))
     {
         goto L501;
     }
@@ -1738,7 +1753,7 @@ L270:
 /* Pick the next search direction of stage two. */
 
 L320:
-  if (fabs(zdota[nact]) < ZERO_CONSTANT)
+  if (check_if_zero(zdota[nact]))
   {
       goto L501;
   }
@@ -1833,7 +1848,7 @@ L390:
   if (zdwabs >= acca || acca >= accb) {
     zdotw = 0.;
   }
-  if (fabs(zdota[k]) < ZERO_CONSTANT)
+  if (check_if_zero(zdota[k]))
   {
       goto L501;
   }
