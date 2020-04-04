@@ -17,6 +17,10 @@ namespace std {
   %template(nlopt_doublevector) vector<double>;
 };
 
+// dont use the in-place version of get_initial_step
+%ignore nlopt::opt::get_initial_step;
+%rename(get_initial_step) nlopt::opt::get_initial_step_;
+
 // prepend "nlopt_" in Guile to substitute for namespace
 #if defined(SWIGGUILE)
 %rename(nlopt_opt) nlopt::opt;
