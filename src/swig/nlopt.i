@@ -17,6 +17,9 @@ namespace std {
   %template(nlopt_doublevector) vector<double>;
 };
 
+%ignore nlopt::opt::myfunc_data;
+%ignore nlopt::opt::operator=;
+
 // dont use the in-place version of get_initial_step
 %ignore nlopt::opt::get_initial_step;
 %rename(get_initial_step) nlopt::opt::get_initial_step_;
