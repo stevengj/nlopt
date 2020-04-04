@@ -340,7 +340,7 @@ Just as in the C API, you can [get and set the initial step sizes](NLopt_Referen
 
 ```
 opt.set_initial_step(dx)
-opt.get_initial_step(x)
+dx = opt.get_initial_step(x)
 ```
 
 
