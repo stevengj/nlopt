@@ -84,5 +84,5 @@ endif()
 
 # handle REQUIRED and QUIET options
 include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (Numpy REQUIRED_VARS NUMPY_INCLUDE_DIRS VERSION_VAR NUMPY_VERSION)
+find_package_handle_standard_args (NumPy REQUIRED_VARS NUMPY_INCLUDE_DIRS VERSION_VAR NUMPY_VERSION)
 
