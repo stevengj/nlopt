@@ -6,6 +6,8 @@ if (Matlab_FOUND AND Matlab_MX_LIBRARY)
   cmake_minimum_required (VERSION 3.3) # for the matlab_add_mex macro
 
   matlab_add_mex (NAME nlopt_optimize-mex SRC nlopt_optimize-mex.c OUTPUT_NAME nlopt_optimize LINK_TO ${nlopt_lib})
+  target_include_directories (nlopt_optimize-mex PRIVATE ${PROJECT_SOURCE_DIR}/src/api)
+
   if (CMAKE_VERSION VERSION_LESS 3.14.0)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
       message("Forcing mexFunction visibility to default")
@@ -43,9 +45,8 @@ if (OCTAVE_FOUND)
   endforeach ()
   file (APPEND ${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h "\n")
 
-  include_directories (${OCTAVE_INCLUDE_DIRS})
-  include_directories (${CMAKE_CURRENT_BINARY_DIR})
   octave_add_oct (nlopt_optimize SOURCES nlopt_optimize-oct.cc ${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h LINK_LIBRARIES ${nlopt_lib})
+  target_include_directories (nlopt_optimize PRIVATE ${OCTAVE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/src/api)
 
   if (NOT DEFINED INSTALL_OCT_DIR)
     file (RELATIVE_PATH INSTALL_OCT_DIR ${OCTAVE_ROOT_DIR} ${OCTAVE_OCT_SITE_DIR})

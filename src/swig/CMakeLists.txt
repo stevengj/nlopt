@@ -19,7 +19,7 @@ set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
 
 if (NUMPY_FOUND AND PYTHONLIBS_FOUND)
 
-  set (SWIG_MODULE_nlopt_python_EXTRA_DEPS nlopt-python.i numpy.i)
+  set (SWIG_MODULE_nlopt_python_EXTRA_DEPS nlopt-python.i numpy.i generate-cpp)
 
   # swig_add_module is deprecated
   if (CMAKE_VERSION VERSION_LESS 3.8)
@@ -35,8 +35,8 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND)
     set (nlopt_python "nlopt_python")
   endif ()
 
-  target_include_directories (${nlopt_python} PUBLIC ${PYTHON_INCLUDE_DIRS})
-  target_include_directories (${nlopt_python} PUBLIC ${NUMPY_INCLUDE_DIRS})
+  target_include_directories (${nlopt_python} PRIVATE ${PYTHON_INCLUDE_DIRS})
+  target_include_directories (${nlopt_python} PRIVATE ${NUMPY_INCLUDE_DIRS})
 
   swig_link_libraries (nlopt_python ${nlopt_lib})
   target_link_libraries_with_dynamic_lookup (${nlopt_python} ${PYTHON_LIBRARIES})
@@ -55,7 +55,7 @@ endif ()
 if (GUILE_FOUND AND (SWIG_VERSION VERSION_GREATER 2.0.9))
 
   set_source_files_properties (nlopt.i PROPERTIES SWIG_FLAGS "-scmstub")
-  set (SWIG_MODULE_nlopt_guile_EXTRA_DEPS nlopt-guile.i)
+  set (SWIG_MODULE_nlopt_guile_EXTRA_DEPS nlopt-guile.i generate-cpp)
 
   # swig_add_module is deprecated
   if (CMAKE_VERSION VERSION_LESS 3.8)
@@ -71,7 +71,7 @@ if (GUILE_FOUND AND (SWIG_VERSION VERSION_GREATER 2.0.9))
     set (nlopt_guile "nlopt_guile")
   endif ()
 
-  target_include_directories (${nlopt_guile} PUBLIC ${GUILE_INCLUDE_DIRS})
+  target_include_directories (${nlopt_guile} PRIVATE ${GUILE_INCLUDE_DIRS})
 
   swig_link_libraries (nlopt_guile ${nlopt_lib})
   target_link_libraries_with_dynamic_lookup (${nlopt_guile} ${GUILE_LIBRARIES})
