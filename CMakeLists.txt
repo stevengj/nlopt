@@ -193,11 +193,19 @@ endif ()
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
-configure_file (src/api/nlopt.h ${PROJECT_BINARY_DIR}/src/api/nlopt.h COPYONLY)
-
 set (NLOPT_HEADERS
-  ${PROJECT_BINARY_DIR}/src/api/nlopt.h ${PROJECT_BINARY_DIR}/src/api/nlopt.hpp ${PROJECT_BINARY_DIR}/src/api/nlopt.f
+  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp ${PROJECT_BINARY_DIR}/nlopt.f
 )
+
+add_custom_command (OUTPUT nlopt.hpp
+  COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-cpp.cmake
+  MAIN_DEPENDENCY src/api/nlopt-in.hpp)
+add_custom_target (generate-cpp ALL DEPENDS nlopt.hpp)
+
+add_custom_command (OUTPUT nlopt.f
+  COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
+  MAIN_DEPENDENCY src/api/nlopt.h)
+add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
 
 set (NLOPT_SOURCES
   src/algs/direct/DIRect.c src/algs/direct/direct_wrap.c src/algs/direct/DIRserial.c src/algs/direct/DIRsubrout.c src/algs/direct/direct-internal.h src/algs/direct/direct.h
@@ -215,7 +223,7 @@ set (NLOPT_SOURCES
   src/algs/isres/isres.c src/algs/isres/isres.h
   src/algs/slsqp/slsqp.c src/algs/slsqp/slsqp.h
   src/algs/esch/esch.c src/algs/esch/esch.h
-  src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h src/api/nlopt.hpp src/api/nlopt-in.hpp
+  src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h ${PROJECT_BINARY_DIR}/nlopt.hpp
   src/util/mt19937ar.c src/util/sobolseq.c src/util/soboldata.h src/util/timer.c src/util/stop.c src/util/nlopt-util.h src/util/redblack.c src/util/redblack.h src/util/qsort_r.c src/util/rescale.c
 )
 
@@ -232,6 +240,7 @@ install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
 
 set (nlopt_lib nlopt)
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
+add_dependencies(${nlopt_lib} generate-cpp)
 target_link_libraries (${nlopt_lib} ${M_LIBRARY})
 
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${SO_MAJOR})
