@@ -851,6 +851,7 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
                 goto done;
             }
             elimdim_shrink(opt->n, x, opt->lb, opt->ub);
+            opt->force_stop_child = elim_opt;
         }
 
         ret = nlopt_optimize_(elim_opt, x, opt_f);
@@ -858,6 +859,7 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
         if (elim_opt != opt) {
             elimdim_destroy(elim_opt);
             elimdim_expand(opt->n, x, opt->lb, opt->ub);
+            opt->force_stop_child = NULL;
         }
     }
 
