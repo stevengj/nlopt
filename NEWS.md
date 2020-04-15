@@ -1,5 +1,15 @@
 # NLopt Release Notes
 
+## NLopt 2.6.2
+
+15 April 2020
+
+* Fixed forced stop exception with dimension elimination ([#317])
+
+* Fixed `get_initial_step` wrapping ([#319])
+
+* Various build fixes ([#314], [#308], [#303], [#278])
+
 ## NLopt 2.6.1
 
 13 April 2019

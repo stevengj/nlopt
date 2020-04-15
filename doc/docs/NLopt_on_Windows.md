@@ -9,8 +9,8 @@ NLopt works fine on Microsoft Windows computers, and you can compile it directly
 
 To simplify installation, there are also precompiled 32-bit and 64-bit Windows [DLLs](https://en.wikipedia.org/wiki/Dynamic-link_library) (along with binaries for many other systems) at [NLoptBuilder/releases](https://github.com/stevengj/NLoptBuilder/releases).  In particular, the Windows builds are
 
--  [NLopt.v2.6.1.i686-w64-mingw32.tar.gz](https://github.com/stevengj/NLoptBuilder/releases/download/v2.6.1/NLopt.v2.6.1.i686-w64-mingw32.tar.gz) (32-bit)
--  [NLopt.v2.6.1.x86_64-w64-mingw32.tar.gz](https://github.com/stevengj/NLoptBuilder/releases/download/v2.6.1/NLopt.v2.6.1.x86_64-w64-mingw32.tar.gz) (64-bit)
+-  [NLopt.v2.6.2.i686-w64-mingw32.tar.gz](https://github.com/stevengj/NLoptBuilder/releases/download/v2.6.2/NLopt.v2.6.2.i686-w64-mingw32.tar.gz) (32-bit)
+-  [NLopt.v2.6.2.x86_64-w64-mingw32.tar.gz](https://github.com/stevengj/NLoptBuilder/releases/download/v2.6.2/NLopt.v2.6.2.x86_64-w64-mingw32.tar.gz) (64-bit)
 
 These `.tar.gz` files unpack (with a variety of Windows software, e.g. 7-zip) into a folder with a `bin` subdirectory that contains `libnlopt.dll`.  To link with this in your compiler, you will typically also want the [import library](https://stackoverflow.com/questions/3573475/how-does-the-import-library-work-details) for the DLL, which can be found in the `lib` subdirectory and is called `libnlopt.dll.a` (this can be used similarly to the `.lib` files you may be used to).
 
