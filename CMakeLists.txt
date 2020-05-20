@@ -35,7 +35,7 @@ set(SO_MINOR 10)
 set(SO_PATCH 0)
 #==============================================================================
 
-list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list (APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option (NLOPT_CXX "enable cxx routines" ON)
 option (NLOPT_FORTRAN "enable fortran tests" OFF)
@@ -273,7 +273,7 @@ target_include_directories (${nlopt_lib} PRIVATE
   src/api)
 
 get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES)
-target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/api>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/api;${PROJECT_BINARY_DIR}>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions (${nlopt_lib} PUBLIC NLOPT_DLL)
