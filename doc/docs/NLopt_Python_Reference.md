@@ -149,7 +149,7 @@ Just as for [nonlinear constraints in C](NLopt_Reference#Vector-valued_constrain
 
 ```
 opt.add_inequality_mconstraint(c, tol)
-opt.add_inequality_mconstraint(c, tol)
+opt.add_equality_mconstraint(c, tol)
 ```
 
 
