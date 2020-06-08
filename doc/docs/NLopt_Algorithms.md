@@ -349,7 +349,8 @@ NLopt includes several variations of this algorithm by Prof. Luksan. First, a va
 
 The algorithms are based on the ones described by:
 
--   R. S. Dembo and T. Steihaug, "Truncated Newton algorithms for large-scale optimization," *Math. Programming* **26**, p. 190-212 (1982).
+-   R. S. Dembo and T. Steihaug, "Truncated Newton algorithms for large-scale optimization," *Math. Programming* **26**,
+p. 190-212 (1983) <http://doi.org/10.1007/BF02592055>.
 
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 
