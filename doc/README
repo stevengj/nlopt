@@ -4,8 +4,15 @@ Markdown (.md) files for NLopt documentation live in $(top_src_dir)/doc/docs.
 
 To build and visualize the HTML documentation locally using the
 mkdocs package (useful for verifying on your local machine before
-committing), install the `mkdocs` package, then run the 
-following command from the top-level meep repository tree:
+committing):
+
+1. Install the `mkdocs` package, together with the requirements in
+requirements.txt:
+
+% pip install mkdocs
+% pip install -r requirements.txt
+
+2. Run the following command from the top-level NLopt repository tree:
 
 % mkdocs serve
 
