@@ -186,6 +186,8 @@ Local derivative-free optimization
 
 Of these algorithms, only COBYLA currently supports arbitrary nonlinear inequality and equality constraints; the rest of them support bound-constrained or unconstrained problems only. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#Augmented_Lagrangian_algorithm.md) below.)
 
+A unique consideration when using local derivative-free algorithms is that the optimizer must somehow decide on an initial step size. By default, NLopt chooses this initial step size heuristically, but this may not always be the best choice. If you run into trouble, you can modify the initial step size, as described in the [NLopt reference](NLopt_Reference.md#initial-step-size).
+
 ### COBYLA (Constrained Optimization BY Linear Approximations)
 
 This is a derivative of Powell's implementation of the COBYLA (Constrained Optimization BY Linear Approximations) algorithm for derivative-free optimization with nonlinear inequality and equality constraints, by M. J. D. Powell, described in:
