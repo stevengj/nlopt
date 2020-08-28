@@ -10,8 +10,11 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
 endif ()
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
-add_executable (testopt testfuncs.c testfuncs.h testopt.c
-  ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c ${PROJECT_SOURCE_DIR}/src/util/nlopt-getopt.c)
+set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)
+if (NOT HAVE_GETOPT OR NOT HAVE_GETOPT_H)
+  list (APPEND testopt_sources ${PROJECT_SOURCE_DIR}/src/util/nlopt-getopt.c)
+endif ()
+add_executable (testopt ${testopt_sources})
 target_link_libraries (testopt ${nlopt_lib})
 target_include_directories (testopt PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
 add_dependencies (tests testopt)
