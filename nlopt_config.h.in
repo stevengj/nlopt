@@ -37,6 +37,9 @@
 /* Define to 1 if you have the <getopt.h> header file. */
 #cmakedefine HAVE_GETOPT_H
 
+/* Define to 1 if you have the getopt function in your standard libary. */
+#cmakedefine HAVE_GETOPT
+
 /* Define to 1 if you have the `getpid' function. */
 #cmakedefine HAVE_GETPID
 
