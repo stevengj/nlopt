@@ -295,7 +295,7 @@ The only major difference between my implementation and Rowan's, as far as I can
 Local gradient-based optimization
 ---------------------------------
 
-Of these algorithms, only MMA and SLSQP support arbitrary nonlinear inequality constraints, and only SLSQP supports nonlinear equality constraints; the rest support bound-constrained or unconstrained problems only. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#Augmented_Lagrangian_algorithm.md) below.)
+Of these algorithms, only MMA and SLSQP support arbitrary nonlinear inequality constraints, and only SLSQP supports nonlinear equality constraints; the rest support bound-constrained or unconstrained problems only. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#augmented_Lagrangian_algorithm) below.)
 
 ### MMA (Method of Moving Asymptotes) and CCSA
 
