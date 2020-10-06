@@ -24,12 +24,12 @@ When you compile your program you will have to link it to the NLopt library. On 
 
 where *compiler* is `f77`, `gfortran`, or whatever is appropriate for your machine.
 
-*Note:* the above example assumes that you have installed the NLopt library in a place where the compiler knows to find it (e.g. in a standard directory like `/usr/lib` or `/usr/local/lib`). If you installed somewhere else (e.g. in your home directory if you are not a system administrator), then you will need to use a `-L` flag to tell the compiler where to find the library. See [the installation manual](NLopt_Installation#Changing_the_installation_directory.md).
+*Note:* the above example assumes that you have installed the NLopt library in a place where the compiler knows to find it (e.g. in a standard directory like `/usr/lib` or `/usr/local/lib`). If you installed somewhere else (e.g. in your home directory if you are not a system administrator), then you will need to use a `-L` flag to tell the compiler where to find the library. See [the installation manual](NLopt_Installation.md#changing-the-installation-directory).
 
 Fortran vs. C API
 -----------------
 
-As explained in the [NLopt Tutorial](NLopt_Tutorial#Example_in_Fortran.md), there are a few simple rules that define the differences between the C and Fortran APIs:
+As explained in the [NLopt Tutorial](NLopt_Tutorial.md#example-in-fortran), there are a few simple rules that define the differences between the C and Fortran APIs:
 
 -   All `nlopt_` functions are converted into `nlo_` subroutines, with return values converted into the first argument.
 -   The `nlopt_opt` type corresponds to `integer*8`. (Technically, we could use any type that is big enough to hold a pointer on all platforms; `integer*8` is big enough for pointers on both 32-bit and 64-bit machines.)
@@ -82,7 +82,7 @@ call nlo_set_max_objective(ires, opt, f, f_data)
 ```
 
 
-depending on whether one wishes to minimize or maximize the objective function `f`, respectively. `ires` is an `integer` return value which is positive on success and negative on failure (see below for more specific [return-value meanings](#Return_values.md)).
+depending on whether one wishes to minimize or maximize the objective function `f`, respectively. `ires` is an `integer` return value which is positive on success and negative on failure (see below for more specific [return-value meanings](#return_values)).
 
 The function `f` should be of the form:
 
@@ -113,7 +113,7 @@ The `f_data` argument can be used to pass through a single variable containing a
 Bound constraints
 -----------------
 
-The [bound constraints](NLopt_Reference#Bound_constraints.md) can be specified by calling the methods:
+The [bound constraints](NLopt_Reference.md#bound-constraints) can be specified by calling the methods:
 
 ```
 double precision lb(n), ub(n)
@@ -122,7 +122,7 @@ call nlo_set_upper_bounds(ires, opt, ub)
 ```
 
 
-where `lb` and `ub` are arrays of length *n* (the same as the dimension passed to the `nlopt.opt` constructor), and `ires` is an `integer` [return value](#Return_values.md) (positive on success).
+where `lb` and `ub` are arrays of length *n* (the same as the dimension passed to the `nlopt.opt` constructor), and `ires` is an `integer` [return value](#return-values) (positive on success).
 
 For convenience, we also provide subroutines that take a single number as arguments, in order to set the lower/upper bounds for all optimization parameters to a single constant `value`.
 
@@ -145,7 +145,7 @@ To specify an unbounded dimension, you can use ±`huge(lb(1))` in Fortran to spe
 Nonlinear constraints
 ---------------------
 
-Just as for [nonlinear constraints in C](NLopt_Reference#Nonlinear_constraints.md), you can specify nonlinear inequality and equality constraints by the methods:
+Just as for [nonlinear constraints in C](NLopt_Reference.md#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
 
 ```
 call nlo_add_inequality_constraint(ires, opt, fc, fc_data, tol)
@@ -153,7 +153,7 @@ call nlo_add_inequality_constraint(ires, opt, h, h_data, tol)
 ```
 
 
-where the arguments `fc` and `h` have the same form as the objective function above. The `double` `precision` `tol` arguments specify a tolerance in judging feasibility for the purposes of stopping the optimization, as in C, and `ires` is an `integer` [return value](#Return_values.md) (positive on success).
+where the arguments `fc` and `h` have the same form as the objective function above. The `double` `precision` `tol` arguments specify a tolerance in judging feasibility for the purposes of stopping the optimization, as in C, and `ires` is an `integer` [return value](#return_values) (positive on success).
 
 To remove all of the inequality and/or equality constraints from a given problem, you can call the following methods:
 
@@ -165,7 +165,7 @@ call nlo_remove_equality_constraints(ires, opt)
 
 ### Vector-valued constraints
 
-Just as for [nonlinear constraints in C](NLopt_Reference#Vector-valued_constraints.md), you can specify vector-valued nonlinear inequality and equality constraints by the subroutines
+Just as for [nonlinear constraints in C](NLopt_Reference.md#vector-valued-constraints), you can specify vector-valued nonlinear inequality and equality constraints by the subroutines
 
 ```
 double precision tol(m)
@@ -205,9 +205,9 @@ An inequality constraint corresponds to $c_i \le 0$ for $1 \le i \le m$, and an 
 Stopping criteria
 -----------------
 
-As explained in the [C API Reference](NLopt_Reference#Stopping_criteria.md) and the [Introduction](NLopt_Introduction#Termination_conditions.md)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
+As explained in the [C API Reference](NLopt_Reference.md#stopping-criteria) and the [Introduction](NLopt_Introduction.md#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
 
-For each stopping criteria, there are (at least) two subroutines: a `set` subroutine to specify the stopping criterion, and a `get` subroutine to retrieve the current value for that criterion. The meanings of each criterion are exactly the same as in the C API. The first argument `ires` of each `set` subroutine is an `integer` [return value](#Return_values.md) (positive on success).
+For each stopping criteria, there are (at least) two subroutines: a `set` subroutine to specify the stopping criterion, and a `get` subroutine to retrieve the current value for that criterion. The meanings of each criterion are exactly the same as in the C API. The first argument `ires` of each `set` subroutine is an `integer` [return value](#return-values) (positive on success).
 
 ```
 call nlo_set_stopval(ires, opt, stopval)
@@ -285,14 +285,14 @@ Stop when the optimization time (in seconds) exceeds `maxtime` (`double` `precis
 
 ### Forced termination
 
-In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. In this case, it is possible to tell NLopt to halt the optimization gracefully, returning the best point found so far, by calling the following subroutine from *within* your objective or constraint functions (exactly analogous to the corresponding [C routines](NLopt_Reference#Forced_termination.md)):
+In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. In this case, it is possible to tell NLopt to halt the optimization gracefully, returning the best point found so far, by calling the following subroutine from *within* your objective or constraint functions (exactly analogous to the corresponding [C routines](NLopt_Reference.md#forced-termination)):
 
 ```
 call nlo_force_stop(ires, opt)
 ```
 
 
-`ires` is an `integer` [return value](#Return_values.md) (positive on success). More generally, you can set and retrieve a force-stop integer code `ival`, where a nonzero value indicates a forced stop.
+`ires` is an `integer` [return value](#return-values) (positive on success). More generally, you can set and retrieve a force-stop integer code `ival`, where a nonzero value indicates a forced stop.
 
 ```
 call nlo_set_force_stop(ires, opt, ival)
@@ -313,11 +313,11 @@ call nlo_optimize(ires, opt, x, minf)
 ```
 
 
-On input, `x` is an array of length `n` (the dimension of the problem from the `nlopt.opt` constructor) giving an initial guess for the optimization parameters. Upon successful return, `x` contains the optimized values of the optimization parameters and `minf` contains the optimized objective-function value. `ires` is an `integer` [return value](#Return_values.md) (positive on success).
+On input, `x` is an array of length `n` (the dimension of the problem from the `nlopt.opt` constructor) giving an initial guess for the optimization parameters. Upon successful return, `x` contains the optimized values of the optimization parameters and `minf` contains the optimized objective-function value. `ires` is an `integer` [return value](#return-values) (positive on success).
 
 ### Return values
 
-The possible return values are the same as the [return values in the C API](NLopt_Reference#Return_values.md), with the corresponding integer constants defined in the `nlopt.f` include file.
+The possible return values are the same as the [return values in the C API](NLopt_Reference.md#return-values), with the corresponding integer constants defined in the `nlopt.f` include file.
 
 Local/subsidiary optimization algorithm
 ---------------------------------------
@@ -329,14 +329,14 @@ nlo_set_local_optimizer(ires, opt, local_opt)
 ```
 
 
-Here, `local_opt` is another `nlopt_opt` object (`integer*8`) whose parameters are used to determine the local search algorithm, its stopping criteria, and other algorithm parameters. (However, the objective function, bounds, and nonlinear-constraint parameters of `local_opt` are ignored.) The dimension `n` of `local_opt` must match that of `opt`. `ires` is an `integer` [return value](#Return_values.md) (positive on success).
+Here, `local_opt` is another `nlopt_opt` object (`integer*8`) whose parameters are used to determine the local search algorithm, its stopping criteria, and other algorithm parameters. (However, the objective function, bounds, and nonlinear-constraint parameters of `local_opt` are ignored.) The dimension `n` of `local_opt` must match that of `opt`. `ires` is an `integer` [return value](#return-values) (positive on success).
 
 This function makes a copy of the `local_opt` object, so you can freely change or destroy your original `local_opt` afterwards without affecting `opt`.
 
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#Initial_step_size.md) for derivative-free optimization algorithms. The Fortran equivalents of the C functions are the following methods:
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference.md#initial-step-size) for derivative-free optimization algorithms. The Fortran equivalents of the C functions are the following methods:
 
 ```
 double precision x(n) dx(n), dx1
@@ -346,12 +346,12 @@ call nlo_get_initial_step(ires, opt, x, dx)
 ```
 
 
-Here, `dx` is an array of the (nonzero) initial steps for each dimension. For convenience, you can also pass a single number `dx1` to `nlo_set_initial_step1` if you wish to use the same initial steps for all dimensions. `nlo_get_initial_step` sets `dx` to the initial step that will be used for a starting guess of `x` in `nlo_optimize(ires,` `opt,` `x,` `minf)`. `ires` is an `integer` [return value](#Return_values.md) (positive on success)
+Here, `dx` is an array of the (nonzero) initial steps for each dimension. For convenience, you can also pass a single number `dx1` to `nlo_set_initial_step1` if you wish to use the same initial steps for all dimensions. `nlo_get_initial_step` sets `dx` to the initial step that will be used for a starting guess of `x` in `nlo_optimize(ires,` `opt,` `x,` `minf)`. `ires` is an `integer` [return value](#return-values) (positive on success)
 
 Stochastic population
 ---------------------
 
-Just as in the C API, you can [get and set the initial population](NLopt_Reference#Stochastic_population.md) for stochastic optimization algorithms, by the methods:
+Just as in the C API, you can [get and set the initial population](NLopt_Reference.md#stochastic-population) for stochastic optimization algorithms, by the methods:
 
 ```
 call nlo_set_population(ires, opt, ipop)
@@ -359,7 +359,7 @@ call nlo_get_population(ipop, opt)
 ```
 
 
-where `ipop` is an integer and `ires` is an `integer` [return value](#Return_values.md) (positive on success). (An `ipop` of zero implies that the heuristic default will be used.)
+where `ipop` is an integer and `ires` is an `integer` [return value](#return-values) (positive on success). (An `ipop` of zero implies that the heuristic default will be used.)
 
 Pseudorandom numbers
 --------------------
@@ -383,7 +383,7 @@ call nlosrt
 Vector storage for limited-memory quasi-Newton algorithms
 ---------------------------------------------------------
 
-Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference#Vector_storage_for_limited-memory_quasi-Newton_algorithms.md) for limited-memory quasi-Newton algorithms:
+Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms:
 
 ```
 call nlo_set_vector_storage(ires, opt, M)
