@@ -125,7 +125,7 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
      c = scratch + (n+1)*(n+1);
      xcur = c + n;
 
-     rb_tree_init(&t, simplex_compare);
+     nlopt_rb_tree_init(&t, simplex_compare);
 
      *fdiff = HUGE_VAL;
 
@@ -165,14 +165,14 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 
  restart:
      for (i = 0; i < n + 1; ++i)
-	  if (!rb_tree_insert(&t, pts + i*(n+1))) {
+	  if (!nlopt_rb_tree_insert(&t, pts + i*(n+1))) {
 	       ret = NLOPT_OUT_OF_MEMORY;
 	       goto done;
 	  }
 
      while (1) {
-	  rb_node *low = rb_tree_min(&t);
-	  rb_node *high = rb_tree_max(&t);
+	  rb_node *low = nlopt_rb_tree_min(&t);
+	  rb_node *high = nlopt_rb_tree_max(&t);
 	  double fl = low->k[0], *xl = low->k + 1;
 	  double fh = high->k[0], *xh = high->k + 1;
 	  double fr;
@@ -242,7 +242,7 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 		    memcpy(xh, xcur, sizeof(double)*n);
 	       }
 	  }
-	  else if (fr < rb_tree_pred(high)->k[0]) { /* accept new point */
+	  else if (fr < nlopt_rb_tree_pred(high)->k[0]) { /* accept new point */
 	       memcpy(xh, xcur, sizeof(double)*n);
 	       fh = fr;
 	  }
@@ -258,8 +258,8 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 		    fh = fc;
 	       }
 	       else { /* failed contraction, shrink simplex */
-		    rb_tree_destroy(&t);
-		    rb_tree_init(&t, simplex_compare);
+		    nlopt_rb_tree_destroy(&t);
+		    nlopt_rb_tree_init(&t, simplex_compare);
 		    for (i = 0; i < n+1; ++i) {
 			 double *pt = pts + i * (n+1);
 			 if (pt+1 != xl) {
@@ -276,11 +276,11 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  }
 
 	  high->k[0] = fh;
-	  rb_tree_resort(&t, high);
+	  nlopt_rb_tree_resort(&t, high);
      }
      
 done:
-     rb_tree_destroy(&t);
+     nlopt_rb_tree_destroy(&t);
      return ret;
 }
 

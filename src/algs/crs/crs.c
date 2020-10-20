@@ -124,8 +124,8 @@ static void random_trial(crs_data *d, double *x, rb_node *best)
 
 static nlopt_result crs_trial(crs_data *d)
 {
-     rb_node *best = rb_tree_min(&d->t);
-     rb_node *worst = rb_tree_max(&d->t);
+     rb_node *best = nlopt_rb_tree_min(&d->t);
+     rb_node *worst = nlopt_rb_tree_max(&d->t);
      int mutation = NUM_MUTATION;
      int i, n = d->n;
      random_trial(d, d->p + 1, best);
@@ -151,14 +151,14 @@ static nlopt_result crs_trial(crs_data *d)
 	  }
      } while (1);
      memcpy(worst->k, d->p, sizeof(double) * (n+1));
-     rb_tree_resort(&d->t, worst);
+     nlopt_rb_tree_resort(&d->t, worst);
      return NLOPT_SUCCESS;
 }
 
 static void crs_destroy(crs_data *d)
 {
      nlopt_sobol_destroy(d->s);
-     rb_tree_destroy(&d->t);
+     nlopt_rb_tree_destroy(&d->t);
      free(d->ps);
 }
 
@@ -190,7 +190,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
      d->ps = (double *) malloc(sizeof(double) * (n + 1) * (d->N + 1));
      if (!d->ps) return NLOPT_OUT_OF_MEMORY;
      d->p = d->ps + d->N * (n+1);
-     rb_tree_init(&d->t, crs_compare);
+     nlopt_rb_tree_init(&d->t, crs_compare);
 
      /* we can either use pseudorandom points, as in the original CRS
 	algorithm, or use a low-discrepancy Sobol' sequence ... I tried
@@ -204,7 +204,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
      memcpy(d->ps + 1, x, sizeof(double) * n);
      d->ps[0] = f(n, x, NULL, f_data);
      ++ *(stop->nevals_p);
-     if (!rb_tree_insert(&d->t, d->ps)) return NLOPT_OUT_OF_MEMORY;
+     if (!nlopt_rb_tree_insert(&d->t, d->ps)) return NLOPT_OUT_OF_MEMORY;
      if (d->ps[0] < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
      if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
      if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
@@ -219,7 +219,7 @@ static nlopt_result crs_init(crs_data *d, int n, const double *x,
 	  }
 	  k[0] = f(n, k + 1, NULL, f_data);
 	  ++ *(stop->nevals_p);
-	  if (!rb_tree_insert(&d->t, k)) return NLOPT_OUT_OF_MEMORY;
+	  if (!nlopt_rb_tree_insert(&d->t, k)) return NLOPT_OUT_OF_MEMORY;
 	  if (k[0] < stop->minf_max) return NLOPT_MINF_MAX_REACHED;
 	  if (nlopt_stop_evals(stop)) return NLOPT_MAXEVAL_REACHED;
 	  if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;	  
@@ -243,13 +243,13 @@ nlopt_result crs_minimize(int n, nlopt_func f, void *f_data,
      ret = crs_init(&d, n, x, lb, ub, stop, f, f_data, population, lds);
      if (ret < 0) return ret;
      
-     best = rb_tree_min(&d.t);
+     best = nlopt_rb_tree_min(&d.t);
      *minf = best->k[0];
      memcpy(x, best->k + 1, sizeof(double) * n);
 
      while (ret == NLOPT_SUCCESS) {
 	  if (NLOPT_SUCCESS == (ret = crs_trial(&d))) {
-	       best = rb_tree_min(&d.t);
+	       best = nlopt_rb_tree_min(&d.t);
 	       if (best->k[0] < *minf) {
 		    if (best->k[0] < stop->minf_max)
 			 ret = NLOPT_MINF_MAX_REACHED;

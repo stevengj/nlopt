@@ -58,18 +58,18 @@ int main(int argc, char **argv)
 
     N = atoi(argv[1]);
     k = (int *) malloc(N * sizeof(int));
-    rb_tree_init(&t, comp);
+    nlopt_rb_tree_init(&t, comp);
 
     srand((unsigned) (argc > 2 ? atoi(argv[2]) : time(NULL)));
     for (i = 0; i < N; ++i) {
         double *newk = (double *) malloc(sizeof(double));
         *newk = (k[i] = rand() % N);
-        if (!rb_tree_insert(&t, newk)) {
-            fprintf(stderr, "error in rb_tree_insert\n");
+        if (!nlopt_rb_tree_insert(&t, newk)) {
+            fprintf(stderr, "error in nlopt_rb_tree_insert\n");
             return 1;
         }
-        if (!rb_tree_check(&t)) {
-            fprintf(stderr, "rb_tree_check_failed after insert!\n");
+        if (!nlopt_rb_tree_check(&t)) {
+            fprintf(stderr, "nlopt_rb_tree_check_failed after insert!\n");
             return 1;
         }
     }
@@ -81,34 +81,34 @@ int main(int argc, char **argv)
 
     for (i = 0; i < N; ++i) {
         kd = k[i];
-        if (!rb_tree_find(&t, &kd)) {
-            fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
+        if (!nlopt_rb_tree_find(&t, &kd)) {
+            fprintf(stderr, "nlopt_rb_tree_find lost %d!\n", k[i]);
             return 1;
         }
     }
 
-    n = rb_tree_min(&t);
+    n = nlopt_rb_tree_min(&t);
     for (i = 0; i < N; ++i) {
         if (!n) {
             fprintf(stderr, "not enough successors %d\n!", i);
             return 1;
         }
         printf("%d: %g\n", i, n->k[0]);
-        n = rb_tree_succ(n);
+        n = nlopt_rb_tree_succ(n);
     }
     if (n) {
         fprintf(stderr, "too many successors!\n");
         return 1;
     }
 
-    n = rb_tree_max(&t);
+    n = nlopt_rb_tree_max(&t);
     for (i = 0; i < N; ++i) {
         if (!n) {
             fprintf(stderr, "not enough predecessors %d\n!", i);
             return 1;
         }
         printf("%d: %g\n", i, n->k[0]);
-        n = rb_tree_pred(n);
+        n = nlopt_rb_tree_pred(n);
     }
     if (n) {
         fprintf(stderr, "too many predecessors!\n");
@@ -125,17 +125,17 @@ int main(int argc, char **argv)
         if (i >= N)
             abort();
         kd = k[i];
-        if (!(n = rb_tree_find(&t, &kd))) {
-            fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
+        if (!(n = nlopt_rb_tree_find(&t, &kd))) {
+            fprintf(stderr, "nlopt_rb_tree_find lost %d!\n", k[i]);
             return 1;
         }
         n->k[0] = knew;
-        if (!rb_tree_resort(&t, n)) {
-            fprintf(stderr, "error in rb_tree_resort\n");
+        if (!nlopt_rb_tree_resort(&t, n)) {
+            fprintf(stderr, "error in nlopt_rb_tree_resort\n");
             return 1;
         }
-        if (!rb_tree_check(&t)) {
-            fprintf(stderr, "rb_tree_check_failed after change %d!\n", N - M + 1);
+        if (!nlopt_rb_tree_check(&t)) {
+            fprintf(stderr, "nlopt_rb_tree_check_failed after change %d!\n", N - M + 1);
             return 1;
         }
         k[i] = -1 - knew;
@@ -153,9 +153,9 @@ int main(int argc, char **argv)
         rb_node *le, *gt;
         double lek, gtk;
         kd = 0.01 * (rand() % (N * 150) - N * 25);
-        le = rb_tree_find_le(&t, &kd);
-        gt = rb_tree_find_gt(&t, &kd);
-        n = rb_tree_min(&t);
+        le = nlopt_rb_tree_find_le(&t, &kd);
+        gt = nlopt_rb_tree_find_gt(&t, &kd);
+        n = nlopt_rb_tree_min(&t);
         lek = le ? le->k[0] : -HUGE_VAL;
         gtk = gt ? gt->k[0] : +HUGE_VAL;
         printf("%g <= %g < %g\n", lek, kd, gtk);
@@ -172,14 +172,14 @@ int main(int argc, char **argv)
             rb_node *succ = n;
             do {
                 n = succ;
-                succ = rb_tree_succ(n);
+                succ = nlopt_rb_tree_succ(n);
             } while (succ && succ->k[0] <= kd);
             if (n != le) {
-                fprintf(stderr, "rb_tree_find_le gave wrong result for k=%g\n", kd);
+                fprintf(stderr, "nlopt_rb_tree_find_le gave wrong result for k=%g\n", kd);
                 return 1;
             }
             if (succ != gt) {
-                fprintf(stderr, "rb_tree_find_gt gave wrong result for k=%g\n", kd);
+                fprintf(stderr, "nlopt_rb_tree_find_gt gave wrong result for k=%g\n", kd);
                 return 1;
             }
         }
@@ -194,15 +194,15 @@ int main(int argc, char **argv)
         if (i >= N)
             abort();
         kd = k[i];
-        if (!(n = rb_tree_find(&t, &kd))) {
-            fprintf(stderr, "rb_tree_find lost %d!\n", k[i]);
+        if (!(n = nlopt_rb_tree_find(&t, &kd))) {
+            fprintf(stderr, "nlopt_rb_tree_find lost %d!\n", k[i]);
             return 1;
         }
-        n = rb_tree_remove(&t, n);
+        n = nlopt_rb_tree_remove(&t, n);
         free(n->k);
         free(n);
-        if (!rb_tree_check(&t)) {
-            fprintf(stderr, "rb_tree_check_failed after remove!\n");
+        if (!nlopt_rb_tree_check(&t)) {
+            fprintf(stderr, "nlopt_rb_tree_check_failed after remove!\n");
             return 1;
         }
         k[i] = -1 - k[i];
@@ -213,7 +213,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    rb_tree_destroy(&t);
+    nlopt_rb_tree_destroy(&t);
     free(k);
 
     printf("SUCCESS.\n");

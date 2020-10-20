@@ -185,14 +185,14 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       }
 	  }
 	  sort_fv(n, fv, isort);
-	  if (!(node = rb_tree_find(&p->rtree, rdiv)))
+	  if (!(node = nlopt_rb_tree_find(&p->rtree, rdiv)))
 	       return NLOPT_FAILURE;
 	  for (i = 0; i < nlongest; ++i) {
 	       int k;
 	       w[isort[i]] *= THIRD;
 	       rdiv[0] = rect_diameter(n, w, p);
 	       rdiv[2] = p->age++;
-	       node = rb_tree_resort(&p->rtree, node);
+	       node = nlopt_rb_tree_resort(&p->rtree, node);
 	       for (k = 0; k <= 1; ++k) {
 		    double *rnew;
 		    ALLOC_RECT(rnew, L);
@@ -200,7 +200,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 		    rnew[3 + isort[i]] += w[isort[i]] * (2*k-1);
 		    rnew[1] = fv[2*isort[i]+k];
 		    rnew[2] = p->age++;
-		    if (!rb_tree_insert(&p->rtree, rnew)) {
+		    if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
 			 free(rnew);
 			 return NLOPT_OUT_OF_MEMORY;
 		    }
@@ -220,12 +220,12 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	  }
 	  else
 	       i = imax; /* trisect longest side */
-	  if (!(node = rb_tree_find(&p->rtree, rdiv)))
+	  if (!(node = nlopt_rb_tree_find(&p->rtree, rdiv)))
 	       return NLOPT_FAILURE;
 	  w[i] *= THIRD;
 	  rdiv[0] = rect_diameter(n, w, p);
 	  rdiv[2] = p->age++;
-	  node = rb_tree_resort(&p->rtree, node);
+	  node = nlopt_rb_tree_resort(&p->rtree, node);
 	  for (k = 0; k <= 1; ++k) {
 	       double *rnew;
 	       ALLOC_RECT(rnew, L);
@@ -233,7 +233,7 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       rnew[3 + i] += w[i] * (2*k-1);
 	       FUNCTION_EVAL(rnew[1], rnew + 3, p, rnew);
 	       rnew[2] = p->age++;
-	       if (!rb_tree_insert(&p->rtree, rnew)) {
+	       if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
 		    free(rnew);
 		    return NLOPT_OUT_OF_MEMORY;
 	       }
@@ -267,9 +267,9 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 
      /* Monotone chain algorithm [Andrew, 1979]. */
 
-     n = rb_tree_min(t);
+     n = nlopt_rb_tree_min(t);
      if (!n) return 0;
-     nmax = rb_tree_max(t);
+     nmax = nlopt_rb_tree_max(t);
 
      xmin = n->k[0];
      yminmin = n->k[1];
@@ -278,7 +278,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
      if (allow_dups)
 	  do { /* include any duplicate points at (xmin,yminmin) */
 	       hull[nhull++] = n->k;
-	       n = rb_tree_succ(n);
+	       n = nlopt_rb_tree_succ(n);
 	  } while (n && n->k[0] == xmin && n->k[1] == yminmin);
      else
 	  hull[nhull++] = n->k;
@@ -288,15 +288,15 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
      /* set nmax = min mode with x == xmax */
 #if 0
      while (nmax->k[0] == xmax)
-	  nmax = rb_tree_pred(nmax); /* non-NULL since xmin != xmax */
-     nmax = rb_tree_succ(nmax);
+	  nmax = nlopt_rb_tree_pred(nmax); /* non-NULL since xmin != xmax */
+     nmax = nlopt_rb_tree_succ(nmax);
 #else
      /* performance hack (see also below) */
      {
 	  double kshift[2];
 	  kshift[0] = xmax * (1 - 1e-13);
 	  kshift[1] = -HUGE_VAL;
-	  nmax = rb_tree_find_gt(t, kshift); /* non-NULL since xmin != xmax */
+	  nmax = nlopt_rb_tree_find_gt(t, kshift); /* non-NULL since xmin != xmax */
      }
 #endif
 
@@ -306,18 +306,18 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
      /* set n = first node with x != xmin */
 #if 0
      while (n->k[0] == xmin)
-	  n = rb_tree_succ(n); /* non-NULL since xmin != xmax */
+	  n = nlopt_rb_tree_succ(n); /* non-NULL since xmin != xmax */
 #else
      /* performance hack (see also below) */
      {
 	  double kshift[2];
 	  kshift[0] = xmin * (1 + 1e-13);
 	  kshift[1] = -HUGE_VAL;
-	  n = rb_tree_find_gt(t, kshift); /* non-NULL since xmin != xmax */
+	  n = nlopt_rb_tree_find_gt(t, kshift); /* non-NULL since xmin != xmax */
      }
 #endif
 
-     for (; n != nmax; n = rb_tree_succ(n)) { 
+     for (; n != nmax; n = nlopt_rb_tree_succ(n)) { 
 	  double *k = n->k;
 	  if (k[1] > yminmin + (k[0] - xmin) * minslope)
 	       continue;
@@ -333,7 +333,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 		       that k[0] > 0 always in DIRECT */
 		    kshift[0] = k[0] * (1 + 1e-13);
 		    kshift[1] = -HUGE_VAL;
-		    n = rb_tree_pred(rb_tree_find_gt(t, kshift));
+		    n = nlopt_rb_tree_pred(nlopt_rb_tree_find_gt(t, kshift));
 		    continue;
 	       }
 	       else { /* equal y values, add to hull */
@@ -369,7 +369,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
      if (allow_dups)
 	  do { /* include any duplicate points at (xmax,ymaxmin) */
 	       hull[nhull++] = nmax->k;
-	       nmax = rb_tree_succ(nmax);
+	       nmax = nlopt_rb_tree_succ(nmax);
 	  } while (nmax && nmax->k[0] == xmax && nmax->k[1] == ymaxmin);
      else
 	  hull[nhull++] = nmax->k;
@@ -444,12 +444,12 @@ static nlopt_result divide_good_rects(params *p)
 		  to time, and the heuristic here seems to work well,
 		  but I don't recall this situation being discussed in
 		  the references?) */
-	       rb_node *max = rb_tree_max(&p->rtree);
+	       rb_node *max = nlopt_rb_tree_max(&p->rtree);
 	       rb_node *pred = max;
 	       double wmax = max->k[0];
 	       do { /* note: this loop is O(N) worst-case time */
 		    max = pred;
-		    pred = rb_tree_pred(max);
+		    pred = nlopt_rb_tree_pred(max);
 	       } while (pred && pred->k[0] == wmax);
 	       return divide_rect(max->k, p);
 	  }
@@ -502,7 +502,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      p.hull = 0;
      p.age = 0;
 
-     rb_tree_init(&p.rtree, cdirect_hyperrect_compare);
+     nlopt_rb_tree_init(&p.rtree, cdirect_hyperrect_compare);
 
      p.work = (double *) malloc(sizeof(double) * (2*n));
      if (!p.work) goto done;
@@ -520,7 +520,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      rnew[0] = rect_diameter(n, rnew+3+n, &p);
      rnew[1] = function_eval(rnew+3, &p);
      rnew[2] = p.age++;
-     if (!rb_tree_insert(&p.rtree, rnew)) {
+     if (!nlopt_rb_tree_insert(&p.rtree, rnew)) {
 	  free(rnew);
 	  goto done;
      }
@@ -539,7 +539,7 @@ nlopt_result cdirect_unscaled(int n, nlopt_func f, void *f_data,
      }
 
  done:
-     rb_tree_destroy_with_keys(&p.rtree);
+     nlopt_rb_tree_destroy_with_keys(&p.rtree);
      free(p.hull);
      free(p.iwork);
      free(p.work);
