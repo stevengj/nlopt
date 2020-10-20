@@ -33,7 +33,7 @@ rb_node nil = { &nil, &nil, &nil, 0, BLACK };
 
 #define NIL (&nil)
 
-void rb_tree_init(rb_tree * t, rb_compare compare)
+void nlopt_rb_tree_init(rb_tree * t, rb_compare compare)
 {
     t->compare = compare;
     t->root = NIL;
@@ -49,21 +49,21 @@ static void destroy(rb_node * n)
     }
 }
 
-void rb_tree_destroy(rb_tree * t)
+void nlopt_rb_tree_destroy(rb_tree * t)
 {
     destroy(t->root);
     t->root = NIL;
 }
 
-void rb_tree_destroy_with_keys(rb_tree * t)
+void nlopt_rb_tree_destroy_with_keys(rb_tree * t)
 {
-    rb_node *n = rb_tree_min(t);
+    rb_node *n = nlopt_rb_tree_min(t);
     while (n) {
         free(n->k);
         n->k = NULL;
-        n = rb_tree_succ(n);
+        n = nlopt_rb_tree_succ(n);
     }
-    rb_tree_destroy(t);
+    nlopt_rb_tree_destroy(t);
 }
 
 static void rotate_left(rb_node * p, rb_tree * t)
@@ -166,7 +166,7 @@ static void insert_node(rb_tree * t, rb_node * n)
     }
 }
 
-rb_node *rb_tree_insert(rb_tree * t, rb_key k)
+rb_node *nlopt_rb_tree_insert(rb_tree * t, rb_key k)
 {
     rb_node *n = (rb_node *) malloc(sizeof(rb_node));
     if (!n)
@@ -206,7 +206,7 @@ static int check_node(rb_node * n, int *nblack, rb_tree * t)
     return 1;
 }
 
-int rb_tree_check(rb_tree * t)
+int nlopt_rb_tree_check(rb_tree * t)
 {
     int nblack;
     if (nil.c != BLACK)
@@ -220,7 +220,7 @@ int rb_tree_check(rb_tree * t)
     return check_node(t->root, &nblack, t);
 }
 
-rb_node *rb_tree_find(rb_tree * t, rb_key k)
+rb_node *nlopt_rb_tree_find(rb_tree * t, rb_key k)
 {
     rb_compare compare = t->compare;
     rb_node *p = t->root;
@@ -251,7 +251,7 @@ static rb_node *find_le(rb_node * p, rb_key k, rb_tree * t)
 }
 
 /* find greatest point in t <= k */
-rb_node *rb_tree_find_le(rb_tree * t, rb_key k)
+rb_node *nlopt_rb_tree_find_le(rb_tree * t, rb_key k)
 {
     return find_le(t->root, k, t);
 }
@@ -274,7 +274,7 @@ static rb_node *find_lt(rb_node * p, rb_key k, rb_tree * t)
 }
 
 /* find greatest point in t < k */
-rb_node *rb_tree_find_lt(rb_tree * t, rb_key k)
+rb_node *nlopt_rb_tree_find_lt(rb_tree * t, rb_key k)
 {
     return find_lt(t->root, k, t);
 }
@@ -297,12 +297,12 @@ static rb_node *find_gt(rb_node * p, rb_key k, rb_tree * t)
 }
 
 /* find least point in t > k */
-rb_node *rb_tree_find_gt(rb_tree * t, rb_key k)
+rb_node *nlopt_rb_tree_find_gt(rb_tree * t, rb_key k)
 {
     return find_gt(t->root, k, t);
 }
 
-rb_node *rb_tree_min(rb_tree * t)
+rb_node *nlopt_rb_tree_min(rb_tree * t)
 {
     rb_node *n = t->root;
     while (n != NIL && n->l != NIL)
@@ -310,7 +310,7 @@ rb_node *rb_tree_min(rb_tree * t)
     return (n == NIL ? NULL : n);
 }
 
-rb_node *rb_tree_max(rb_tree * t)
+rb_node *nlopt_rb_tree_max(rb_tree * t)
 {
     rb_node *n = t->root;
     while (n != NIL && n->r != NIL)
@@ -318,7 +318,7 @@ rb_node *rb_tree_max(rb_tree * t)
     return (n == NIL ? NULL : n);
 }
 
-rb_node *rb_tree_succ(rb_node * n)
+rb_node *nlopt_rb_tree_succ(rb_node * n)
 {
     if (!n)
         return NULL;
@@ -337,7 +337,7 @@ rb_node *rb_tree_succ(rb_node * n)
     }
 }
 
-rb_node *rb_tree_pred(rb_node * n)
+rb_node *nlopt_rb_tree_pred(rb_node * n)
 {
     if (!n)
         return NULL;
@@ -356,7 +356,7 @@ rb_node *rb_tree_pred(rb_node * n)
     }
 }
 
-rb_node *rb_tree_remove(rb_tree * t, rb_node * n)
+rb_node *nlopt_rb_tree_remove(rb_tree * t, rb_node * n)
 {
     rb_key k = n->k;
     rb_node *m, *mp;
@@ -434,9 +434,9 @@ rb_node *rb_tree_remove(rb_tree * t, rb_node * n)
     return n;                   /* the node that was deleted may be different from initial n */
 }
 
-rb_node *rb_tree_resort(rb_tree * t, rb_node * n)
+rb_node *nlopt_rb_tree_resort(rb_tree * t, rb_node * n)
 {
-    n = rb_tree_remove(t, n);
+    n = nlopt_rb_tree_remove(t, n);
     insert_node(t, n);
     return n;
 }
@@ -452,7 +452,7 @@ static void shift_keys(rb_node * n, ptrdiff_t kshift)
         shift_keys(n->r, kshift);
 }
 
-void rb_tree_shift_keys(rb_tree * t, ptrdiff_t kshift)
+void nlopt_rb_tree_shift_keys(rb_tree * t, ptrdiff_t kshift)
 {
     if (t->root != NIL)
         shift_keys(t->root, kshift);

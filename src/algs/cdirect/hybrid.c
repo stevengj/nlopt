@@ -138,7 +138,7 @@ static nlopt_result divide_largest(params *p)
 {
      int L = p->L;
      int n = p->n;
-     rb_node *node = rb_tree_max(&p->rtree); /* just using it as a heap */
+     rb_node *node = nlopt_rb_tree_max(&p->rtree); /* just using it as a heap */
      double minf_start = p->minf;
      double *r = node->k, *rnew = NULL;
      double *x = r + 3, *c = x + n, *w = c + n;
@@ -179,7 +179,7 @@ static nlopt_result divide_largest(params *p)
 	  r[0] = longest(n, w); /* new diameter */
 	  /* r[1] unchanged since still contains local optimum x */
 	  r[2] = p->age--;
-	  node = rb_tree_resort(&p->rtree, node);
+	  node = nlopt_rb_tree_resort(&p->rtree, node);
 
 	  rnew = (double *) malloc(sizeof(double) * L);
 	  if (!rnew) return NLOPT_OUT_OF_MEMORY;
@@ -192,7 +192,7 @@ static nlopt_result divide_largest(params *p)
 	       memcpy(rnew+3, rnew+3+n, sizeof(double) * n); /* x = c */
 	  ret = optimize_rect(rnew, p);
 	  if (ret != NLOPT_SUCCESS) { free(rnew); return ret; }
-	  if (!rb_tree_insert(&p->rtree, rnew)) {
+	  if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
 	       free(rnew); return NLOPT_OUT_OF_MEMORY;
 	  }
      }
@@ -201,7 +201,7 @@ static nlopt_result divide_largest(params *p)
 	  r[0] = longest(n, w);
 	  /* r[1] unchanged since still contains local optimum x */
 	  r[2] = p->age--;
-	  node = rb_tree_resort(&p->rtree, node);
+	  node = nlopt_rb_tree_resort(&p->rtree, node);
 
 	  for (i = -1; i <= +1; i += 2) {
 	       rnew = (double *) malloc(sizeof(double) * L);
@@ -215,7 +215,7 @@ static nlopt_result divide_largest(params *p)
 		    memcpy(rnew+3, rnew+3+n, sizeof(double) * n); /* x = c */
 	       ret = optimize_rect(rnew, p);
 	       if (ret != NLOPT_SUCCESS) { free(rnew); return ret; }
-	       if (!rb_tree_insert(&p->rtree, rnew)) {
+	       if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
 		    free(rnew); return NLOPT_OUT_OF_MEMORY;
 	       }
 	  }
@@ -254,7 +254,7 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
      p.randomized_div = randomized_div;
      p.local_opt = 0;
 
-     rb_tree_init(&p.rtree, cdirect_hyperrect_compare);
+     nlopt_rb_tree_init(&p.rtree, cdirect_hyperrect_compare);
      p.work = (double *) malloc(sizeof(double) * (2*n));
      if (!p.work) goto done;
 
@@ -289,14 +289,14 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
 
      ret = optimize_rect(rnew, &p);
      if (ret != NLOPT_SUCCESS) { free(rnew); goto done; }
-     if (!rb_tree_insert(&p.rtree, rnew)) { free(rnew); goto done; }
+     if (!nlopt_rb_tree_insert(&p.rtree, rnew)) { free(rnew); goto done; }
 
      do {
 	  ret = divide_largest(&p);
      } while (ret == NLOPT_SUCCESS);
 
  done:
-     rb_tree_destroy_with_keys(&p.rtree);
+     nlopt_rb_tree_destroy_with_keys(&p.rtree);
      free(p.work);
      nlopt_destroy(p.local_opt);
 
