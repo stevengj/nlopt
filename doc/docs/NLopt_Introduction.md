@@ -4,6 +4,8 @@
 
 In this chapter of the manual, we begin by giving a general overview of the optimization problems that NLopt solves, the key distinctions between different types of optimization algorithms, and comment on ways to cast various problems in the form NLopt requires. We also describe the background and goals of NLopt.
 
+[TOC]
+
 Optimization problems
 ---------------------
 
