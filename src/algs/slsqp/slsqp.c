@@ -2052,8 +2052,11 @@ L190:
     *mode = line == 1 ? -2 : 1;
     goto L330;
 L200:
+    if (line > 10) {
+            goto L240;
+    }
     if (nlopt_isfinite(h1)) {
-	    if (h1 <= h3 / ten || line > 10) {
+	    if (h1 <= h3 / ten) {
 		    goto L240;
 	    }
 	    /* Computing MAX */
@@ -2092,7 +2095,12 @@ L220:
 	}
 /* Computing MAX */
 	d__1 = -c__[j];
-	t += mu[j] * MAX2(d__1,h1);
+	if (nlopt_isfinite(d__1)) {
+	  t += mu[j] * MAX2(d__1,h1);
+	} else {
+	  t = d__1;
+	  break;
+	}
 /* L230: */
     }
     h1 = t - t0;
