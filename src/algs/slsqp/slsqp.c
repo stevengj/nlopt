@@ -1865,6 +1865,12 @@ static void slsqpb_(int *m, int *meq, int *la, int *
 
     /* Function Body */
     if (*mode == -1) {
+	    i__1 = *n;
+	    for (i__ = 1; i__ <= i__1; ++i__) {
+		    /* We may have jumped back to an earlier point in the line
+		       search (not the most recent point) */
+		    s[i__] = x[i__] - x0[i__];
+	    }
 	goto L260;
     } else if (*mode == 0) {
 	goto L100;
