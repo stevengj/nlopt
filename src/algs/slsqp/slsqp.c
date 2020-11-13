@@ -1922,8 +1922,25 @@ L130:
     dcopy___(n, &xu[1], 1, &v[1], 1);
     d__1 = -one;
     daxpy_sl__(n, &d__1, &x[1], 1, &u[1], 1);
-    d__1 = -one;
     daxpy_sl__(n, &d__1, &x[1], 1, &v[1], 1);
+    /* Smooth box constraints when determining search direction.
+       Otherwise the search magnitude for bounded parameters is
+       scaled down in consideration of proximity to bounds. When
+       other parameters are unbounded then the bounded parameters
+       may be updated much too slowly. Here we approach the bounded
+       space gradually from the unbounded space. */
+    double away = ddot_sl__(n, &g[1], 1, &g[1], 1);
+    for (j = 1; j <= *m; ++j) {
+      if (j <= *meq) {
+        away += fabs(c__[j]);
+      } else {
+        away += MAX2(-c__[j], 0.0);
+      }
+    }
+    d__1 = 1.0 + away / MAX2(*f * 10, 1.0);
+    //printf("bound scale %f %f %f @%d\n", away, MAX2(*f, 1.0), d__1, d__1 <= 1 + 1e-4);
+    dscal_sl__(n, &d__1, &u[1], 1);
+    dscal_sl__(n, &d__1, &v[1], 1);
     h4 = one;
     lsq_(m, meq, n, &n3, la, &l[1], &g[1], &a[a_offset], &c__[1], &u[1], &v[1]
 	    , &s[1], &r__[1], &w[1], &iw[1], mode);
