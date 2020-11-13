@@ -1775,7 +1775,7 @@ typedef struct {
     double alpha;
     int iexact;
     int incons, ireset, itermx;
-    double *x0;
+    double *x0;   /* point at start of major iteration */
 } slsqpb_state;
 
 #define SS(var) state->var = var
@@ -1825,12 +1825,14 @@ static void slsqpb_(int *m, int *meq, int *la, int *
 
     /* saved state from one call to the next;
        SGJ 2010: save/restore via state parameter, to make re-entrant. */
-    double t, f0, h1, h2, h3, h4;
+    double t, f0, h2, h4;
+    double h1;     /* improvement compared to major iter */
+    double h3;     /* expected improvement */
     int n1, n2, n3;
     double t0, gs;
     double tol;
-    int line;
-    double alpha;
+    int line;     /* count of minor iterations */
+    double alpha; /* line search step scalar */
     int iexact;
     int incons, ireset, itermx;
     RESTORE_STATE;
