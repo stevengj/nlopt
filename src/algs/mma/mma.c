@@ -160,7 +160,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
      double infeasibility;
      unsigned mfc;
 
-	 verbose = MAX(ccsa_verbose, verbose);
+	 verbose = MAX(mma_verbose, verbose);
 
      m = nlopt_count_constraints(mfc = m, fc);
      if (nlopt_get_dimension(dual_opt) != m) {
