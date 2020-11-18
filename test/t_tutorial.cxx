@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cmath>
 #include <iomanip>
 #include <nlopt.hpp>
 
@@ -57,7 +58,7 @@ int main() {
     opt.optimize(x, minf);
     std::cout << "found minimum at f(" << x[0] << "," << x[1] << ") = "
               << std::setprecision(10) << minf <<std::endl;
-    return EXIT_SUCCESS;
+    return std::fabs(minf - 0.5443310474) < 1e-3 ? EXIT_SUCCESS : EXIT_FAILURE;
   }
   catch(std::exception &e) {
     std::cerr << "nlopt failed: " << e.what() << std::endl;
