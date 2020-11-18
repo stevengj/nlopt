@@ -236,6 +236,20 @@ Request the number of evaluations.
 
 In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. You can do this by raising *any* exception inside your objective/constraint functions:the optimization will be halted gracefully, and the same exception will be raised to the caller. See [Exceptions](#exceptions), below. The Python equivalent of `nlopt_forced_stop` from the [C API](NLopt_Reference.md#forced-termination) is to throw an `nlopt.ForcedStop` exception.
 
+Algorithm-specific parameters
+-----------------------------
+
+Certain NLopt optimization algorithms allow you to specify additional parameters by calling
+```py
+opt.set_param("name", val);
+opt.has_param("name");
+opt.get_param("name", defaultval);
+opt.num_params();
+opt.nth_param(n);
+```
+where the string `"name"` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference#Algorithm-specific_parameters.md) functions of the corresponding names.
+
+
 Performing the optimization
 ---------------------------
 
