@@ -287,7 +287,7 @@ nlopt_result nlopt_set_param(nlopt_opt opt, const char *name, double val) {
     return NLOPT_SUCCESS;
 }
 
-double nlopt_get_param(nlopt_opt opt, const char *name, double defaultval)
+double nlopt_get_param(const nlopt_opt opt, const char *name, double defaultval)
 {
     unsigned i;
     if (!opt || !name || strnlen(name, 1024) == 1024) return defaultval;
@@ -297,7 +297,7 @@ double nlopt_get_param(nlopt_opt opt, const char *name, double defaultval)
     return defaultval;
 }
 
-int nlopt_has_param(nlopt_opt opt, const char *name)
+int nlopt_has_param(const nlopt_opt opt, const char *name)
 {
     unsigned i;
     if (!opt || !name || strnlen(name, 1024) == 1024) return 0;
@@ -307,12 +307,12 @@ int nlopt_has_param(nlopt_opt opt, const char *name)
     return 0;
 }
 
-unsigned nlopt_num_params(nlopt_opt opt)
+unsigned nlopt_num_params(const nlopt_opt opt)
 {
     return opt ? opt->nparams : 0;
 }
 
-const char *nlopt_nth_param(nlopt_opt opt, unsigned n)
+const char *nlopt_nth_param(const nlopt_opt opt, unsigned n)
 {
     return opt && n < opt->nparams ? opt->params[n].name : NULL;
 }

@@ -435,10 +435,10 @@ namespace nlopt {
     }
 
     void set_param(const char *name, double val) { mythrow(nlopt_set_param(o, name, val)); }
-    double get_param(const char *name, double defaultval) { return nlopt_get_param(o, name, defaultval); }
-    bool has_param(const char *name) { return bool(nlopt_has_param(o, name)); }
-    const char *nth_param(unsigned n) { return nlopt_nth_param(o, n); }
-    unsigned num_params() { return nlopt_num_params(o); }
+    double get_param(const char *name, double defaultval) const { return nlopt_get_param(o, name, defaultval); }
+    bool has_param(const char *name) const { return bool(nlopt_has_param(o, name)); }
+    const char *nth_param(unsigned n) const { return nlopt_nth_param(o, n); }
+    unsigned num_params() const { return nlopt_num_params(o); }
 
 #define NLOPT_GETSET_VEC(name)						\
     void set_##name(double val) {					\
