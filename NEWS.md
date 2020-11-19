@@ -1,5 +1,13 @@
 # NLopt Release Notes
 
+## NLopt 2.7
+
+18 November 2020
+
+* New `nlopt_set_param` API for setting internal algorithm parameters ([#365]).
+
+* Avoid library-symbol conflicts ([#355], [#361])
+
 ## NLopt 2.6.2
 
 15 April 2020
@@ -453,3 +461,6 @@
 [#314]: https://github.com/stevengj/nlopt/issues/314
 [#317]: https://github.com/stevengj/nlopt/issues/317
 [#319]: https://github.com/stevengj/nlopt/issues/319
+[#319]: https://github.com/stevengj/nlopt/issues/355
+[#319]: https://github.com/stevengj/nlopt/issues/361
+[#319]: https://github.com/stevengj/nlopt/issues/365
