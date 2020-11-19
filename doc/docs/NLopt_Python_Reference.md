@@ -247,7 +247,7 @@ opt.get_param("name", defaultval);
 opt.num_params();
 opt.nth_param(n);
 ```
-where the string `"name"` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference#Algorithm-specific_parameters.md) functions of the corresponding names.
+where the string `"name"` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference#algorithm-specific-parameters) functions of the corresponding names.
 
 
 Performing the optimization
@@ -301,7 +301,7 @@ Ran out of memory (a memory allocation failed), equivalent to `NLOPT_OUT_OF_MEMO
 Halted because roundoff errors limited progress, equivalent to `NLOPT_ROUNDOFF_LIMITED`.
 
 `nlopt.ForcedStop` (subclass of `Exception`)
-Halted because of a [forced termination](#Forced_termination.md): the user called `opt.force_stop()` from the user’s objective function or threw an `nlopt.ForcedStop` exception. Equivalent to `NLOPT_FORCED_STOP`.
+Halted because of a [forced termination](#forced-termination): the user called `opt.force_stop()` from the user’s objective function or threw an `nlopt.ForcedStop` exception. Equivalent to `NLOPT_FORCED_STOP`.
 
 If your objective/constraint functions throw *any* exception during the execution of `opt.optimize`, it will be caught by NLopt and the optimization will be halted gracefully, and `opt.optimize` will re-throw the *same* exception to its caller.
 
@@ -321,7 +321,7 @@ This function makes a copy of the `local_opt` object, so you can freely change y
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#Initial_step_size.md) for derivative-free optimization algorithms. The Python equivalents of the C functions are the following methods:
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. The Python equivalents of the C functions are the following methods:
 
 ```py
 opt.set_initial_step(dx)

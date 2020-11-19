@@ -100,7 +100,7 @@ for unknown vectors **z**. You could then pass **z** as the optimization paramet
 
 #### Penalty functions
 
-Another popular approach to equality constraints (and inequality constraints, for that matter) is to include some sort of **penalty function** in the objective function, which penalizes **x** values that violate the constraints. A standard technique of this sort is known as the **augmented Lagrangian** approach, and a variant of this approach is implemented in NLopt's [AUGLAG algorithm](NLopt_Algorithms#Augmented_Lagrangian_algorithm.md).
+Another popular approach to equality constraints (and inequality constraints, for that matter) is to include some sort of **penalty function** in the objective function, which penalizes **x** values that violate the constraints. A standard technique of this sort is known as the **augmented Lagrangian** approach, and a variant of this approach is implemented in NLopt's [AUGLAG algorithm](NLopt_Algorithms#augmented-lagrangian-algorithm).
 
 (For inequality constraints, a variant of the penalty idea is a **barrier method**: this is simply a penalty that diverges as you approach the constraint, which forces the optimization to stay within the feasible region.)
 
@@ -129,7 +129,7 @@ If you don't want to use a particular tolerance termination, you can just set th
 
 Another termination test that NLopt supports is that you can tell the optimization to stop when the objective function value *f*(**x**) reaches some specified value, `stopval`, for any feasible point **x**.
 
-This termination test is especially useful when [comparing algorithms](NLopt_Algorithms#Comparing_algorithms.md) for a given problem. After running one algorithm for a long time to find the minimum to the desired accuracy, you can ask how many iterations algorithms require to obtain the optimum to the same accuracy or to some better accuracy.
+This termination test is especially useful when [comparing algorithms](NLopt_Algorithms#comparing-algorithms) for a given problem. After running one algorithm for a long time to find the minimum to the desired accuracy, you can ask how many iterations algorithms require to obtain the optimum to the same accuracy or to some better accuracy.
 
 ### Bounds on function evaluations and wall-clock time
 
@@ -147,7 +147,7 @@ Because of this, the most reasonable termination criterion for global optimizati
 
 I would advise you *not* to use function-value (ftol) or parameter tolerances (xtol) in global optimization. I made a half-hearted attempt to implement these tests in the various global-optimization algorithms, but it doesn't seem like there is any really satisfactory way to go about this, and I can't claim that my choices were especially compelling.
 
-For the [MLSL](NLopt_Algorithms#MLSL_(Multi-Level_Single-Linkage).md) algorithm, you need to set the ftol and xtol [parameters of the local optimization algorithm](NLopt_Reference#Local/subsidiary_optimization_algorithm.md) control the tolerances of the *local* searches, *not* of the global search; you should definitely set these, lest the algorithm spend an excessive amount of time trying to run local searches to machine precision.
+For the [MLSL](NLopt_Algorithms#mlsl-multi-level-single-linkage) algorithm, you need to set the ftol and xtol [parameters of the local optimization algorithm](NLopt_Reference#localsubsidiary-optimization-algorithm) control the tolerances of the *local* searches, *not* of the global search; you should definitely set these, lest the algorithm spend an excessive amount of time trying to run local searches to machine precision.
 
 Background and goals of NLopt
 -----------------------------
