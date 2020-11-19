@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 /* In this file we implement Svanberg's CCSA algorithm with the
@@ -26,7 +26,7 @@
    We also allow the user to specify an optional "preconditioner": an
    approximate Hessian (which must be symmetric & positive
    semidefinite) that can be added into the approximation.  [X. Liang
-   and I went through the convergence proof in Svanberg's paper 
+   and I went through the convergence proof in Svanberg's paper
    and it does not seem to be modified by such preconditioning, as
    long as the preconditioner eigenvalues are bounded above for all x.]
 
@@ -80,7 +80,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 {
      dual_data *d = (dual_data *) d_;
      unsigned n = d->n;
-     const double *x = d->x, *lb = d->lb, *ub = d->ub, *sigma = d->sigma, 
+     const double *x = d->x, *lb = d->lb, *ub = d->ub, *sigma = d->sigma,
 	  *dfdx = d->dfdx;
      const double *dfcdx = d->dfcdx;
      double rho = d->rho, fval = d->fval;
@@ -94,7 +94,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 
      val = d->gval = fval;
      d->wval = 0;
-     for (i = 0; i < m; ++i) 
+     for (i = 0; i < m; ++i)
 	  val += y[i] * (gcval[i] = fcval[i]);
 
      for (j = 0; j < n; ++j) {
@@ -128,7 +128,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 	  if (xcur[j] > ub[j]) xcur[j] = ub[j];
 	  else if (xcur[j] < lb[j]) xcur[j] = lb[j];
 	  dx = xcur[j] - x[j];
-	  
+
 	  /* function value: */
 	  dx2 = dx * dx;
 	  val += v * dx + 0.5 * u * dx2 / sigma2;
@@ -152,7 +152,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 /* compute g(x - x0) and its gradient */
 static double gfunc(unsigned n, double f, const double *dfdx,
 		    double rho, const double *sigma,
-		    const double *x0, 
+		    const double *x0,
 		    nlopt_precond pre, void *pre_data, double *scratch,
 		    const double *x, double *grad)
 {
@@ -199,7 +199,7 @@ static void gi(unsigned m, double *result,
 	  result[i] = gfunc(n, d->fcval[i], d->dfcdx + i*n, d->rhoc[i],
 			    d->sigma,
 			    d->x,
-			    d->prec ? d->prec[i] : NULL, 
+			    d->prec ? d->prec[i] : NULL,
 			    d->prec_data ? d->prec_data[i] : NULL,
 			    d->scratch,
 			    x, grad);
@@ -212,13 +212,13 @@ nlopt_result ccsa_quadratic_minimize(
      unsigned n, nlopt_func f, void *f_data,
      unsigned m, nlopt_constraint *fc,
 
-     nlopt_precond pre, 
+     nlopt_precond pre,
 
      const double *lb, const double *ub, /* bounds */
      double *x, /* in: initial guess, out: minimizer */
      double *minf,
      nlopt_stopping *stop,
-     nlopt_opt dual_opt)
+     nlopt_opt dual_opt, int inner_maxeval, unsigned verbose)
 {
      nlopt_result ret = NLOPT_SUCCESS;
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
@@ -232,6 +232,8 @@ nlopt_result ccsa_quadratic_minimize(
      unsigned mfc;
      unsigned no_precond;
      nlopt_opt pre_opt = NULL;
+
+	 verbose = MAX(ccsa_verbose, verbose);
 
      m = nlopt_count_constraints(mfc = m, fc);
      if (nlopt_get_dimension(dual_opt) != m) {
@@ -302,7 +304,7 @@ nlopt_result ccsa_quadratic_minimize(
 	  pre_ub = pre_lb + n;
 
 	  pre_opt = nlopt_create(nlopt_get_algorithm(dual_opt), n);
-	  if (!pre_opt) { 
+	  if (!pre_opt) {
               nlopt_stop_msg(stop, "failure creating precond. optimizer");
               ret = NLOPT_FAILURE;
               goto done;
@@ -318,7 +320,7 @@ nlopt_result ccsa_quadratic_minimize(
 	  ret = nlopt_set_maxeval(pre_opt, nlopt_get_maxeval(dual_opt));
 	  if (ret < 0) goto done;
      }
-     
+
      for (j = 0; j < n; ++j) {
 	  if (nlopt_isinf(ub[j]) || nlopt_isinf(lb[j]))
 	       sigma[j] = 1.0; /* arbitrary default */
@@ -355,7 +357,7 @@ nlopt_result ccsa_quadratic_minimize(
 	constraint weighted by 1e40 -- basically, minimizing the
 	unfeasible constraint until it becomes feasible or until we at
 	least obtain a step towards a feasible point.
-	
+
 	Svanberg suggested a different approach in his 1987 paper, basically
 	introducing additional penalty variables for unfeasible constraints,
 	but this is easier to implement and at least as efficient. */
@@ -370,11 +372,12 @@ nlopt_result ccsa_quadratic_minimize(
      nlopt_remove_equality_constraints(dual_opt);
 
      while (1) { /* outer iterations */
+	  int inner_nevals = 0;
 	  double fprev = fcur;
 	  if (nlopt_stop_forced(stop)) ret = NLOPT_FORCED_STOP;
 	  else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	  else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
-	  else if (feasible && *minf < stop->minf_max) 
+	  else if (feasible && *minf < stop->minf_max)
 	       ret = NLOPT_MINF_MAX_REACHED;
 	  if (ret != NLOPT_SUCCESS) goto done;
 	  if (++k > 1) memcpy(xprevprev, xprev, sizeof(double) * n);
@@ -393,15 +396,15 @@ nlopt_result ccsa_quadratic_minimize(
 		    ccsa_verbose = 0; /* no recursive verbosity */
 		    reti = nlopt_optimize_limited(dual_opt, y, &min_dual,
 						  0,
-						  stop->maxtime 
-						  - (nlopt_seconds() 
+						  stop->maxtime
+						  - (nlopt_seconds()
 						     - stop->start));
 		    ccsa_verbose = save_verbose;
 		    if (reti < 0 || reti == NLOPT_MAXTIME_REACHED) {
 			 ret = reti;
 			 goto done;
 		    }
-		    
+
 		    dual_func(m, y, NULL, &dd); /* evaluate final xcur etc. */
 	       }
 	       else {
@@ -432,17 +435,18 @@ nlopt_result ccsa_quadratic_minimize(
 		    gi(m, dd.gcval, n, xcur, NULL, &dd);
 	       }
 
-	       if (ccsa_verbose) {
+	       if (verbose) {
 		    printf("CCSA dual converged in %d iters to g=%g:\n",
 			   dd.count, dd.gval);
-		    for (i = 0; i < MIN(ccsa_verbose, m); ++i)
+		    for (i = 0; i < MIN(verbose, m); ++i)
 			 printf("    CCSA y[%u]=%g, gc[%u]=%g\n",
 				i, y[i], i, dd.gcval[i]);
 	       }
 
 	       fcur = f(n, xcur, dfdx_cur, f_data);
 	       ++ *(stop->nevals_p);
-	       if (nlopt_stop_forced(stop)) { 
+		   ++inner_nevals;
+	       if (nlopt_stop_forced(stop)) {
 		    ret = NLOPT_FORCED_STOP; goto done; }
 	       feasible_cur = 1; infeasibility_cur = 0;
 	       inner_done = dd.gval >= fcur;
@@ -450,24 +454,26 @@ nlopt_result ccsa_quadratic_minimize(
 		    nlopt_eval_constraint(fcval_cur + i, dfcdx_cur + i*n,
 					  fc + ifc, n, xcur);
 		    i += fc[ifc].m;
-		    if (nlopt_stop_forced(stop)) { 
+		    if (nlopt_stop_forced(stop)) {
 			 ret = NLOPT_FORCED_STOP; goto done; }
 	       }
 	       for (i = ifc = 0; ifc < mfc; ++ifc) {
 		    unsigned i0 = i, inext = i + fc[ifc].m;
 		    for (; i < inext; ++i) {
-			 feasible_cur = feasible_cur 
+			 feasible_cur = feasible_cur
 			      && fcval_cur[i] <= fc[ifc].tol[i-i0];
-			 inner_done = inner_done && 
+			 inner_done = inner_done &&
 			      (dd.gcval[i] >= fcval_cur[i]);
 			 if (fcval_cur[i] > infeasibility_cur)
 			      infeasibility_cur = fcval_cur[i];
 		    }
 	       }
 
+		   inner_done = inner_done || (inner_maxeval > 0 && inner_nevals == inner_maxeval);
+
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
 		    || (!feasible && infeasibility_cur < infeasibility)) {
-		    if (ccsa_verbose && !feasible_cur)
+		    if (verbose && !feasible_cur)
 			 printf("CCSA - using infeasible point?\n");
 		    dd.fval = *minf = fcur;
 		    infeasibility = infeasibility_cur;
@@ -475,7 +481,7 @@ nlopt_result ccsa_quadratic_minimize(
 		    memcpy(x, xcur, sizeof(double)*n);
 		    memcpy(dfdx, dfdx_cur, sizeof(double)*n);
 		    memcpy(dfcdx, dfcdx_cur, sizeof(double)*n*m);
-		    
+
 		    /* once we have reached a feasible solution, the
 		       algorithm should never make the solution infeasible
 		       again (if inner_done), although the constraints may
@@ -493,7 +499,7 @@ nlopt_result ccsa_quadratic_minimize(
 	       if (nlopt_stop_forced(stop)) ret = NLOPT_FORCED_STOP;
 	       else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
 	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
-	       else if (feasible && *minf < stop->minf_max) 
+	       else if (feasible && *minf < stop->minf_max)
 		    ret = NLOPT_MINF_MAX_REACHED;
 	       if (ret != NLOPT_SUCCESS) goto done;
 
@@ -503,14 +509,14 @@ nlopt_result ccsa_quadratic_minimize(
 		    rho = MIN(10*rho, 1.1 * (rho + (fcur-dd.gval) / dd.wval));
 	       for (i = 0; i < m; ++i)
 		    if (fcval_cur[i] > dd.gcval[i])
-			 rhoc[i] = 
-			      MIN(10*rhoc[i], 
-				  1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i]) 
+			 rhoc[i] =
+			      MIN(10*rhoc[i],
+				  1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i])
 					 / dd.wval));
-	       
-	       if (ccsa_verbose)
+
+	       if (verbose)
 		    printf("CCSA inner iteration: rho -> %g\n", rho);
-	       for (i = 0; i < MIN(ccsa_verbose, m); ++i)
+	       for (i = 0; i < MIN(verbose, m); ++i)
 		    printf("                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
 	  }
 
@@ -519,14 +525,14 @@ nlopt_result ccsa_quadratic_minimize(
 	  if (nlopt_stop_x(stop, xcur, xprev))
 	       ret = NLOPT_XTOL_REACHED;
 	  if (ret != NLOPT_SUCCESS) goto done;
-	       
+
 	  /* update rho and sigma for iteration k+1 */
 	  rho = MAX(0.1 * rho, CCSA_RHOMIN);
-	  if (ccsa_verbose)
+	  if (verbose)
 	       printf("CCSA outer iteration: rho -> %g\n", rho);
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], CCSA_RHOMIN);
-	  for (i = 0; i < MIN(ccsa_verbose, m); ++i)
+	  for (i = 0; i < MIN(verbose, m); ++i)
 	       printf("                 CCSA rhoc[%u] -> %g\n", i, rhoc[i]);
 	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
@@ -540,8 +546,8 @@ nlopt_result ccsa_quadratic_minimize(
 			 sigma[j] = MAX(sigma[j], 1e-8*(ub[j]-lb[j]));
 		    }
 	       }
-	       for (j = 0; j < MIN(ccsa_verbose, n); ++j)
-		    printf("                 CCSA sigma[%u] -> %g\n", 
+	       for (j = 0; j < MIN(verbose, n); ++j)
+		    printf("                 CCSA sigma[%u] -> %g\n",
 			   j, sigma[j]);
 	  }
      }

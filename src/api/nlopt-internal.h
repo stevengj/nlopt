@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #ifndef NLOPT_INTERNAL_H
@@ -32,6 +32,11 @@ extern "C" {
 
 /*********************************************************************/
 
+    typedef struct  {
+        char *name;
+        double val;
+    } nlopt_opt_param;
+
     struct nlopt_opt_s {
         nlopt_algorithm algorithm;      /* the optimization algorithm (immutable) */
         unsigned n;             /* the dimension of the problem (immutable) */
@@ -40,6 +45,9 @@ extern "C" {
         void *f_data;           /* objective function to minimize */
         nlopt_precond pre;      /* optional preconditioner for f (NULL if none) */
         int maximize;           /* nonzero if we are maximizing, not minimizing */
+
+        nlopt_opt_param *params;
+        unsigned nparams;
 
         double *lb, *ub;        /* lower and upper bounds (length n) */
 

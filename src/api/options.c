@@ -49,6 +49,9 @@ void NLOPT_STDCALL nlopt_destroy(nlopt_opt opt)
             free(opt->fc[i].tol);
         for (i = 0; i < opt->p; ++i)
             free(opt->h[i].tol);
+        for (i = 0; i < opt->nparams; ++i)
+            free(opt->params[i].name);
+        free(opt->params);
         free(opt->lb);
         free(opt->ub);
         free(opt->xtol_abs);
@@ -85,6 +88,8 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
         opt->fc = NULL;
         opt->p = opt->p_alloc = 0;
         opt->h = NULL;
+        opt->params = NULL;
+        opt->nparams = 0;
 
         opt->stopval = -HUGE_VAL;
         opt->ftol_rel = opt->ftol_abs = 0;
@@ -143,6 +148,8 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
         nopt->work = NULL;
         nopt->errmsg = NULL;
         nopt->force_stop_child = NULL;
+        nopt->params = NULL;
+        nopt->nparams = 0;
 
         munge = nopt->munge_on_copy;
         if (munge && nopt->f_data)
@@ -217,6 +224,19 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
                 }
         }
 
+        if (opt->nparams) {
+            nopt->nparams = opt->nparams;
+            nopt->params = (nlopt_opt_param *) calloc(opt->nparams, sizeof(nlopt_opt_param));
+            if (!nopt->params) goto oom;
+            for (i = 0; i < opt->nparams; ++i) {
+                size_t len = strlen(opt->params[i].name) + 1;
+                nopt->params[i].name = (char *) malloc(len);
+                if (!nopt->params[i].name) goto oom;
+                memcpy(nopt->params[i].name, opt->params[i].name, len);
+                nopt->params[i].val = opt->params[i].val;
+            }
+        }
+
         if (opt->local_opt) {
             nopt->local_opt = nlopt_copy(opt->local_opt);
             if (!nopt->local_opt)
@@ -236,6 +256,65 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
     nopt->munge_on_destroy = NULL;      /* better to leak mem than crash */
     nlopt_destroy(nopt);
     return NULL;
+}
+
+/*************************************************************************/
+/* generic algorithm parameters, implemented as a simple array of (name,val)
+   pairs that can interpreted as needed by individual algorithms.
+
+   (No point in a fancier data structure since only a handful of these
+   should be set in practice). */
+
+nlopt_result nlopt_set_param(nlopt_opt opt, const char *name, double val) {
+    size_t len;
+    unsigned i;
+    if (!opt) RETURN_ERR(NLOPT_INVALID_ARGS, opt, "invalid NULL opt");
+    if (!name) RETURN_ERR(NLOPT_INVALID_ARGS, opt, "invalid NULL parameter name");
+    len = strnlen(name, 1024) + 1;
+    if (len > 1024) RETURN_ERR(NLOPT_INVALID_ARGS, opt, "parameter name must be < 1024 bytes");
+    for (i = 0; i < opt->nparams; ++i)
+        if (!strcmp(name, opt->params[i].name))
+            break;
+    if (i == opt->nparams) { /* allocate new parameter */
+        opt->nparams++;
+        opt->params = (nlopt_opt_param *) realloc(opt->params, sizeof(nlopt_opt_param) * opt->nparams);
+        if (!opt->params) return NLOPT_OUT_OF_MEMORY;
+        opt->params[i].name = (char *) malloc(len);
+        if (!opt->params[i].name) return NLOPT_OUT_OF_MEMORY;
+        memcpy(opt->params[i].name, name, len);
+    }
+    opt->params[i].val = val;
+    return NLOPT_SUCCESS;
+}
+
+double nlopt_get_param(const nlopt_opt opt, const char *name, double defaultval)
+{
+    unsigned i;
+    if (!opt || !name || strnlen(name, 1024) == 1024) return defaultval;
+    for (i = 0; i < opt->nparams; ++i)
+        if (!strcmp(name, opt->params[i].name))
+            return opt->params[i].val;
+    return defaultval;
+}
+
+int nlopt_has_param(const nlopt_opt opt, const char *name)
+{
+    unsigned i;
+    if (!opt || !name || strnlen(name, 1024) == 1024) return 0;
+    for (i = 0; i < opt->nparams; ++i)
+        if (!strcmp(name, opt->params[i].name))
+            return 1;
+    return 0;
+}
+
+unsigned nlopt_num_params(const nlopt_opt opt)
+{
+    return opt ? opt->nparams : 0;
+}
+
+const char *nlopt_nth_param(const nlopt_opt opt, unsigned n)
+{
+    return opt && n < opt->nparams ? opt->params[n].name : NULL;
 }
 
 /*************************************************************************/

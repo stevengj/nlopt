@@ -216,6 +216,12 @@ NLOPT_EXTERN(unsigned) nlopt_get_dimension(const nlopt_opt opt);
 
 NLOPT_EXTERN(const char *) nlopt_get_errmsg(nlopt_opt opt);
 
+/* generic algorithm parameters: */
+NLOPT_EXTERN(nlopt_result) nlopt_set_param(nlopt_opt opt, const char *name, double val);
+NLOPT_EXTERN(double) nlopt_get_param(const nlopt_opt opt, const char *name, double defaultval);
+NLOPT_EXTERN(int) nlopt_has_param(const nlopt_opt opt, const char *name);
+NLOPT_EXTERN(unsigned) nlopt_num_params(const nlopt_opt opt);
+NLOPT_EXTERN(const char *) nlopt_nth_param(const nlopt_opt opt, unsigned n);
 
 /* constraints: */
 

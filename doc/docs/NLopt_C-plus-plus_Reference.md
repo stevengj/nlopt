@@ -250,6 +250,21 @@ Request the number of evaluations.
 
 In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. You can do this by throwing *any* exception inside your objective/constraint functions: the exception will be caught, the optimization will be halted gracefully, and another exception (possibly not the same one) will be rethrown. See [Exceptions](#Exceptions.md), below. The C++ equivalent of `nlopt_forced_stop` from the [C API](NLopt_Reference#Forced_termination.md) is to throw an `nlopt::forced_stop` exception.
 
+
+Algorithm-specific parameters
+-----------------------------
+
+Certain NLopt optimization algorithms allow you to specify additional parameters by calling
+```
+nlopt_result nlopt::opt::set_param(const char *name, double val);
+bool nlopt::opt::has_param(const char *name);
+double nlopt::opt::get_param(const char *name, double defaultval);
+unsigned nlopt::opt::num_params();
+const char *nlopt::opt::nth_param(unsigned n);
+```
+where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference#Algorithm-specific_parameters.md) functions of the corresponding names.
+
+
 Performing the optimization
 ---------------------------
 
