@@ -116,12 +116,8 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
             opt->ub = (double *) calloc(n, sizeof(double));
             if (!opt->ub)
                 goto oom;
-            opt->xtol_abs = (double *) calloc(n, sizeof(double));
-            if (!opt->xtol_abs)
-                goto oom;
             nlopt_set_lower_bounds1(opt, -HUGE_VAL);
             nlopt_set_upper_bounds1(opt, +HUGE_VAL);
-            nlopt_set_xtol_abs1(opt, 0.0);
         }
     }
 
@@ -163,9 +159,11 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
             nopt->ub = (double *) malloc(sizeof(double) * (opt->n));
             if (!opt->ub)
                 goto oom;
-            nopt->xtol_abs = (double *) malloc(sizeof(double) * (opt->n));
-            if (!opt->xtol_abs)
-                goto oom;
+            if (opt->xtol_abs) {
+                nopt->xtol_abs = (double *) malloc(sizeof(double) * (opt->n));
+                if (!opt->xtol_abs)
+                    goto oom;
+            }
             if (opt->x_weights) {
                 nopt->x_weights = (double *) malloc(sizeof(double) * (opt->n));
                 if (!opt->x_weights)
@@ -175,7 +173,9 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
 
             memcpy(nopt->lb, opt->lb, sizeof(double) * (opt->n));
             memcpy(nopt->ub, opt->ub, sizeof(double) * (opt->n));
-            memcpy(nopt->xtol_abs, opt->xtol_abs, sizeof(double) * (opt->n));
+            if (opt->xtol_abs) {
+                memcpy(nopt->xtol_abs, opt->xtol_abs, sizeof(double) * (opt->n));
+            }
         }
 
         if (opt->m) {
@@ -691,6 +691,10 @@ GETSET(ftol_rel, double, ftol_rel) GETSET(ftol_abs, double, ftol_abs) GETSET(xto
 {
     if (opt) {
         nlopt_unset_errmsg(opt);
+        if (!opt->xtol_abs && opt->n > 0) {
+            opt->xtol_abs = (double *) calloc(opt->n, sizeof(double));
+            if (!opt->xtol_abs) return NLOPT_OUT_OF_MEMORY;
+        }
         memcpy(opt->xtol_abs, xtol_abs, opt->n * sizeof(double));
         return NLOPT_SUCCESS;
     }
@@ -702,6 +706,10 @@ nlopt_result NLOPT_STDCALL nlopt_set_xtol_abs1(nlopt_opt opt, double xtol_abs)
     if (opt) {
         unsigned i;
         nlopt_unset_errmsg(opt);
+        if (!opt->xtol_abs && opt->n > 0) {
+            opt->xtol_abs = (double *) calloc(opt->n, sizeof(double));
+            if (!opt->xtol_abs) return NLOPT_OUT_OF_MEMORY;
+        }
         for (i = 0; i < opt->n; ++i)
             opt->xtol_abs[i] = xtol_abs;
         return NLOPT_SUCCESS;
@@ -713,7 +721,13 @@ nlopt_result NLOPT_STDCALL nlopt_get_xtol_abs(const nlopt_opt opt, double *xtol_
 {
     nlopt_unset_errmsg(opt);
     if (opt && (opt->n == 0 || xtol_abs)) {
-        memcpy(xtol_abs, opt->xtol_abs, opt->n * sizeof(double));
+        if (opt->xtol_abs) {
+            memcpy(xtol_abs, opt->xtol_abs, sizeof(double) * (opt->n));
+        } else {
+            unsigned i;
+            for (i = 0; i < opt->n; ++i)
+                xtol_abs[i] = 0;
+        }
         return NLOPT_SUCCESS;
     }
     return NLOPT_INVALID_ARGS;

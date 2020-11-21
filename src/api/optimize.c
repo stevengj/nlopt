@@ -622,7 +622,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             }
             if (opt->dx)
                 nlopt_set_initial_step(local_opt, opt->dx);
-            for (i = 0; i < n && stop.xtol_abs[i] > 0; ++i);
+            for (i = 0; i < n && stop.xtol_abs && stop.xtol_abs[i] > 0; ++i);
             if (local_opt->ftol_rel <= 0 && local_opt->ftol_abs <= 0 && local_opt->xtol_rel <= 0 && i < n) {
                 /* it is not sensible to call MLSL without *some*
                    nonzero tolerance for the local search */

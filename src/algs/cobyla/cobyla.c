@@ -219,9 +219,10 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      /* SGJ, 2008: compute rhoend from NLopt stop info */
      rhobeg = fabs(dx[0] / s.scale[0]);
      rhoend = stop->xtol_rel * (rhobeg);
-     for (j = 0; j < n; ++j)
-	  if (rhoend < stop->xtol_abs[j] / fabs(s.scale[j]))
-	       rhoend = stop->xtol_abs[j] / fabs(s.scale[j]);
+     if (stop->xtol_abs)
+      for (j = 0; j < n; ++j)
+	   if (rhoend < stop->xtol_abs[j] / fabs(s.scale[j]))
+	        rhoend = stop->xtol_abs[j] / fabs(s.scale[j]);
 
      /* each equality constraint gives two inequality constraints */
      m = nlopt_count_constraints(m, fc) + 2 * nlopt_count_constraints(p, h);

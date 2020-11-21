@@ -189,7 +189,8 @@ nlopt_result praxis_(double t0, double machep, double h0,
 	 t_old = small + t0;
     else {
 	 t_old = 0;
-	 for (i__ = 0; i__ < n; ++i__)
+	 if (stop->xtol_abs)
+	  for (i__ = 0; i__ < n; ++i__)
 	      if (stop->xtol_abs[i__] > t_old)
 		   t_old = stop->xtol_abs[i__];
 	 t_old += small;
