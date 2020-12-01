@@ -5,8 +5,9 @@
 #include <iomanip>
 #include <nlopt.hpp>
 
-double myvfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data)
+double myvfunc(const std::vector<double> &x, std::vector<double> &grad, void *data)
 {
+  (void)data;
   if (!grad.empty()) {
     grad[0] = 0.0;
     grad[1] = 0.5 / sqrt(x[1]);
