@@ -2694,7 +2694,8 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 
 	  /* update best point so far */
 	  if (mode != -1 && nlopt_isfinite(cur.fval) && nlopt_isfinite(cur.infeasibility) &&
-	      !(cur.fval >= minor.fval && cur.infeasibility >= minor.infeasibility)) {
+	      (cur.fval < minor.fval ||
+	       (!minor.feasible && cur.infeasibility < minor.infeasibility))) {
 
 		  //printf("best eval so far %f %f feasible %d\n", cur.fval, cur.infeasibility, cur.feasible);
 		  estimate_copy(&minor, &cur);
