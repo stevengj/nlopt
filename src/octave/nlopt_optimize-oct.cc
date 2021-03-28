@@ -99,7 +99,7 @@ static double user_function(unsigned n, const double *x,
 #if OCTAVE_MAJOR_VERSION > 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
     = octave::feval(data->f, args, gradient ? 2 : 1);
 #else
-    = data->f->do_multi_index_op(gradient ? 2 : 1, args);
+    = data->f.do_multi_index_op(gradient ? 2 : 1, args);
 #endif
   if (res.length() < (gradient ? 2 : 1))
     err_user_supplied_eval("nlopt_optimize");
