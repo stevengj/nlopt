@@ -14,7 +14,7 @@ https://nlopt.readthedocs.io/en/latest/) is hosted on readthedocs.
 NLopt is compiled and installed with the [CMake](https://cmake.org/) build system
 (see `CMakeLists.txt` file for available options):
 
-    git clone git://github.com/stevengj/nlopt
+    git clone https://github.com/stevengj/nlopt.git
     cd nlopt
     mkdir build
     cd build
