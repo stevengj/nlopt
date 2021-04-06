@@ -316,7 +316,7 @@ specified using the [`nlopt_set_param` API](NLopt_Reference#algorithm-specific-p
 
 * `inner_maxeval`: If ≥ 0, gives maximum number of "inner" iterations of the algorithm where it tries to ensure that its approximatations are "conservative"; defaults to `0` (no limit).   It can be useful to specify a finite number (e.g. `5` or `10`) for this parameter if inaccuracies in your gradient or objective function are preventing the algorithm from making progress.
 * `dual_algorithm` (defaults to `NLOPT_LD_MMA`), `dual_ftol_rel` (defaults to `1e-14`), `dual_ftol_abs` (defaults to `0`), `dual_xtol_rel` (defaults to `0`), `dual_xtol_abs` (defaults to `0`), `dual_maxeval` (defaults to `100000`): These specify how the algorithm internally solves the "dual" optimization problem for its approximate objective.   Because this subsidiary solve requires no evaluations of the user's objective function, it is typically fast enough that we can solve it to high precision without worrying too much about the details.  Howeve,r in high-dimensional problems you may notice that MMA/CCSA is taking a long time between optimization steps, in which case you may want to increase `dual_ftol_rel` or make other changes.   If these parameters are not specified, NLopt takes them from the [subsidiary-optimizer algorithm](NLopt_Reference#localsubsidiary-optimization-algorithm) if that has been specified, and otherwise uses the defaults indicated here.
-* `verbosity`: If ≥ 0, causes the algorithm to print internal status information on each iteration.
+* `verbosity`: If > 0, causes the algorithm to print internal status information on each iteration.
 
 ### SLSQP
 
