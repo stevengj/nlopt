@@ -80,7 +80,7 @@ $$h_i(\mathbf{x}) = 0$$.
 
 In *principle*, each equality constraint can be expressed by two inequality constraints $h_i(\mathbf{x}) \leq 0$ and $-h_i(\mathbf{x}) \leq 0$, so you might think that any code that can handle inequality constraints can automatically handle equality constraints. In practice, this is not true—if you try to express an equality constraint as a pair of nonlinear inequality constraints, some algorithms will fail to converge.
 
-Equality constraints sometimes require special handling because they reduce the *dimensionality* of the feasible region, and not just its size as for an inequality constraint. Only some of the NLopt algorithms (AUGLAG, COBYLA, and ISRES) currently support nonlinear equality constraints.
+Equality constraints sometimes require special handling because they reduce the *dimensionality* of the feasible region, and not just its size as for an inequality constraint. Only some of the NLopt algorithms (AUGLAG, SLSQP, COBYLA, and ISRES) currently support nonlinear equality constraints.
 
 #### Elimination
 
