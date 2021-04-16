@@ -20,13 +20,23 @@ Unofficial Python binaries for Windows are available from Christoph Gohike:
 
 ### NLopt with MinGW
 
-If you want to compile NLopt on Windows with [MinGW](http://www.mingw.org/), be sure to install the MinGW version of `cmake` (e.g. with `pacman -S mingw-w64-x86_64-cmake`) and then build via `cmake -G"MSYS Makefiles" . && make` in order to ensure that `cmake` produces the correct type of makefile.
+If you want to compile NLopt on Windows:
+
+1. Install [MSYS2](https://www.msys2.org/).
+2. Run the following command:
+    `pacman -S --needed base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain \
+                    mingw-w64-i686-cmake mingw-w64-x86_64-cmake --disable-download-timeout`
+3. Download the NLopt using git.
+    `git clone https://github.com/stevengj/nlopt.git`
+4. Create a build folder inside the project.
+5. From build folder run the following command:
+    `cmake -G"MSYS Makefiles" ..`
+6. Then run `make`.
 
 ### Octave plugin
 
 To build the NLopt plugin for [GNU Octave](https://en.wikipedia.org/wiki/GNU_Octave) (a free Matlab clone, which uses the [same NLopt interface as in Matlab](NLopt_Matlab_Reference.md)), you will need the following additional steps. (See [Octave for Windows](https://wiki.octave.org/Octave_for_Microsoft_Windows) on the Octave web page to download Octave.)
 
-1.  First, download the `.dll` and import library (`.dll.a`) from above.
-2.  Download [`nlopt_optimize-oct.cc`](https://github.com/stevengj/nlopt/raw/master/src/octave/nlopt_optimize-oct.cc) and put it in the same directory as the `.dll` and `.dll.a` files.
-3.  Compile the Octave plugin (`.oct` file) with `mkoctfile -lnlopt --output nlopt_optimize.oct nlopt_optimize-oct.cc` (`mkoctfile` is a program included with Octave).
-4.  Finally, move `libnlopt.dll` to the *octave*``bin` directory (the location of `octave.exe`) so that Octave can find it.
+1. Copy `libnlopt.dll` from `build` to `C:\Octave\Octave-X.X.X.X\mingw64\bin`.
+2. Copy `libnlopt.dll.a` from `build` to `C:\Octave\Octave-X.X.X.X\mingw64\lib`.
+3. Change the current folder to 'src\octave' and compile the Octave plugin (`.oct` file) with `mkoctfile -I"build/src/api" -lnlopt --output nlopt_optimize nlopt_optimize-oct.cc` (`mkoctfile` is a program included with Octave).
