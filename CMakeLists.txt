@@ -309,16 +309,12 @@ if (NLOPT_PYTHON)
   find_package (NumPy)
 endif ()
 
-if (NOT DEFINED INSTALL_PYTHON_DIR AND PYTHONINTERP_FOUND)
-  execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
-                    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
-                    OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-  get_filename_component (_ABS_PYTHON_MODULE_PATH "${_ABS_PYTHON_MODULE_PATH}" ABSOLUTE)
-  file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} "${_ABS_PYTHON_MODULE_PATH}")
-
-  set (INSTALL_PYTHON_DIR "${_REL_PYTHON_MODULE_PATH}")
-
+if (NOT DEFINED INSTALL_PYTHON_DIR)
+  if (WIN32)
+    set (INSTALL_PYTHON_DIR Lib/site-packages)
+  else ()
+    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+  endif ()
 endif ()
 
 if (NLOPT_GUILE)
