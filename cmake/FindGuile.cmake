@@ -18,6 +18,7 @@
 # Macports for OSX puts things in /opt/local
 find_path (GUILE_INCLUDE_DIR libguile.h
   PATH_SUFFIXES
+    guile/3.0
     guile/2.2
     guile/2.0
     guile/1.8
@@ -27,7 +28,7 @@ find_path (GUILE_INCLUDE_DIR libguile.h
 )
 
 # Look for the library
-find_library (GUILE_LIBRARY NAMES guile-2.2 guile-2.0 guile
+find_library (GUILE_LIBRARY NAMES guile-3.0 guile-2.2 guile-2.0 guile
   HINTS
     /opt/local/lib
 )

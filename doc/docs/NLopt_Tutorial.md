@@ -51,7 +51,7 @@ double myfunc(unsigned n, const double *x, double *grad, void *my_func_
 ```
 
 
-There are several things to notice here. First, since this is C, our indices are zero-based, so we have `x[0]` and `x[1]` instead of *x*<sub>1</sub> and *x*<sub>2</sub>. The return value of our function is the objective $\sqrt{x_2}$. Also, if the parameter `grad` is not `NULL`, then we set `grad[0]` and `grad[1]` to the partial derivatives of our objective with respect to `x[0]` and `x[1]`. The gradient is only needed for [gradient-based algorithms](NLopt_Introduction#Gradient-based_versus_derivative-free_algorithms.md); if you use a derivative-free optimization algorithm, `grad` will always be `NULL` and you need never compute any derivatives. Finally, we have an extra parameter `my_func_data` that can be used to pass additional data to `myfunc`, but no additional data is needed here so that parameter is unused.
+There are several things to notice here. First, since this is C, our indices are zero-based, so we have `x[0]` and `x[1]` instead of *x*<sub>1</sub> and *x*<sub>2</sub>. The return value of our function is the objective $\sqrt{x_2}$. Also, if the parameter `grad` is not `NULL`, then we set `grad[0]` and `grad[1]` to the partial derivatives of our objective with respect to `x[0]` and `x[1]`. The gradient is only needed for [gradient-based algorithms](NLopt_Introduction#gradient-based-versus-derivative-free-algorithms); if you use a derivative-free optimization algorithm, `grad` will always be `NULL` and you need never compute any derivatives. Finally, we have an extra parameter `my_func_data` that can be used to pass additional data to `myfunc`, but no additional data is needed here so that parameter is unused.
 
 For the constraints, on the other hand, we *will* have additional data. Each constraint is parameterized by two numbers *a* and *b*, so we will declare a data structure to hold this information:
 
@@ -365,7 +365,7 @@ retcode = 4
 ```
 
 
-(The [return code](NLopt_Reference#Return_values.md) `4` corresponds to `NLOPT_XTOL_REACHED`, which means it converged to the specified *x* tolerance.) To switch to a derivative-free algorithm like COBYLA, we just change `opt.algorithm` parameter:
+(The [return code](NLopt_Reference#return-values) `4` corresponds to `NLOPT_XTOL_REACHED`, which means it converged to the specified *x* tolerance.) To switch to a derivative-free algorithm like COBYLA, we just change `opt.algorithm` parameter:
 
 ```matlab
 opt.algorithm = NLOPT_LN_COBYLA
@@ -482,7 +482,7 @@ result =  4
 ```
 
 
-finding the same correct optimum as in the C interface (of course). (The [return code](NLopt_Reference#Return_values.md) `4` corresponds to `nlopt.XTOL_REACHED`, which means it converged to the specified *x* tolerance.)
+finding the same correct optimum as in the C interface (of course). (The [return code](NLopt_Reference#return-values) `4` corresponds to `nlopt.XTOL_REACHED`, which means it converged to the specified *x* tolerance.)
 
 ### Important: Modifying `grad` in-place
 
@@ -500,7 +500,7 @@ grad[:] = 2*x
 ```
 
 
-which *overwrites* the old contents of grad with `2*x`. See also the [NLopt Python Reference](NLopt_Python_Reference#Assigning_results_in-place.md).
+which *overwrites* the old contents of grad with `2*x`. See also the [NLopt Python Reference](NLopt_Python_Reference#assigning-results-in-place).
 
 Example in GNU Guile (Scheme)
 -----------------------------

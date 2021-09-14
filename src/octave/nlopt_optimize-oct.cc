@@ -80,7 +80,7 @@ static Matrix struct_val_default(octave_map &m, const std::string& k,
 }
 
 typedef struct {
-  octave_function *f;
+  octave_value f;
   int neval, verbose;
   nlopt_opt opt;
 } user_function_data;
@@ -99,7 +99,7 @@ static double user_function(unsigned n, const double *x,
 #if OCTAVE_MAJOR_VERSION > 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
     = octave::feval(data->f, args, gradient ? 2 : 1);
 #else
-    = data->f->do_multi_index_op(gradient ? 2 : 1, args);
+    = data->f.do_multi_index_op(gradient ? 2 : 1, args);
 #endif
   if (res.length() < (gradient ? 2 : 1))
     err_user_supplied_eval("nlopt_optimize");
@@ -131,7 +131,7 @@ static double user_function1(unsigned n, const double *x,
 			    double *gradient, /* NULL if not needed */
 			    void *data_)
 {
-  octave_function *f = (octave_function *) data_;
+  octave_value* f = static_cast<octave_value*>(data_);
   octave_value_list args(1, 0);
   Matrix xm(1,n);
   for (unsigned i = 0; i < n; ++i)
@@ -139,7 +139,7 @@ static double user_function1(unsigned n, const double *x,
   args(0) = xm;
   octave_value_list res
 #if OCTAVE_MAJOR_VERSION > 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION > 2)
-    = octave::feval(f, args, gradient ? 2 : 1);
+    = octave::feval(*f, args, gradient ? 2 : 1);
 #else
     = f->do_multi_index_op(gradient ? 2 : 1, args);
 #endif
@@ -265,23 +265,25 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
     CHECK(opts.contents("min_objective").numel() == 1
 	  && (opts.contents("min_objective"))(0).is_function_handle(),
 	  "opt.min_objective must be a function");
-      d.f = (opts.contents("min_objective"))(0).function_value();
+      d.f = (opts.contents("min_objective"))(0);
       nlopt_set_min_objective(opt, user_function, &d);
   }
   else if (opts.contains("max_objective")) {
     CHECK(opts.contents("max_objective").numel() == 1
 	  && (opts.contents("max_objective"))(0).is_function_handle(),
 	  "opt.max_objective must be a function");
-      d.f = (opts.contents("max_objective"))(0).function_value();
+      d.f = (opts.contents("max_objective"))(0);
       nlopt_set_max_objective(opt, user_function, &d);
   }
   else {
     CHECK(0,"either opt.min_objective or opt.max_objective must exist");
   }
 
+  Cell fc, h;
+  
   if (opts.contains("fc") && opts.contents("fc").numel() == 1) {
     CHECK((opts.contents("fc"))(0).iscell(), "opt.fc must be cell array");
-    Cell fc = (opts.contents("fc"))(0).cell_value();
+    fc = (opts.contents("fc"))(0).cell_value();
     Matrix zeros(1, fc.numel(), 0.0);
     Matrix fc_tol = struct_val_default(opts, "fc_tol", zeros);
     CHECK(fc_tol.numel() == fc.numel(),
@@ -290,7 +292,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
       CHECK(fc(i).is_function() || fc(i).is_function_handle(),
 	    "opt.fc must be a cell array of function handles");
       CHECK(nlopt_add_inequality_constraint(opt, user_function1,
-					    fc(i).function_value(),
+					    &fc(i),
 					    fc_tol(i)) > 0,
 	    "nlopt error adding inequality constraint");
     }
@@ -298,7 +300,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
 
   if (opts.contains("h") && opts.contents("h").numel() == 1) {
     CHECK((opts.contents("h"))(0).iscell(), "opt.h must be cell array");
-    Cell h = (opts.contents("h"))(0).cell_value();
+    h = (opts.contents("h"))(0).cell_value();
     Matrix zeros(1, h.numel(), 0.0);
     Matrix h_tol = struct_val_default(opts, "h_tol", zeros);
     CHECK(h_tol.numel() == h.numel(),
@@ -307,7 +309,7 @@ DEFUN_DLD(nlopt_optimize, args, nargout, NLOPT_OPTIMIZE_USAGE)
       CHECK(h(i).is_function() || h(i).is_function_handle(),
 	    "opt.h must be a cell array of function handles");
       CHECK(nlopt_add_equality_constraint(opt, user_function1,
-					    h(i).function_value(),
+					    &h(i),
 					    h_tol(i)) > 0,
 	    "nlopt error adding equality constraint");
     }

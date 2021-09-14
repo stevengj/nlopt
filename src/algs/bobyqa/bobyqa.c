@@ -3123,9 +3123,11 @@ nlopt_result bobyqa(int n, int npt, double *x,
 
     /* SGJ, 2009: compute rhoend from NLopt stop info */
     rhoend = stop->xtol_rel * (rhobeg);
-    for (j = 0; j < n; ++j)
-	 if (rhoend < stop->xtol_abs[j] / fabs(s[j]))
-	      rhoend = stop->xtol_abs[j] / fabs(s[j]);
+    if (stop->xtol_abs) {
+        for (j = 0; j < n; ++j)
+         if (rhoend < stop->xtol_abs[j] / fabs(s[j]))
+              rhoend = stop->xtol_abs[j] / fabs(s[j]);
+    }
 
 
 /*     This subroutine seeks the least value of a function of many variables, */

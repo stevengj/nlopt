@@ -58,7 +58,7 @@ extern int bar(void);
 int foo(void) {return bar()+1;}
 ")
 
-    if(APPLE AND ${CMAKE_VERSION} VERSION_GREATER 2.8.11)
+    if(APPLE)
       set( _rpath_arg  "-DCMAKE_MACOSX_RPATH='${CMAKE_MACOSX_RPATH}'" )
     else()
       set( _rpath_arg )

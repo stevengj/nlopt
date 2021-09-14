@@ -4,6 +4,8 @@
 
 In this chapter of the manual, we begin by giving a general overview of the optimization problems that NLopt solves, the key distinctions between different types of optimization algorithms, and comment on ways to cast various problems in the form NLopt requires. We also describe the background and goals of NLopt.
 
+[TOC]
+
 Optimization problems
 ---------------------
 
@@ -37,7 +39,7 @@ NLopt includes algorithms to attempt either *global* or *local* optimization of 
 
 **Local optimization** is the *much easier* problem of finding a feasible point **x** that is only a *local* minimum: *f*(**x**) is less than or equal to the value of *f* for all nearby feasible points (the intersection of the feasible region with at least some small neighborhood of **x**). In general, a nonlinear optimization problem may have *many* local minima, and which one is located by an algorithm typically depends upon the starting point that the user supplies to the algorithm. Local optimization algorithms, on the other hand, can often quickly locate a local minimum even in very high-dimensional problems (especially using gradient-based algorithms). (An algorithm that is guaranteed to find some *local* minimum from any feasible starting point is, somewhat confusingly, called *globally convergent*.)
 
-In the special class of **convex optimization** problems, for which both the objective and inequality constraint functions are [convex](https://en.wikipedia.org/wiki/Convex_function) (and the equality constraints are [affine](https://en.wikipedia.org/wiki/Affine_transformation) or in any case have [convex](https://en.wikipedia.org/wiki/Convex_set) [level sets](https://en.wikipedia.org/wiki/Level_set)), there is only *one* local minimum value of *f* , so that a *local* optimization method finds a *global* optimum. There may, however, be more than one point **x** that yield the same minimum *f*(**x**), with the optimum points forming a convex subset of the (convex) feasible region. Typically, convex problems arise from functions of special analytical forms, such as linear programming problems, semidefinite programming, quadratic programming, and so on, and specialized techniques are available to solve these problems very efficiently. NLopt includes only general methods that do not assume convexity; if you have a provably convex problem, you may be better off with a different software package, such as the [CVX package](http://www.stanford.edu/~boyd/cvx/) from Stanford.
+In the special class of **convex optimization** problems, for which both the objective and inequality constraint functions are [convex](https://en.wikipedia.org/wiki/Convex_function) (and the equality constraints are [affine](https://en.wikipedia.org/wiki/Affine_transformation) or in any case have [convex](https://en.wikipedia.org/wiki/Convex_set) [level sets](https://en.wikipedia.org/wiki/Level_set)), there is only *one* local minimum value of *f* , so that a *local* optimization method finds a *global* optimum. There may, however, be more than one point **x** that yield the same minimum *f*(**x**), with the optimum points forming a convex subset of the (convex) feasible region. Typically, convex problems arise from functions of special analytical forms, such as linear programming problems, semidefinite programming, quadratic programming, and so on, and specialized techniques are available to solve these problems very efficiently. NLopt includes only general methods that do not assume convexity; if you have a provably convex problem, you may be better off with a different software package, such as the [CVX package for Python](https://www.cvxpy.org/) or the [JuMP package for Julia](https://jump.dev/).
 
 ### Gradient-based versus derivative-free algorithms
 
@@ -78,7 +80,7 @@ $$h_i(\mathbf{x}) = 0$$.
 
 In *principle*, each equality constraint can be expressed by two inequality constraints $h_i(\mathbf{x}) \leq 0$ and $-h_i(\mathbf{x}) \leq 0$, so you might think that any code that can handle inequality constraints can automatically handle equality constraints. In practice, this is not true—if you try to express an equality constraint as a pair of nonlinear inequality constraints, some algorithms will fail to converge.
 
-Equality constraints sometimes require special handling because they reduce the *dimensionality* of the feasible region, and not just its size as for an inequality constraint. Only some of the NLopt algorithms (AUGLAG, COBYLA, and ISRES) currently support nonlinear equality constraints.
+Equality constraints sometimes require special handling because they reduce the *dimensionality* of the feasible region, and not just its size as for an inequality constraint. Only some of the NLopt algorithms (AUGLAG, SLSQP, COBYLA, and ISRES) currently support nonlinear equality constraints.
 
 #### Elimination
 
@@ -98,7 +100,7 @@ for unknown vectors **z**. You could then pass **z** as the optimization paramet
 
 #### Penalty functions
 
-Another popular approach to equality constraints (and inequality constraints, for that matter) is to include some sort of **penalty function** in the objective function, which penalizes **x** values that violate the constraints. A standard technique of this sort is known as the **augmented Lagrangian** approach, and a variant of this approach is implemented in NLopt's [AUGLAG algorithm](NLopt_Algorithms#Augmented_Lagrangian_algorithm.md).
+Another popular approach to equality constraints (and inequality constraints, for that matter) is to include some sort of **penalty function** in the objective function, which penalizes **x** values that violate the constraints. A standard technique of this sort is known as the **augmented Lagrangian** approach, and a variant of this approach is implemented in NLopt's [AUGLAG algorithm](NLopt_Algorithms#augmented-lagrangian-algorithm).
 
 (For inequality constraints, a variant of the penalty idea is a **barrier method**: this is simply a penalty that diverges as you approach the constraint, which forces the optimization to stay within the feasible region.)
 
@@ -127,7 +129,7 @@ If you don't want to use a particular tolerance termination, you can just set th
 
 Another termination test that NLopt supports is that you can tell the optimization to stop when the objective function value *f*(**x**) reaches some specified value, `stopval`, for any feasible point **x**.
 
-This termination test is especially useful when [comparing algorithms](NLopt_Algorithms#Comparing_algorithms.md) for a given problem. After running one algorithm for a long time to find the minimum to the desired accuracy, you can ask how many iterations algorithms require to obtain the optimum to the same accuracy or to some better accuracy.
+This termination test is especially useful when [comparing algorithms](NLopt_Algorithms#comparing-algorithms) for a given problem. After running one algorithm for a long time to find the minimum to the desired accuracy, you can ask how many iterations algorithms require to obtain the optimum to the same accuracy or to some better accuracy.
 
 ### Bounds on function evaluations and wall-clock time
 
@@ -145,7 +147,7 @@ Because of this, the most reasonable termination criterion for global optimizati
 
 I would advise you *not* to use function-value (ftol) or parameter tolerances (xtol) in global optimization. I made a half-hearted attempt to implement these tests in the various global-optimization algorithms, but it doesn't seem like there is any really satisfactory way to go about this, and I can't claim that my choices were especially compelling.
 
-For the [MLSL](NLopt_Algorithms#MLSL_(Multi-Level_Single-Linkage).md) algorithm, you need to set the ftol and xtol [parameters of the local optimization algorithm](NLopt_Reference#Local/subsidiary_optimization_algorithm.md) control the tolerances of the *local* searches, *not* of the global search; you should definitely set these, lest the algorithm spend an excessive amount of time trying to run local searches to machine precision.
+For the [MLSL](NLopt_Algorithms#mlsl-multi-level-single-linkage) algorithm, you need to set the ftol and xtol [parameters of the local optimization algorithm](NLopt_Reference#localsubsidiary-optimization-algorithm) control the tolerances of the *local* searches, *not* of the global search; you should definitely set these, lest the algorithm spend an excessive amount of time trying to run local searches to machine precision.
 
 Background and goals of NLopt
 -----------------------------

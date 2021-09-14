@@ -1626,9 +1626,10 @@ static nlopt_result newuob_(int *n, int *npt, double *x,
 
 /* SGJ, 2008: compute rhoend from NLopt stop info */
     rhoend = stop->xtol_rel * (*rhobeg);
-    for (j = 0; j < *n; ++j)
-	 if (rhoend < stop->xtol_abs[j])
-	      rhoend = stop->xtol_abs[j];
+    if (stop->xtol_abs)
+     for (j = 0; j < *n; ++j)
+	  if (rhoend < stop->xtol_abs[j])
+	       rhoend = stop->xtol_abs[j];
 
 /* The arguments N, NPT, X, RHOBEG, RHOEND, IPRINT and MAXFUN are identical */
 /*   to the corresponding arguments in SUBROUTINE NEWUOA. */

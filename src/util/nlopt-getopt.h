@@ -34,6 +34,14 @@
 #ifndef NLOPT_GETOPT_H
 #define NLOPT_GETOPT_H
 
+/* avoid linker conflicts if we use nlopt-getopt.c with a libc that has getopt */
+#define opterr nlopt_opterr
+#define optind nlopt_optind
+#define optopt nlopt_optopt
+#define optreset nlopt_optreset
+#define optarg nlopt_optarg
+#define getopt nlopt_getopt
+
 #ifdef  __cplusplus
 extern "C" {
 #endif

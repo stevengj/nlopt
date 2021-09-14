@@ -30,7 +30,7 @@
 #ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 #endif
-#ifdef HAVE_GETOPT_H
+#if defined(HAVE_GETOPT_H) && defined(HAVE_GETOPT)
 #  include <getopt.h>
 #else
 #  include "nlopt-getopt.h"

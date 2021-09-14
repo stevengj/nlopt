@@ -1,5 +1,23 @@
 # NLopt Release Notes
 
+## NLopt 2.7
+
+18 November 2020
+
+* New `nlopt_set_param` API for setting internal algorithm parameters ([#365]).
+
+* Avoid library-symbol conflicts ([#355], [#361])
+
+## NLopt 2.6.2
+
+15 April 2020
+
+* Fixed forced stop exception with dimension elimination ([#317])
+
+* Fixed `get_initial_step` wrapping ([#319])
+
+* Various build fixes ([#314], [#308], [#303], [#278])
+
 ## NLopt 2.6.1
 
 13 April 2019
@@ -437,3 +455,12 @@
 [#257]: https://github.com/stevengj/nlopt/issues/257
 [#258]: https://github.com/stevengj/nlopt/issues/258
 [#261]: https://github.com/stevengj/nlopt/issues/261
+[#278]: https://github.com/stevengj/nlopt/issues/278
+[#303]: https://github.com/stevengj/nlopt/issues/303
+[#308]: https://github.com/stevengj/nlopt/issues/308
+[#314]: https://github.com/stevengj/nlopt/issues/314
+[#317]: https://github.com/stevengj/nlopt/issues/317
+[#319]: https://github.com/stevengj/nlopt/issues/319
+[#319]: https://github.com/stevengj/nlopt/issues/355
+[#319]: https://github.com/stevengj/nlopt/issues/361
+[#319]: https://github.com/stevengj/nlopt/issues/365

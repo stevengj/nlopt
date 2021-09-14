@@ -12,7 +12,7 @@
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
 # Copyright (c) 2008-2009 Children's Hospital Boston
 #==============================================================================
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.2)
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
@@ -25,19 +25,19 @@ find_package(catkin REQUIRED)
 #==============================================================================
 # version
 set (NLOPT_MAJOR_VERSION "2")
-set (NLOPT_MINOR_VERSION "6")
-set (NLOPT_BUGFIX_VERSION "1")
+set (NLOPT_MINOR_VERSION "7")
+set (NLOPT_BUGFIX_VERSION "0")
 set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
 message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 
 # This is the ABI version number, which differes from the API version above
 # (it indicates ABI compatibility), but they are typically incremented together.
 set(SO_MAJOR 0)
-set(SO_MINOR 10)
+set(SO_MINOR 11)
 set(SO_PATCH 0)
 #==============================================================================
 
-list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list (APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option (NLOPT_CXX "enable cxx routines" ON)
 option (NLOPT_FORTRAN "enable fortran tests" OFF)
@@ -124,6 +124,7 @@ check_function_exists (gettimeofday HAVE_GETTIMEOFDAY)
 check_function_exists (qsort_r HAVE_QSORT_R)
 check_function_exists (time HAVE_TIME)
 check_function_exists (copysign HAVE_COPYSIGN)
+check_function_exists (getopt HAVE_GETOPT)
 check_type_size ("uint32_t" SIZEOF_UINT32_T)
 set (HAVE_UINT32_T ${SIZEOF_UINT32_T})
 check_type_size ("unsigned int" SIZEOF_UNSIGNED_INT)
@@ -195,11 +196,19 @@ endif ()
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
-configure_file (src/api/nlopt.h ${PROJECT_BINARY_DIR}/src/api/nlopt.h COPYONLY)
-
 set (NLOPT_HEADERS
-  ${PROJECT_BINARY_DIR}/src/api/nlopt.h ${PROJECT_BINARY_DIR}/src/api/nlopt.hpp ${PROJECT_BINARY_DIR}/src/api/nlopt.f
+  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp ${PROJECT_BINARY_DIR}/nlopt.f
 )
+
+add_custom_command (OUTPUT nlopt.hpp
+  COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-cpp.cmake
+  MAIN_DEPENDENCY src/api/nlopt-in.hpp)
+add_custom_target (generate-cpp ALL DEPENDS nlopt.hpp)
+
+add_custom_command (OUTPUT nlopt.f
+  COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
+  MAIN_DEPENDENCY src/api/nlopt.h)
+add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
 
 set (NLOPT_SOURCES
   src/algs/direct/DIRect.c src/algs/direct/direct_wrap.c src/algs/direct/DIRserial.c src/algs/direct/DIRsubrout.c src/algs/direct/direct-internal.h src/algs/direct/direct.h
@@ -217,7 +226,7 @@ set (NLOPT_SOURCES
   src/algs/isres/isres.c src/algs/isres/isres.h
   src/algs/slsqp/slsqp.c src/algs/slsqp/slsqp.h
   src/algs/esch/esch.c src/algs/esch/esch.h
-  src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h src/api/nlopt.hpp src/api/nlopt-in.hpp
+  src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h ${PROJECT_BINARY_DIR}/nlopt.hpp
   src/util/mt19937ar.c src/util/sobolseq.c src/util/soboldata.h src/util/timer.c src/util/stop.c src/util/nlopt-util.h src/util/redblack.c src/util/redblack.h src/util/qsort_r.c src/util/rescale.c
 )
 
@@ -240,6 +249,7 @@ catkin_package(
 )
 
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
+add_dependencies(${nlopt_lib} generate-cpp)
 target_link_libraries (${nlopt_lib} ${M_LIBRARY})
 
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${SO_MAJOR})
@@ -272,7 +282,7 @@ target_include_directories (${nlopt_lib} PRIVATE
   src/api)
 
 get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES)
-target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/api>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/api;${PROJECT_BINARY_DIR}>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions (${nlopt_lib} PUBLIC NLOPT_DLL)
@@ -295,7 +305,7 @@ install ( TARGETS ${nlopt_lib}
           ARCHIVE DESTINATION ${RELATIVE_INSTALL_LIB_DIR}
         )
 
-if (MSVC AND BUILD_SHARED_LIBS AND NOT CMAKE_VERSION VERSION_LESS 3.1)
+if (MSVC AND BUILD_SHARED_LIBS)
   install (FILES $<TARGET_PDB_FILE:${nlopt_lib}> DESTINATION ${RELATIVE_INSTALL_BIN_DIR} CONFIGURATIONS Debug RelWithDebInfo COMPONENT Debug)
 endif ()
 
@@ -303,20 +313,16 @@ add_subdirectory (src/api)
 
 if (NLOPT_PYTHON)
   find_package (PythonInterp)
-  find_package (PythonLibs)
+  find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
   find_package (NumPy)
 endif ()
 
-if (NOT DEFINED INSTALL_PYTHON_DIR AND PYTHONINTERP_FOUND)
-  execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print(sysconfig.get_python_lib(plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}'))"
-                    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
-                    OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-  get_filename_component (_ABS_PYTHON_MODULE_PATH "${_ABS_PYTHON_MODULE_PATH}" ABSOLUTE)
-  file (RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} "${_ABS_PYTHON_MODULE_PATH}")
-
-  set (INSTALL_PYTHON_DIR "${_REL_PYTHON_MODULE_PATH}")
-
+if (NOT DEFINED INSTALL_PYTHON_DIR)
+  if (WIN32)
+    set (INSTALL_PYTHON_DIR Lib/site-packages)
+  else ()
+    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+  endif ()
 endif ()
 
 if (NLOPT_GUILE)
