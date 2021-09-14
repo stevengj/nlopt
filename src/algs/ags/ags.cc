@@ -53,7 +53,7 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
   params.evolventDensity = evolvent_density;
   params.epsR = eps_res;
   params.stopVal = stop->minf_max;
-  params.refineSolution = (bool)ags_refine_loc;
+  params.refineSolution = static_cast<bool>(ags_refine_loc);
 
   ags::NLPSolver solver;
   solver.SetParameters(params);
@@ -94,12 +94,12 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
     for (size_t i = 0; i < holderConstEstimations.size() - 1; i++)
       std::cout << "Estimation of Holder constant of function # " << i << ": " << holderConstEstimations[i] << "\n";
     std::cout << "Estimation of Holder constant of objective: " << holderConstEstimations.back() << "\n";
-    if (optPoint.idx != (int)m)
+    if (optPoint.idx != static_cast<int>(m))
       std::cout << "Feasible point not found" << "\n";
     std::cout << std::string(40, '-') << std::endl;
   }
 
-  if ((int)m == optPoint.idx)
+  if (static_cast<int>(m) == optPoint.idx)
   {
     memcpy(x, optPoint.y, n*sizeof(x[0]));
     *minf = optPoint.g[optPoint.idx];

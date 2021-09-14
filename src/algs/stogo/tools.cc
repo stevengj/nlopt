@@ -192,7 +192,7 @@ void TBox::split(RTBox B1, RTBox B2) {
     center=0; dispers=0;
     for ( itr = TList.begin(); itr != TList.end(); ++itr )
       axpy(1.0, (*itr).xvals, center);
-    scal((double)(1.0/ns),center);
+    scal((1.0/ns),center);
 
     // Compute the relative deviations
     for ( itr = TList.begin(); itr != TList.end(); ++itr ) {
@@ -201,7 +201,7 @@ void TBox::split(RTBox B1, RTBox B2) {
 	dispers(k)=dispers(k)+pow(center(k)-x(k),2.0);
       }
     }
-    scal((double)(1.0/ns),dispers);
+    scal((1.0/ns),dispers);
 
     // i=arg max(disp)
     tmp=dispers(0);i=0;
