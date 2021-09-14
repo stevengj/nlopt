@@ -1,7 +1,7 @@
 These routines for nonlinear optimization are based on the Fortran 77
 code placed online by Professor Ladislav Luksan at his web site:
 
-	http://www.uivt.cas.cz/~luksan/subroutines.html
+  http://www.uivt.cas.cz/~luksan/subroutines.html
 
 and graciously licensed under the GNU Lesser General Public License
 (LGPL).  See also the COPYRIGHT file for details.

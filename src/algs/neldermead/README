@@ -13,8 +13,8 @@ November 2008
 First, (almost) the original Nelder-Mead simplex algorithm
 (NLOPT_LN_NELDERMEAD), as described in:
 
-	J. A. Nelder and R. Mead, "A simplex method for function
-	minimization," The Computer Journal 7, p. 308-313 (1965).
+  J. A. Nelder and R. Mead, "A simplex method for function
+  minimization," The Computer Journal 7, p. 308-313 (1965).
 
 This method is simple and has demonstrated enduring popularity,
 despite the later discovery that it fails to converge at all for some
@@ -25,13 +25,13 @@ to recommend the Subplex method (below) instead, however.
 The main variation is that I implemented explicit support for bound
 constraints, using essentially the method described in:
 
-	J. A. Richardson and J. L. Kuester, "The complex method for
-	constrained optimization," Commun. ACM 16(8), 487-489 (1973).
+  J. A. Richardson and J. L. Kuester, "The complex method for
+  constrained optimization," Commun. ACM 16(8), 487-489 (1973).
 
-	implementing the method described by:
+  implementing the method described by:
 
-	M. J. Box, "A new method of constrained optimization and a
-	comparison with other methods," Computer J. 8 (1), 42-52 (1965).
+  M. J. Box, "A new method of constrained optimization and a
+  comparison with other methods," Computer J. 8 (1), 42-52 (1965).
 
 Whenever a new point would lie outside the bound constraints, Box
 advocates moving it "just inside" the constraints.  I couldn't see any
@@ -96,12 +96,12 @@ against one of the constraints.
 
 Future possibilities:
 
-	C. J. Price, I. D. Coope, and D. Byatt, "A convergent variant
-	of the Nelder-Mead algorithm," J. Optim. Theory Appl. 113 (1),
-	p. 5-19 (2002).
+  C. J. Price, I. D. Coope, and D. Byatt, "A convergent variant
+  of the Nelder-Mead algorithm," J. Optim. Theory Appl. 113 (1),
+  p. 5-19 (2002).
 
-	A. Burmen, J. Puhan, and T. Tuma, "Grid restrained Nelder-Mead
-	algorithm," Computational Optim. Appl. 34(3), 359-375 (2006).
+  A. Burmen, J. Puhan, and T. Tuma, "Grid restrained Nelder-Mead
+  algorithm," Computational Optim. Appl. 34(3), 359-375 (2006).
 
 Both of these are provably convergent variations of Nelder-Mead; the
 latter authors claim that theirs is superior.

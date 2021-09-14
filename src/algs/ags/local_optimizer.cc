@@ -35,9 +35,9 @@ Trial HookeJeevesOptimizer::Optimize(std::shared_ptr<IGOProblem<double>> problem
   /* currentFvalue will be initialized below, init here to avoid maybe-uninitialized warning */
   double currentFValue = 0.0, nextFValue;
 
-  while (i < MAX_LOCAL_ITERATIONS_NUMBER)	{
+  while (i < MAX_LOCAL_ITERATIONS_NUMBER)  {
     i++;
-    if (needRestart)	{
+    if (needRestart)  {
       k = 0;
       mCurrentPoint = mStartPoint;
       mCurrentResearchDirection = mStartPoint;
@@ -49,12 +49,12 @@ Trial HookeJeevesOptimizer::Optimize(std::shared_ptr<IGOProblem<double>> problem
     mCurrentResearchDirection = mCurrentPoint;
     nextFValue = MakeResearch(mCurrentResearchDirection.y);
 
-    if (currentFValue > nextFValue)	{
+    if (currentFValue > nextFValue)  {
       DoStep();
       k++;
       currentFValue = nextFValue;
     }
-    else if (mStep > mEps)	{
+    else if (mStep > mEps)  {
       if (k != 0)
         std::swap(mStartPoint, mPreviousResearchDirection);
       else

@@ -126,16 +126,16 @@ static double c_b7 = 0.;
 /* RECURRENCES. */
 
 static void pnet_(int *nf, int *nb, double *x, int *
-		  ix, double *xl, double *xu, double *gf, double *gn,
-		  double *s, double *xo, double *go, double *xs,
-		  double *gs, double *xm, double *gm, double *u1,
-		  double *u2, double *xmax, double *tolx, double *tolf,
-		  double *tolb, double *tolg, nlopt_stopping *stop,
-		  double *minf_est, double *
-		  gmax, double *f, int *mit, int *mfv, int *mfg,
-		  int *iest, int *mos1, int *mos2, int *mf,
-		  int *iterm, stat_common *stat_1,
-		  nlopt_func objgrad, void *objgrad_data)
+      ix, double *xl, double *xu, double *gf, double *gn,
+      double *s, double *xo, double *go, double *xs,
+      double *gs, double *xm, double *gm, double *u1,
+      double *u2, double *xmax, double *tolx, double *tolf,
+      double *tolb, double *tolg, nlopt_stopping *stop,
+      double *minf_est, double *
+      gmax, double *f, int *mit, int *mfv, int *mfg,
+      int *iest, int *mos1, int *mos2, int *mf,
+      int *iterm, stat_common *stat_1,
+      nlopt_func objgrad, void *objgrad_data)
 {
     /* System generated locals */
     int i__1;
@@ -173,7 +173,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
     int mtesx, ntesx;
     ps1l01_state state;
 
-	(void) tolb;
+  (void) tolb;
 
 /*     INITIATION */
 
@@ -197,7 +197,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
     /* Function Body */
     kbf = 0;
     if (*nb > 0) {
-	kbf = 2;
+  kbf = 2;
     }
     stat_1->nres = 0;
     stat_1->ndec = 0;
@@ -230,29 +230,29 @@ static void pnet_(int *nf, int *nb, double *x, int *
     dmax__ = eta9;
     maxf = 1e20;
     if (*iest <= 0) {
-	 *minf_est = -HUGE_VAL; /* changed from -1e60 by SGJ */
+   *minf_est = -HUGE_VAL; /* changed from -1e60 by SGJ */
     }
     if (*iest > 0) {
-	*iest = 1;
+  *iest = 1;
     }
     if (*xmax <= 0.) {
-	*xmax = 1e16;
+  *xmax = 1e16;
     }
     if (*tolx <= 0.) {
-	*tolx = 1e-16;
+  *tolx = 1e-16;
     }
     if (*tolf <= 0.) {
-	*tolf = 1e-14;
+  *tolf = 1e-14;
     }
     if (*tolg <= 0.) {
-	 *tolg = 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
+   *tolg = 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
     }
 #if 0
     /* removed by SGJ: this check prevented us from using minf_max <= 0,
        which doesn't make sense.  Instead, if you don't want to have a
        lower limit, you should set minf_max = -HUGE_VAL */
     if (*tolb <= 0.) {
-	*tolb = *minf_est + 1e-16;
+  *tolb = *minf_est + 1e-16;
     }
 #endif
     told = 1e-4;
@@ -260,19 +260,19 @@ static void pnet_(int *nf, int *nb, double *x, int *
     tolp = .9;
     /* changed by SGJ: default is no limit (INT_MAX) on # iterations/fevals */
     if (*mit <= 0) {
-	*mit = INT_MAX;
+  *mit = INT_MAX;
     }
     if (*mfv <= 0) {
-	*mfv = INT_MAX;
+  *mfv = INT_MAX;
     }
     if (*mfg <= 0) {
-	*mfg = INT_MAX;
+  *mfg = INT_MAX;
     }
     if (*mos1 <= 0) {
-	*mos1 = 1;
+  *mos1 = 1;
     }
     if (*mos2 <= 0) {
-	*mos2 = 1;
+  *mos2 = 1;
     }
     kd = 1;
     ld = -1;
@@ -282,20 +282,20 @@ static void pnet_(int *nf, int *nb, double *x, int *
 /*     INITIAL OPERATIONS WITH SIMPLE BOUNDS */
 
     if (kbf > 0) {
-	i__1 = *nf;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    if ((ix[i__] == 3 || ix[i__] == 4) && xu[i__] <= xl[i__]) {
-		xu[i__] = xl[i__];
-		ix[i__] = 5;
-	    } else if (ix[i__] == 5 || ix[i__] == 6) {
-		xl[i__] = x[i__];
-		xu[i__] = x[i__];
-		ix[i__] = 5;
-	    }
+  i__1 = *nf;
+  for (i__ = 1; i__ <= i__1; ++i__) {
+      if ((ix[i__] == 3 || ix[i__] == 4) && xu[i__] <= xl[i__]) {
+    xu[i__] = xl[i__];
+    ix[i__] = 5;
+      } else if (ix[i__] == 5 || ix[i__] == 6) {
+    xl[i__] = x[i__];
+    xu[i__] = x[i__];
+    ix[i__] = 5;
+      }
 /* L2: */
-	}
-	luksan_pcbs04__(nf, &x[1], &ix[1], &xl[1], &xu[1], &eps9, &kbf);
-	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
+  }
+  luksan_pcbs04__(nf, &x[1], &ix[1], &xl[1], &xu[1], &eps9, &kbf);
+  luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
     }
     *f = objgrad(*nf, &x[1], &gf[1], objgrad_data);
     ++(*stop->nevals_p);
@@ -306,19 +306,19 @@ L11020:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
     luksan_mxvcop__(nf, &gf[1], &gn[1]);
     luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg,
-	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, mfg, &
-	    ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
-	    iters, iterm);
+      &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, mfg, &
+      ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
+      iters, iterm);
     if (*iterm != 0) {
-	goto L11080;
+  goto L11080;
     }
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11080; }
     if (kbf > 0) {
-	luksan_pyrmc0__(nf, &n, &ix[1], &gn[1], &eps8, &umax, gmax, &rmax, &
-		iold, &irest);
-	if (umax > eps8 * *gmax) {
-	    irest = MAX2(irest,1);
-	}
+  luksan_pyrmc0__(nf, &n, &ix[1], &gn[1], &eps8, &umax, gmax, &rmax, &
+    iold, &irest);
+  if (umax > eps8 * *gmax) {
+      irest = MAX2(irest,1);
+  }
     }
     luksan_mxvcop__(nf, &x[1], &xo[1]);
 L11040:
@@ -326,23 +326,23 @@ L11040:
 /*     DIRECTION DETERMINATION */
 
     if (irest != 0) {
-	if (kit < stat_1->nit) {
-	    mx = 0;
-	    ++stat_1->nres;
-	    kit = stat_1->nit;
-	} else {
-	    *iterm = -10;
-	    if (iters < 0) {
-		*iterm = iters - 5;
-	    }
-	    goto L11080;
-	}
-	if (*mos1 > 1) {
-	    luksan_mxvneg__(nf, &gn[1], &s[1]);
-	    gnorm = sqrt(luksan_mxudot__(nf, &gn[1], &gn[1], &ix[1], &kbf));
-	    snorm = gnorm;
-	    goto L12560;
-	}
+  if (kit < stat_1->nit) {
+      mx = 0;
+      ++stat_1->nres;
+      kit = stat_1->nit;
+  } else {
+      *iterm = -10;
+      if (iters < 0) {
+    *iterm = iters - 5;
+      }
+      goto L11080;
+  }
+  if (*mos1 > 1) {
+      luksan_mxvneg__(nf, &gn[1], &s[1]);
+      gnorm = sqrt(luksan_mxudot__(nf, &gn[1], &gn[1], &ix[1], &kbf));
+      snorm = gnorm;
+      goto L12560;
+  }
     }
     rho1 = luksan_mxudot__(nf, &gn[1], &gn[1], &ix[1], &kbf);
     gnorm = sqrt(rho1);
@@ -351,8 +351,8 @@ L11040:
     par = MIN2(d__1,d__2);
     if (par > .01) {
 /* Computing MIN */
-	d__1 = par, d__2 = 1. / (double) stat_1->nit;
-	par = MIN2(d__1,d__2);
+  d__1 = par, d__2 = 1. / (double) stat_1->nit;
+  par = MIN2(d__1,d__2);
     }
     par *= par;
 
@@ -364,23 +364,23 @@ L11040:
     luksan_mxvneg__(nf, &gn[1], &gs[1]);
     luksan_mxvcop__(nf, &gs[1], &xs[1]);
     if (*mos2 > 1) {
-	if (mx == 0) {
-	    b = 0.;
-	} else {
-	    b = luksan_mxudot__(nf, &xm[1], &gm[1], &ix[1], &kbf);
-	}
-	if (b > 0.) {
-	    u1[1] = 1. / b;
-	    luksan_mxdrcb__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &xs[1], &
-		    ix[1], &kbf);
-	    a = luksan_mxudot__(nf, &gm[1], &gm[1], &ix[1], &kbf);
-	    if (a > 0.) {
-		d__1 = b / a;
-		luksan_mxvscl__(nf, &d__1, &xs[1], &xs[1]);
-	    }
-	    luksan_mxdrcf__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &xs[1], &
-		    ix[1], &kbf);
-	}
+  if (mx == 0) {
+      b = 0.;
+  } else {
+      b = luksan_mxudot__(nf, &xm[1], &gm[1], &ix[1], &kbf);
+  }
+  if (b > 0.) {
+      u1[1] = 1. / b;
+      luksan_mxdrcb__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &xs[1], &
+        ix[1], &kbf);
+      a = luksan_mxudot__(nf, &gm[1], &gm[1], &ix[1], &kbf);
+      if (a > 0.) {
+    d__1 = b / a;
+    luksan_mxvscl__(nf, &d__1, &xs[1], &xs[1]);
+      }
+      luksan_mxdrcf__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &xs[1], &
+        ix[1], &kbf);
+  }
     }
     rho = luksan_mxudot__(nf, &gs[1], &xs[1], &ix[1], &kbf);
 /*      SIG=RHO */
@@ -389,7 +389,7 @@ L11040:
 L12520:
     ++nred;
     if (nred > mmx) {
-	goto L12550;
+  goto L12550;
     }
     fo = *f;
     pp = sqrt(eta0 / luksan_mxudot__(nf, &xs[1], &xs[1], &ix[1], &kbf));
@@ -409,14 +409,14 @@ L12520:
 
 /*     CG FAILS (THE MATRIX IS NOT POSITIVE DEFINITE) */
 
-	if (nred == 1) {
-	    luksan_mxvneg__(nf, &gn[1], &s[1]);
-	    snorm = gnorm;
-	}
-	iterd = 0;
-	goto L12560;
+  if (nred == 1) {
+      luksan_mxvneg__(nf, &gn[1], &s[1]);
+      snorm = gnorm;
+  }
+  iterd = 0;
+  goto L12560;
     } else {
-	iterd = 2;
+  iterd = 2;
     }
 
 /*     CG STEP */
@@ -428,32 +428,32 @@ L12520:
     rho2 = luksan_mxudot__(nf, &gs[1], &gs[1], &ix[1], &kbf);
     snorm = sqrt(luksan_mxudot__(nf, &s[1], &s[1], &ix[1], &kbf));
     if (rho2 <= par * rho1) {
-	goto L12560;
+  goto L12560;
     }
     if (nred >= mmx) {
-	goto L12550;
+  goto L12550;
     }
     if (*mos2 > 1) {
-	if (b > 0.) {
-	    luksan_mxvcop__(nf, &gs[1], &go[1]);
-	    luksan_mxdrcb__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &go[1], &
-		    ix[1], &kbf);
-	    if (a > 0.) {
-		d__1 = b / a;
-		luksan_mxvscl__(nf, &d__1, &go[1], &go[1]);
-	    }
-	    luksan_mxdrcf__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &go[1], &
-		    ix[1], &kbf);
-	    rho2 = luksan_mxudot__(nf, &gs[1], &go[1], &ix[1], &kbf);
-	    alf = rho2 / rho;
-	    luksan_mxudir__(nf, &alf, &xs[1], &go[1], &xs[1], &ix[1], &kbf);
-	} else {
-	    alf = rho2 / rho;
-	    luksan_mxudir__(nf, &alf, &xs[1], &gs[1], &xs[1], &ix[1], &kbf);
-	}
+  if (b > 0.) {
+      luksan_mxvcop__(nf, &gs[1], &go[1]);
+      luksan_mxdrcb__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &go[1], &
+        ix[1], &kbf);
+      if (a > 0.) {
+    d__1 = b / a;
+    luksan_mxvscl__(nf, &d__1, &go[1], &go[1]);
+      }
+      luksan_mxdrcf__(nf, &mx, &xm[1], &gm[1], &u1[1], &u2[1], &go[1], &
+        ix[1], &kbf);
+      rho2 = luksan_mxudot__(nf, &gs[1], &go[1], &ix[1], &kbf);
+      alf = rho2 / rho;
+      luksan_mxudir__(nf, &alf, &xs[1], &go[1], &xs[1], &ix[1], &kbf);
+  } else {
+      alf = rho2 / rho;
+      luksan_mxudir__(nf, &alf, &xs[1], &gs[1], &xs[1], &ix[1], &kbf);
+  }
     } else {
-	alf = rho2 / rho;
-	luksan_mxudir__(nf, &alf, &xs[1], &gs[1], &xs[1], &ix[1], &kbf);
+  alf = rho2 / rho;
+  luksan_mxudir__(nf, &alf, &xs[1], &gs[1], &xs[1], &ix[1], &kbf);
     }
     rho = rho2;
 /*      SIG=RHO2+ALF*ALF*SIG */
@@ -471,55 +471,55 @@ L12560:
     luksan_mxvcop__(nf, &xo[1], &x[1]);
     luksan_mxvcop__(nf, &gn[1], &gf[1]);
     if (kd > 0) {
-	p = luksan_mxudot__(nf, &gn[1], &s[1], &ix[1], &kbf);
+  p = luksan_mxudot__(nf, &gn[1], &s[1], &ix[1], &kbf);
     }
     if (iterd < 0) {
-	*iterm = iterd;
+  *iterm = iterd;
     } else {
 
 /*     TEST ON DESCENT DIRECTION */
 
-	if (snorm <= 0.) {
-	    irest = MAX2(irest,1);
-	} else if (p + told * gnorm * snorm <= 0.) {
-	    irest = 0;
-	} else {
+  if (snorm <= 0.) {
+      irest = MAX2(irest,1);
+  } else if (p + told * gnorm * snorm <= 0.) {
+      irest = 0;
+  } else {
 
 /*     UNIFORM DESCENT CRITERION */
 
-	    irest = MAX2(irest,1);
-	}
-	if (irest == 0) {
+      irest = MAX2(irest,1);
+  }
+  if (irest == 0) {
 
 /*     PREPARATION OF LINE SEARCH */
 
-	    nred = 0;
-	    rmin = alf1 * gnorm / snorm;
+      nred = 0;
+      rmin = alf1 * gnorm / snorm;
 /* Computing MIN */
-	    d__1 = alf2 * gnorm / snorm, d__2 = *xmax / snorm;
-	    rmax = MIN2(d__1,d__2);
-	}
+      d__1 = alf2 * gnorm / snorm, d__2 = *xmax / snorm;
+      rmax = MIN2(d__1,d__2);
+  }
     }
     ld = kd;
     if (*iterm != 0) {
-	goto L11080;
+  goto L11080;
     }
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11080; }
     if (irest != 0) {
-	goto L11040;
+  goto L11040;
     }
     luksan_pytrcs__(nf, &x[1], &ix[1], &xo[1], &xl[1], &xu[1], &gf[1], &go[1],
-	     &s[1], &ro, &fp, &fo, f, &po, &p, &rmax, &eta9, &kbf);
+       &s[1], &ro, &fp, &fo, f, &po, &p, &rmax, &eta9, &kbf);
     if (rmax == 0.) {
-	goto L11075;
+  goto L11075;
     }
 L11060:
     luksan_ps1l01__(&r__, &rp, f, &fo, &fp, &p, &po, &pp, minf_est, &maxf, &rmin,
-	    &rmax, &tols, &tolp, &par1, &par2, &kd, &ld, &stat_1->nit, &kit, &
-	    nred, &mred, &maxst, iest, &inits, &iters, &kters, &mes,
-		    &isys, &state);
+      &rmax, &tols, &tolp, &par1, &par2, &kd, &ld, &stat_1->nit, &kit, &
+      nred, &mred, &maxst, iest, &inits, &iters, &kters, &mes,
+        &isys, &state);
     if (isys == 0) {
-	goto L11064;
+  goto L11064;
     }
     luksan_mxudir__(nf, &r__, &s[1], &xo[1], &x[1], &ix[1], &kbf);
     luksan_pcbs04__(nf, &x[1], &ix[1], &xl[1], &xu[1], &eps9, &kbf);
@@ -531,32 +531,32 @@ L11060:
     goto L11060;
 L11064:
     if (iters <= 0) {
-	r__ = 0.;
-	*f = fo;
-	p = po;
-	luksan_mxvcop__(nf, &xo[1], &x[1]);
-	luksan_mxvcop__(nf, &go[1], &gf[1]);
-	irest = MAX2(irest,1);
-	ld = kd;
-	goto L11040;
+  r__ = 0.;
+  *f = fo;
+  p = po;
+  luksan_mxvcop__(nf, &xo[1], &x[1]);
+  luksan_mxvcop__(nf, &go[1], &gf[1]);
+  irest = MAX2(irest,1);
+  ld = kd;
+  goto L11040;
     }
     luksan_pytrcd__(nf, &x[1], &ix[1], &xo[1], &gf[1], &go[1], &r__, f, &fo, &
-	    p, &po, &dmax__, &kbf, &kd, &ld, &iters);
+      p, &po, &dmax__, &kbf, &kd, &ld, &iters);
     xstop = nlopt_stop_dx(stop, &x[1], &xo[1]);
     if (*mos2 > 1) {
 /* Computing MIN */
-	i__1 = mx + 1;
-	mx = MIN2(i__1,*mf);
-	luksan_mxdrsu__(nf, &mx, &xm[1], &gm[1], &u1[1]);
-	luksan_mxvcop__(nf, &xo[1], &xm[1]);
-	luksan_mxvcop__(nf, &go[1], &gm[1]);
+  i__1 = mx + 1;
+  mx = MIN2(i__1,*mf);
+  luksan_mxdrsu__(nf, &mx, &xm[1], &gm[1], &u1[1]);
+  luksan_mxvcop__(nf, &xo[1], &xm[1]);
+  luksan_mxvcop__(nf, &go[1], &gm[1]);
     }
 L11075:
     if (kbf > 0) {
-	luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
-	if (inew > 0) {
-	    irest = MAX2(irest,1);
-	}
+  luksan_pyadc0__(nf, &n, &x[1], &ix[1], &xl[1], &xu[1], &inew);
+  if (inew > 0) {
+      irest = MAX2(irest,1);
+  }
     }
     goto L11020;
 L11080:
@@ -565,12 +565,12 @@ L11080:
 
 /* NLopt wrapper around pnet_, handling dynamic allocation etc. */
 nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
-			 const double *lb, const double *ub, /* bounds */
-			 double *x, /* in: initial guess, out: minimizer */
-			 double *minf,
-			 nlopt_stopping *stop,
-			 int mf, /* subspace dimension (0 for default) */
-			 int mos1, int mos2) /* 1 or 2 */
+       const double *lb, const double *ub, /* bounds */
+       double *x, /* in: initial guess, out: minimizer */
+       double *minf,
+       nlopt_stopping *stop,
+       int mf, /* subspace dimension (0 for default) */
+       int mos1, int mos2) /* 1 or 2 */
 {
      int i, *ix, nb = 1;
      double *work;
@@ -588,21 +588,21 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
      if (!ix) return NLOPT_OUT_OF_MEMORY;
 
      if (mf <= 0) {
-	  mf = MAX2(MEMAVAIL/n, 10);
-	  if (stop->maxeval && stop->maxeval <= mf)
-	       mf = MAX2(stop->maxeval, 1);
+    mf = MAX2(MEMAVAIL/n, 10);
+    if (stop->maxeval && stop->maxeval <= mf)
+         mf = MAX2(stop->maxeval, 1);
      }
 
  retry_alloc:
      work = (double*) malloc(sizeof(double) * (n * 9 + MAX2(n,n*mf)*2 +
-					       MAX2(n,mf)*2));
+                 MAX2(n,mf)*2));
      if (!work) {
-	  if (mf > 0) {
-	       mf = 0; /* allocate minimal memory */
-	       goto retry_alloc;
-	  }
-	  free(ix);
-	  return NLOPT_OUT_OF_MEMORY;
+    if (mf > 0) {
+         mf = 0; /* allocate minimal memory */
+         goto retry_alloc;
+    }
+    free(ix);
+    return NLOPT_OUT_OF_MEMORY;
      }
 
      xl = work; xu = xl + n;
@@ -612,51 +612,51 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
      u1 = gm + MAX2(n*mf,n); u2 = u1 + MAX2(n,mf);
 
      for (i = 0; i < n; ++i) {
-	  int lbu = lb[i] <= -0.99 * HUGE_VAL; /* lb unbounded */
-	  int ubu = ub[i] >= 0.99 * HUGE_VAL;  /* ub unbounded */
-	  ix[i] = lbu ? (ubu ? 0 : 2) : (ubu ? 1 : (lb[i] == ub[i] ? 5 : 3));
-	  xl[i] = lb[i];
-	  xu[i] = ub[i];
+    int lbu = lb[i] <= -0.99 * HUGE_VAL; /* lb unbounded */
+    int ubu = ub[i] >= 0.99 * HUGE_VAL;  /* ub unbounded */
+    ix[i] = lbu ? (ubu ? 0 : 2) : (ubu ? 1 : (lb[i] == ub[i] ? 5 : 3));
+    xl[i] = lb[i];
+    xu[i] = ub[i];
      }
 
      /* ?  xo does not seem to be initialized in the
-	original Fortran code, but it is used upon
-	input to pnet if mf > 0 ... perhaps ALLOCATE initializes
-	arrays to zero by default? */
+  original Fortran code, but it is used upon
+  input to pnet if mf > 0 ... perhaps ALLOCATE initializes
+  arrays to zero by default? */
      memset(xo, 0, sizeof(double) * MAX2(n,n*mf));
 
      pnet_(&n, &nb, x, ix, xl, xu,
-	   gf, gn, s, xo, go, xs, gs, xm, gm, u1, u2,
-	   &xmax,
+     gf, gn, s, xo, go, xs, gs, xm, gm, u1, u2,
+     &xmax,
 
-	   /* fixme: pass tol_rel and tol_abs and use NLopt check */
-	   &stop->xtol_rel,
-	   &stop->ftol_rel,
-	   &stop->minf_max,
-	   &tolg,
-	   stop,
+     /* fixme: pass tol_rel and tol_abs and use NLopt check */
+     &stop->xtol_rel,
+     &stop->ftol_rel,
+     &stop->minf_max,
+     &tolg,
+     stop,
 
-	   &minf_est, &gmax,
-	   minf,
-	   &mit, &mfv, &mfg,
-	   &iest,
-	   &mos1, &mos2,
-	   &mf,
-	   &iterm, &stat,
-	   f, f_data);
+     &minf_est, &gmax,
+     minf,
+     &mit, &mfv, &mfg,
+     &iest,
+     &mos1, &mos2,
+     &mf,
+     &iterm, &stat,
+     f, f_data);
 
      free(work);
      free(ix);
 
      switch (iterm) {
-	 case 1: return NLOPT_XTOL_REACHED;
-	 case 2: return NLOPT_FTOL_REACHED;
-	 case 3: return NLOPT_MINF_MAX_REACHED;
-	 case 4: return NLOPT_SUCCESS; /* gradient tolerance reached */
-	 case 6: return NLOPT_SUCCESS;
-	 case 12: case 13: return NLOPT_MAXEVAL_REACHED;
-	 case 100: return NLOPT_MAXTIME_REACHED;
-	 case -999: return NLOPT_FORCED_STOP;
-	 default: return NLOPT_FAILURE;
+   case 1: return NLOPT_XTOL_REACHED;
+   case 2: return NLOPT_FTOL_REACHED;
+   case 3: return NLOPT_MINF_MAX_REACHED;
+   case 4: return NLOPT_SUCCESS; /* gradient tolerance reached */
+   case 6: return NLOPT_SUCCESS;
+   case 12: case 13: return NLOPT_MAXEVAL_REACHED;
+   case 100: return NLOPT_MAXTIME_REACHED;
+   case -999: return NLOPT_FORCED_STOP;
+   default: return NLOPT_FAILURE;
      }
 }

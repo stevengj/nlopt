@@ -27,15 +27,15 @@ public:
 };
 
 int stogo_minimize(int n,
-		   objective_func fgrad, void *data,
-		   double *x, double *minf,
-		   const double *l, const double *u,
+       objective_func fgrad, void *data,
+       double *x, double *minf,
+       const double *l, const double *u,
 #ifdef NLOPT_UTIL_H
-		   nlopt_stopping *stop,
+       nlopt_stopping *stop,
 #else
-		   long int maxeval, double maxtime,
+       long int maxeval, double maxtime,
 #endif
-		   int nrandom)
+       int nrandom)
 {
   GlobalParams params;
 

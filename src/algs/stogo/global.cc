@@ -62,8 +62,8 @@ void Global::FillRegular(RTBox SampleBox, RTBox box) {
       SampleBox.AddTrial(tmpTrial) ;
       flag=-flag;
       if (flag==1 && dir<dim) {
-	x(dir)=m(dir) ;
-	dir++ ;
+  x(dir)=m(dir) ;
+  dir++ ;
       }
       i++ ;
     }
@@ -101,7 +101,7 @@ double Global::NewtonTest(RTBox box, int axis, RCRVector x_av, int *noutside) {
   while ( !SampleBox.EmptyBox() ) {
     SampleBox.RemoveTrial(tmpTrial) ;
     info = local(tmpTrial, box, Domain, eps_cl, &maxgrad, *this,
-		 axis, x_av, stop) ;
+     axis, x_av, stop) ;
     // What should we do when info=LS_Unstable?
     if (info == LS_Out)
       nout++;
@@ -151,14 +151,14 @@ void Global::ReduceOrSubdivide(RTBox box, int axis, RCRVector x_av) {
     }
     else
       if ( (ns>1) && (box.LowerBound(maxgrad)>fbound) ) {
-	// Several stationary points found and lower bound > fbound
-	Garbage.push(box) ;
+  // Several stationary points found and lower bound > fbound
+  Garbage.push(box) ;
       }
       else {
-	// Subdivision
-	B1.ClearBox() ; B2.ClearBox() ;
-	box.split(B1,B2) ;
-	CandSet.push(B1) ; CandSet.push(B2) ;
+  // Subdivision
+  B1.ClearBox() ; B2.ClearBox() ;
+  box.split(B1,B2) ;
+  CandSet.push(B1) ; CandSet.push(B2) ;
       }
 
   // Update fbound
@@ -218,8 +218,8 @@ void Global::Search(int axis, RCRVector x_av){
       }
       if (!InTime()) {
         done=TRUE;
-	if (stogo_verbose)
-	  cout << "The program has run out of time or function evaluations\n";
+  if (stogo_verbose)
+    cout << "The program has run out of time or function evaluations\n";
         break;
       }
 
@@ -229,11 +229,11 @@ void Global::Search(int axis, RCRVector x_av){
 
     // Reduce SolSet if necessary
     SolSet.erase(remove_if(SolSet.begin(), SolSet.end(),
-			   TrialGT(fbound+mu)),SolSet.end());
+         TrialGT(fbound+mu)),SolSet.end());
     if (InTime()) {
       if (stogo_verbose) {
-	cout << "Current set of minimizers (" << SolSet.size() << ")" << endl ;
-	DispMinimizers() ;
+  cout << "Current set of minimizers (" << SolSet.size() << ")" << endl ;
+  DispMinimizers() ;
       }
 
       while (!Garbage.empty()) {

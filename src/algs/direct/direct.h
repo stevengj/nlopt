@@ -10,8 +10,8 @@ extern "C"
 #endif /* __cplusplus */
 
 typedef double (*direct_objective_func)(int n, const double *x,
-					int *undefined_flag, 
-					void *data);
+          int *undefined_flag, 
+          void *data);
 
 typedef enum {
      DIRECT_ORIGINAL, DIRECT_GABLONSKY

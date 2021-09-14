@@ -1,13 +1,13 @@
 From-scratch re-implementation of the DIRECT and DIRECT-L algorithms
 described in:
 
-	D. R. Jones, C. D. Perttunen, and B. E. Stuckmann,
-	"Lipschitzian optimization without the lipschitz constant,"
-	J. Optimization Theory and Applications, vol. 79, p. 157 (1993).
+  D. R. Jones, C. D. Perttunen, and B. E. Stuckmann,
+  "Lipschitzian optimization without the lipschitz constant,"
+  J. Optimization Theory and Applications, vol. 79, p. 157 (1993).
 
-	J. M. Gablonsky and C. T. Kelley, "A locally-biased form
-	of the DIRECT algorithm," J. Global Optimization 21 (1),
-	p. 27-37 (2001).
+  J. M. Gablonsky and C. T. Kelley, "A locally-biased form
+  of the DIRECT algorithm," J. Global Optimization 21 (1),
+  p. 27-37 (2001).
 
 I re-implemented the algorithms for a couple of reasons.  First,
 because I was interested in the algorithms and wanted to play with

@@ -32,13 +32,13 @@ extern "C"
 #endif /* __cplusplus */
 
 nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
-			    int m, nlopt_constraint *fc, /* fc <= 0  */
-			    int p, nlopt_constraint *h, /* h == 0 */
-			    const double *lb, const double *ub, /* bounds */
-			    double *x, /* in: initial guess, out: minimizer */
-			    double *minf,
-			    nlopt_stopping *stop,
-			    int population); /* init. population */
+          int m, nlopt_constraint *fc, /* fc <= 0  */
+          int p, nlopt_constraint *h, /* h == 0 */
+          const double *lb, const double *ub, /* bounds */
+          double *x, /* in: initial guess, out: minimizer */
+          double *minf,
+          nlopt_stopping *stop,
+          int population); /* init. population */
 
 #ifdef __cplusplus
 }  /* extern "C" */

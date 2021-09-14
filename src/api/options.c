@@ -475,12 +475,12 @@ nlopt_result NLOPT_STDCALL nlopt_get_upper_bounds(const nlopt_opt opt, double *u
 
 /*************************************************************************/
 
-#define AUGLAG_ALG(a) ((a) == NLOPT_AUGLAG ||		\
-	               (a) == NLOPT_AUGLAG_EQ ||        \
-	               (a) == NLOPT_LN_AUGLAG ||        \
-		       (a) == NLOPT_LN_AUGLAG_EQ ||     \
-		       (a) == NLOPT_LD_AUGLAG ||        \
-		       (a) == NLOPT_LD_AUGLAG_EQ)
+#define AUGLAG_ALG(a) ((a) == NLOPT_AUGLAG ||    \
+                 (a) == NLOPT_AUGLAG_EQ ||        \
+                 (a) == NLOPT_LN_AUGLAG ||        \
+           (a) == NLOPT_LN_AUGLAG_EQ ||     \
+           (a) == NLOPT_LD_AUGLAG ||        \
+           (a) == NLOPT_LD_AUGLAG_EQ)
 
 nlopt_result NLOPT_STDCALL nlopt_remove_inequality_constraints(nlopt_opt opt)
 {
@@ -665,21 +665,21 @@ nlopt_result NLOPT_STDCALL nlopt_add_equality_constraint(nlopt_opt opt, nlopt_fu
 
 /*************************************************************************/
 
-#define SET(param, T, arg)						\
-   nlopt_result NLOPT_STDCALL nlopt_set_##param(nlopt_opt opt, T arg)	\
-   {									\
-	if (opt) {							\
+#define SET(param, T, arg)            \
+   nlopt_result NLOPT_STDCALL nlopt_set_##param(nlopt_opt opt, T arg)  \
+   {                  \
+  if (opt) {              \
              nlopt_unset_errmsg(opt);                                   \
-	     opt->arg = arg;						\
-	     return NLOPT_SUCCESS;					\
-	}								\
-	return NLOPT_INVALID_ARGS;					\
+       opt->arg = arg;            \
+       return NLOPT_SUCCESS;          \
+  }                \
+  return NLOPT_INVALID_ARGS;          \
    }
 
 
-#define GET(param, T, arg) T NLOPT_STDCALL	\
-   nlopt_get_##param(const nlopt_opt opt) {	\
-        return opt->arg;			\
+#define GET(param, T, arg) T NLOPT_STDCALL  \
+   nlopt_get_##param(const nlopt_opt opt) {  \
+        return opt->arg;      \
    }
 
 #define GETSET(param, T, arg) GET(param, T, arg) SET(param, T, arg)
@@ -771,7 +771,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights1(nlopt_opt opt, double x_weight)
 nlopt_result NLOPT_STDCALL nlopt_get_x_weights(const nlopt_opt opt, double *x_weights)
 {
     if (opt) {
-	if (opt->n > 0 && !x_weights) return ERR(NLOPT_INVALID_ARGS, opt, "invalid NULL weights");
+  if (opt->n > 0 && !x_weights) return ERR(NLOPT_INVALID_ARGS, opt, "invalid NULL weights");
         nlopt_unset_errmsg(opt);
         if (opt->x_weights) {
             memcpy(x_weights, opt->x_weights, sizeof(double) * (opt->n));

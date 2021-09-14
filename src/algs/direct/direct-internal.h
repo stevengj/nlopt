@@ -45,7 +45,7 @@ extern void direct_dirinitlist_(
      integer *anchor, integer *free, integer *
      point, doublereal *f, integer *maxfunc, const integer *maxdeep);
 extern void direct_dirpreprc_(doublereal *u, doublereal *l, integer *n, 
-			      doublereal *xs1, doublereal *xs2, integer *oops);
+            doublereal *xs1, doublereal *xs2, integer *oops);
 extern void direct_dirchoose_(
      integer *anchor, integer *s, integer *actdeep,
      doublereal *f, doublereal *minf, doublereal epsrel, doublereal epsabs, doublereal *thirds,
@@ -57,7 +57,7 @@ extern void direct_dirdoubleinsert_(
      doublereal *f, const integer *maxdeep, integer *maxfunc, 
      const integer *maxdiv, integer *ierror);
 extern integer direct_dirgetmaxdeep_(integer *pos, integer *length, integer *maxfunc,
-			      integer *n);
+            integer *n);
 extern void direct_dirget_i__(
      integer *length, integer *pos, integer *arrayi, integer *maxi, 
      integer *n, integer *maxfunc);

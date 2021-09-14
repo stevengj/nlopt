@@ -9,8 +9,8 @@
        -- the objective function f(n, x, undefined_flag, data) takes 4 args:
               int n: the dimension, same as dimension arg. to direct_optimize
               const double *x: array x[n] of point to evaluate
-	      int *undefined_flag: set to 1 on return if x violates constraints
-	                           or don't touch otherwise
+        int *undefined_flag: set to 1 on return if x violates constraints
+                             or don't touch otherwise
               void *data: same as f_data passed to direct_optimize
           return value = value of f(x)
 
@@ -22,8 +22,8 @@
 
    magic_eps, magic_eps_abs: Jones' "magic" epsilon parameter, and
                              also an absolute version of the same
-			     (not multipled by minf).  Jones suggests
-			     setting this to 1e-4, but 0 also works...
+           (not multipled by minf).  Jones suggests
+           setting this to 1e-4, but 0 also works...
 
    max_feval, max_iter: maximum number of function evaluations & DIRECT iters
    volume_reltol: relative tolerance on hypercube volume (0 if none)
@@ -74,7 +74,7 @@ direct_return_code direct_optimize(
      if (sigma_reltol <= 0) sigma_reltol = -1;
 
      if (fglobal == DIRECT_UNKNOWN_FGLOBAL)
-	  fglobal_reltol = DIRECT_UNKNOWN_FGLOBAL_RELTOL;
+    fglobal_reltol = DIRECT_UNKNOWN_FGLOBAL_RELTOL;
 
      if (dimension < 1) return DIRECT_INVALID_ARGS;
 
@@ -82,21 +82,21 @@ direct_return_code direct_optimize(
      if (!l) return DIRECT_OUT_OF_MEMORY;
      u = l + dimension;
      for (i = 0; i < dimension; ++i) {
-	  l[i] = lower_bounds[i];
-	  u[i] = upper_bounds[i];
+    l[i] = lower_bounds[i];
+    u[i] = upper_bounds[i];
      }
      
      direct_direct_(f, x, &dimension, &magic_eps, magic_eps_abs,
-		    &max_feval, &max_iter, 
-		    start, maxtime, force_stop,
-		    minf,
-		    l, u,
-		    &algmethod,
-		    &ierror,
-		    logfile,
-		    &fglobal, &fglobal_reltol,
-		    &volume_reltol, &sigma_reltol,
-		    f_data);
+        &max_feval, &max_iter, 
+        start, maxtime, force_stop,
+        minf,
+        l, u,
+        &algmethod,
+        &ierror,
+        logfile,
+        &fglobal, &fglobal_reltol,
+        &volume_reltol, &sigma_reltol,
+        f_data);
 
      free(l);
 

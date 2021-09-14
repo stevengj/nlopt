@@ -33,7 +33,7 @@
  *
  * Original RCS id
  * static char const rcsid[] =
- *  "	@(#) $Jeannot: cobyla.c,v 1.11 2004/04/18 09:51:36 js Exp $";
+ *  "  @(#) $Jeannot: cobyla.c,v 1.11 2004/04/18 09:51:36 js Exp $";
  *
  */
 
@@ -79,7 +79,7 @@ typedef struct {
 } func_wrap_state;
 
 static int func_wrap(int ni, int mi, double *x, double *f, double *con,
-		     func_wrap_state *s)
+         func_wrap_state *s)
 {
      unsigned n = U(ni);
      unsigned i, j, k;
@@ -89,14 +89,14 @@ static int func_wrap(int ni, int mi, double *x, double *f, double *con,
      (void) mi; /* unused */
 
      /* in nlopt, we guarante that the function is never evaluated outside
-	the lb and ub bounds, so we need force this with xtmp ... note
-	that this leads to discontinuity in the first derivative, which
+  the lb and ub bounds, so we need force this with xtmp ... note
+  that this leads to discontinuity in the first derivative, which
         slows convergence if we don't enable the ENFORCE_BOUNDS feature
-	above. */
+  above. */
      for (j = 0; j < n; ++j) {
-	  if (x[j] < lb[j]) xtmp[j] = lb[j];
-	  else if (x[j] > ub[j]) xtmp[j] = ub[j];
-	  else xtmp[j] = x[j];
+    if (x[j] < lb[j]) xtmp[j] = lb[j];
+    else if (x[j] > ub[j]) xtmp[j] = ub[j];
+    else xtmp[j] = x[j];
      }
      nlopt_unscale(n, s->scale, xtmp, xtmp);
 
@@ -104,24 +104,24 @@ static int func_wrap(int ni, int mi, double *x, double *f, double *con,
      if (nlopt_stop_forced(s->stop)) return 1;
      i = 0;
      for (j = 0; j < s->m_orig; ++j) {
-	  nlopt_eval_constraint(con + i, NULL, s->fc+j, n, xtmp);
-	  if (nlopt_stop_forced(s->stop)) return 1;
-	  for (k = 0; k < s->fc[j].m; ++k)
-	       con[i + k] = -con[i + k];
-	  i += s->fc[j].m;
+    nlopt_eval_constraint(con + i, NULL, s->fc+j, n, xtmp);
+    if (nlopt_stop_forced(s->stop)) return 1;
+    for (k = 0; k < s->fc[j].m; ++k)
+         con[i + k] = -con[i + k];
+    i += s->fc[j].m;
      }
      for (j = 0; j < s->p; ++j) {
-	  nlopt_eval_constraint(con + i, NULL, s->h+j, n, xtmp);
-	  if (nlopt_stop_forced(s->stop)) return 1;
-	  for (k = 0; k < s->h[j].m; ++k)
-	       con[(i + s->h[j].m) + k] = -con[i + k];
-	  i += 2 * s->h[j].m;
+    nlopt_eval_constraint(con + i, NULL, s->h+j, n, xtmp);
+    if (nlopt_stop_forced(s->stop)) return 1;
+    for (k = 0; k < s->h[j].m; ++k)
+         con[(i + s->h[j].m) + k] = -con[i + k];
+    i += 2 * s->h[j].m;
      }
      for (j = 0; j < n; ++j) {
-	  if (!nlopt_isinf(lb[j]))
-	       con[i++] = x[j] - lb[j];
-	  if (!nlopt_isinf(ub[j]))
-	       con[i++] = ub[j] - x[j];
+    if (!nlopt_isinf(lb[j]))
+         con[i++] = x[j] - lb[j];
+    if (!nlopt_isinf(ub[j]))
+         con[i++] = ub[j] - x[j];
      }
      return 0;
 }
@@ -178,13 +178,13 @@ extern nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg,
   int message, cobyla_function *calcfc, func_wrap_state *state);
 
 nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
-			     unsigned m, nlopt_constraint *fc,
+           unsigned m, nlopt_constraint *fc,
                              unsigned p, nlopt_constraint *h,
-			     const double *lb, const double *ub, /* bounds */
-			     double *x, /* in: initial guess, out: minimizer */
-			     double *minf,
-			     nlopt_stopping *stop,
-			     const double *dx)
+           const double *lb, const double *ub, /* bounds */
+           double *x, /* in: initial guess, out: minimizer */
+           double *minf,
+           nlopt_stopping *stop,
+           const double *dx)
 {
      unsigned i, j;
      func_wrap_state s;
@@ -221,18 +221,18 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      rhoend = stop->xtol_rel * (rhobeg);
      if (stop->xtol_abs)
       for (j = 0; j < n; ++j)
-	   if (rhoend < stop->xtol_abs[j] / fabs(s.scale[j]))
-	        rhoend = stop->xtol_abs[j] / fabs(s.scale[j]);
+     if (rhoend < stop->xtol_abs[j] / fabs(s.scale[j]))
+          rhoend = stop->xtol_abs[j] / fabs(s.scale[j]);
 
      /* each equality constraint gives two inequality constraints */
      m = nlopt_count_constraints(m, fc) + 2 * nlopt_count_constraints(p, h);
 
      /* add constraints for lower/upper bounds (if any) */
      for (j = 0; j < n; ++j) {
-	  if (!nlopt_isinf(lb[j]))
-	       ++m;
-	  if (!nlopt_isinf(ub[j]))
-	       ++m;
+    if (!nlopt_isinf(lb[j]))
+         ++m;
+    if (!nlopt_isinf(ub[j]))
+         ++m;
      }
 
      s.con_tol = (double *) malloc(sizeof(double) * m);
@@ -240,26 +240,26 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
 
      for (j = 0; j < m; ++j) s.con_tol[j] = 0;
      for (j = i = 0; i < s.m_orig; ++i) {
-	  unsigned ji = j, jnext = j + fc[i].m;
-	  for (; j < jnext; ++j) s.con_tol[j] = fc[i].tol[j - ji];
+    unsigned ji = j, jnext = j + fc[i].m;
+    for (; j < jnext; ++j) s.con_tol[j] = fc[i].tol[j - ji];
      }
      for (i = 0; i < s.p; ++i) {
-	  unsigned ji = j, jnext = j + h[i].m;
-	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - ji];
-	  ji = j; jnext = j + h[i].m;
-	  for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - ji];
+    unsigned ji = j, jnext = j + h[i].m;
+    for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - ji];
+    ji = j; jnext = j + h[i].m;
+    for (; j < jnext; ++j) s.con_tol[j] = h[i].tol[j - ji];
      }
 
      nlopt_rescale(n, s.scale, x, x);
      ret = cobyla((int) n, (int) m, x, minf, rhobeg, rhoend,
-		  stop, s.lb, s.ub, COBYLA_MSG_NONE, 
-		  func_wrap, &s);
+      stop, s.lb, s.ub, COBYLA_MSG_NONE, 
+      func_wrap, &s);
      nlopt_unscale(n, s.scale, x, x);
 
      /* make sure e.g. rounding errors didn't push us slightly out of bounds */
      for (j = 0; j < n; ++j) {
-	  if (x[j] < lb[j]) x[j] = lb[j];
-	  if (x[j] > ub[j]) x[j] = ub[j];
+    if (x[j] < lb[j]) x[j] = lb[j];
+    if (x[j] > ub[j]) x[j] = ub[j];
      }
 
 done:
@@ -549,12 +549,12 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
 #if ENFORCE_BOUNDS
     /* SGJ: make sure step rhocur stays inside [lb,ub] */
     if (x[i__] + rhocur > ub[i__]) {
-	 if (x[i__] - rhocur >= lb[i__])
-	      rhocur = -rhocur;
-	 else if (ub[i__] - x[i__] > x[i__] - lb[i__])
-	      rhocur = 0.5 * (ub[i__] - x[i__]);
-	 else
-	      rhocur = 0.5 * (x[i__] - lb[i__]);
+   if (x[i__] - rhocur >= lb[i__])
+        rhocur = -rhocur;
+   else if (ub[i__] - x[i__] > x[i__] - lb[i__])
+        rhocur = 0.5 * (ub[i__] - x[i__]);
+   else
+        rhocur = 0.5 * (x[i__] - lb[i__]);
     }
 #endif
     sim[i__ + i__ * sim_dim1] = rhocur;
@@ -596,7 +596,7 @@ L40:
       d__1 = resmax, d__2 = -con[k];
       resmax = MAX2(d__1,d__2);
       if (d__2 > state->con_tol[k-1])
-	   feasible = 0; /* SGJ, 2010 */
+     feasible = 0; /* SGJ, 2010 */
     }
   }
 
@@ -608,7 +608,7 @@ L40:
 
   if (*(stop->nevals_p) == *iprint - 1 || *iprint == 3) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
-	    *(stop->nevals_p), f, resmax);
+      *(stop->nevals_p), f, resmax);
     i__1 = iptem;
     fprintf(stderr, "cobyla: X =");
     for (i__ = 1; i__ <= i__1; ++i__) {
@@ -874,18 +874,18 @@ L140:
     /* SGJ: make sure dx step says in [lb,ub] */
 #if ENFORCE_BOUNDS
     {
-	 double xi = sim[i__ + np * sim_dim1];
+   double xi = sim[i__ + np * sim_dim1];
     fixdx:
-	 if (xi + dx[i__] > ub[i__])
-	      dx[i__] = -dx[i__];
-	 if (xi + dx[i__] < lb[i__]) {
-	      if (xi - dx[i__] <= ub[i__])
-		   dx[i__] = -dx[i__];
-	      else { /* try again with halved step */
-		   dx[i__] *= 0.5;
-		   goto fixdx;
-	      }
-	 }
+   if (xi + dx[i__] > ub[i__])
+        dx[i__] = -dx[i__];
+   if (xi + dx[i__] < lb[i__]) {
+        if (xi - dx[i__] <= ub[i__])
+       dx[i__] = -dx[i__];
+        else { /* try again with halved step */
+       dx[i__] *= 0.5;
+       goto fixdx;
+        }
+   }
     }
 #endif
     sim[i__ + jdrop * sim_dim1] = dx[i__];
@@ -1118,7 +1118,7 @@ L440:
        following SAS suggestion (otherwise I get convergence failure
        in some cases.) */
     if (trured >= prerem * 0.9 && trured <= prerem * 1.1 && iflag) {
-	 rho *= 2.0;
+   rho *= 2.0;
     }
     goto L140;
   }
@@ -1136,8 +1136,8 @@ L550:
   {
        double fbest = ifull == 1 ? f : datmat[mp + np * datmat_dim1];
        if (fbest < *minf && nlopt_stop_ftol(stop, fbest, *minf)) {
-	    rc = NLOPT_FTOL_REACHED;
-	    goto L600;
+      rc = NLOPT_FTOL_REACHED;
+      goto L600;
        }
        *minf = fbest;
   }
@@ -1224,7 +1224,7 @@ L620:
   *minf = f;
   if (*iprint >= 1) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
-	    *(stop->nevals_p), f, resmax);
+      *(stop->nevals_p), f, resmax);
     i__1 = iptem;
     fprintf(stderr, "cobyla: X =");
     for (i__ = 1; i__ <= i__1; ++i__) {

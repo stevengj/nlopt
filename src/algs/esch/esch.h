@@ -33,14 +33,14 @@ extern "C"
 nlopt_result chevolutionarystrategy(
      unsigned, /* Number of input parameters */
      nlopt_func, /* Recursive Objective Funtion Call */
-     void *,	/* Data to Objective Function */
-     const double*,				/* Lower bound values */
-     const double*,				/* Upper bound values */
-     double*,				/* in: initial guess, out: minimizer */
+     void *,  /* Data to Objective Function */
+     const double*,        /* Lower bound values */
+     const double*,        /* Upper bound values */
+     double*,        /* in: initial guess, out: minimizer */
      double*,
-     nlopt_stopping*, 		/* nlopt stop condition */
-     unsigned, 			/* Number of Parents */ 
-     unsigned); 			/* Number of Offsprings */
+     nlopt_stopping*,     /* nlopt stop condition */
+     unsigned,       /* Number of Parents */ 
+     unsigned);       /* Number of Offsprings */
 
 #ifdef __cplusplus
 }  /* extern "C" */

@@ -5,28 +5,28 @@
 
 %{
 
-#define ExceptionSubclass(EXCNAME, EXCDOC)				\
-  static PyTypeObject MyExc_ ## EXCNAME = {				\
-    PyVarObject_HEAD_INIT(NULL, 0)						\
-      "nlopt." # EXCNAME,						\
-      sizeof(PyBaseExceptionObject),					\
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
-      Py_TPFLAGS_DEFAULT,						\
-      PyDoc_STR(EXCDOC)							\
-  };									\
-  static void init_ ## EXCNAME(PyObject *m) {				\
-    MyExc_ ## EXCNAME .tp_base = (PyTypeObject *) PyExc_Exception;	\
-    PyType_Ready(&MyExc_ ## EXCNAME);					\
-    Py_INCREF(&MyExc_ ## EXCNAME);					\
-    PyModule_AddObject(m, # EXCNAME, (PyObject *) &MyExc_ ## EXCNAME);	\
+#define ExceptionSubclass(EXCNAME, EXCDOC)        \
+  static PyTypeObject MyExc_ ## EXCNAME = {        \
+    PyVarObject_HEAD_INIT(NULL, 0)            \
+      "nlopt." # EXCNAME,            \
+      sizeof(PyBaseExceptionObject),          \
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,      \
+      Py_TPFLAGS_DEFAULT,            \
+      PyDoc_STR(EXCDOC)              \
+  };                  \
+  static void init_ ## EXCNAME(PyObject *m) {        \
+    MyExc_ ## EXCNAME .tp_base = (PyTypeObject *) PyExc_Exception;  \
+    PyType_Ready(&MyExc_ ## EXCNAME);          \
+    Py_INCREF(&MyExc_ ## EXCNAME);          \
+    PyModule_AddObject(m, # EXCNAME, (PyObject *) &MyExc_ ## EXCNAME);  \
   }
 
 
 ExceptionSubclass(ForcedStop,
-		  "Python version of nlopt::forced_stop exception.")
+      "Python version of nlopt::forced_stop exception.")
 
 ExceptionSubclass(RoundoffLimited,
-		  "Python version of nlopt::roundoff_limited exception.")
+      "Python version of nlopt::roundoff_limited exception.")
 
 %}
 
@@ -108,7 +108,7 @@ ExceptionSubclass(RoundoffLimited,
   npy_intp sz = $1.size();
   $result = PyArray_SimpleNew(1, &sz, NPY_DOUBLE);
   std::memcpy(array_data($result), $1.empty() ? NULL : &$1[0],
-	      sizeof(double) * sz);
+        sizeof(double) * sz);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -127,8 +127,8 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
 {
   npy_intp sz = npy_intp(n), sz0 = 0, stride1 = sizeof(double);
   PyObject *xpy = PyArray_New(&PyArray_Type, 1, &sz, NPY_DOUBLE, &stride1,
-			      const_cast<double*>(x), // not NPY_WRITEABLE
-			      0, NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED, NULL);
+            const_cast<double*>(x), // not NPY_WRITEABLE
+            0, NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED, NULL);
   PyObject *gradpy = grad
     ? PyArray_SimpleNewFromData(1, &sz, NPY_DOUBLE, grad)
     : PyArray_SimpleNew(1, &sz0, NPY_DOUBLE);
@@ -157,14 +157,14 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
 }
 
 static void mfunc_python(unsigned m, double *result,
-			 unsigned n, const double *x, double *grad, void *f)
+       unsigned n, const double *x, double *grad, void *f)
 {
   npy_intp nsz = npy_intp(n), msz = npy_intp(m);
   npy_intp mnsz[2] = {msz, nsz};
   npy_intp sz0 = 0, stride1 = sizeof(double);
   PyObject *xpy = PyArray_New(&PyArray_Type, 1, &nsz, NPY_DOUBLE, &stride1,
-			      const_cast<double*>(x), // not NPY_WRITEABLE
-			      0, NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED, NULL);
+            const_cast<double*>(x), // not NPY_WRITEABLE
+            0, NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED, NULL);
   PyObject *rpy = PyArray_SimpleNewFromData(1, &msz, NPY_DOUBLE, result);
   PyObject *gradpy = grad
     ? PyArray_SimpleNewFromData(2, mnsz, NPY_DOUBLE, grad)

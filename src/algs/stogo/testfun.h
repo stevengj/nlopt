@@ -9,15 +9,15 @@ const double pi=fabs(acos(-1.));
 
 /* The Matrix a and vector c are needed in the Shekel function */
 static double a[10][4]={ { 4,4,4,4 } ,
-			 { 1,1,1,1 } ,
-			 { 8,8,8,8 } ,
-			 { 6,6,6,6 } ,
-			 { 3,7,3,7 } ,
-			 { 2,9,2,9 } ,
-			 { 5,5,3,3 } ,
-			 { 8,1,8,1 } ,
-			 { 6,2,6,2 } ,
-			 {7,3.6,7,3.6} };
+       { 1,1,1,1 } ,
+       { 8,8,8,8 } ,
+       { 6,6,6,6 } ,
+       { 3,7,3,7 } ,
+       { 2,9,2,9 } ,
+       { 5,5,3,3 } ,
+       { 8,1,8,1 } ,
+       { 6,2,6,2 } ,
+       {7,3.6,7,3.6} };
 static double c[10]= { .1 , .2 , .2 , .4 , .4 , .6 , .3, .7 , .5 , .5 };
 
 void Domain_Shekel(RTBox box) {
@@ -101,11 +101,11 @@ void Gradient_BoxBetts(RCRVector x, RVector &grad) {
   double g0=0.0, g1=0.0, g2=0.0 ;
   for (int i=1 ; i<=10 ; i++) {
     g0 += -0.2*(exp(-0.1*i*x0)-exp(-0.1*i*x1)
-	  -(exp(-0.1*i)-exp(-1.0*i))*x2)*i*exp(-0.1*i*x0);
+    -(exp(-0.1*i)-exp(-1.0*i))*x2)*i*exp(-0.1*i*x0);
     g1 += 0.2*(exp(-0.1*i*x0)-exp(-0.1*i*x1)-(exp(-0.1*i)
-	  -exp(-1.0*i))*x2)*i*exp(-0.1*i*x1);
+    -exp(-1.0*i))*x2)*i*exp(-0.1*i*x1);
     g2 += 2.0*(exp(-0.1*i*x0)-exp(-0.1*i*x1)
-	  -(exp(-0.1*i)-exp(-1.0*i))*x2)*(-exp(-0.1*i)+exp(-1.0*i));
+    -(exp(-0.1*i)-exp(-1.0*i))*x2)*(-exp(-0.1*i)+exp(-1.0*i));
   }
   grad(0)=g0 ; grad(1)=g1 ; grad(2)=g2 ;
 }
@@ -476,8 +476,8 @@ void GradPerm(RCRVector x, RVector &grad, double beta) {
     for (int k=1 ; k<=n ; k++) {
       double s2=0.0;
       for (int i=1 ; i<=n; i++)
-	//      s2+=(i^k+beta)*((x(i-1)/i)^k-1);
-	s2+=(pow(1.0*i,1.0*k)+beta)*(pow(x(i-1)/i,1.0*k)-1);
+  //      s2+=(i^k+beta)*((x(i-1)/i)^k-1);
+  s2+=(pow(1.0*i,1.0*k)+beta)*(pow(x(i-1)/i,1.0*k)-1);
       //    s1+=2*s2*(j^k+beta)/(x(j-1)*j^k)*k*x(j-1)^k;
       s1+=2*s2*(pow(1.0*j,1.0*k)+beta)/pow(1.0*j,1.0*k)*k*pow(x(j-1),k-1.0);
     }
@@ -529,7 +529,7 @@ void Gradient_Powersum(RCRVector x, RVector &grad) {
     for (int k=1 ; k<=n ; k++) {
       double s2=0.0;
       for (int i=1 ; i<=n ; i++)
-	s2+=pow(x(i-1),1.0*k);
+  s2+=pow(x(i-1),1.0*k);
       s1+=2*(s2-b[k-1])*k*pow(x(j),k-1.0);
     }
     grad(j)=s1;

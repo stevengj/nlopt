@@ -34,14 +34,14 @@ extern "C"
 extern int cquad_verbose;
 
 nlopt_result cquad_minimize(int n, nlopt_func f, void *f_data,
-			    int m, nlopt_func fc,
-			    void *fc_data_, ptrdiff_t fc_datum_size,
-			    const double *lb, const double *ub, /* bounds */
-			    double *x, /* in: initial guess, out: minimizer */
-			    double *minf,
-			    nlopt_stopping *stop,
-			    nlopt_algorithm model_alg, 
-			    double dual_tolrel, int dual_maxeval);
+          int m, nlopt_func fc,
+          void *fc_data_, ptrdiff_t fc_datum_size,
+          const double *lb, const double *ub, /* bounds */
+          double *x, /* in: initial guess, out: minimizer */
+          double *minf,
+          nlopt_stopping *stop,
+          nlopt_algorithm model_alg, 
+          double dual_tolrel, int dual_maxeval);
 
 #ifdef __cplusplus
 }  /* extern "C" */

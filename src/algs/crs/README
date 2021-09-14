@@ -7,10 +7,10 @@ with the "local mutation" modification, as defined by:
 
 The original CRS2 algorithm was described by:
 
-	W. L. Price, "A controlled random search procedure for global
-	optimization," in Towards Global Optimization 2, p. 71-84
-	edited by L. C. W. Dixon and G. P. Szego (North-Holland Press,
-	Amsterdam, 1978).
+  W. L. Price, "A controlled random search procedure for global
+  optimization," in Towards Global Optimization 2, p. 71-84
+  edited by L. C. W. Dixon and G. P. Szego (North-Holland Press,
+  Amsterdam, 1978).
 
 It is under the same MIT license as the rest of my code in NLopt (see
 ../COPYRIGHT).

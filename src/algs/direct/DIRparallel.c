@@ -26,10 +26,10 @@ static integer c_n1 = -1;
 /* | termination signal.                                                   | */
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ int direct_pardirect_(fp fcn, doublereal *x, integer *n, 
-	doublereal *eps, integer *maxf, integer *maxt, doublereal *minf, 
-	doublereal *l, doublereal *u, integer *algmethod, integer *ierror, 
-	FILE *logfile, doublereal *fglobal, doublereal *fglper, doublereal 
-	*volper, doublereal *sigmaper, void *fcn_data)
+  doublereal *eps, integer *maxf, integer *maxt, doublereal *minf, 
+  doublereal *l, doublereal *u, integer *algmethod, integer *ierror, 
+  FILE *logfile, doublereal *fglobal, doublereal *fglper, doublereal 
+  *volper, doublereal *sigmaper, void *fcn_data)
 {
     /* System generated locals */
     integer i__1;
@@ -92,28 +92,28 @@ static integer c_n1 = -1;
 /* | Otherwise, branch off to do function evaluations.                     | */
 /* +-----------------------------------------------------------------------+ */
     if (mytid == tids[0]) {
-	i__1 = nprocs - 1;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    gettidif_(&i__, &tids[i__]);
+  i__1 = nprocs - 1;
+  for (i__ = 1; i__ <= i__1; ++i__) {
+      gettidif_(&i__, &tids[i__]);
 /* L46: */
-	}
+  }
 /* +-----------------------------------------------------------------------+ */
 /* | Call Direct main routine. This routine calls DIRSamplef for the       | */
 /* | function evaluations, which are then done in parallel.                | */
 /* +-----------------------------------------------------------------------+ */
-	direct_direct_(fcn, &x[1], n, eps, maxf, maxt, minf, &l[1], &u[1], 
-		algmethod, ierror, logfile, fglobal, fglper, volper, sigmaper,
-		fcn_data);
+  direct_direct_(fcn, &x[1], n, eps, maxf, maxt, minf, &l[1], &u[1], 
+    algmethod, ierror, logfile, fglobal, fglper, volper, sigmaper,
+    fcn_data);
 /* +-----------------------------------------------------------------------+ */
 /* | Send exit message to rest of pe's.                                    | */
 /* +-----------------------------------------------------------------------+ */
-	flag__ = 0;
-	i__1 = nprocs;
-	for (tid = 2; tid <= i__1; ++tid) {
-	    mastersendif_(&tids[tid - 1], &tids[tid - 1], n, &flag__, &flag__,
-		     &x[1], &u[1], &l[1], &x[1]);
+  flag__ = 0;
+  i__1 = nprocs;
+  for (tid = 2; tid <= i__1; ++tid) {
+      mastersendif_(&tids[tid - 1], &tids[tid - 1], n, &flag__, &flag__,
+         &x[1], &u[1], &l[1], &x[1]);
 /* L200: */
-	}
+  }
     } else {
 /* +-----------------------------------------------------------------------+ */
 /* | This is what the slaves do!!                                          | */
@@ -121,24 +121,24 @@ static integer c_n1 = -1;
 /* +-----------------------------------------------------------------------+ */
 /* |   Receive the first point from the master processor.                  | */
 /* +-----------------------------------------------------------------------+ */
-	slaverecvif_(tids, &c_n1, n, &flag__, &k, &fscale, &u[1], &l[1], &x[1]
-		);
+  slaverecvif_(tids, &c_n1, n, &flag__, &k, &fscale, &u[1], &l[1], &x[1]
+    );
 /* +-----------------------------------------------------------------------+ */
 /* | Repeat until master signals to stop.                                  | */
 /* +-----------------------------------------------------------------------+ */
-	while(flag__ > 0) {
+  while(flag__ > 0) {
 /* +-----------------------------------------------------------------------+ */
 /* | Evaluate f(x).                                                        | */
 /* +-----------------------------------------------------------------------+ */
-	     direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &fval, &kret, &
-		      fcn_data);
+       direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &fval, &kret, &
+          fcn_data);
 /* +-----------------------------------------------------------------------+ */
 /* | Send result and wait for next point / message with signal to stop.    | */
 /* +-----------------------------------------------------------------------+ */
-	    slavesendif_(tids, &mytid, &k, &mytid, &fval, &kret);
-	    slaverecvif_(tids, &c_n1, n, &flag__, &k, &fscale, &u[1], &l[1], &
-		    x[1]);
-	}
+      slavesendif_(tids, &mytid, &k, &mytid, &fval, &kret);
+      slaverecvif_(tids, &c_n1, n, &flag__, &k, &fscale, &u[1], &l[1], &
+        x[1]);
+  }
     }
     return 0;
 } /* pardirect_ */
@@ -148,16 +148,16 @@ static integer c_n1 = -1;
 /* | prozessor is also evaluating the function sometimes.                  | */
 /* +-----------------------------------------------------------------------+ */
 /* Subroutine */ void direct_dirsamplef_(doublereal *c__, integer *arrayi, doublereal 
-	*delta, integer *sample, integer *new__, integer *length, 
-	FILE *logfile, doublereal *f, integer *free, integer *maxi, 
-	integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
-	minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
-	integer *maxdeep, integer *oops, doublereal *fmax, integer *
-	ifeasiblef, integer *iinfesiblef, void *fcn_data)
+  *delta, integer *sample, integer *new__, integer *length, 
+  FILE *logfile, doublereal *f, integer *free, integer *maxi, 
+  integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
+  minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc, 
+  integer *maxdeep, integer *oops, doublereal *fmax, integer *
+  ifeasiblef, integer *iinfesiblef, void *fcn_data)
 {
     /* System generated locals */
     integer length_dim1, length_offset, c_dim1, c_offset, f_dim1, f_offset, 
-	    i__1;
+      i__1;
     doublereal d__1;
 
     /* Local variables */
@@ -206,7 +206,7 @@ static integer c_n1 = -1;
     getnprocsif_(&nprocs);
     i__1 = nprocs - 1;
     for (i__ = 0; i__ <= i__1; ++i__) {
-	gettidif_(&i__, &tids[i__]);
+  gettidif_(&i__, &tids[i__]);
 /* L46: */
     }
 /* +-----------------------------------------------------------------------+ */
@@ -226,22 +226,22 @@ static integer c_n1 = -1;
 /* +-----------------------------------------------------------------------+ */
 /* | tid is the id of the prozessor the next points is send to.            | */
 /* +-----------------------------------------------------------------------+ */
-	tid = k + 1;
+  tid = k + 1;
 /* +-----------------------------------------------------------------------+ */
 /* | Copy the position into the helparray x.                               | */
 /* +-----------------------------------------------------------------------+ */
-	i__1 = *n;
-	for (i__ = 1; i__ <= i__1; ++i__) {
-	    x[i__] = c__[pos + i__ * c_dim1];
+  i__1 = *n;
+  for (i__ = 1; i__ <= i__1; ++i__) {
+      x[i__] = c__[pos + i__ * c_dim1];
 /* L60: */
-	}
+  }
 /* +-----------------------------------------------------------------------+ */
 /* | Send the point.                                                       | */
 /* +-----------------------------------------------------------------------+ */
-	mastersendif_(&tids[tid - 1], &tids[tid - 1], n, &flag__, &pos, &x[1],
-		 &u[1], &l[1], &x[1]);
-	++k;
-	pos = point[pos];
+  mastersendif_(&tids[tid - 1], &tids[tid - 1], n, &flag__, &pos, &x[1],
+     &u[1], &l[1], &x[1]);
+  ++k;
+  pos = point[pos];
 /* +-----------------------------------------------------------------------+ */
 /* | Get the next point.                                                   | */
 /* +-----------------------------------------------------------------------+ */
@@ -251,116 +251,116 @@ static integer c_n1 = -1;
 /* +-----------------------------------------------------------------------+ */
     datarec = 0;
     while(datarec < npts) {
-	if ((doublereal) datarec / (doublereal) nprocs - datarec / nprocs < 
-		1e-5 && k <= npts) {
-	    i__1 = *n;
-	    for (i__ = 1; i__ <= i__1; ++i__) {
-		x[i__] = c__[pos + i__ * c_dim1];
+  if ((doublereal) datarec / (doublereal) nprocs - datarec / nprocs < 
+    1e-5 && k <= npts) {
+      i__1 = *n;
+      for (i__ = 1; i__ <= i__1; ++i__) {
+    x[i__] = c__[pos + i__ * c_dim1];
 /* L165: */
-	    }
-	    direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &fhelp, &kret,
-		      fcn_data);
-	    oldpos = pos;
-	    f[oldpos + f_dim1] = fhelp;
-	    ++datarec;
+      }
+      direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &fhelp, &kret,
+          fcn_data);
+      oldpos = pos;
+      f[oldpos + f_dim1] = fhelp;
+      ++datarec;
 /* +-----------------------------------------------------------------------+ */
 /* | Remember if an infeasible point has been found.                       | */
 /* +-----------------------------------------------------------------------+ */
-	    *iinfesiblef = MAX(*iinfesiblef,kret);
-	    if (kret == 0) {
+      *iinfesiblef = MAX(*iinfesiblef,kret);
+      if (kret == 0) {
 /* +-----------------------------------------------------------------------+ */
 /* | if the function evaluation was O.K., set the flag in                  | */
 /* | f(pos,2).                                                             | */
 /* +-----------------------------------------------------------------------+ */
-		f[oldpos + (f_dim1 << 1)] = 0.;
-		*ifeasiblef = 0;
+    f[oldpos + (f_dim1 << 1)] = 0.;
+    *ifeasiblef = 0;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Added variable to keep track of the maximum value found.  | */
 /* +-----------------------------------------------------------------------+ */
 /* Computing MAX */
-		d__1 = f[pos + f_dim1];
-		*fmax = MAX(d__1,*fmax);
-	    }
+    d__1 = f[pos + f_dim1];
+    *fmax = MAX(d__1,*fmax);
+      }
 /* +-----------------------------------------------------------------------+ */
 /* | Remember if an infeasible point has been found.                       | */
 /* +-----------------------------------------------------------------------+ */
-	    *iinfesiblef = MAX(*iinfesiblef,kret);
-	    if (kret == 1) {
+      *iinfesiblef = MAX(*iinfesiblef,kret);
+      if (kret == 1) {
 /* +-----------------------------------------------------------------------+ */
 /* | If the function could not be evaluated at the given point,            | */
 /* | set flag to mark this (f(pos,2) and store the maximum                 | */
 /* | box-sidelength in f(pos,1).                                           | */
 /* +-----------------------------------------------------------------------+ */
-		f[oldpos + (f_dim1 << 1)] = 2.;
-		f[oldpos + f_dim1] = *fmax;
-	    }
+    f[oldpos + (f_dim1 << 1)] = 2.;
+    f[oldpos + f_dim1] = *fmax;
+      }
 /* +-----------------------------------------------------------------------+ */
 /* | If the function could not be evaluated due to a failure in            | */
 /* | the setup, mark this.                                                 | */
 /* +-----------------------------------------------------------------------+ */
-	    if (kret == -1) {
-		f[oldpos + (f_dim1 << 1)] = -1.;
-	    }
-	    ++k;
-	    pos = point[pos];
-	}
+      if (kret == -1) {
+    f[oldpos + (f_dim1 << 1)] = -1.;
+      }
+      ++k;
+      pos = point[pos];
+  }
 /* +-----------------------------------------------------------------------+ */
 /* | Recover where to store the value.                                     | */
 /* +-----------------------------------------------------------------------+ */
-	masterrecvif_(&c_n1, &c_n1, &oldpos, &tid, &fhelp, &kret);
-	f[oldpos + f_dim1] = fhelp;
-	++datarec;
+  masterrecvif_(&c_n1, &c_n1, &oldpos, &tid, &fhelp, &kret);
+  f[oldpos + f_dim1] = fhelp;
+  ++datarec;
 /* +-----------------------------------------------------------------------+ */
 /* | Remember if an infeasible point has been found.                       | */
 /* +-----------------------------------------------------------------------+ */
-	*iinfesiblef = MAX(*iinfesiblef,kret);
-	if (kret == 0) {
+  *iinfesiblef = MAX(*iinfesiblef,kret);
+  if (kret == 0) {
 /* +-----------------------------------------------------------------------+ */
 /* | if the function evaluation was O.K., set the flag in                  | */
 /* | f(pos,2).                                                             | */
 /* +-----------------------------------------------------------------------+ */
-	    f[oldpos + (f_dim1 << 1)] = 0.;
-	    *ifeasiblef = 0;
+      f[oldpos + (f_dim1 << 1)] = 0.;
+      *ifeasiblef = 0;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Added variable to keep track of the maximum value found.  | */
 /* +-----------------------------------------------------------------------+ */
 /* Computing MAX */
-	    d__1 = f[oldpos + f_dim1];
-	    *fmax = MAX(d__1,*fmax);
-	}
-	if (kret == 1) {
+      d__1 = f[oldpos + f_dim1];
+      *fmax = MAX(d__1,*fmax);
+  }
+  if (kret == 1) {
 /* +-----------------------------------------------------------------------+ */
 /* | If the function could not be evaluated at the given point,            | */
 /* | set flag to mark this (f(pos,2) and store the maximum                 | */
 /* | box-sidelength in f(pos,1).                                           | */
 /* +-----------------------------------------------------------------------+ */
-	    f[oldpos + (f_dim1 << 1)] = 2.;
-	    f[oldpos + f_dim1] = *fmax;
-	}
+      f[oldpos + (f_dim1 << 1)] = 2.;
+      f[oldpos + f_dim1] = *fmax;
+  }
 /* +-----------------------------------------------------------------------+ */
 /* | If the function could not be evaluated due to a failure in            | */
 /* | the setup, mark this.                                                 | */
 /* +-----------------------------------------------------------------------+ */
-	if (kret == -1) {
-	    f[oldpos + (f_dim1 << 1)] = -1.;
-	}
+  if (kret == -1) {
+      f[oldpos + (f_dim1 << 1)] = -1.;
+  }
 /* +-----------------------------------------------------------------------+ */
 /* |         Send data until it is all sent.                               | */
 /* +-----------------------------------------------------------------------+ */
-	if (k <= npts) {
+  if (k <= npts) {
 /* +-----------------------------------------------------------------------+ */
 /* | Copy the position into the helparray x.                               | */
 /* +-----------------------------------------------------------------------+ */
-	    i__1 = *n;
-	    for (i__ = 1; i__ <= i__1; ++i__) {
-		x[i__] = c__[pos + i__ * c_dim1];
+      i__1 = *n;
+      for (i__ = 1; i__ <= i__1; ++i__) {
+    x[i__] = c__[pos + i__ * c_dim1];
 /* L160: */
-	    }
-	    mastersendif_(&tid, &tid, n, &flag__, &pos, &x[1], &u[1], &l[1], &
-		    x[1]);
-	    ++k;
-	    pos = point[pos];
-	}
+      }
+      mastersendif_(&tid, &tid, n, &flag__, &pos, &x[1], &u[1], &l[1], &
+        x[1]);
+      ++k;
+      pos = point[pos];
+  }
     }
     pos = helppoint;
 /* +-----------------------------------------------------------------------+ */
@@ -371,11 +371,11 @@ static integer c_n1 = -1;
 /* +-----------------------------------------------------------------------+ */
     i__1 = *maxi + *maxi;
     for (j = 1; j <= i__1; ++j) {
-	if (f[pos + f_dim1] < *minf && f[pos + (f_dim1 << 1)] == 0.) {
-	    *minf = f[pos + f_dim1];
-	    *minpos = pos;
-	}
-	pos = point[pos];
+  if (f[pos + f_dim1] < *minf && f[pos + (f_dim1 << 1)] == 0.) {
+      *minf = f[pos + f_dim1];
+      *minpos = pos;
+  }
+  pos = point[pos];
 /* L50: */
     }
 } /* dirsamplef_ */

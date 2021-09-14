@@ -6,11 +6,11 @@ inequality constraints, or just box constraints).
 I used the algorithm description (but no source code) from the outline
 in the paper:
 
-	E. G. Birgin and J. M. Martinez, "Improving ultimate convergence
-	of an augmented Lagrangian method," Optimization Methods and
-	Software vol. 23, no. 2, p. 177-195 (2008). 
+  E. G. Birgin and J. M. Martinez, "Improving ultimate convergence
+  of an augmented Lagrangian method," Optimization Methods and
+  Software vol. 23, no. 2, p. 177-195 (2008). 
 
-	http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.72.6121
+  http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.72.6121
 
 (The authors of this paper have their own free-software implementation
 of this idea and its variations, in the TANGO project:

@@ -101,8 +101,8 @@ The arguments have the following meaning.
                   IPAR(4)=IEST, IPAR(5)=MOS1, IPAR(6)=MOS2,
                   IPAR(7)=MF.
                 Parameters MIT, MFV, MFG, IEST, MOS1, MOS2, MF are
-		    described in Section 3 together with other parameters
-		    of the subroutine PNET.
+                described in Section 3 together with other parameters
+                of the subroutine PNET.
   RPAR(9)   I   DOUBLE PRECISION parameters:
                   RPAR(1)=XMAX,  RPAR(2)=TOLX,  RPAR(3)=TOLF,
                   RPAR(4)=TOLB,  RPAR(5)=TOLG,  RPAR(6)=FMIN,

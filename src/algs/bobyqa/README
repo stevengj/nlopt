@@ -4,11 +4,11 @@ constructred quadratic approximation for the objective function.  See:
 
         M. J. D. Powell, "The BOBYQA algorithm for bound constrained
         optimization without derivatives," Department of Applied
-	Mathematics and Theoretical Physics, Cambridge England,
-	technical report NA2009/06 (2009).
+  Mathematics and Theoretical Physics, Cambridge England,
+  technical report NA2009/06 (2009).
 
-	http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2009_06.pdf
-	http://plato.asu.edu/ftp/other_software/bobyqa.zip
+  http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2009_06.pdf
+  http://plato.asu.edu/ftp/other_software/bobyqa.zip
 
 The C translation by S. G. Johnson (2009) includes a few minor
 modifications, mainly to use the NLopt stopping criteria (and to

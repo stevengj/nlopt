@@ -1,9 +1,9 @@
 Implementation of the globally-convergent method-of-moving-asymptotes (MMA)
 algorithm for gradient-based local optimization, as described in:
 
-	Krister Svanberg, "A class of globally convergent optimization
-	methods based on conservative convex separable approximations,"
-	SIAM J. Optim. 12 (2), p. 555-573 (2002).
+  Krister Svanberg, "A class of globally convergent optimization
+  methods based on conservative convex separable approximations,"
+  SIAM J. Optim. 12 (2), p. 555-573 (2002).
 
 In fact, this algorithm is much more general than most of the other
 algorithms in NLopt, in that it handles an arbitrary set of nonlinear

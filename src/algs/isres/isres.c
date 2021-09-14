@@ -56,13 +56,13 @@ static int key_compare(void *keys_, const void *a_, const void *b_)
 static unsigned imax2(unsigned a, unsigned b) { return (a > b ? a : b); }
 
 nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
-			    int m, nlopt_constraint *fc, /* fc <= 0 */
-			    int p, nlopt_constraint *h, /* h == 0 */
-			    const double *lb, const double *ub, /* bounds */
-			    double *x, /* in: initial guess, out: minimizer */
-			    double *minf,
-			    nlopt_stopping *stop,
-			    int population) /* pop. size (= 0 for default) */
+          int m, nlopt_constraint *fc, /* fc <= 0 */
+          int p, nlopt_constraint *h, /* h == 0 */
+          const double *lb, const double *ub, /* bounds */
+          double *x, /* in: initial guess, out: minimizer */
+          double *minf,
+          nlopt_stopping *stop,
+          int population) /* pop. size (= 0 for default) */
 {
      const double ALPHA = 0.2; /* smoothing factor from paper */
      const double GAMMA = 0.85; /* step-reduction factor from paper */
@@ -102,14 +102,14 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
          }
 
      ires = imax2(nlopt_max_constraint_dim(m, fc),
-		  nlopt_max_constraint_dim(p, h));
+      nlopt_max_constraint_dim(p, h));
      results = (double *) malloc(ires * sizeof(double));
      if (ires > 0 && !results) return NLOPT_OUT_OF_MEMORY;
 
      sigmas = (double*) malloc(sizeof(double) * (population*n*2
-						 + population
-						 + population
-						 + n));
+             + population
+             + population
+             + n));
      if (!sigmas) { free(results); return NLOPT_OUT_OF_MEMORY; }
      xs = sigmas + population*n;
      fval = xs + population*n;
@@ -120,164 +120,164 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
      if (!irank) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 
      for (k = 0; k < population; ++k) {
-	  for (j = 0; j < n; ++j) {
-	       sigmas[k*n+j] = (ub[j] - lb[j]) / sqrt(n);
-	       xs[k*n+j] = nlopt_urand(lb[j], ub[j]);
-	  }
+    for (j = 0; j < n; ++j) {
+         sigmas[k*n+j] = (ub[j] - lb[j]) / sqrt(n);
+         xs[k*n+j] = nlopt_urand(lb[j], ub[j]);
+    }
      }
      memcpy(xs, x, sizeof(double) * n); /* use input x for xs_0 */
 
      while (1) { /* each loop body = one generation */
-	  int all_feasible = 1;
+    int all_feasible = 1;
 
-	  /* evaluate f and constraint violations for whole population */
-	  for (k = 0; k < population; ++k) {
-	       int feasible = 1;
-	       double gpenalty;
-	       ++ *(stop->nevals_p);
-	       fval[k] = f(n, xs + k*n, NULL, f_data);
-	       if (nlopt_stop_forced(stop)) { 
-		    ret = NLOPT_FORCED_STOP; goto done; }
-	       penalty[k] = 0;
-	       for (c = 0; c < m; ++c) { /* inequality constraints */
-		    nlopt_eval_constraint(results, NULL,
-					  fc + c, n, xs + k*n);
-		    if (nlopt_stop_forced(stop)) { 
-			 ret = NLOPT_FORCED_STOP; goto done; }
-		    for (ires = 0; ires < fc[c].m; ++ires) {
-			 double gval = results[ires];
-			 if (gval > fc[c].tol[ires]) feasible = 0;
-			 if (gval < 0) gval = 0;
-			 penalty[k] += gval*gval;
-		    }
-	       }
-	       gpenalty = penalty[k];
-	       for (c = m; c < mp; ++c) { /* equality constraints */
-		    nlopt_eval_constraint(results, NULL,
-					  h + (c-m), n, xs + k*n);
-		    if (nlopt_stop_forced(stop)) { 
-			 ret = NLOPT_FORCED_STOP; goto done; }
-		    for (ires = 0; ires < h[c-m].m; ++ires) {
-			 double hval = results[ires];
-			 if (fabs(hval) > h[c-m].tol[ires]) feasible = 0;
-			 penalty[k] += hval*hval;
-		    }
-	       }
-	       if (penalty[k] > 0) all_feasible = 0;
+    /* evaluate f and constraint violations for whole population */
+    for (k = 0; k < population; ++k) {
+         int feasible = 1;
+         double gpenalty;
+         ++ *(stop->nevals_p);
+         fval[k] = f(n, xs + k*n, NULL, f_data);
+         if (nlopt_stop_forced(stop)) { 
+        ret = NLOPT_FORCED_STOP; goto done; }
+         penalty[k] = 0;
+         for (c = 0; c < m; ++c) { /* inequality constraints */
+        nlopt_eval_constraint(results, NULL,
+            fc + c, n, xs + k*n);
+        if (nlopt_stop_forced(stop)) { 
+       ret = NLOPT_FORCED_STOP; goto done; }
+        for (ires = 0; ires < fc[c].m; ++ires) {
+       double gval = results[ires];
+       if (gval > fc[c].tol[ires]) feasible = 0;
+       if (gval < 0) gval = 0;
+       penalty[k] += gval*gval;
+        }
+         }
+         gpenalty = penalty[k];
+         for (c = m; c < mp; ++c) { /* equality constraints */
+        nlopt_eval_constraint(results, NULL,
+            h + (c-m), n, xs + k*n);
+        if (nlopt_stop_forced(stop)) { 
+       ret = NLOPT_FORCED_STOP; goto done; }
+        for (ires = 0; ires < h[c-m].m; ++ires) {
+       double hval = results[ires];
+       if (fabs(hval) > h[c-m].tol[ires]) feasible = 0;
+       penalty[k] += hval*hval;
+        }
+         }
+         if (penalty[k] > 0) all_feasible = 0;
 
-	       /* convergence criteria (FIXME: improve?) */
+         /* convergence criteria (FIXME: improve?) */
 
-	       /* FIXME: with equality constraints, how do
-		  we decide which solution is the "best" so far?
-		  ... need some total order on the solutions? */
+         /* FIXME: with equality constraints, how do
+      we decide which solution is the "best" so far?
+      ... need some total order on the solutions? */
 
-	       if ((penalty[k] <= minf_penalty || feasible)
-		   && (fval[k] <= *minf || minf_gpenalty > 0)
-		   && ((feasible ? 0 : penalty[k]) != minf_penalty
-		       || fval[k] != *minf)) {
-		    if (fval[k] < stop->minf_max && feasible) 
-			 ret = NLOPT_MINF_MAX_REACHED;
-		    else if (!nlopt_isinf(*minf)) {
-			 if (nlopt_stop_f(stop, fval[k], *minf)
-			     && nlopt_stop_f(stop, feasible ? 0 : penalty[k], 
-					     minf_penalty))
-			      ret = NLOPT_FTOL_REACHED;
-			 else if (nlopt_stop_x(stop, xs+k*n, x))
-			      ret = NLOPT_XTOL_REACHED;
-		    }
-		    memcpy(x, xs+k*n, sizeof(double)*n);
-		    *minf = fval[k];
-		    minf_penalty = feasible ? 0 : penalty[k];
-		    minf_gpenalty = feasible ? 0 : gpenalty;
-		    if (ret != NLOPT_SUCCESS) goto done;
-	       }
+         if ((penalty[k] <= minf_penalty || feasible)
+       && (fval[k] <= *minf || minf_gpenalty > 0)
+       && ((feasible ? 0 : penalty[k]) != minf_penalty
+           || fval[k] != *minf)) {
+        if (fval[k] < stop->minf_max && feasible) 
+       ret = NLOPT_MINF_MAX_REACHED;
+        else if (!nlopt_isinf(*minf)) {
+       if (nlopt_stop_f(stop, fval[k], *minf)
+           && nlopt_stop_f(stop, feasible ? 0 : penalty[k], 
+               minf_penalty))
+            ret = NLOPT_FTOL_REACHED;
+       else if (nlopt_stop_x(stop, xs+k*n, x))
+            ret = NLOPT_XTOL_REACHED;
+        }
+        memcpy(x, xs+k*n, sizeof(double)*n);
+        *minf = fval[k];
+        minf_penalty = feasible ? 0 : penalty[k];
+        minf_gpenalty = feasible ? 0 : gpenalty;
+        if (ret != NLOPT_SUCCESS) goto done;
+         }
 
-	       if (nlopt_stop_forced(stop)) ret = NLOPT_FORCED_STOP;
-	       else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
-	       else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
-	       if (ret != NLOPT_SUCCESS) goto done;
-	  }
+         if (nlopt_stop_forced(stop)) ret = NLOPT_FORCED_STOP;
+         else if (nlopt_stop_evals(stop)) ret = NLOPT_MAXEVAL_REACHED;
+         else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
+         if (ret != NLOPT_SUCCESS) goto done;
+    }
 
-	  /* "selection" step: rank the population */
-	  for (k = 0; k < population; ++k) irank[k] = k;
-	  if (all_feasible) /* special case: rank by objective function */
-	       nlopt_qsort_r(irank, population, sizeof(int), fval,key_compare);
-	  else {
-	       /* Runarsson & Yao's stochastic ranking of the population */
-	       for (i = 0; i < population; ++i) {
-		    int swapped = 0;
-		    for (j = 0; j < population-1; ++j) {
-			 double u = nlopt_urand(0,1);
-			 if (u < PF || (penalty[irank[j]] == 0
-					&& penalty[irank[j+1]] == 0)) {
-			      if (fval[irank[j]] > fval[irank[j+1]]) {
-				   int irankj = irank[j];
-				   irank[j] = irank[j+1];
-				   irank[j+1] = irankj;
-				   swapped = 1;
-			      }
-			 }
-			 else if (penalty[irank[j]] > penalty[irank[j+1]]) {
-			      int irankj = irank[j];
-			      irank[j] = irank[j+1];
-			      irank[j+1] = irankj;
-			      swapped = 1;
-			 }
-		    }
-		    if (!swapped) break;
-	       }
-	  }
+    /* "selection" step: rank the population */
+    for (k = 0; k < population; ++k) irank[k] = k;
+    if (all_feasible) /* special case: rank by objective function */
+         nlopt_qsort_r(irank, population, sizeof(int), fval,key_compare);
+    else {
+         /* Runarsson & Yao's stochastic ranking of the population */
+         for (i = 0; i < population; ++i) {
+        int swapped = 0;
+        for (j = 0; j < population-1; ++j) {
+       double u = nlopt_urand(0,1);
+       if (u < PF || (penalty[irank[j]] == 0
+          && penalty[irank[j+1]] == 0)) {
+            if (fval[irank[j]] > fval[irank[j+1]]) {
+           int irankj = irank[j];
+           irank[j] = irank[j+1];
+           irank[j+1] = irankj;
+           swapped = 1;
+            }
+       }
+       else if (penalty[irank[j]] > penalty[irank[j+1]]) {
+            int irankj = irank[j];
+            irank[j] = irank[j+1];
+            irank[j+1] = irankj;
+            swapped = 1;
+       }
+        }
+        if (!swapped) break;
+         }
+    }
 
-	  /* evolve the population:
-	     differential evolution for the best survivors,
-	     and standard mutation of the best survivors for the rest: */
-	  for (k = survivors; k < population; ++k) { /* standard mutation */
-	       double taup_rand = taup * nlopt_nrand(0,1);
-	       int rk = irank[k], ri;
-	       i = k % survivors;
-	       ri = irank[i];
-	       for (j = 0; j < n; ++j) {
-		    double sigmamax = (ub[j] - lb[j]) / sqrt(n);
-		    sigmas[rk*n+j] = sigmas[ri*n+j] 
-			 * exp(taup_rand + tau*nlopt_nrand(0,1));
-		    if (sigmas[rk*n+j] > sigmamax)
-			 sigmas[rk*n+j] = sigmamax;
-		    do {
-			 xs[rk*n+j] = xs[ri*n+j] 
-			      + sigmas[rk*n+j] * nlopt_nrand(0,1);
-		    } while (xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]);
-		    sigmas[rk*n+j] = sigmas[ri*n+j] + ALPHA*(sigmas[rk*n+j]
-							   - sigmas[ri*n+j]);
-	       }
-	  }
-	  memcpy(x0, xs, n * sizeof(double));
-	  for (k = 0; k < survivors; ++k) { /* differential variation */
-	       double taup_rand = taup * nlopt_nrand(0,1);
-	       int rk = irank[k];
-	       for (j = 0; j < n; ++j) {
-		    double xi = xs[rk*n+j];
-		    if (k+1 < survivors)
-			 xs[rk*n+j] += GAMMA * (x0[j] - xs[(k+1)*n+j]);
-		    if (k+1 == survivors
-			|| xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]) {
-			 /* standard mutation for last survivor and
-			    for any survivor components that are now
-			    outside the bounds */
-			 double sigmamax = (ub[j] - lb[j]) / sqrt(n);
-			 double sigi = sigmas[rk*n+j];
-			 sigmas[rk*n+j] *= exp(taup_rand 
-					       + tau*nlopt_nrand(0,1));
-			 if (sigmas[rk*n+j] > sigmamax)
-			      sigmas[rk*n+j] = sigmamax;
-			 do {
-			      xs[rk*n+j] = xi 
-				   + sigmas[rk*n+j] * nlopt_nrand(0,1);
-			 } while (xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]);
-			 sigmas[rk*n+j] = sigi 
-			      + ALPHA * (sigmas[rk*n+j] - sigi);
-		    }
-	       }
-	  }
+    /* evolve the population:
+       differential evolution for the best survivors,
+       and standard mutation of the best survivors for the rest: */
+    for (k = survivors; k < population; ++k) { /* standard mutation */
+         double taup_rand = taup * nlopt_nrand(0,1);
+         int rk = irank[k], ri;
+         i = k % survivors;
+         ri = irank[i];
+         for (j = 0; j < n; ++j) {
+        double sigmamax = (ub[j] - lb[j]) / sqrt(n);
+        sigmas[rk*n+j] = sigmas[ri*n+j] 
+       * exp(taup_rand + tau*nlopt_nrand(0,1));
+        if (sigmas[rk*n+j] > sigmamax)
+       sigmas[rk*n+j] = sigmamax;
+        do {
+       xs[rk*n+j] = xs[ri*n+j] 
+            + sigmas[rk*n+j] * nlopt_nrand(0,1);
+        } while (xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]);
+        sigmas[rk*n+j] = sigmas[ri*n+j] + ALPHA*(sigmas[rk*n+j]
+                 - sigmas[ri*n+j]);
+         }
+    }
+    memcpy(x0, xs, n * sizeof(double));
+    for (k = 0; k < survivors; ++k) { /* differential variation */
+         double taup_rand = taup * nlopt_nrand(0,1);
+         int rk = irank[k];
+         for (j = 0; j < n; ++j) {
+        double xi = xs[rk*n+j];
+        if (k+1 < survivors)
+       xs[rk*n+j] += GAMMA * (x0[j] - xs[(k+1)*n+j]);
+        if (k+1 == survivors
+      || xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]) {
+       /* standard mutation for last survivor and
+          for any survivor components that are now
+          outside the bounds */
+       double sigmamax = (ub[j] - lb[j]) / sqrt(n);
+       double sigi = sigmas[rk*n+j];
+       sigmas[rk*n+j] *= exp(taup_rand 
+                 + tau*nlopt_nrand(0,1));
+       if (sigmas[rk*n+j] > sigmamax)
+            sigmas[rk*n+j] = sigmamax;
+       do {
+            xs[rk*n+j] = xi 
+           + sigmas[rk*n+j] * nlopt_nrand(0,1);
+       } while (xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]);
+       sigmas[rk*n+j] = sigi 
+            + ALPHA * (sigmas[rk*n+j] - sigi);
+        }
+         }
+    }
      }
 
 done:

@@ -8,11 +8,11 @@ desc_start=`grep -n nlopt_algorithm_names foo.c |cut -d: -f1 |head -1`
 
 for n in $names; do
     if test -r $n.m; then
-	perl -pi -e "s/val = [0-9]+;/val = $i;/" $n.m
+  perl -pi -e "s/val = [0-9]+;/val = $i;/" $n.m
     else
         descline=`expr $i + $desc_start + 1`
-	desc=`tail -n +$descline foo.c |head -1 |cut -d\" -f2`
-	cat > $n.m <<EOF
+  desc=`tail -n +$descline foo.c |head -1 |cut -d\" -f2`
+  cat > $n.m <<EOF
 % $n: $desc
 %
 % See nlopt_minimize for more information.

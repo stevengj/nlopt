@@ -32,12 +32,12 @@ extern "C"
 #endif /* __cplusplus */
 
 nlopt_result crs_minimize(int n, nlopt_func f, void *f_data,
-			  const double *lb, const double *ub, /* bounds */
-			  double *x, /* in: initial guess, out: minimizer */
-			  double *minf,
-			  nlopt_stopping *stop,
-			  int population, /* initial population (0=default) */
-			  int random); /* random or low-discrepancy seq. */
+        const double *lb, const double *ub, /* bounds */
+        double *x, /* in: initial guess, out: minimizer */
+        double *minf,
+        nlopt_stopping *stop,
+        int population, /* initial population (0=default) */
+        int random); /* random or low-discrepancy seq. */
 
 #ifdef __cplusplus
 }  /* extern "C" */

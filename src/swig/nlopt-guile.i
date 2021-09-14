@@ -13,17 +13,17 @@
 
 %typemap(throws) std::runtime_error %{
   scm_throw(gh_symbol2scm("runtime-error"),
-	    scm_list_1(scm_from_locale_string(($1).what())));
+      scm_list_1(scm_from_locale_string(($1).what())));
 %}
 
 %typemap(throws) std::bad_alloc %{
   scm_throw(gh_symbol2scm("bad-alloc"),
-	    scm_list_1(scm_from_locale_string(($1).what())));
+      scm_list_1(scm_from_locale_string(($1).what())));
 %}
 
 %typemap(throws) std::invalid_argument %{
   scm_throw(gh_symbol2scm("invalid-argument"),
-	    scm_list_1(scm_from_locale_string(($1).what())));
+      scm_list_1(scm_from_locale_string(($1).what())));
 %}
 
 %typemap(throws) nlopt::forced_stop %{
@@ -56,7 +56,7 @@ static double func_guile(unsigned n, const double *x, double *grad, void *f) {
   if (grad) {
     for (unsigned i = 0; i < n; ++i) {
       if (!scm_is_real(ret))
-	throw std::invalid_argument("invalid gradient passed to nlopt");
+  throw std::invalid_argument("invalid gradient passed to nlopt");
       grad[i] = scm_to_double(SCM_SIMPLE_VECTOR_REF(grad_scm, i));
     }
   }

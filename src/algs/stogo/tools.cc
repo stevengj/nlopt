@@ -197,8 +197,8 @@ void TBox::split(RTBox B1, RTBox B2) {
     // Compute the relative deviations
     for ( itr = TList.begin(); itr != TList.end(); ++itr ) {
       for (k = 0; k<n; k++) {
-	x=(*itr).xvals;
-	dispers(k)=dispers(k)+pow(center(k)-x(k),2.0);
+  x=(*itr).xvals;
+  dispers(k)=dispers(k)+pow(center(k)-x(k),2.0);
       }
     }
     scal((double)(1.0/ns),dispers);
@@ -207,7 +207,7 @@ void TBox::split(RTBox B1, RTBox B2) {
     tmp=dispers(0);i=0;
     for (k=1; k<n; k++) {
       if (dispers(k)>tmp) {
-	tmp=dispers(k);i=k;
+  tmp=dispers(k);i=k;
       }
     }
     B1.ub(i)=center(i) ; B2.lb(i)=center(i);
@@ -365,24 +365,24 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
     }
     for (k=1; k<=2; k++) {
       if (k==1)
-	alpha=lb(i);
+  alpha=lb(i);
       else
-	alpha=ub(i);
+  alpha=ub(i);
       gamma=(alpha-x(i))/h(i);
       z(i)=alpha;
       isect=1;
       for (j=0; j<n; j++) {
-	if (j != i) {
-	  z(j)=x(j)+gamma*h(j);
-	  if (z(j)<lb(j) || z(j)>ub(j)) {
-	    isect=0;
-	    break;
-	  }
-	}
+  if (j != i) {
+    z(j)=x(j)+gamma*h(j);
+    if (z(j)<lb(j) || z(j)>ub(j)) {
+      isect=0;
+      break;
+    }
+  }
       }
       copy(z,tmpV); axpy(-1.0,x,tmpV);  // tmpV=z-x
       if (isect==1 && dot(tmpV,h)>0) {
-	done=TRUE; break;
+  done=TRUE; break;
       }
     }
     i++;

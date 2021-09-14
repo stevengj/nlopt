@@ -33,7 +33,7 @@ static double f_local(int n, const double *x, double *grad, void *data_)
   xv.elements = const_cast<double *>(x);
   gv.elements = grad;
   f=data->glob->ObjectiveGradient(xv, gv,
-				   grad?OBJECTIVE_AND_GRADIENT:OBJECTIVE_ONLY);
+           grad?OBJECTIVE_AND_GRADIENT:OBJECTIVE_ONLY);
   if (grad) data->maxgrad = max(data->maxgrad, normInf(gv));
   xv.elements = gv.elements = 0; // prevent deallocation
   ++ *(data->stop->nevals_p);
@@ -45,9 +45,9 @@ static double f_local(int n, const double *x, double *grad, void *data_)
 int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
           Global &glob, int axis, RCRVector x_av
 #ifdef NLOPT_UTIL_H
-	  , nlopt_stopping *stop
+    , nlopt_stopping *stop
 #endif
-	  ) {
+    ) {
 
   int n=box.GetDim();
   RVector x(n);
@@ -85,13 +85,13 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
   data.maxgrad = *mgr;
   data.stop = stop;
   nlopt_result ret = nlopt_minimize(NLOPT_LOCAL_LBFGS, n, f_local, &data,
-				    box.lb.raw_data(), box.ub.raw_data(),
-				    x.raw_data(), &f,
-				    stop->minf_max,
-				    stop->ftol_rel, stop->ftol_abs,
-				    stop->xtol_rel, stop->xtol_abs,
-				    stop->maxeval - *(stop->nevals_p),
-				    stop->maxtime - stop->start);
+            box.lb.raw_data(), box.ub.raw_data(),
+            x.raw_data(), &f,
+            stop->minf_max,
+            stop->ftol_rel, stop->ftol_abs,
+            stop->xtol_rel, stop->xtol_abs,
+            stop->maxeval - *(stop->nevals_p),
+            stop->maxtime - stop->start);
   *mgr = data.maxgrad;
   T.xvals=x ; T.objval=f ;
   if (ret == NLOPT_MAXEVAL_REACHED || ret == NLOPT_MAXTIME_REACHED)
@@ -145,11 +145,11 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     axpy(1.0,x,z) ;
     if (!box.InsideBox(z)) {
       if (box.Intersection(x,g,z)==TRUE) {
-	axpy(-1.0,x,z) ;
-	delta=min(delta,delta_coef*norm2(z)) ;
+  axpy(-1.0,x,z) ;
+  delta=min(delta,delta_coef*norm2(z)) ;
       }
       else {
-	// Algorithm broke down, use INI1
+  // Algorithm broke down, use INI1
         delta = (1.0/7)*box.ShortestSide(&iTmp) ;
       }
     }
@@ -214,41 +214,41 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       gemv('N',1.0,B,g,0.0,z) ;
       tmp=dot(g,z) ;
       if (tmp==0) {
-	info = LS_Unstable ;
-	break ;
+  info = LS_Unstable ;
+  break ;
       }
       alpha=(nrm_sd*nrm_sd)/tmp ; // Normalization (N38,eq. 3.30)
       scal(alpha,h_sd) ;
       nrm_sd=fabs(alpha)*nrm_sd ;
 
       if (nrm_sd >= delta) {
-	gamma = delta/nrm_sd ; // Normalization (N38, eq. 3.33)
-	copy(h_sd,h_dl) ;
-	scal(gamma,h_dl) ;
+  gamma = delta/nrm_sd ; // Normalization (N38, eq. 3.33)
+  copy(h_sd,h_dl) ;
+  scal(gamma,h_dl) ;
 #ifdef LS_DEBUG
-	cout << "[Steepest descent]  " ;
+  cout << "[Steepest descent]  " ;
 #endif
       }
       else {
-	// Combination of Newton and SD steps
-	d2 = delta*delta ;
-	copy(h_sd,s) ;
-	s2=nrm_sd*nrm_sd ;
-	nom = d2 - s2 ;
-	snrm_hn=nrm_hn*nrm_hn ;
-	tmp = dot(h_n,s) ;
+  // Combination of Newton and SD steps
+  d2 = delta*delta ;
+  copy(h_sd,s) ;
+  s2=nrm_sd*nrm_sd ;
+  nom = d2 - s2 ;
+  snrm_hn=nrm_hn*nrm_hn ;
+  tmp = dot(h_n,s) ;
         den = tmp-s2 + sqrt((tmp-d2)*(tmp-d2)+(snrm_hn-d2)*(d2-s2)) ;
-	if (den==0) {
-	  info = LS_Unstable ;
-	  break ;
-	}
-	// Normalization (N38, eq. 3.31)
-	beta = nom/den ;
-	copy(h_n,h_dl) ;
-	scal(beta,h_dl) ;
-	axpy((1-beta),h_sd,h_dl) ;
+  if (den==0) {
+    info = LS_Unstable ;
+    break ;
+  }
+  // Normalization (N38, eq. 3.31)
+  beta = nom/den ;
+  copy(h_n,h_dl) ;
+  scal(beta,h_dl) ;
+  axpy((1-beta),h_sd,h_dl) ;
 #ifdef LS_DEBUG
-	cout << "[Mixed step]        " ;
+  cout << "[Mixed step]        " ;
 #endif
       }
     }
@@ -266,8 +266,8 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
 #endif
       outside++ ;
       if (outside>max_outside_steps) {
-	// Previous point was also outside, exit
-	break ;
+  // Previous point was also outside, exit
+  break ;
       }
     }
     else if (iTmp == 2) {
@@ -313,45 +313,45 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       alpha=dot(y,h_dl);
       if (alpha <= sqrt(MacEpsilon)*nrm_dl*norm2(y)) {
 #ifdef LS_DEBUG
-	cout << "Curvature condition violated " ;
+  cout << "Curvature condition violated " ;
 #endif
       }
       else {
-	// Update Hessian
-	gemv('N',1.0,B,h_dl,0.0,z) ; // z=Bh_dl
-	beta=-1/dot(h_dl,z) ;
-	ger(1/alpha,y,y,B) ;
-	ger(beta,z,z,B) ;
+  // Update Hessian
+  gemv('N',1.0,B,h_dl,0.0,z) ; // z=Bh_dl
+  beta=-1/dot(h_dl,z) ;
+  ger(1/alpha,y,y,B) ;
+  ger(beta,z,z,B) ;
 
         // Update Hessian inverse
         gemv('N',1.0,H,y,0.0,z) ; // z=H*y
         gemv('T',1.0,H,y,0.0,w) ; // w=y'*H
-	beta=dot(y,z) ;
-	beta=(1+beta/alpha)/alpha ;
+  beta=dot(y,z) ;
+  beta=(1+beta/alpha)/alpha ;
 
-	// It should be possible to do this updating more efficiently, by
-	// exploiting the fact that (h_dl*y'*H) = transpose(H*y*h_dl')
-	ger(beta,h_dl,h_dl,H) ;
-	ger(-1/alpha,z,h_dl,H) ;
-	ger(-1/alpha,h_dl,w,H) ;
+  // It should be possible to do this updating more efficiently, by
+  // exploiting the fact that (h_dl*y'*H) = transpose(H*y*h_dl')
+  ger(beta,h_dl,h_dl,H) ;
+  ger(-1/alpha,z,h_dl,H) ;
+  ger(-1/alpha,h_dl,w,H) ;
       }
 
       if (nrm_dl < norm2(x)*epsilon) {
-	// Stop criterion (iteration progress) fullfilled
+  // Stop criterion (iteration progress) fullfilled
 #ifdef LS_DEBUG
-	cout << "Progress is marginal" ;
+  cout << "Progress is marginal" ;
 #endif
-	good_enough = 1 ;
+  good_enough = 1 ;
       }
 
       // Check if we are close to a stationary point located previously
       if (box.CloseToMin(x_new, &f_new, eps_cl)) {
-	// Note that x_new and f_new may be overwritten on exit from CloseToMin
+  // Note that x_new and f_new may be overwritten on exit from CloseToMin
 #ifdef LS_DEBUG
-	cout << "Close to a previously located stationary point, exiting" << endl;
+  cout << "Close to a previously located stationary point, exiting" << endl;
 #endif
-	info = LS_Old ;
-	good_enough = 1 ;
+  info = LS_Old ;
+  good_enough = 1 ;
       }
 
       // Update x, g and f

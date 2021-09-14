@@ -64,11 +64,11 @@ static double subspace_func(unsigned ns, const double *xs, double *grad, void *d
 }
 
 nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
-			    const double *lb, const double *ub, /* bounds */
-			    double *x, /* in: initial guess, out: minimizer */
-			    double *minf,
-			    const double *xstep0, /* initial step sizes */
-			    nlopt_stopping *stop)
+          const double *lb, const double *ub, /* bounds */
+          double *x, /* in: initial guess, out: minimizer */
+          double *minf,
+          const double *xstep0, /* initial step sizes */
+          nlopt_stopping *stop)
 {
      nlopt_result ret = NLOPT_SUCCESS;
      double *xstep, *xprev, *dx, *xs, *lbs, *ubs, *xsstep, *scratch;
@@ -84,7 +84,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
      if (nlopt_stop_time(stop)) return NLOPT_MAXTIME_REACHED;
 
      xstep = (double*)malloc(sizeof(double) * (n*3 + nsmax*4
-					       + (nsmax+1)*(nsmax+1)+2*nsmax));
+                 + (nsmax+1)*(nsmax+1)+2*nsmax));
      if (!xstep) return NLOPT_OUT_OF_MEMORY;
      xprev = xstep + n; dx = xprev + n;
      xs = dx + n; xsstep = xs + nsmax; 
@@ -103,131 +103,131 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
      sd.f_data = f_data;
 
      while (1) {
-	  double normi = 0;
-	  double normdx = 0;
-	  int ns, nsubs = 0;
-	  int nevals = *(stop->nevals_p);
-	  double fdiff, fdiff_max = 0;
+    double normi = 0;
+    double normdx = 0;
+    int ns, nsubs = 0;
+    int nevals = *(stop->nevals_p);
+    double fdiff, fdiff_max = 0;
 
-	  memcpy(xprev, x, n * sizeof(double));
+    memcpy(xprev, x, n * sizeof(double));
 
-	  /* sort indices into the progress vector dx by decreasing
-	     order of magnitude |dx| */
-	  for (i = 0; i < n; ++i) p[i] = i;
-	  nlopt_qsort_r(p, (size_t) n, sizeof(int), dx, p_compare);
+    /* sort indices into the progress vector dx by decreasing
+       order of magnitude |dx| */
+    for (i = 0; i < n; ++i) p[i] = i;
+    nlopt_qsort_r(p, (size_t) n, sizeof(int), dx, p_compare);
 
-	  /* find the subspaces, and perform nelder-mead on each one */
-	  for (i = 0; i < n; ++i) normdx += fabs(dx[i]); /* L1 norm */
-	  for (i = 0; i + nsmin < n; i += ns) {
-	       /* find subspace starting at index i */
-	       int k, nk;
-	       double ns_goodness = -HUGE_VAL, norm = normi;
-	       nk = i+nsmax > n ? n : i+nsmax; /* max k for this subspace */
-	       for (k = i; k < i+nsmin-1; ++k) norm += fabs(dx[p[k]]);
-	       ns = nsmin;
-	       for (k = i+nsmin-1; k < nk; ++k) {
-		    double goodness;
-		    norm += fabs(dx[p[k]]);
-		    /* remaining subspaces must be big enough to partition */
-		    if (n-(k+1) < nsmin) continue;
-		    /* maximize figure of merit defined by Rowan thesis:
-		       look for sudden drops in average |dx| */
-		    if (k+1 < n)
-			 goodness = norm/(k+1) - (normdx-norm)/(n-(k+1));
-		    else
-			 goodness = normdx/n;
-		    if (goodness > ns_goodness) {
-			 ns_goodness = goodness;
-			 ns = (k+1)-i;
-		    }
-	       }
-	       for (k = i; k < i+ns; ++k) normi += fabs(dx[p[k]]);
-	       /* do nelder-mead on subspace of dimension ns starting w/i */
-	       sd.is = i;
-	       for (k = i; k < i+ns; ++k) {
-		    xs[k-i] = x[p[k]];
-		    xsstep[k-i] = xstep[p[k]];
-		    lbs[k-i] = lb[p[k]];
-		    ubs[k-i] = ub[p[k]];
-	       }
-	       ++nsubs;
-	       nevals = *(stop->nevals_p);
-	       ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
-				      xsstep, stop, psi, scratch, &fdiff);
-	       if (fdiff > fdiff_max) fdiff_max = fdiff;
-	       if (sbplx_verbose)
-		    printf("%d NM iterations for (%d,%d) subspace\n",
-			   *(stop->nevals_p) - nevals, sd.is, ns);
-	       for (k = i; k < i+ns; ++k) x[p[k]] = xs[k-i];
-	       if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
-	       if (ret != NLOPT_XTOL_REACHED) goto done;
-	  }
-	  /* nelder-mead on last subspace */
-	  ns = n - i;
-	  sd.is = i;
-	  for (; i < n; ++i) {
-	       xs[i-sd.is] = x[p[i]];
-	       xsstep[i-sd.is] = xstep[p[i]];
-	       lbs[i-sd.is] = lb[p[i]];
-	       ubs[i-sd.is] = ub[p[i]];
-	  }
-	  ++nsubs;
-	  nevals = *(stop->nevals_p);
-	  ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
-				 xsstep, stop, psi, scratch, &fdiff);
-	  if (fdiff > fdiff_max) fdiff_max = fdiff;
-	  if (sbplx_verbose)
-	       printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
-		      *(stop->nevals_p) - nevals, sd.is, ns);
-	  for (i = sd.is; i < n; ++i) x[p[i]] = xs[i-sd.is];
-	  if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
-	  if (ret != NLOPT_XTOL_REACHED) goto done;
+    /* find the subspaces, and perform nelder-mead on each one */
+    for (i = 0; i < n; ++i) normdx += fabs(dx[i]); /* L1 norm */
+    for (i = 0; i + nsmin < n; i += ns) {
+         /* find subspace starting at index i */
+         int k, nk;
+         double ns_goodness = -HUGE_VAL, norm = normi;
+         nk = i+nsmax > n ? n : i+nsmax; /* max k for this subspace */
+         for (k = i; k < i+nsmin-1; ++k) norm += fabs(dx[p[k]]);
+         ns = nsmin;
+         for (k = i+nsmin-1; k < nk; ++k) {
+        double goodness;
+        norm += fabs(dx[p[k]]);
+        /* remaining subspaces must be big enough to partition */
+        if (n-(k+1) < nsmin) continue;
+        /* maximize figure of merit defined by Rowan thesis:
+           look for sudden drops in average |dx| */
+        if (k+1 < n)
+       goodness = norm/(k+1) - (normdx-norm)/(n-(k+1));
+        else
+       goodness = normdx/n;
+        if (goodness > ns_goodness) {
+       ns_goodness = goodness;
+       ns = (k+1)-i;
+        }
+         }
+         for (k = i; k < i+ns; ++k) normi += fabs(dx[p[k]]);
+         /* do nelder-mead on subspace of dimension ns starting w/i */
+         sd.is = i;
+         for (k = i; k < i+ns; ++k) {
+        xs[k-i] = x[p[k]];
+        xsstep[k-i] = xstep[p[k]];
+        lbs[k-i] = lb[p[k]];
+        ubs[k-i] = ub[p[k]];
+         }
+         ++nsubs;
+         nevals = *(stop->nevals_p);
+         ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
+              xsstep, stop, psi, scratch, &fdiff);
+         if (fdiff > fdiff_max) fdiff_max = fdiff;
+         if (sbplx_verbose)
+        printf("%d NM iterations for (%d,%d) subspace\n",
+         *(stop->nevals_p) - nevals, sd.is, ns);
+         for (k = i; k < i+ns; ++k) x[p[k]] = xs[k-i];
+         if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
+         if (ret != NLOPT_XTOL_REACHED) goto done;
+    }
+    /* nelder-mead on last subspace */
+    ns = n - i;
+    sd.is = i;
+    for (; i < n; ++i) {
+         xs[i-sd.is] = x[p[i]];
+         xsstep[i-sd.is] = xstep[p[i]];
+         lbs[i-sd.is] = lb[p[i]];
+         ubs[i-sd.is] = ub[p[i]];
+    }
+    ++nsubs;
+    nevals = *(stop->nevals_p);
+    ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
+         xsstep, stop, psi, scratch, &fdiff);
+    if (fdiff > fdiff_max) fdiff_max = fdiff;
+    if (sbplx_verbose)
+         printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
+          *(stop->nevals_p) - nevals, sd.is, ns);
+    for (i = sd.is; i < n; ++i) x[p[i]] = xs[i-sd.is];
+    if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
+    if (ret != NLOPT_XTOL_REACHED) goto done;
 
-	  /* termination tests: */
-	  if (nlopt_stop_ftol(stop, *minf, *minf + fdiff_max)) {
+    /* termination tests: */
+    if (nlopt_stop_ftol(stop, *minf, *minf + fdiff_max)) {
                ret = NLOPT_FTOL_REACHED;
                goto done;
-	  }
-	  if (nlopt_stop_x(stop, x, xprev)) {
-	       int j;
-	       /* as explained in Rowan's thesis, it is important
-		  to check |xstep| as well as |x-xprev|, since if
-		  the step size is too large (in early iterations),
-		  the inner Nelder-Mead may not make much progress */
-	       for (j = 0; j < n; ++j)
-		    if (fabs(xstep[j]) * psi > (stop->xtol_abs ? stop->xtol_abs[j] : 0)
-			&& fabs(xstep[j]) * psi > stop->xtol_rel * fabs(x[j]))
-			 break;
-	       if (j == n) {
-		    ret = NLOPT_XTOL_REACHED;
-		    goto done;
-	       }
-	  }
+    }
+    if (nlopt_stop_x(stop, x, xprev)) {
+         int j;
+         /* as explained in Rowan's thesis, it is important
+      to check |xstep| as well as |x-xprev|, since if
+      the step size is too large (in early iterations),
+      the inner Nelder-Mead may not make much progress */
+         for (j = 0; j < n; ++j)
+        if (fabs(xstep[j]) * psi > (stop->xtol_abs ? stop->xtol_abs[j] : 0)
+      && fabs(xstep[j]) * psi > stop->xtol_rel * fabs(x[j]))
+       break;
+         if (j == n) {
+        ret = NLOPT_XTOL_REACHED;
+        goto done;
+         }
+    }
 
-	  /* compute change in optimal point */
-	  for (i = 0; i < n; ++i) dx[i] = x[i] - xprev[i];
+    /* compute change in optimal point */
+    for (i = 0; i < n; ++i) dx[i] = x[i] - xprev[i];
 
-	  /* setting stepsizes */
-	  {
-	       double scale;
-	       if (nsubs == 1)
-		    scale = psi;
-	       else {
-		    double stepnorm = 0, dxnorm = 0;
-		    for (i = 0; i < n; ++i) {
-			 stepnorm += fabs(xstep[i]);
-			 dxnorm += fabs(dx[i]);
-		    }
-		    scale = dxnorm / stepnorm;
-		    if (scale < omega) scale = omega;
-		    if (scale > 1/omega) scale = 1/omega;
-	       }
-	       if (sbplx_verbose)
-		    printf("sbplx: stepsize scale factor = %g\n", scale);
-	       for (i = 0; i < n; ++i) 
-		    xstep[i] = (dx[i] == 0) ? -(xstep[i] * scale)
+    /* setting stepsizes */
+    {
+         double scale;
+         if (nsubs == 1)
+        scale = psi;
+         else {
+        double stepnorm = 0, dxnorm = 0;
+        for (i = 0; i < n; ++i) {
+       stepnorm += fabs(xstep[i]);
+       dxnorm += fabs(dx[i]);
+        }
+        scale = dxnorm / stepnorm;
+        if (scale < omega) scale = omega;
+        if (scale > 1/omega) scale = 1/omega;
+         }
+         if (sbplx_verbose)
+        printf("sbplx: stepsize scale factor = %g\n", scale);
+         for (i = 0; i < n; ++i) 
+        xstep[i] = (dx[i] == 0) ? -(xstep[i] * scale)
                          : copysign(xstep[i] * scale, dx[i]);
-	  }
+    }
      }
 
  done:

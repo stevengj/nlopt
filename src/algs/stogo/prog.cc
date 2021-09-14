@@ -1,5 +1,5 @@
 /*
-	A simple program to test the global optimizer.
+  A simple program to test the global optimizer.
 */
 
 #include "global.h"
@@ -270,8 +270,8 @@ int main() {
       AV.Search(axis, x_av);
 
       if (AV.NoMinimizers()) {
-	cout << "AV failed with axis=" << axis << endl;
-	AVfail=TRUE; break;
+  cout << "AV failed with axis=" << axis << endl;
+  AVfail=TRUE; break;
       }
     }
 

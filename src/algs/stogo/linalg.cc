@@ -119,7 +119,7 @@ void axpy(double alpha, RCRVector x, RCRVector y) {
 }
 
 void gemv(char trans, double alpha, RCRMatrix A,RCRVector x,
-	  double beta, RCRVector y) {
+    double beta, RCRVector y) {
   // Matrix-vector multiplication
   int i, j, dim=A.Dim;
   double sum ;

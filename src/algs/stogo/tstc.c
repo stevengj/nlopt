@@ -15,11 +15,11 @@ double tst_obj(int n, const double *xy, double *g, void *unused)
   printf("feval:, %d, %g, %g, %g\n", ++cnt, x,y, f);
   if (g) {
        g[0] = /* df/dx */
-	    ((2*x)*(4-2.1*(x*x)+((x*x)*(x*x))/3)
-	     + (x*x)*(-4.2*x+4*(x*(x*x))/3)
-	     + y);
+      ((2*x)*(4-2.1*(x*x)+((x*x)*(x*x))/3)
+       + (x*x)*(-4.2*x+4*(x*(x*x))/3)
+       + y);
        g[1] = /* df/dy */
-	    (x + (2*y)*(-4+4*(y*y)) + (y*y)*(8*(y)));
+      (x + (2*y)*(-4+4*(y*y)) + (y*y)*(8*(y)));
   }
   return f;
 }
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   info = stogo_minimize(n, tst_obj, NULL, x, &minf, l, u, maxits, maxtim);
 
   printf("min f = %g at (%g,%g) after %d evals, return value %d\n",
-	 minf, x[0], x[1], cnt, info);
+   minf, x[0], x[1], cnt, info);
 
   return EXIT_SUCCESS;
 }

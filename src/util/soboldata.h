@@ -27,7 +27,7 @@
    starting values m, for Sobol sequences in up to 1111 dimensions,
    taken from:
         P. Bratley and B. L. Fox, Algorithm 659, ACM Trans.
-	Math. Soft. 14 (1), 88-100 (1988),
+  Math. Soft. 14 (1), 88-100 (1988),
    as modified by:
         S. Joe and F. Y. Kuo, ACM Trans. Math. Soft 29 (1), 49-57 (2003). */
 

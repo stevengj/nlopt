@@ -35,12 +35,12 @@ extern unsigned mma_verbose;
 extern unsigned ccsa_verbose;
 
 nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
-			  unsigned m, nlopt_constraint *fc,
-			  const double *lb, const double *ub, /* bounds */
-			  double *x, /* in: initial guess, out: minimizer */
-			  double *minf,
-			  nlopt_stopping *stop,
-			  nlopt_opt dual_opt, int inner_maxeval, unsigned verbose);
+        unsigned m, nlopt_constraint *fc,
+        const double *lb, const double *ub, /* bounds */
+        double *x, /* in: initial guess, out: minimizer */
+        double *minf,
+        nlopt_stopping *stop,
+        nlopt_opt dual_opt, int inner_maxeval, unsigned verbose);
 
 nlopt_result ccsa_quadratic_minimize(
      unsigned n, nlopt_func f, void *f_data,

@@ -32,12 +32,12 @@ extern "C"
 #endif /* __cplusplus */
 
 nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
-			   const double *lb, const double *ub, /* bounds */
-			   double *x, /* in: initial guess, out: minimizer */
-			   double *minf,
-			   nlopt_stopping *stop,
+         const double *lb, const double *ub, /* bounds */
+         double *x, /* in: initial guess, out: minimizer */
+         double *minf,
+         nlopt_stopping *stop,
                            nlopt_opt local_opt,
-			   int Nsamples, /* #samples/iteration (0=default) */
+         int Nsamples, /* #samples/iteration (0=default) */
                            int lds);
 
 #ifdef __cplusplus

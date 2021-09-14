@@ -42,13 +42,13 @@ public:
   virtual double ObjectiveGradient(RCRVector xy, RVector&grad, whichO which){
        ++numeval;
        switch (which) {
-	   case OBJECTIVE_AND_GRADIENT:
-		Gradient(xy, grad);
-		return Objective(xy);
-	   case OBJECTIVE_ONLY:
-		return Objective(xy);
-	   case GRADIENT_ONLY:
-		Gradient(xy, grad);
+     case OBJECTIVE_AND_GRADIENT:
+    Gradient(xy, grad);
+    return Objective(xy);
+     case OBJECTIVE_ONLY:
+    return Objective(xy);
+     case GRADIENT_ONLY:
+    Gradient(xy, grad);
        }
        return 0.0;
   }

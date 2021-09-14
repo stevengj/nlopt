@@ -80,13 +80,13 @@ static nlopt_result optimize_rect(double *r, params *p)
      nlopt_result ret;
 
      if (stop->maxeval > 0 &&
-	 *(stop->nevals_p) >= stop->maxeval) return NLOPT_MAXEVAL_REACHED;
+   *(stop->nevals_p) >= stop->maxeval) return NLOPT_MAXEVAL_REACHED;
      if (stop->maxtime > 0 &&
-	 t - stop->start >= stop->maxtime) return NLOPT_MAXTIME_REACHED;
+   t - stop->start >= stop->maxtime) return NLOPT_MAXTIME_REACHED;
 
      for (i = 0; i < n; ++i) {
-	  lb[i] = c[i] - 0.5 * w[i];
-	  ub[i] = c[i] + 0.5 * w[i];
+    lb[i] = c[i] - 0.5 * w[i];
+    ub[i] = c[i] + 0.5 * w[i];
      }
      ret = nlopt_set_lower_bounds(p->local_opt, lb);
      if (ret != NLOPT_SUCCESS) return ret;
@@ -102,12 +102,12 @@ static nlopt_result optimize_rect(double *r, params *p)
      ret = nlopt_optimize(p->local_opt, x, &minf);
      r[1] = -minf;
      if (ret > 0) {
-	  if (minf < p->minf) {
-	       p->minf = minf;
-	       memcpy(p->xmin, x, sizeof(double) * n);
-	       if (ret == NLOPT_MINF_MAX_REACHED) return ret;
-	  }
-	  return NLOPT_SUCCESS;
+    if (minf < p->minf) {
+         p->minf = minf;
+         memcpy(p->xmin, x, sizeof(double) * n);
+         if (ret == NLOPT_MINF_MAX_REACHED) return ret;
+    }
+    return NLOPT_SUCCESS;
      }
      return ret;
 }
@@ -119,8 +119,8 @@ static void randomize_x(int n, double *r)
      double *x = r + 3, *c = x + n, *w = c + n;
      int i;
      for (i = 0; i < n; ++i)
-	  x[i] = nlopt_urand(c[i] - w[i]*(0.5*THIRD),
-			     c[i] + w[i]*(0.5*THIRD));
+    x[i] = nlopt_urand(c[i] - w[i]*(0.5*THIRD),
+           c[i] + w[i]*(0.5*THIRD));
 }
 
 /************************************************************************/
@@ -151,90 +151,90 @@ static nlopt_result divide_largest(params *p)
 
      /* check xtol */
      for (i = 0; i < n; ++i)
-	  if (w[i] > p->stop->xtol_rel * (ub[i] - lb[i])
-	      && w[i] > (p->stop->xtol_abs ? p->stop->xtol_abs[i] : 0))
-	       break;
+    if (w[i] > p->stop->xtol_rel * (ub[i] - lb[i])
+        && w[i] > (p->stop->xtol_abs ? p->stop->xtol_abs[i] : 0))
+         break;
      if (i == n) return NLOPT_XTOL_REACHED;
 
      if (p->randomized_div) { /* randomly pick among ~largest sides */
-	  int nlongest = 0;
-	  wmax = longest(n, w);
-	  for (i = 0; i < n; ++i)
-	       if (wmax - w[i] < EQUAL_SIDE_TOL * wmax) ++nlongest;
-	  i = 1 + nlopt_iurand(nlongest);
-	  for (idiv = 0; idiv < n; ++idiv) {
-	       if (wmax - w[idiv] < EQUAL_SIDE_TOL * wmax) --i;
-	       if (!i) break;
-	  }
+    int nlongest = 0;
+    wmax = longest(n, w);
+    for (i = 0; i < n; ++i)
+         if (wmax - w[i] < EQUAL_SIDE_TOL * wmax) ++nlongest;
+    i = 1 + nlopt_iurand(nlongest);
+    for (idiv = 0; idiv < n; ++idiv) {
+         if (wmax - w[idiv] < EQUAL_SIDE_TOL * wmax) --i;
+         if (!i) break;
+    }
      }
      else { /* just pick first largest side */
-	  wmax = w[idiv = 0];
-	  for (i = 1; i < n; ++i) if (w[i] > wmax) wmax = w[idiv = i];
+    wmax = w[idiv = 0];
+    for (i = 1; i < n; ++i) if (w[i] > wmax) wmax = w[idiv = i];
      }
 
      if (fabs(x[idiv] - c[idiv]) > (0.5 * THIRD) * w[idiv]) { /* bisect */
-	  double deltac = (x[idiv] > c[idiv] ? 0.25 : -0.25) * w[idiv];
-	  w[idiv] *= 0.5;
-	  c[idiv] += deltac;
-	  r[0] = longest(n, w); /* new diameter */
-	  /* r[1] unchanged since still contains local optimum x */
-	  r[2] = p->age--;
-	  node = nlopt_rb_tree_resort(&p->rtree, node);
+    double deltac = (x[idiv] > c[idiv] ? 0.25 : -0.25) * w[idiv];
+    w[idiv] *= 0.5;
+    c[idiv] += deltac;
+    r[0] = longest(n, w); /* new diameter */
+    /* r[1] unchanged since still contains local optimum x */
+    r[2] = p->age--;
+    node = nlopt_rb_tree_resort(&p->rtree, node);
 
-	  rnew = (double *) malloc(sizeof(double) * L);
-	  if (!rnew) return NLOPT_OUT_OF_MEMORY;
-	  memcpy(rnew, r, sizeof(double) * L);
-	  rnew[2] = p->age--;
-	  rnew[3+n+idiv] -= deltac*2;
-	  if (p->randomized_div)
-	       randomize_x(n, rnew);
-	  else
-	       memcpy(rnew+3, rnew+3+n, sizeof(double) * n); /* x = c */
-	  ret = optimize_rect(rnew, p);
-	  if (ret != NLOPT_SUCCESS) { free(rnew); return ret; }
-	  if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
-	       free(rnew); return NLOPT_OUT_OF_MEMORY;
-	  }
+    rnew = (double *) malloc(sizeof(double) * L);
+    if (!rnew) return NLOPT_OUT_OF_MEMORY;
+    memcpy(rnew, r, sizeof(double) * L);
+    rnew[2] = p->age--;
+    rnew[3+n+idiv] -= deltac*2;
+    if (p->randomized_div)
+         randomize_x(n, rnew);
+    else
+         memcpy(rnew+3, rnew+3+n, sizeof(double) * n); /* x = c */
+    ret = optimize_rect(rnew, p);
+    if (ret != NLOPT_SUCCESS) { free(rnew); return ret; }
+    if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
+         free(rnew); return NLOPT_OUT_OF_MEMORY;
+    }
      }
      else { /* trisect */
-	  w[idiv] *= THIRD;
-	  r[0] = longest(n, w);
-	  /* r[1] unchanged since still contains local optimum x */
-	  r[2] = p->age--;
-	  node = nlopt_rb_tree_resort(&p->rtree, node);
+    w[idiv] *= THIRD;
+    r[0] = longest(n, w);
+    /* r[1] unchanged since still contains local optimum x */
+    r[2] = p->age--;
+    node = nlopt_rb_tree_resort(&p->rtree, node);
 
-	  for (i = -1; i <= +1; i += 2) {
-	       rnew = (double *) malloc(sizeof(double) * L);
-	       if (!rnew) return NLOPT_OUT_OF_MEMORY;
-	       memcpy(rnew, r, sizeof(double) * L);
-	       rnew[2] = p->age--;
-	       rnew[3+n+idiv] += w[i] * i;
-	       if (p->randomized_div)
-		    randomize_x(n, rnew);
-	       else
-		    memcpy(rnew+3, rnew+3+n, sizeof(double) * n); /* x = c */
-	       ret = optimize_rect(rnew, p);
-	       if (ret != NLOPT_SUCCESS) { free(rnew); return ret; }
-	       if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
-		    free(rnew); return NLOPT_OUT_OF_MEMORY;
-	       }
-	  }
+    for (i = -1; i <= +1; i += 2) {
+         rnew = (double *) malloc(sizeof(double) * L);
+         if (!rnew) return NLOPT_OUT_OF_MEMORY;
+         memcpy(rnew, r, sizeof(double) * L);
+         rnew[2] = p->age--;
+         rnew[3+n+idiv] += w[i] * i;
+         if (p->randomized_div)
+        randomize_x(n, rnew);
+         else
+        memcpy(rnew+3, rnew+3+n, sizeof(double) * n); /* x = c */
+         ret = optimize_rect(rnew, p);
+         if (ret != NLOPT_SUCCESS) { free(rnew); return ret; }
+         if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
+        free(rnew); return NLOPT_OUT_OF_MEMORY;
+         }
+    }
      }
      if (p->minf < minf_start && nlopt_stop_f(p->stop, p->minf, minf_start))
-	  return NLOPT_FTOL_REACHED;
+    return NLOPT_FTOL_REACHED;
      return NLOPT_SUCCESS;
 }
 
 /************************************************************************/
 
 nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
-				     const double *lb, const double *ub,
-				     double *x,
-				     double *minf,
-				     nlopt_stopping *stop,
-				     nlopt_algorithm local_alg,
-				     int local_maxeval,
-				     int randomized_div)
+             const double *lb, const double *ub,
+             double *x,
+             double *minf,
+             nlopt_stopping *stop,
+             nlopt_algorithm local_alg,
+             int local_maxeval,
+             int randomized_div)
 {
      params p;
      int i;
@@ -292,7 +292,7 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
      if (!nlopt_rb_tree_insert(&p.rtree, rnew)) { free(rnew); goto done; }
 
      do {
-	  ret = divide_largest(&p);
+    ret = divide_largest(&p);
      } while (ret == NLOPT_SUCCESS);
 
  done:
@@ -306,13 +306,13 @@ nlopt_result cdirect_hybrid_unscaled(int n, nlopt_func f, void *f_data,
 
 /* rescaled to unit hypercube so that all x[i] are weighted equally  */
 nlopt_result cdirect_hybrid(int n, nlopt_func f, void *f_data,
-			    const double *lb, const double *ub,
-			    double *x,
-			    double *minf,
-			    nlopt_stopping *stop,
-			    nlopt_algorithm local_alg,
-			    int local_maxeval,
-			    int randomized_div)
+          const double *lb, const double *ub,
+          double *x,
+          double *minf,
+          nlopt_stopping *stop,
+          nlopt_algorithm local_alg,
+          int local_maxeval,
+          int randomized_div)
 {
      cdirect_uf_data d;
      nlopt_result ret;
@@ -324,9 +324,9 @@ nlopt_result cdirect_hybrid(int n, nlopt_func f, void *f_data,
      if (!d.x) return NLOPT_OUT_OF_MEMORY;
 
      for (i = 0; i < n; ++i) {
-	  x[i] = (x[i] - lb[i]) / (ub[i] - lb[i]);
-	  d.x[n+i] = 0;
-	  d.x[2*n+i] = 1;
+    x[i] = (x[i] - lb[i]) / (ub[i] - lb[i]);
+    d.x[n+i] = 0;
+    d.x[2*n+i] = 1;
      }
      if (stop->xtol_abs) {
          for (i = 0; i < n; ++i)
@@ -335,11 +335,11 @@ nlopt_result cdirect_hybrid(int n, nlopt_func f, void *f_data,
          stop->xtol_abs = d.x + 3*n;
      }
      ret = cdirect_hybrid_unscaled(n, cdirect_uf, &d, d.x+n, d.x+2*n,
-				   x, minf, stop, local_alg, local_maxeval,
-				   randomized_div);
+           x, minf, stop, local_alg, local_maxeval,
+           randomized_div);
      stop->xtol_abs = xtol_abs_save;
      for (i = 0; i < n; ++i)
-	  x[i] = lb[i]+ x[i] * (ub[i] - lb[i]);
+    x[i] = lb[i]+ x[i] * (ub[i] - lb[i]);
      free(d.x);
      return ret;
 }
