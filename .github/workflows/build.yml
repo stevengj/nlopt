@@ -25,5 +25,5 @@ jobs:
         run: |
           brew upgrade && brew install swig octave guile
           mkdir build && pushd build
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/python -DNLOPT_FORTRAN=ON ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/python -DNLOPT_FORTRAN=OFF ..
           make install && ctest --output-on-failure
