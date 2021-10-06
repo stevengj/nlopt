@@ -863,6 +863,8 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
         ret = nlopt_optimize_(elim_opt, x, opt_f);
 
         if (elim_opt != opt) {
+            opt->numevals = elim_opt->numevals;
+            opt->errmsg = elim_opt->errmsg; elim_opt->errmsg = NULL;
             elimdim_destroy(elim_opt);
             elimdim_expand(opt->n, x, opt->lb, opt->ub);
             opt->force_stop_child = NULL;
