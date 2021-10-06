@@ -9,3 +9,5 @@ If local_optimizer is set, STOGO should use it instead of its
 own BFGS.
 
 Wrappers for GNU R, Java, Perl, Ocaml, C#, ...
+
+Updates from Jones, D.R., Martins, J.R.R.A., (2021) "The DIRECT algorithm: 25 years Later." J  Glob Optim 79, 521–566.
