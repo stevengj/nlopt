@@ -107,7 +107,7 @@ Only bound-constrained problems are supported by this algorithm.
 
 This is an algorithm adapted from the code downloaded from
 
--   [StoGO global optimization library](http://www2.imm.dtu.dk/~km/GlobOpt/opt.html) (link broken as of Nov. 2009, and the software seems absent from the [author's web site](http://www2.imm.dtu.dk/~km/))
+-   [StoGO global optimization library](http://www.imm.dtu.dk/projects/scicomp/GlobOpt/opt.html)
 
 by Madsen et al. StoGO is a global optimization algorithm that works by systematically dividing the search space (which must be bound-constrained) into smaller hyper-rectangles via a branch-and-bound technique, and searching them by a gradient-based local-search algorithm (a BFGS variant), optionally including some randomness (hence the "Sto", which stands for "stochastic" I believe).
 
