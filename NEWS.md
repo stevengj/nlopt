@@ -1,5 +1,12 @@
 # NLopt Release Notes
 
+## NLopt 2.7.1
+
+3 December 2021
+
+* Various minor bugfixes ([#268], [#409], [#420]) and build
+  improvements (support Octave 6.x, Guile 3.x, Cmake 3.2.
+
 ## NLopt 2.7
 
 18 November 2020
