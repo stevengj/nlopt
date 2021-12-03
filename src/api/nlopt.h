@@ -165,13 +165,14 @@ typedef enum {
     NLOPT_OUT_OF_MEMORY = -3,
     NLOPT_ROUNDOFF_LIMITED = -4,
     NLOPT_FORCED_STOP = -5,
+    NLOPT_NUM_FAILURES = -6,    /* not a result, just the number of possible failures */
     NLOPT_SUCCESS = 1,          /* generic success code */
     NLOPT_STOPVAL_REACHED = 2,
     NLOPT_FTOL_REACHED = 3,
     NLOPT_XTOL_REACHED = 4,
     NLOPT_MAXEVAL_REACHED = 5,
     NLOPT_MAXTIME_REACHED = 6,
-    NLOPT_NUM_RESULTS           /* not a result, just the number of them */
+    NLOPT_NUM_RESULTS           /* not a result, just the number of possible successes */
 } nlopt_result;
 
 /* nlopt_result enum <-> string conversion */
