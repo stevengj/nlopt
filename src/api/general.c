@@ -185,10 +185,8 @@ const char *nlopt_result_to_string(nlopt_result result)
     case NLOPT_XTOL_REACHED: return "XTOL_REACHED";
     case NLOPT_MAXEVAL_REACHED: return "MAXEVAL_REACHED";
     case NLOPT_MAXTIME_REACHED: return "MAXTIME_REACHED";
-    case NLOPT_NUM_FAILURES:
-    case NLOPT_NUM_RESULTS: return NULL;
+    default: return NULL;
   }
-  return NULL;
 }
 
 
@@ -197,16 +195,10 @@ nlopt_result nlopt_result_from_string(const char * name)
   int i;
   if (name == NULL)
     return -1;
-  /* Start checking all the failures which are enumerated with negative indices */
-  for (i = -1; i > NLOPT_NUM_FAILURES; --i)
-  {
-    if (strcmp(name, nlopt_result_to_string(i)) == 0)
-      return i;
-  }
-  /* Continue checking all possible successes which are enumerated with positive indices */
-  for (i = 1; i < NLOPT_NUM_RESULTS; ++i)
-  {
-    if (strcmp(name, nlopt_result_to_string(i)) == 0)
+  /* Check all valid negative (failure) and positive (success) result codes */
+  for (i = NLOPT_NUM_FAILURES + 1; i < NLOPT_NUM_RESULTS; ++i) {
+    const char *name_i = nlopt_result_to_string(i);
+    if (name_i != NULL && strcmp(name, name_i) == 0)
       return i;
   }
   return -1;
