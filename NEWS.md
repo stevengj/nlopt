@@ -5,7 +5,7 @@
 3 December 2021
 
 * Various minor bugfixes ([#268], [#409], [#420]) and build
-  improvements (support Octave 6.x, Guile 3.x, Cmake 3.2.
+  improvements (support Octave 6.x, Guile 3.x, Cmake 3.2).
 
 ## NLopt 2.7
 
