@@ -76,7 +76,7 @@ static void daxpy_sl__(int *n_, const double *da_, const double *dx,
 static double ddot_sl__(int *n_, double *dx, int incx, double *dy, int incy)
 {
      int n = *n_, i;
-     long double sum = 0;
+     double sum = 0;
      if (n <= 0) return 0;
      for (i = 0; i < n; ++i) sum += dx[i*incx] * dy[i*incy];
      return (double) sum;
@@ -87,7 +87,7 @@ static double dnrm2___(int *n_, double *dx, int incx)
 {
      int i, n = *n_;
      double xmax = 0, scale;
-     long double sum = 0;
+     double sum = 0;
      for (i = 0; i < n; ++i) {
           double xabs = fabs(dx[incx*i]);
           if (xmax < xabs) xmax = xabs;
