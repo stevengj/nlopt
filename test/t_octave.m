@@ -29,3 +29,7 @@ opt.fc = { (@(x) myconstraint(x,2,0)), (@(x) myconstraint(x,-1,1)) };
 opt.fc_tol = [1e-8, 1e-8];
 opt.xtol_rel = 1e-4;
 [xopt, fmin, retcode] = nlopt_optimize(opt, [1.234 5.678])
+
+assert (retcode, 4);
+assert (fmin, 0.5443, 1e-4);
+assert (xopt, [0.3333, 0.2963], 1e-4);
