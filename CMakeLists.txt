@@ -244,7 +244,7 @@ install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
 set (nlopt_lib nlopt)
 
 catkin_package(
-  INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/api
+  INCLUDE_DIRS ${PROJECT_BINARY_DIR} src/api
   LIBRARIES ${nlopt_lib}
 )
 
