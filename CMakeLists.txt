@@ -187,8 +187,12 @@ endif ()
 #==============================================================================
 
 set (NLOPT_HEADERS
-  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp ${PROJECT_BINARY_DIR}/nlopt.f
+  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp
 )
+
+if (NLOPT_FORTRAN)
+  set (NLOPT_HEADERS ${NLOPT_HEADERS} ${PROJECT_BINARY_DIR}/nlopt.f)
+endif()
 
 add_custom_command (OUTPUT nlopt.hpp
   COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-cpp.cmake
