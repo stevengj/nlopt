@@ -1,11 +1,12 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
+libdir=${exec_prefix}/@RELATIVE_INSTALL_LIB_DIR@
 includedir=${prefix}/include
 
 Name: NLopt
-Description: nonlinear optimization libary
+Description: nonlinear optimization library
 Version: @NLOPT_VERSION_STRING@
 Libs: -L${libdir} -lnlopt
 Libs.private: -lm
 Cflags: -I${includedir}
+
