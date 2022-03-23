@@ -38,6 +38,7 @@ namespace
         mRightBound = rightBound;
       }
 
+      virtual ~ProblemInternal() {}
       double Calculate(const double* y, int fNumber) const
       {
         return mFunctions[fNumber](y);
