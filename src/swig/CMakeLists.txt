@@ -46,6 +46,14 @@ if (NUMPY_FOUND AND PYTHONLIBS_FOUND)
     set_target_properties (${nlopt_python} PROPERTIES PREFIX "_")
   endif ()
 
+  if (NOT DEFINED PYTHON_EXTENSION_MODULE_SUFFIX AND NOT CMAKE_CROSSCOMPILING)
+    execute_process (COMMAND ${PYTHON_EXECUTABLE} -c "import importlib.machinery; print(importlib.machinery.EXTENSION_SUFFIXES[0])"
+                    OUTPUT_VARIABLE PYTHON_EXTENSION_MODULE_SUFFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif ()
+  if (DEFINED PYTHON_EXTENSION_MODULE_SUFFIX)
+    set_target_properties (${nlopt_python} PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
+  endif ()
+
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION ${INSTALL_PYTHON_DIR})
   install (TARGETS ${nlopt_python} LIBRARY DESTINATION ${INSTALL_PYTHON_DIR})
 endif ()

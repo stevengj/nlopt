@@ -39,6 +39,6 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=%cd:\=/%/install .
           cmake --build . --config Release --target install
           xcopy %cd%\install\bin\nlopt.dll %cd%\src\swig
-          xcopy %cd%\install\Lib\site-packages\_nlopt.pyd %cd%\src\swig
+          xcopy %cd%\install\Lib\site-packages\_nlopt*.pyd %cd%\src\swig
           dir /p %cd%\src\swig
           ctest -C Release --output-on-failure --timeout 100
