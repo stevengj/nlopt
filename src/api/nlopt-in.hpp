@@ -34,6 +34,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <utility> // std::move
+#include <functional> // std::function
 
 // convenience overloading for below (not in nlopt:: since has nlopt_ prefix)
 inline nlopt_result nlopt_get_initial_step(const nlopt_opt opt, double *dx) {
@@ -55,6 +57,13 @@ namespace nlopt {
   // ... unfortunately requires a data copy
   typedef double (*vfunc)(const std::vector<double> &x,
 			  std::vector<double> &grad, void *data);
+
+  // OOP alternative to nlopt_func that stores the data inside,
+  // hence no need to pass (void*) data
+  // functor can be a regular function, C++ lambda, a class with `operator()`
+  // defined with the following signature:
+  //    double operator()(unsigned, const double*, double*);
+  typedef std::function<double(unsigned, const double*, double*)> functor_type;
 
   //////////////////////////////////////////////////////////////////////
 
@@ -89,6 +98,7 @@ namespace nlopt {
     typedef struct {
       opt *o;
       mfunc mf; func f; void *f_data;
+      functor_type functor;
       vfunc vf;
       nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
     } myfunc_data;
@@ -178,6 +188,29 @@ namespace nlopt {
 	  std::memcpy(grad, &gradv[0], n * sizeof(double));
 	}
 	return val;
+      }
+      catch (std::bad_alloc&)
+	{ d->o->forced_stop_reason = NLOPT_OUT_OF_MEMORY; }
+      catch (std::invalid_argument&)
+	{ d->o->forced_stop_reason = NLOPT_INVALID_ARGS; }
+      catch (roundoff_limited&)
+	{ d->o->forced_stop_reason = NLOPT_ROUNDOFF_LIMITED; }
+      catch (forced_stop&)
+	{ d->o->forced_stop_reason = NLOPT_FORCED_STOP; }
+      catch (...)
+	{ d->o->forced_stop_reason = NLOPT_FAILURE; }
+      d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+      return HUGE_VAL;
+    }
+
+    // nlopt_func wrapper, using std::function object
+    static double functor_wrapper(unsigned n, const double *x,
+                                  double *grad, void *d_) {
+      myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
+      try {
+        // since functor can be a callable object and contain its own data,
+        // passing data as (void*) is not needed
+        return d->functor(n, x, grad);
       }
       catch (std::bad_alloc&)
 	{ d->o->forced_stop_reason = NLOPT_OUT_OF_MEMORY; }
@@ -299,6 +332,13 @@ namespace nlopt {
       mythrow(nlopt_set_min_objective(o, myvfunc, d)); // d freed via o
       alloc_tmp();
     }
+    void set_min_objective(functor_type functor) {
+      myfunc_data *d = alloc_myfunc_data_with_nulls();
+
+      d->functor = std::move(functor);
+      mythrow(nlopt_set_min_objective(o, functor_wrapper, d)); // d freed via o
+    }
+
     void set_max_objective(func f, void *f_data) {
       myfunc_data *d = new myfunc_data;
       if (!d) throw std::bad_alloc();
@@ -313,6 +353,27 @@ namespace nlopt {
       d->munge_destroy = d->munge_copy = NULL;
       mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
       alloc_tmp();
+    }
+    void set_max_objective(functor_type functor) {
+      myfunc_data *d = alloc_myfunc_data_with_nulls();
+
+      d->functor = std::move(functor);
+      mythrow(nlopt_set_max_objective(o, functor_wrapper, d)); // d freed via o
+    }
+
+    myfunc_data* alloc_myfunc_data_with_nulls() {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+
+      d->o             = this;
+      d->f             = NULL;
+      d->f_data        = NULL;
+      d->mf            = NULL;
+      d->vf            = NULL;
+      d->munge_destroy = NULL;
+      d->munge_copy    = NULL;
+
+      return d;
     }
 
     // for internal use in SWIG wrappers -- variant that
