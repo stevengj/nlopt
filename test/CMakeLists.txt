@@ -13,6 +13,7 @@ macro(NLOPT_add_cpp_test test_name)
 endmacro()
 
 NLOPT_add_cpp_test(t_tutorial)
+NLOPT_add_cpp_test(cpp_functor)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
 set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)
