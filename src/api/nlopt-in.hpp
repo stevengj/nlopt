@@ -103,6 +103,24 @@ namespace nlopt {
       nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
     } myfunc_data;
 
+    void* alloc_myfunc_data_with_nulls() {
+      // need to return void* otherwise SWIG doesn't compile because
+      // myfunc_data is private
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+
+      d->o             = this;
+      d->f             = NULL;
+      d->f_data        = NULL;
+      d->mf            = NULL;
+      d->vf            = NULL;
+      d->munge_destroy = NULL;
+      d->munge_copy    = NULL;
+
+      return reinterpret_cast<void*>(d);
+    }
+
+
     // free/destroy f_data in nlopt_destroy and nlopt_copy, respectively
     static void *free_myfunc_data(void *p) {
       myfunc_data *d = (myfunc_data *) p;
@@ -333,7 +351,8 @@ namespace nlopt {
       alloc_tmp();
     }
     void set_min_objective(functor_type functor) {
-      myfunc_data *d = alloc_myfunc_data_with_nulls();
+      myfunc_data *d =
+        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
 
       d->functor = std::move(functor);
       mythrow(nlopt_set_min_objective(o, functor_wrapper, d)); // d freed via o
@@ -355,25 +374,11 @@ namespace nlopt {
       alloc_tmp();
     }
     void set_max_objective(functor_type functor) {
-      myfunc_data *d = alloc_myfunc_data_with_nulls();
+      myfunc_data *d =
+        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
 
       d->functor = std::move(functor);
       mythrow(nlopt_set_max_objective(o, functor_wrapper, d)); // d freed via o
-    }
-
-    myfunc_data* alloc_myfunc_data_with_nulls() {
-      myfunc_data *d = new myfunc_data;
-      if (!d) throw std::bad_alloc();
-
-      d->o             = this;
-      d->f             = NULL;
-      d->f_data        = NULL;
-      d->mf            = NULL;
-      d->vf            = NULL;
-      d->munge_destroy = NULL;
-      d->munge_copy    = NULL;
-
-      return d;
     }
 
     // for internal use in SWIG wrappers -- variant that
