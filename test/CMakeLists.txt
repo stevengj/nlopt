@@ -1,13 +1,18 @@
 add_custom_target (tests)
 
-add_executable (t_tutorial t_tutorial.cxx)
-target_link_libraries (t_tutorial ${nlopt_lib})
-add_dependencies (tests t_tutorial)
-target_include_directories (t_tutorial PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
-add_test (NAME check_tutorial COMMAND t_tutorial)
-if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
-  set_tests_properties (check_tutorial PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
-endif ()
+macro(NLOPT_add_cpp_test test_name)
+  add_executable (${test_name} ${test_name}.cxx)
+  target_link_libraries (${test_name} ${nlopt_lib})
+  add_dependencies (tests ${test_name})
+  target_include_directories (${test_name} PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
+  add_test (NAME check_${test_name} COMMAND ${test_name})
+  if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+    set_tests_properties (check_${test_name}
+      PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
+  endif ()
+endmacro()
+
+NLOPT_add_cpp_test(t_tutorial)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
 set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)
