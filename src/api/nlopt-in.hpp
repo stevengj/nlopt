@@ -106,17 +106,10 @@ namespace nlopt {
     void* alloc_myfunc_data_with_nulls() {
       // need to return void* otherwise SWIG doesn't compile because
       // myfunc_data is private
-      myfunc_data *d = new myfunc_data;
+      myfunc_data *d = new myfunc_data(); // zero-initialize all pointers
       if (!d) throw std::bad_alloc();
 
-      d->o             = this;
-      d->f             = NULL;
-      d->f_data        = NULL;
-      d->mf            = NULL;
-      d->vf            = NULL;
-      d->munge_destroy = NULL;
-      d->munge_copy    = NULL;
-
+      d->o = this;
       return reinterpret_cast<void*>(d);
     }
 
