@@ -158,12 +158,11 @@ endif ()
 if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
   check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
   if (SYSTEM_HAS_CXX)
-    check_cxx_compiler_flag ("-std=c++11" SUPPORTS_STDCXX11)
-    if (SUPPORTS_STDCXX11)
-      set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-      if (NLOPT_CXX)
-        set (NLOPT_CXX11 ON)
-      endif ()
+    set (CMAKE_CXX_STANDARD 11) # set the standard to C++11 but do not require it
+
+    if (NLOPT_CXX)
+      set (CMAKE_CXX_STANDARD_REQUIRED ON) # if we build C++ API, we do need C++11
+      set (NLOPT_CXX11 ON)
     endif ()
   else()
     message (FATAL_ERROR "The compiler doesn't support CXX.")
