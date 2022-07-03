@@ -45,6 +45,23 @@ static void *dup_guilefunc(void *p) {
   scm_gc_protect_object((SCM) p); return p; }
 
 // func wrapper around Guile function val = f(x, grad)
+static void pfunc_guile(unsigned n, const double *x, const double *v, double *vpre, void *f) {
+  SCM xscm = scm_c_make_vector(n, SCM_UNSPECIFIED);
+  SCM vscm = scm_c_make_vector(n, SCM_UNSPECIFIED);
+  for (unsigned i = 0; i < n; ++i){
+    SCM_SIMPLE_VECTOR_SET(xscm, i, scm_from_double(x[i]));
+    SCM_SIMPLE_VECTOR_SET(vscm, i, scm_from_double(v[i]));
+  }
+  SCM vpre_scm = vpre ? scm_c_make_vector(n, SCM_UNSPECIFIED) : SCM_BOOL_F;
+  scm_call_3((SCM) f, xscm, vscm, vpre_scm);
+  if (vpre) {
+    for (unsigned i = 0; i < n; ++i) {
+      vpre[i] = scm_to_double(SCM_SIMPLE_VECTOR_REF(vpre_scm, i));
+    }
+  }
+}
+
+// func wrapper around Guile function val = f(x, grad)
 static double func_guile(unsigned n, const double *x, double *grad, void *f) {
   SCM xscm = scm_c_make_vector(n, SCM_UNSPECIFIED);
   for (unsigned i = 0; i < n; ++i)
@@ -70,10 +87,20 @@ static double func_guile(unsigned n, const double *x, double *grad, void *f) {
   $3 = free_guilefunc;
   $4 = dup_guilefunc;
 }
+%typemap(in)(nlopt::func f, nlopt::pfunc pf, void *f_data, nlopt_munge md, nlopt_munge mc) {
+  $1 = func_guile;
+  $2 = pfunc_guile;
+  $3 = dup_guilefunc((void*) $input); // input = SCM pointer to Scheme function
+  $4 = free_guilefunc;
+  $5 = dup_guilefunc;
+}
 %typecheck(SWIG_TYPECHECK_POINTER)(nlopt::func f, void *f_data, nlopt_munge md, nlopt_munge mc) {
   $1 = scm_is_true(scm_procedure_p($input));
 }
-
+%typecheck(SWIG_TYPECHECK_POINTER)(nlopt::func f, nlopt::pfunc pf, void *f_data, nlopt_munge md, nlopt_munge mc) {
+  $1 = scm_is_true(scm_procedure_p($input));
+  //$2 = scm_is_true(scm_procedure_p($input));
+}
 // export constants as variables, rather than as functions returning the value
 %feature("constasvar", "1");
 

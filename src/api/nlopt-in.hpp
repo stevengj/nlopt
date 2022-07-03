@@ -50,6 +50,7 @@ namespace nlopt {
 
   typedef nlopt_func func; // nlopt::func synoynm
   typedef nlopt_mfunc mfunc; // nlopt::mfunc synoynm
+  typedef nlopt_precond pfunc;
 
   // alternative to nlopt_func that takes std::vector<double>
   // ... unfortunately requires a data copy
@@ -88,7 +89,7 @@ namespace nlopt {
 
     typedef struct {
       opt *o;
-      mfunc mf; func f; void *f_data;
+      pfunc pf; mfunc mf; func f; void *f_data;
       vfunc vf;
       nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
     } myfunc_data;
@@ -141,6 +142,27 @@ namespace nlopt {
       d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
       return HUGE_VAL;
     }
+
+    // nlopt_precond wrapper that catches exceptions
+    static void mypfunc( unsigned n, const double *x, const double *v, double *vpre, void *d_) {
+      myfunc_data *d = reinterpret_cast<myfunc_data*>(d_);
+      try {
+	d->pf(n, x, v, vpre, d->f_data);
+  return;
+      }
+        catch (std::bad_alloc&)
+    { d->o->forced_stop_reason = NLOPT_OUT_OF_MEMORY; }
+        catch (std::invalid_argument&)
+    { d->o->forced_stop_reason = NLOPT_INVALID_ARGS; }
+        catch (roundoff_limited&)
+    { d->o->forced_stop_reason = NLOPT_ROUNDOFF_LIMITED; }
+        catch (forced_stop&)
+    { d->o->forced_stop_reason = NLOPT_FORCED_STOP; }
+        catch (...)
+    { d->o->forced_stop_reason = NLOPT_FAILURE; }
+        d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
+        //return HUGE_VAL;
+      }
 
     // nlopt_mfunc wrapper that catches exceptions
     static void mymfunc(unsigned m, double *result,
@@ -314,6 +336,16 @@ namespace nlopt {
       mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
       alloc_tmp();
     }
+    void set_precond_min_objective(func f, pfunc pf, void *f_data) {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->mf = NULL; d->vf = NULL;
+      d->pf = pf;
+      d->munge_destroy = d->munge_copy = NULL;
+      printf("ALEC\n");
+      mythrow(nlopt_set_precond_min_objective(o, myfunc, mypfunc, d)); // d freed via o
+      alloc_tmp();
+    }
 
     // for internal use in SWIG wrappers -- variant that
     // takes ownership of f_data, with munging for destroy/copy
@@ -332,6 +364,16 @@ namespace nlopt {
       d->o = this; d->f = f; d->f_data = f_data; d->mf = NULL; d->vf = NULL;
       d->munge_destroy = md; d->munge_copy = mc;
       mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
+    }
+    void set_precond_min_objective(func f, pfunc pf, void *f_data,
+			   nlopt_munge md, nlopt_munge mc) {
+      myfunc_data *d = new myfunc_data;
+      if (!d) throw std::bad_alloc();
+      d->o = this; d->f = f; d->f_data = f_data; d->mf = NULL; d->vf = NULL;
+      d->pf = pf;
+      d->munge_destroy = md; d->munge_copy = mc;
+      printf("ALEC\n");
+      mythrow(nlopt_set_precond_min_objective(o, myfunc, mypfunc, d)); // d freed via o
     }
 
     // Nonlinear constraints:

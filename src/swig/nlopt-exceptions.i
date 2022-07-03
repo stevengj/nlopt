@@ -21,8 +21,11 @@
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(func f, void *f_data);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(vfunc vf, void *f_data);
 
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_precond_min_objective(func f, pfunc pf, void *f_data);
+
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_min_objective(func f, void *f_data, nlopt_munge md, nlopt_munge mc);
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_max_objective(func f, void *f_data, nlopt_munge md, nlopt_munge mc);
+%catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_precond_min_objective(func f, pfunc pf, void *f_data, nlopt_munge md, nlopt_munge mc);
 
 %catches(std::invalid_argument) nlopt::opt::remove_inequality_constraints();
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::add_inequality_constraint(func f, void *f_data, double tol=0);
