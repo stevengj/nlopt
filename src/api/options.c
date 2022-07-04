@@ -691,6 +691,11 @@ GETSET(ftol_rel, double, ftol_rel) GETSET(ftol_abs, double, ftol_abs) GETSET(xto
 {
     if (opt) {
         nlopt_unset_errmsg(opt);
+	if (!xtol_abs) {
+	    free(opt->xtol_abs);
+	    opt->xtol_abs = NULL;
+	    return NLOPT_SUCCESS;
+	}
         if (!opt->xtol_abs && opt->n > 0) {
             opt->xtol_abs = (double *) calloc(opt->n, sizeof(double));
             if (!opt->xtol_abs) return NLOPT_OUT_OF_MEMORY;
@@ -738,6 +743,11 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights(nlopt_opt opt, const double *x_we
     if (opt) {
         unsigned i;
         nlopt_unset_errmsg(opt);
+	if (!x_weights) {
+	  free(opt->x_weights);
+	  opt->x_weights = NULL;
+	  return NLOPT_SUCCESS;
+	}
         for (i = 0; i < opt->n; i++)
             if (x_weights[i] < 0)
                 return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");
