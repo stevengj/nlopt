@@ -162,7 +162,6 @@ if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
 
     if (NLOPT_CXX)
       set (CMAKE_CXX_STANDARD_REQUIRED ON) # if we build C++ API, we do need C++11
-      set (NLOPT_CXX11 ON)
     endif ()
   else()
     message (FATAL_ERROR "The compiler doesn't support CXX.")
@@ -220,12 +219,27 @@ set (NLOPT_SOURCES
 )
 
 if (NLOPT_CXX)
-  list (APPEND NLOPT_SOURCES src/algs/stogo/global.cc src/algs/stogo/linalg.cc src/algs/stogo/local.cc src/algs/stogo/stogo.cc src/algs/stogo/tools.cc
-        src/algs/stogo/global.h src/algs/stogo/linalg.h src/algs/stogo/local.h src/algs/stogo/stogo_config.h src/algs/stogo/stogo.h src/algs/stogo/tools.h)
-endif ()
-if (NLOPT_CXX11)
-  list (APPEND NLOPT_SOURCES src/algs/ags/data_types.hpp src/algs/ags/evolvent.hpp src/algs/ags/evolvent.cc src/algs/ags/solver.hpp src/algs/ags/solver.cc
-  src/algs/ags/local_optimizer.hpp src/algs/ags/local_optimizer.cc src/algs/ags/ags.h src/algs/ags/ags.cc)
+  list (APPEND NLOPT_SOURCES
+    src/algs/stogo/global.cc
+    src/algs/stogo/linalg.cc
+    src/algs/stogo/local.cc
+    src/algs/stogo/stogo.cc
+    src/algs/stogo/tools.cc
+    src/algs/stogo/global.h
+    src/algs/stogo/linalg.h
+    src/algs/stogo/local.h
+    src/algs/stogo/stogo_config.h
+    src/algs/stogo/stogo.h
+    src/algs/stogo/tools.h
+    src/algs/ags/data_types.hpp
+    src/algs/ags/evolvent.hpp
+    src/algs/ags/evolvent.cc
+    src/algs/ags/solver.hpp
+    src/algs/ags/solver.cc
+    src/algs/ags/local_optimizer.hpp
+    src/algs/ags/local_optimizer.cc
+    src/algs/ags/ags.h
+    src/algs/ags/ags.cc)
 endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})

@@ -38,8 +38,8 @@ foreach (algo_index RANGE 29)# 43
         set (enable_ FALSE)
       endif ()
     endif ()
-    # cxx11 ags
-    if (NOT NLOPT_CXX11 AND algo_index STREQUAL 43)
+    # cxx ags
+    if (NOT NLOPT_CXX AND algo_index STREQUAL 43)
       set (enable_ FALSE)
     endif ()
     # L-BFGS
