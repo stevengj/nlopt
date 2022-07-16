@@ -103,11 +103,18 @@ namespace nlopt {
       nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
     } myfunc_data;
 
-    void* alloc_myfunc_data_with_nulls() {
+    static void* alloc_myfunc_data_with_nulls() {
       // need to return void* otherwise SWIG doesn't compile because
       // myfunc_data is private
       myfunc_data *d = new myfunc_data(); // zero-initialize all pointers
       if (!d) throw std::bad_alloc();
+
+      return reinterpret_cast<void*>(d);
+    }
+
+    void* alloc_and_init_myfunc_data() {
+      myfunc_data *d =
+        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
 
       d->o = this;
       return reinterpret_cast<void*>(d);
@@ -329,7 +336,7 @@ namespace nlopt {
     // Set the objective function
     void set_min_objective(func f, void *f_data) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f      = f;
       d->f_data = f_data;
 
@@ -337,7 +344,7 @@ namespace nlopt {
     }
     void set_min_objective(vfunc vf, void *f_data) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->vf     = vf;
       d->f_data = f_data;
 
@@ -346,7 +353,7 @@ namespace nlopt {
     }
     void set_min_objective(functor_type functor) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
 
       d->functor = std::move(functor);
       mythrow(nlopt_set_min_objective(o, functor_wrapper, d)); // d freed via o
@@ -354,7 +361,7 @@ namespace nlopt {
 
     void set_max_objective(func f, void *f_data) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f      = f;
       d->f_data = f_data;
 
@@ -362,7 +369,7 @@ namespace nlopt {
     }
     void set_max_objective(vfunc vf, void *f_data) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->vf     = vf;
       d->f_data = f_data;
 
@@ -371,7 +378,7 @@ namespace nlopt {
     }
     void set_max_objective(functor_type functor) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
 
       d->functor = std::move(functor);
       mythrow(nlopt_set_max_objective(o, functor_wrapper, d)); // d freed via o
@@ -382,7 +389,7 @@ namespace nlopt {
     void set_min_objective(func f, void *f_data,
 			   nlopt_munge md, nlopt_munge mc) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f             = f;
       d->f_data        = f_data;
       d->munge_destroy = md;
@@ -393,7 +400,7 @@ namespace nlopt {
     void set_max_objective(func f, void *f_data,
 			   nlopt_munge md, nlopt_munge mc) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f             = f;
       d->f_data        = f_data;
       d->munge_destroy = md;
@@ -410,7 +417,7 @@ namespace nlopt {
     }
     void add_inequality_constraint(func f, void *f_data, double tol=0) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f      = f;
       d->f_data = f_data;
 
@@ -418,7 +425,7 @@ namespace nlopt {
     }
     void add_inequality_constraint(vfunc vf, void *f_data, double tol=0) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->vf     = vf;
       d->f_data = f_data;
 
@@ -428,7 +435,7 @@ namespace nlopt {
     void add_inequality_mconstraint(mfunc mf, void *f_data,
 				    const std::vector<double> &tol) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->mf     = mf;
       d->f_data = f_data;
 
@@ -442,7 +449,7 @@ namespace nlopt {
     }
     void add_equality_constraint(func f, void *f_data, double tol=0) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f      = f;
       d->f_data = f_data;
 
@@ -450,7 +457,7 @@ namespace nlopt {
     }
     void add_equality_constraint(vfunc vf, void *f_data, double tol=0) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->vf     = vf;
       d->f_data = f_data;
 
@@ -460,7 +467,7 @@ namespace nlopt {
     void add_equality_mconstraint(mfunc mf, void *f_data,
 				  const std::vector<double> &tol) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->mf     = mf;
       d->f_data = f_data;
 
@@ -473,7 +480,7 @@ namespace nlopt {
 				   nlopt_munge md, nlopt_munge mc,
 				   double tol=0) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f             = f;
       d->f_data        = f_data;
       d->munge_destroy = md;
@@ -485,7 +492,7 @@ namespace nlopt {
 				 nlopt_munge md, nlopt_munge mc,
 				 double tol=0) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->f             = f;
       d->f_data        = f_data;
       d->munge_destroy = md;
@@ -497,7 +504,7 @@ namespace nlopt {
 				    nlopt_munge md, nlopt_munge mc,
 				    const std::vector<double> &tol) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->mf            = mf;
       d->f_data        = f_data;
       d->munge_destroy = md;
@@ -510,7 +517,7 @@ namespace nlopt {
 				  nlopt_munge md, nlopt_munge mc,
 				  const std::vector<double> &tol) {
       myfunc_data *d =
-        reinterpret_cast<myfunc_data*>(alloc_myfunc_data_with_nulls());
+        reinterpret_cast<myfunc_data*>(alloc_and_init_myfunc_data());
       d->mf            = mf;
       d->f_data        = f_data;
       d->munge_destroy = md;
