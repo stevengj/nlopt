@@ -46,9 +46,11 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
 #ifdef NLOPT_CXX
     "StoGO (global, derivative-based)",
     "StoGO with randomized search (global, derivative-based)",
+    "AGS (global, no-derivative)"
 #else
     "StoGO (NOT COMPILED)",
     "StoGO randomized (NOT COMPILED)",
+    "AGS (NOT COMPILED)"
 #endif
     "original L-BFGS code by Nocedal et al. (NOT COMPILED)",
     "Limited-memory BFGS (L-BFGS) (local, derivative-based)",
@@ -83,11 +85,6 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
     "Sequential Quadratic Programming (SQP) (local, derivative)",
     "CCSA (Conservative Convex Separable Approximations) with simple quadratic approximations (local, derivative)",
     "ESCH evolutionary strategy",
-#ifdef NLOPT_CXX11
-    "AGS (global, no-derivative)"
-#else
-    "AGS (NOT COMPILED)"
-#endif
 };
 
 const char *NLOPT_STDCALL nlopt_algorithm_name(nlopt_algorithm a)

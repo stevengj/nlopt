@@ -129,9 +129,6 @@
 /* Define if compiled including C++-based routines */
 #cmakedefine NLOPT_CXX
 
-/* Define if compiled including C++11-based routines */
-#cmakedefine NLOPT_CXX11
-
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
