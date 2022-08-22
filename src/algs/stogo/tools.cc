@@ -163,7 +163,7 @@ bool TBox::CloseToMin(RVector &vec, double *objval, double eps_cl) {
 
 unsigned int TBox::NStationary() {
   // Returns the number of trials in a box
-  return TList.size() ;
+  return static_cast<unsigned int>(TList.size()) ;
 }
 
 void TBox::split(RTBox B1, RTBox B2) {
@@ -176,7 +176,7 @@ void TBox::split(RTBox B1, RTBox B2) {
   B1.lb=lb; B1.ub=ub;
   B2.lb=lb; B2.ub=ub;
   w=LongestSide(&i);
-  ns=TList.size();
+  ns=static_cast<int>(TList.size());
   switch (ns) {
   case 0: case 1:
     // Bisection

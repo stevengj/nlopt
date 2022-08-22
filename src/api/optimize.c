@@ -649,7 +649,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             nlopt_set_ftol_abs(dual_opt, nlopt_get_param(opt, "dual_ftol_abs", LO(ftol_abs, 0.0)));
             nlopt_set_xtol_rel(dual_opt, nlopt_get_param(opt, "dual_xtol_rel", 0.0));
             nlopt_set_xtol_abs1(dual_opt, nlopt_get_param(opt, "dual_xtol_abs", 0.0));
-            nlopt_set_maxeval(dual_opt, nlopt_get_param(opt, "dual_maxeval", LO(maxeval, 100000)));
+            nlopt_set_maxeval(dual_opt, (int)nlopt_get_param(opt, "dual_maxeval", LO(maxeval, 100000)));
 #undef LO
 
             if (algorithm == NLOPT_LD_MMA)

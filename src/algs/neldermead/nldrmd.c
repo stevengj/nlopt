@@ -39,7 +39,7 @@ static int simplex_compare(double *k1, double *k2)
 {
      if (*k1 < *k2) return -1;
      if (*k1 > *k2) return +1;
-     return k1 - k2; /* tie-breaker */
+     return (int)(k1 - k2); /* tie-breaker */
 }
 
 /* return 1 if a and b are approximately equal relative to floating-point

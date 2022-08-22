@@ -51,7 +51,7 @@ double nlopt_seconds(void)
     gettimeofday(&tv, NULL);
     return (tv.tv_sec - start.tv_sec) + 1.e-6 * (tv.tv_usec - start.tv_usec);
 #elif defined(HAVE_TIME)
-    return time(NULL);
+    return (unsigned long)time(NULL);
 #elif defined(_WIN32) || defined(__WIN32__)
     static THREADLOCAL ULONGLONG start;
     FILETIME ft;
@@ -82,7 +82,7 @@ unsigned long nlopt_time_seed(void)
     gettimeofday(&tv, NULL);
     return (tv.tv_sec ^ tv.tv_usec);
 #elif defined(HAVE_TIME)
-    return time(NULL);
+    return (unsigned long)time(NULL);
 #elif defined(_WIN32) || defined(__WIN32__)
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
