@@ -10,7 +10,7 @@ NLopt
 
 **NLopt** is a free/open-source library for **nonlinear optimization**, providing a common interface for a number of different free optimization routines available online as well as original implementations of various other algorithms. Its features include:
 
--   Callable from [C](NLopt_Reference.md), [C++](NLopt_C-plus-plus_Reference.md), [Fortran](NLopt_Fortran_Reference.md), [Matlab or GNU Octave](NLopt_Matlab_Reference.md), [Python](NLopt_Python_Reference.md), [GNU Guile](NLopt_Guile_Reference.md), [Julia](https://github.com/stevengj/NLopt.jl), [GNU R](NLopt_R_Reference.md), [Lua](https://github.com/rochus-keller/LuaNLopt), [OCaml](https://bitbucket.org/mkur/nlopt-ocaml) and [Rust](https://github.com/adwhit/rust-nlopt).
+-   Callable from [C](NLopt_Reference.md), [C++](NLopt_C-plus-plus_Reference.md), [Fortran](NLopt_Fortran_Reference.md), [Matlab or GNU Octave](NLopt_Matlab_Reference.md), [Python](NLopt_Python_Reference.md), [GNU Guile](NLopt_Guile_Reference.md), [Julia](https://github.com/stevengj/NLopt.jl), [GNU R](NLopt_R_Reference.md), [Lua](https://github.com/rochus-keller/LuaNLopt), [OCaml](https://bitbucket.org/mkur/nlopt-ocaml), [Rust](https://github.com/adwhit/rust-nlopt) and [Crystal](https://github.com/konovod/nlopt.cr).
 -   A common interface for [many different algorithms](NLopt_Algorithms.md)—try a different algorithm just by changing one parameter.
 -   Support for large-scale optimization (some algorithms scalable to millions of parameters and thousands of constraints).
 -   Both global and local optimization algorithms.
