@@ -33,8 +33,6 @@
 
 #ifdef NLOPT_CXX
 #include "stogo.h"
-#endif
-#ifdef NLOPT_CXX11
 #include "ags.h"
 #endif
 
@@ -502,7 +500,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
         }
 
     case NLOPT_GN_AGS:
-#ifdef NLOPT_CXX11
+#ifdef NLOPT_CXX
         if (!finite_domain(n, lb, ub))
             RETURN_ERR(NLOPT_INVALID_ARGS, opt, "finite domain required for global algorithm");
         return ags_minimize(ni, f, f_data, opt->m, opt->fc, x, minf, lb, ub, &stop);

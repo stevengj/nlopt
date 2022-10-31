@@ -158,12 +158,10 @@ endif ()
 if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
   check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
   if (SYSTEM_HAS_CXX)
-    check_cxx_compiler_flag ("-std=c++11" SUPPORTS_STDCXX11)
-    if (SUPPORTS_STDCXX11)
-      set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-      if (NLOPT_CXX)
-        set (NLOPT_CXX11 ON)
-      endif ()
+    set (CMAKE_CXX_STANDARD 11) # set the standard to C++11 but do not require it
+
+    if (NLOPT_CXX)
+      set (CMAKE_CXX_STANDARD_REQUIRED ON) # if we build C++ API, we do need C++11
     endif ()
   else()
     message (FATAL_ERROR "The compiler doesn't support CXX.")
@@ -225,12 +223,27 @@ set (NLOPT_SOURCES
 )
 
 if (NLOPT_CXX)
-  list (APPEND NLOPT_SOURCES src/algs/stogo/global.cc src/algs/stogo/linalg.cc src/algs/stogo/local.cc src/algs/stogo/stogo.cc src/algs/stogo/tools.cc
-        src/algs/stogo/global.h src/algs/stogo/linalg.h src/algs/stogo/local.h src/algs/stogo/stogo_config.h src/algs/stogo/stogo.h src/algs/stogo/tools.h)
-endif ()
-if (NLOPT_CXX11)
-  list (APPEND NLOPT_SOURCES src/algs/ags/data_types.hpp src/algs/ags/evolvent.hpp src/algs/ags/evolvent.cc src/algs/ags/solver.hpp src/algs/ags/solver.cc
-  src/algs/ags/local_optimizer.hpp src/algs/ags/local_optimizer.cc src/algs/ags/ags.h src/algs/ags/ags.cc)
+  list (APPEND NLOPT_SOURCES
+    src/algs/stogo/global.cc
+    src/algs/stogo/linalg.cc
+    src/algs/stogo/local.cc
+    src/algs/stogo/stogo.cc
+    src/algs/stogo/tools.cc
+    src/algs/stogo/global.h
+    src/algs/stogo/linalg.h
+    src/algs/stogo/local.h
+    src/algs/stogo/stogo_config.h
+    src/algs/stogo/stogo.h
+    src/algs/stogo/tools.h
+    src/algs/ags/data_types.hpp
+    src/algs/ags/evolvent.hpp
+    src/algs/ags/evolvent.cc
+    src/algs/ags/solver.hpp
+    src/algs/ags/solver.cc
+    src/algs/ags/local_optimizer.hpp
+    src/algs/ags/local_optimizer.cc
+    src/algs/ags/ags.h
+    src/algs/ags/ags.cc)
 endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
@@ -303,6 +316,12 @@ if (NLOPT_PYTHON)
   find_package (PythonInterp)
   find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
   find_package (NumPy)
+endif ()
+
+if (NOT DEFINED INSTALL_PYTHON_DIR AND NOT CMAKE_CROSSCOMPILING)
+  execute_process (COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig, os; print(sysconfig.get_path('platlib').replace(sysconfig.get_path('data'), '').lstrip(os.path.sep))"
+                    OUTPUT_VARIABLE INSTALL_PYTHON_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  file (TO_CMAKE_PATH "${INSTALL_PYTHON_DIR}" INSTALL_PYTHON_DIR)
 endif ()
 
 if (NOT DEFINED INSTALL_PYTHON_DIR)
