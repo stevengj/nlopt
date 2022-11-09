@@ -20,7 +20,7 @@ Unofficial Python binaries for Windows are available from Christoph Gohike:
 
 ### NLopt with MinGW
 
-If you want to compile NLopt on Windows with [MinGW](http://www.mingw.org/), be sure to install the MinGW version of `cmake` (e.g. with `pacman -S mingw-w64-x86_64-cmake`) and then build via `cmake -G"MSYS Makefiles" . && make` in order to ensure that `cmake` produces the correct type of makefile.
+If you want to compile NLopt on Windows with [MinGW](https://www.mingw-w64.org/), be sure to install the MinGW version of `cmake` (e.g. with `pacman -S mingw-w64-x86_64-cmake`) and then build via `cmake -G"MSYS Makefiles" . && make` in order to ensure that `cmake` produces the correct type of makefile.
 
 ### Octave plugin
 
