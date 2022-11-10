@@ -137,6 +137,28 @@ static int finite_domain(unsigned n, const double *lb, const double *ub)
 }
 
 /*********************************************************************/
+/* when we nest optimization objects, we need to connect them
+   in a stack of force_stop_child nodes, so that if the user
+   calls nlopt_set_force_stop on the original nlopt_opt object
+   it will force all of the subsidiary optimization algorithms to stop. */
+
+static void push_force_stop_child(nlopt_opt opt, nlopt_opt newchild)
+{
+    /* assert: newchild != NULL && newchild->force_stop_child == NULL */
+    newchild->force_stop_child = opt->force_stop_child;
+    opt->force_stop_child = newchild;
+}
+
+static nlopt_opt pop_force_stop_child(nlopt_opt opt)
+{
+    /* assert: opt->force_stop_child != NULL */
+    nlopt_opt oldchild = opt->force_stop_child;
+    opt->force_stop_child = oldchild->force_stop_child;
+    oldchild->force_stop_child = NULL;
+    return oldchild;
+}
+
+/*********************************************************************/
 /* wrapper functions, only for derivative-free methods, that
    eliminate dimensions with lb == ub.   (The gradient-based methods
    should handle this case directly, since they operate on much
@@ -388,10 +410,6 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     if (!opt || !x || !minf || !opt->f || opt->maximize)
         RETURN_ERR(NLOPT_INVALID_ARGS, opt, "NULL args to nlopt_optimize_");
 
-    /* reset stopping flag */
-    nlopt_set_force_stop(opt, 0);
-    opt->force_stop_child = NULL;
-
     /* copy a few params to local vars for convenience */
     n = opt->n;
     ni = (int) n;               /* most of the subroutines take "int" arg */
@@ -627,9 +645,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
                 nlopt_set_ftol_rel(local_opt, 1e-15);
                 nlopt_set_xtol_rel(local_opt, 1e-7);
             }
-            opt->force_stop_child = local_opt;
+            push_force_stop_child(opt, local_opt);
             ret = mlsl_minimize(ni, f, f_data, lb, ub, x, minf, &stop, local_opt, (int) POP(0), algorithm >= NLOPT_GN_MLSL_LDS && algorithm != NLOPT_G_MLSL);
-            opt->force_stop_child = NULL;
+            pop_force_stop_child(opt);
             if (!opt->local_opt)
                 nlopt_destroy(local_opt);
             return ret;
@@ -755,11 +773,11 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             }
             if (opt->dx)
                 nlopt_set_initial_step(local_opt, opt->dx);
-            opt->force_stop_child = local_opt;
+            push_force_stop_child(opt, local_opt);
             ret = auglag_minimize(ni, f, f_data,
                                   opt->m, opt->fc,
                                   opt->p, opt->h, lb, ub, x, minf, &stop, local_opt, algorithm == NLOPT_AUGLAG_EQ || algorithm == NLOPT_LN_AUGLAG_EQ || algorithm == NLOPT_LD_AUGLAG_EQ);
-            opt->force_stop_child = NULL;
+            pop_force_stop_child(opt);
             if (!opt->local_opt)
                 nlopt_destroy(local_opt);
             return ret;
@@ -831,6 +849,10 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
     f_data = opt->f_data;
     pre = opt->pre;
 
+    /* reset stopping flag */
+    nlopt_set_force_stop(opt, 0);
+    opt->force_stop_child = NULL;
+
     /* for maximizing, just minimize the f_max wrapper, which
        flips the sign of everything */
     if ((maximize = opt->maximize)) {
@@ -845,7 +867,7 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
         opt->maximize = 0;
     }
 
-    {                           /* possibly eliminate lb == ub dimensions for some algorithms */
+    { /* possibly eliminate lb == ub dimensions for some algorithms */
         nlopt_opt elim_opt = opt;
         if (elimdim_wrapcheck(opt)) {
             elim_opt = elimdim_create(opt);
@@ -855,7 +877,7 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
                 goto done;
             }
             elimdim_shrink(opt->n, x, opt->lb, opt->ub);
-            opt->force_stop_child = elim_opt;
+            push_force_stop_child(opt, elim_opt);
         }
 
         ret = nlopt_optimize_(elim_opt, x, opt_f);
@@ -863,14 +885,14 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
         if (elim_opt != opt) {
             opt->numevals = elim_opt->numevals;
             opt->errmsg = elim_opt->errmsg; elim_opt->errmsg = NULL;
-            elimdim_destroy(elim_opt);
+            pop_force_stop_child(opt);
             elimdim_expand(opt->n, x, opt->lb, opt->ub);
-            opt->force_stop_child = NULL;
+            elimdim_destroy(elim_opt);
         }
     }
 
   done:
-    if (maximize) {             /* restore original signs */
+    if (maximize) { /* restore original signs */
         opt->maximize = maximize;
         opt->stopval = -opt->stopval;
         opt->f = f;
