@@ -14,9 +14,7 @@
 #==============================================================================
 cmake_minimum_required (VERSION 3.2)
 
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
-endif ()
+set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 
 project (nlopt)
 
@@ -309,13 +307,27 @@ endif ()
 add_subdirectory (src/api)
 
 if (NLOPT_PYTHON)
-  find_package (PythonInterp)
-  find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if (CMAKE_VERSION VERSION_LESS 3.12)
+    find_package (PythonInterp)
+    if (PYTHONINTERP_FOUND)
+      set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+      find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+      set (Python_FOUND ${PYTHONLIBS_FOUND})
+      set (Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+      set (Python_LIBRARIES ${PYTHON_LIBRARIES})
+      set (Python_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
+      set (Python_VERSION_MINOR ${PYTHON_VERSION_MINOR})
+      set (Python_VERSION ${PYTHON_VERSION_STRING})
+    endif ()
+  else ()
+    find_package (Python COMPONENTS Interpreter Development)
+  endif ()
+
   find_package (NumPy)
 endif ()
 
 if (NOT DEFINED INSTALL_PYTHON_DIR AND NOT CMAKE_CROSSCOMPILING)
-  execute_process (COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig, os; print(sysconfig.get_path('platlib').replace(sysconfig.get_path('data'), '').lstrip(os.path.sep))"
+  execute_process (COMMAND ${Python_EXECUTABLE} -c "import sysconfig, os; print(sysconfig.get_path('platlib').replace(sysconfig.get_path('data'), '').lstrip(os.path.sep))"
                     OUTPUT_VARIABLE INSTALL_PYTHON_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
   file (TO_CMAKE_PATH "${INSTALL_PYTHON_DIR}" INSTALL_PYTHON_DIR)
 endif ()
@@ -324,7 +336,7 @@ if (NOT DEFINED INSTALL_PYTHON_DIR)
   if (WIN32)
     set (INSTALL_PYTHON_DIR Lib/site-packages)
   else ()
-    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages)
   endif ()
 endif ()
 

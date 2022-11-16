@@ -120,10 +120,10 @@ Python plugins
 
 If [Python](https://en.wikipedia.org/wiki/Python_(programming_language)) is installed on your machine, and you configured NLopt as a shared library (see above), then NLopt will automatically compile and install a Python `nlopt` module. You also need [NumPy](https://en.wikipedia.org/wiki/NumPy) to be installed, as NLopt's Python interface uses NumPy array types.
 
-To specify a particular version or location of Python, use the `PYTHON_EXECUTABLE` variable to set the full path to the `python` executable:
+To specify a particular version or location of Python, use the `Python_EXECUTABLE` variable to set the full path to the `python` executable:
 
 ```sh
-cmake -DPYTHON_EXECUTABLE=/usr/bin/python ..
+cmake -DPython_EXECUTABLE=/usr/bin/python ..
 ```
 
 GNU Guile plugins
