@@ -284,18 +284,11 @@ if (BUILD_SHARED_LIBS)
   target_compile_definitions (${nlopt_lib} PRIVATE NLOPT_DLL_EXPORT)
 endif ()
 
-# pass -fPIC in case swig module is built with static library
-if (NOT BUILD_SHARED_LIBS)
-  check_c_compiler_flag (-fPIC HAS_FPIC)
-  if (HAS_FPIC)
-    set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
-  endif ()
-endif ()
+set_target_properties (${nlopt_lib} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # for consistent floating-point operations across architectures
-option (DISABLE_FP_CONTRACTION "Disable floating-point contractions" ON)
-if (DISABLE_FP_CONTRACTION AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+option (DISABLE_FP_CONTRACT "Disable floating-point contractions" ON)
+if (DISABLE_FP_CONTRACT AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-contract=off")
 endif ()
 
