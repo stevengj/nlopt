@@ -293,6 +293,12 @@ if (NOT BUILD_SHARED_LIBS)
   endif ()
 endif ()
 
+# for consistent floating-point operations across architectures
+option (DISABLE_FP_CONTRACTION "Disable floating-point contractions" ON)
+if (DISABLE_FP_CONTRACTION AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-contract=off")
+endif ()
+
 install ( TARGETS ${nlopt_lib}
           EXPORT  NLoptLibraryDepends
           RUNTIME DESTINATION ${RELATIVE_INSTALL_BIN_DIR}
