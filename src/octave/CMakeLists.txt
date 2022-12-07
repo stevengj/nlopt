@@ -3,8 +3,6 @@ set (M_DATA ${MFILES} nlopt_minimize.m nlopt_minimize_constrained.m)
 
 
 if (Matlab_FOUND AND Matlab_MX_LIBRARY)
-  cmake_minimum_required (VERSION 3.3) # for the matlab_add_mex macro
-
   matlab_add_mex (NAME nlopt_optimize-mex SRC nlopt_optimize-mex.c OUTPUT_NAME nlopt_optimize LINK_TO ${nlopt_lib})
   target_include_directories (nlopt_optimize-mex PRIVATE ${PROJECT_SOURCE_DIR}/src/api)
 

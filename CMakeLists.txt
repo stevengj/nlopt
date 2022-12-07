@@ -12,7 +12,7 @@
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
 # Copyright (c) 2008-2009 Children's Hospital Boston
 #==============================================================================
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.13)
 
 set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 
@@ -306,20 +306,10 @@ endif ()
 add_subdirectory (src/api)
 
 if (NLOPT_PYTHON)
-  if (CMAKE_VERSION VERSION_LESS 3.12)
-    find_package (PythonInterp)
-    if (PYTHONINTERP_FOUND)
-      set (Python_EXECUTABLE ${PYTHON_EXECUTABLE})
-      find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
-      set (Python_FOUND ${PYTHONLIBS_FOUND})
-      set (Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
-      set (Python_LIBRARIES ${PYTHON_LIBRARIES})
-      set (Python_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
-      set (Python_VERSION_MINOR ${PYTHON_VERSION_MINOR})
-      set (Python_VERSION ${PYTHON_VERSION_STRING})
-    endif ()
-  else ()
+  if (CMAKE_VERSION VERSION_LESS 3.24)
     find_package (Python COMPONENTS Interpreter Development)
+  else ()
+    find_package (Python COMPONENTS Interpreter Development.Module)
   endif ()
 
   find_package (NumPy)
@@ -344,7 +334,7 @@ if (NLOPT_GUILE)
 endif ()
 
 if (NLOPT_SWIG)
-  find_package (SWIG)
+  find_package (SWIG 3)
   if (SWIG_FOUND)
     add_subdirectory (src/swig)
   endif ()
