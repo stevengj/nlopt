@@ -89,7 +89,7 @@ static double user_function(unsigned n, const double *x,
 			    double *gradient, /* NULL if not needed */
 			    void *data_)
 {
-  user_function_data *data = (user_function_data *) data_;
+  user_function_data *data = static_cast<user_function_data *>(data_);
   octave_value_list args(1, 0);
   Matrix xm(1,n);
   for (unsigned i = 0; i < n; ++i)

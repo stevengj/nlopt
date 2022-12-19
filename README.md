@@ -1,6 +1,5 @@
 [![Latest Docs](https://readthedocs.org/projects/nlopt/badge/?version=latest)](http://nlopt.readthedocs.io/en/latest/)
-[![Build Status](https://travis-ci.org/stevengj/nlopt.svg?branch=master)](https://travis-ci.org/stevengj/nlopt)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/stevengj/nlopt?branch=master&svg=true)](https://ci.appveyor.com/project/StevenGJohnson/nlopt)
+[![Build Status](https://github.com/stevengj/nlopt/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/stevengj/nlopt/actions/workflows/build.yml)
 
 NLopt is a library for nonlinear local and global optimization, for
 functions with and without gradient information.  It is designed as

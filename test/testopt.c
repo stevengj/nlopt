@@ -321,7 +321,7 @@ int main(int argc, char **argv)
     feenableexcept(FE_INVALID);
 #endif
 
-    while ((c = getopt(argc, argv, "hLvCc0:r:a:o:i:e:t:x:X:f:F:m:b:")) != -1)
+    while ((c = getopt(argc, argv, "hLvVCc0:r:a:o:i:e:t:x:X:f:F:m:b:")) != -1)
         switch (c) {
         case 'h':
             usage(stdout);
@@ -333,6 +333,12 @@ int main(int argc, char **argv)
         case 'v':
             testfuncs_verbose = 1;
             break;
+        case 'V': {
+            int major, minor, patch;
+            nlopt_version(&major, &minor, &patch);
+            printf("NLopt version %d.%d.%d\n", major, minor, patch);
+            return EXIT_SUCCESS;
+        }
         case 'C':
             force_constraints = 1;
             break;

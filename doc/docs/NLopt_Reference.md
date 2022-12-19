@@ -414,6 +414,11 @@ NLOPT_FORCED_STOP = -5
 
 Halted because of a [forced termination](#forced-termination): the user called `nlopt_force_stop(opt)` on the optimization’s `nlopt_opt` object `opt` from the user’s objective function or constraints.
 
+An string with further details about the error is available through `nlopt_get_errmsg` if an error is set:
+```c
+const char * nlopt_get_errmsg(nlopt_opt opt);
+```
+
 You can convert an `nlopt_result` to/from a string identifier (`NLOPT_FOO` converts to/from `"FOO"`) by calling:
 
 ```c

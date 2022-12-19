@@ -12,11 +12,9 @@
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
 # Copyright (c) 2008-2009 Children's Hospital Boston
 #==============================================================================
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.13)
 
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
-endif ()
+set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 
 project (nlopt)
 
@@ -26,7 +24,7 @@ find_package(catkin REQUIRED)
 # version
 set (NLOPT_MAJOR_VERSION "2")
 set (NLOPT_MINOR_VERSION "7")
-set (NLOPT_BUGFIX_VERSION "0")
+set (NLOPT_BUGFIX_VERSION "1")
 set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
 message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 
@@ -34,7 +32,7 @@ message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 # (it indicates ABI compatibility), but they are typically incremented together.
 set(SO_MAJOR 0)
 set(SO_MINOR 11)
-set(SO_PATCH 0)
+set(SO_PATCH 1)
 #==============================================================================
 
 list (APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -100,18 +98,10 @@ include (CheckLibraryExists)
 #==============================================================================
 # COMPILATION CHECKINGS and CONFIGURATION GENERATION
 #==============================================================================
-check_include_file (dlfcn.h HAVE_DLFCN_H)
 check_include_file (getopt.h HAVE_GETOPT_H)
 check_include_file (unistd.h HAVE_UNISTD_H)
-check_include_file (string.h HAVE_STRING_H)
-check_include_file (strings.h HAVE_STRINGS_H)
-check_include_file (inttypes.h HAVE_INTTYPES_H)
-check_include_file (memory.h HAVE_MEMORY_H)
-check_include_file (stdlib.h HAVE_STDLIB_H)
 check_include_file (stdint.h HAVE_STDINT_H)
 check_include_file (time.h HAVE_TIME_H)
-check_include_file (sys/types.h HAVE_SYS_TYPES_H)
-check_include_file (sys/stat.h HAVE_SYS_STAT_H)
 check_include_file (sys/time.h HAVE_SYS_TIME_H)
 if (HAVE_TIME_H AND HAVE_SYS_TIME_H)
   set (TIME_WITH_SYS_TIME TRUE)
@@ -168,12 +158,10 @@ endif ()
 if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
   check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
   if (SYSTEM_HAS_CXX)
-    check_cxx_compiler_flag ("-std=c++11" SUPPORTS_STDCXX11)
-    if (SUPPORTS_STDCXX11)
-      set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-      if (NLOPT_CXX)
-        set (NLOPT_CXX11 ON)
-      endif ()
+    set (CMAKE_CXX_STANDARD 11) # set the standard to C++11 but do not require it
+
+    if (NLOPT_CXX)
+      set (CMAKE_CXX_STANDARD_REQUIRED ON) # if we build C++ API, we do need C++11
     endif ()
   else()
     message (FATAL_ERROR "The compiler doesn't support CXX.")
@@ -231,12 +219,27 @@ set (NLOPT_SOURCES
 )
 
 if (NLOPT_CXX)
-  list (APPEND NLOPT_SOURCES src/algs/stogo/global.cc src/algs/stogo/linalg.cc src/algs/stogo/local.cc src/algs/stogo/stogo.cc src/algs/stogo/tools.cc
-        src/algs/stogo/global.h src/algs/stogo/linalg.h src/algs/stogo/local.h src/algs/stogo/stogo_config.h src/algs/stogo/stogo.h src/algs/stogo/tools.h)
-endif ()
-if (NLOPT_CXX11)
-  list (APPEND NLOPT_SOURCES src/algs/ags/data_types.hpp src/algs/ags/evolvent.hpp src/algs/ags/evolvent.cc src/algs/ags/solver.hpp src/algs/ags/solver.cc
-  src/algs/ags/local_optimizer.hpp src/algs/ags/local_optimizer.cc src/algs/ags/ags.h src/algs/ags/ags.cc)
+  list (APPEND NLOPT_SOURCES
+    src/algs/stogo/global.cc
+    src/algs/stogo/linalg.cc
+    src/algs/stogo/local.cc
+    src/algs/stogo/stogo.cc
+    src/algs/stogo/tools.cc
+    src/algs/stogo/global.h
+    src/algs/stogo/linalg.h
+    src/algs/stogo/local.h
+    src/algs/stogo/stogo_config.h
+    src/algs/stogo/stogo.h
+    src/algs/stogo/tools.h
+    src/algs/ags/data_types.hpp
+    src/algs/ags/evolvent.hpp
+    src/algs/ags/evolvent.cc
+    src/algs/ags/solver.hpp
+    src/algs/ags/solver.cc
+    src/algs/ags/local_optimizer.hpp
+    src/algs/ags/local_optimizer.cc
+    src/algs/ags/ags.h
+    src/algs/ags/ags.cc)
 endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
@@ -289,13 +292,12 @@ if (BUILD_SHARED_LIBS)
   target_compile_definitions (${nlopt_lib} PRIVATE NLOPT_DLL_EXPORT)
 endif ()
 
-# pass -fPIC in case swig module is built with static library
-if (NOT BUILD_SHARED_LIBS)
-  check_c_compiler_flag (-fPIC HAS_FPIC)
-  if (HAS_FPIC)
-    set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
-  endif ()
+set_target_properties (${nlopt_lib} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# for consistent floating-point operations across architectures
+option (DISABLE_FP_CONTRACT "Disable floating-point contractions" ON)
+if (DISABLE_FP_CONTRACT AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-contract=off")
 endif ()
 
 install ( TARGETS ${nlopt_lib}
@@ -312,16 +314,26 @@ endif ()
 add_subdirectory (src/api)
 
 if (NLOPT_PYTHON)
-  find_package (PythonInterp)
-  find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if (CMAKE_VERSION VERSION_LESS 3.24)
+    find_package (Python COMPONENTS Interpreter Development)
+  else ()
+    find_package (Python COMPONENTS Interpreter Development.Module)
+  endif ()
+
   find_package (NumPy)
+endif ()
+
+if (NOT DEFINED INSTALL_PYTHON_DIR AND NOT CMAKE_CROSSCOMPILING)
+  execute_process (COMMAND ${Python_EXECUTABLE} -c "import sysconfig, os; print(sysconfig.get_path('platlib').replace(sysconfig.get_path('data'), '').lstrip(os.path.sep))"
+                    OUTPUT_VARIABLE INSTALL_PYTHON_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  file (TO_CMAKE_PATH "${INSTALL_PYTHON_DIR}" INSTALL_PYTHON_DIR)
 endif ()
 
 if (NOT DEFINED INSTALL_PYTHON_DIR)
   if (WIN32)
     set (INSTALL_PYTHON_DIR Lib/site-packages)
   else ()
-    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages)
   endif ()
 endif ()
 
@@ -330,7 +342,7 @@ if (NLOPT_GUILE)
 endif ()
 
 if (NLOPT_SWIG)
-  find_package (SWIG)
+  find_package (SWIG 3)
   if (SWIG_FOUND)
     add_subdirectory (src/swig)
   endif ()

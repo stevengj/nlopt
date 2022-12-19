@@ -100,7 +100,7 @@ for unknown vectors **z**. You could then pass **z** as the optimization paramet
 
 #### Penalty functions
 
-Another popular approach to equality constraints (and inequality constraints, for that matter) is to include some sort of **penalty function** in the objective function, which penalizes **x** values that violate the constraints. A standard technique of this sort is known as the **augmented Lagrangian** approach, and a variant of this approach is implemented in NLopt's [AUGLAG algorithm](NLopt_Algorithms#augmented-lagrangian-algorithm).
+Another popular approach to equality constraints (and inequality constraints, for that matter) is to include some sort of **penalty function** in the objective function, which penalizes **x** values that violate the constraints. A standard technique of this sort is known as the **augmented Lagrangian** approach, and a variant of this approach is implemented in NLopt's [AUGLAG algorithm](NLopt_Algorithms.md#augmented-lagrangian-algorithm).
 
 (For inequality constraints, a variant of the penalty idea is a **barrier method**: this is simply a penalty that diverges as you approach the constraint, which forces the optimization to stay within the feasible region.)
 
@@ -129,7 +129,7 @@ If you don't want to use a particular tolerance termination, you can just set th
 
 Another termination test that NLopt supports is that you can tell the optimization to stop when the objective function value *f*(**x**) reaches some specified value, `stopval`, for any feasible point **x**.
 
-This termination test is especially useful when [comparing algorithms](NLopt_Algorithms#comparing-algorithms) for a given problem. After running one algorithm for a long time to find the minimum to the desired accuracy, you can ask how many iterations algorithms require to obtain the optimum to the same accuracy or to some better accuracy.
+This termination test is especially useful when [comparing algorithms](NLopt_Algorithms.md#comparing-algorithms) for a given problem. After running one algorithm for a long time to find the minimum to the desired accuracy, you can ask how many iterations algorithms require to obtain the optimum to the same accuracy or to some better accuracy.
 
 ### Bounds on function evaluations and wall-clock time
 

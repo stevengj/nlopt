@@ -39,13 +39,11 @@
 #============================================================================
 
 # Finding NumPy involves calling the Python interpreter
-if(NumPy_FIND_REQUIRED)
-    find_package(PythonInterp REQUIRED)
-else()
-    find_package(PythonInterp)
-endif()
+if (NOT Python_EXECUTABLE)
+  message (SEND_ERROR "Python interpreter not found")
+endif ()
 
-execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c"
+execute_process(COMMAND "${Python_EXECUTABLE}" "-c"
     "import numpy as np; print(np.__version__); print(np.get_include());"
     RESULT_VARIABLE _NUMPY_SEARCH_SUCCESS
     OUTPUT_VARIABLE _NUMPY_VALUES_OUTPUT

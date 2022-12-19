@@ -38,6 +38,7 @@ namespace
         mRightBound = rightBound;
       }
 
+      virtual ~ProblemInternal() {}
       double Calculate(const double* y, int fNumber) const
       {
         return mFunctions[fNumber](y);
@@ -191,7 +192,7 @@ void NLPSolver::FirstIteration()
 
   for (size_t i = 1; i <= mParameters.numPoints; i++)
   {
-    mNextPoints[i - 1] = Trial((double)i / (mParameters.numPoints + 1));
+    mNextPoints[i - 1] = Trial(static_cast<double>(i) / (mParameters.numPoints + 1));
     mEvolvent.GetImage(mNextPoints[i - 1].x, mNextPoints[i - 1].y);
   }
 

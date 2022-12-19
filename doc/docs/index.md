@@ -10,7 +10,7 @@ NLopt
 
 **NLopt** is a free/open-source library for **nonlinear optimization**, providing a common interface for a number of different free optimization routines available online as well as original implementations of various other algorithms. Its features include:
 
--   Callable from [C](NLopt_Reference.md), [C++](NLopt_C-plus-plus_Reference.md), [Fortran](NLopt_Fortran_Reference.md), [Matlab or GNU Octave](NLopt_Matlab_Reference.md), [Python](NLopt_Python_Reference.md), [GNU Guile](NLopt_Guile_Reference.md), [Julia](https://github.com/stevengj/NLopt.jl), [GNU R](NLopt_R_Reference.md), [Lua](https://github.com/rochus-keller/LuaNLopt), [OCaml](https://bitbucket.org/mkur/nlopt-ocaml) and [Rust](https://github.com/jesskfullwood/rust-nlopt).
+-   Callable from [C](NLopt_Reference.md), [C++](NLopt_C-plus-plus_Reference.md), [Fortran](NLopt_Fortran_Reference.md), [Matlab or GNU Octave](NLopt_Matlab_Reference.md), [Python](NLopt_Python_Reference.md), [GNU Guile](NLopt_Guile_Reference.md), [Julia](https://github.com/stevengj/NLopt.jl), [GNU R](NLopt_R_Reference.md), [Lua](https://github.com/rochus-keller/LuaNLopt), [OCaml](https://bitbucket.org/mkur/nlopt-ocaml), [Rust](https://github.com/adwhit/rust-nlopt) and [Crystal](https://github.com/konovod/nlopt.cr).
 -   A common interface for [many different algorithms](NLopt_Algorithms.md)—try a different algorithm just by changing one parameter.
 -   Support for large-scale optimization (some algorithms scalable to millions of parameters and thousands of constraints).
 -   Both global and local optimization algorithms.
@@ -23,9 +23,9 @@ See the [NLopt Introduction](NLopt_Introduction.md) for a further overview of th
 Download and installation
 -------------------------
 
-Version 2.6.2 of NLopt is the latest version available from GitHub:
+Version 2.7.1 of NLopt is the latest version available from GitHub:
 
--   [v2.6.2.tar.gz](https://github.com/stevengj/nlopt/archive/v2.6.2.tar.gz)
+-   [v2.7.1.tar.gz](https://github.com/stevengj/nlopt/archive/v2.7.1.tar.gz)
 
 See the [NLopt release notes](https://github.com/stevengj/nlopt/blob/master/NEWS.md) for the release history. NLopt is designed to be installed on any Unix-like system (GNU/Linux is fine) with a C compiler, using the standard
 

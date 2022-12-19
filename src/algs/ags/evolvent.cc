@@ -112,7 +112,7 @@ void mapd(double x, int m, double* y, int n, int key)
     }
     else {
       d = d*nexp;
-      is = (int)d;
+      is = static_cast<int>(d);
       d = d - is;
     }
     i = is;
