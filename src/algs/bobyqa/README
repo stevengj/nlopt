@@ -1,6 +1,6 @@
 This is the BOBYQA software by M. J. D. Powell, which performs
 derivative-free unconstrained optimization using an iteratively
-constructred quadratic approximation for the objective function.  See:
+constructed quadratic approximation for the objective function.  See:
 
         M. J. D. Powell, "The BOBYQA algorithm for bound constrained
         optimization without derivatives," Department of Applied
