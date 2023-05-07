@@ -632,8 +632,6 @@ nlopt_result NLOPT_STDCALL nlopt_add_equality_mconstraint(nlopt_opt opt, unsigne
         ret = NLOPT_INVALID_ARGS;
     else if (!equality_ok(opt->algorithm))
         ret = ERR(NLOPT_INVALID_ARGS, opt, "invalid algorithm for constraints");
-    else if (nlopt_count_constraints(opt->p, opt->h) + m > opt->n)
-        ret = ERR(NLOPT_INVALID_ARGS, opt, "too many equality constraints");
     else
         ret = add_constraint(opt, &opt->p, &opt->p_alloc, &opt->h, m, NULL, fc, NULL, fc_data, tol);
     if (ret < 0 && opt && opt->munge_on_destroy)
@@ -649,8 +647,6 @@ nlopt_result NLOPT_STDCALL nlopt_add_precond_equality_constraint(nlopt_opt opt, 
         ret = NLOPT_INVALID_ARGS;
     else if (!equality_ok(opt->algorithm))
         ret = ERR(NLOPT_INVALID_ARGS, opt, "invalid algorithm for constraints");
-    else if (nlopt_count_constraints(opt->p, opt->h) + 1 > opt->n)
-        ret = ERR(NLOPT_INVALID_ARGS, opt, "too many equality constraints");
     else
         ret = add_constraint(opt, &opt->p, &opt->p_alloc, &opt->h, 1, fc, NULL, pre, fc_data, &tol);
     if (ret < 0 && opt && opt->munge_on_destroy)
