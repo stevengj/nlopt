@@ -90,6 +90,7 @@ include (CheckFunctionExists)
 include (CheckTypeSize)
 include (CheckCCompilerFlag)
 include (CheckCXXSymbolExists)
+include (CheckCSourceCompiles)
 include (CheckCXXCompilerFlag)
 include (CheckLibraryExists)
 
