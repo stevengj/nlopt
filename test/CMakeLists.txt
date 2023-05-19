@@ -46,10 +46,6 @@ foreach (algo_index RANGE 29)# 43
     if (algo_index STREQUAL 10)
       set (enable_ FALSE)
     endif ()
-    # LN_NEWUOA_BOUND timeouts on msvc
-    if (algo_index STREQUAL 27)
-      set (enable_ FALSE)
-    endif ()
     if (enable_)
       add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -r 0 -a ${algo_index} -o ${obj_index})
       if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
