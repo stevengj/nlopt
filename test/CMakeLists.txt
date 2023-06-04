@@ -5,14 +5,16 @@ macro(NLOPT_add_cpp_test test_name)
   target_link_libraries (${test_name} ${nlopt_lib})
   add_dependencies (tests ${test_name})
   target_include_directories (${test_name} PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
-  add_test (NAME check_${test_name} COMMAND ${test_name})
-  if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
-    set_tests_properties (check_${test_name}
-      PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
-  endif ()
+  foreach(arg IN ITEMS ${ARGN})
+      add_test (NAME check_${test_name}_${arg} COMMAND ${test_name} ${arg})
+      if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+        set_tests_properties (check_${test_name}_${arg}
+          PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
+      endif ()
+  endforeach()
 endmacro()
 
-NLOPT_add_cpp_test(t_tutorial)
+NLOPT_add_cpp_test(t_tutorial 24 25 40)
 NLOPT_add_cpp_test(cpp_functor)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
@@ -63,8 +65,11 @@ if (Python_FOUND AND NUMPY_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR
   set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                                   "PYTHONPATH=${PROJECT_BINARY_DIR}/src/swig"
     )
-  add_test (NAME test_python COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py)
-  set_tests_properties (test_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
+  # algorithms supporting inequality constraints and infinity bounds
+  foreach (algo_index 24 25 31 40)
+    add_test (NAME test_python${algo_index} COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py ${algo_index})
+    set_tests_properties (test_python${algo_index} PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
+  endforeach()
 endif ()
 
 if (OCTAVE_FOUND)
