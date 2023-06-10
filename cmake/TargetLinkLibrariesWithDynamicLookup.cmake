@@ -48,6 +48,7 @@ function(_CheckUndefinedSymbolsAllowed)
 
     file(WRITE "${test_project_dir}/CMakeLists.txt"
 "
+cmake_minimum_required(VERSION ${CMAKE_VERSION})
 project(undefined C)
 add_library(foo SHARED \"foo.c\")
 ")

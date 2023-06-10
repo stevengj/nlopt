@@ -84,6 +84,10 @@ if (POLICY CMP0086)
   # UseSWIG honors SWIG_MODULE_NAME via -module flag
   cmake_policy(SET CMP0086 NEW)
 endif ()
+if (POLICY CMP0148)
+  # The FindPythonInterp and FindPythonLibs modules are removed
+  cmake_policy(SET CMP0148 NEW)
+endif ()
 
 include (CheckIncludeFiles)
 include (CheckFunctionExists)

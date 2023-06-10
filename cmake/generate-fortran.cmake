@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.2)
-
 # generate nlopt.f from nlopt.h enums
 file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f "")
 file (STRINGS ${API_SOURCE_DIR}/nlopt.h NLOPT_H_LINES REGEX "    NLOPT_[A-Z0-9_]+")

@@ -1,4 +1,7 @@
-cmake_minimum_required (VERSION 3.2)
+if (POLICY CMP0007)
+  # list command no longer ignores empty elements
+  cmake_policy(SET CMP0007 NEW)
+endif ()
 
 # generate nlopt.hpp from nlopt-in.hpp
 file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.hpp "")
