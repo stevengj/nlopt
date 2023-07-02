@@ -52,6 +52,9 @@ extern "C" {
     int nlopt_istiny(double x);
     int nlopt_isnan(double x);
 
+    int nlopt_iszero(const double x);
+    int nlopt_isequal(const double x, const double y);
+
 /* re-entrant qsort, uses the BSD convention */
     extern void nlopt_qsort_r(void *base_, size_t nmemb, size_t size, void *thunk, int (*compar) (void *, const void *, const void *));
 

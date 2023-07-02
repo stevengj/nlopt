@@ -281,7 +281,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	     condition seems not too different from requiring feasibility,
 	     especially now that the user can provide constraint-specific
 	     tolerances analogous to epsilon. */
-	  if (ICM == 0) {ret = NLOPT_FTOL_REACHED; break;}
+	  if (nlopt_iszero(ICM)) {ret = NLOPT_FTOL_REACHED; break;}
      } while (1);
 
 done:

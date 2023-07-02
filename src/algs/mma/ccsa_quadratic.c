@@ -108,7 +108,7 @@ static double dual_func(unsigned m, const double *y, double *grad, void *d_)
 	     we also have to check that |dx| <= sigma and that
 	     lb <= x+dx <= ub. */
 
-	  if (sigma[j] == 0) { /* special case for lb[i] == ub[i] dims, dx=0 */
+	  if (nlopt_iszero(sigma[j])) { /* special case for nlopt_isequal(lb[i], ub[i]) dims, dx=0 */
 	       xcur[j] = x[j];
 	       continue;
 	  }
@@ -487,7 +487,7 @@ nlopt_result ccsa_quadratic_minimize(
 		       again (if inner_done), although the constraints may
 		       be violated slightly by rounding errors etc. so we
 		       must be a little careful about checking feasibility */
-		    if (infeasibility_cur == 0) {
+		    if (nlopt_iszero(infeasibility_cur)) {
 			 if (!feasible) { /* reset upper bounds to infin. */
 			      for (i = 0; i < m; ++i) dual_ub[i] = HUGE_VAL;
 			      nlopt_set_upper_bounds(dual_opt, dual_ub);

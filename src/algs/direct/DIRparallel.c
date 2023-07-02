@@ -371,7 +371,7 @@ static integer c_n1 = -1;
 /* +-----------------------------------------------------------------------+ */
     i__1 = *maxi + *maxi;
     for (j = 1; j <= i__1; ++j) {
-	if (f[pos + f_dim1] < *minf && f[pos + (f_dim1 << 1)] == 0.) {
+	if (f[pos + f_dim1] < *minf && nlopt_iszero(f[pos + (f_dim1 << 1)])) {
 	    *minf = f[pos + f_dim1];
 	    *minpos = pos;
 	}

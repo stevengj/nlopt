@@ -225,7 +225,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	       if (sbplx_verbose)
 		    printf("sbplx: stepsize scale factor = %g\n", scale);
 	       for (i = 0; i < n; ++i) 
-		    xstep[i] = (dx[i] == 0) ? -(xstep[i] * scale)
+		    xstep[i] = nlopt_iszero(dx[i]) ? -(xstep[i] * scale)
                          : copysign(xstep[i] * scale, dx[i]);
 	  }
      }

@@ -19,6 +19,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#define _GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -857,7 +858,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_initial_step1(nlopt_opt opt, double dx)
     if (!opt)
         return NLOPT_INVALID_ARGS;
     nlopt_unset_errmsg(opt);
-    if (dx == 0)
+    if (nlopt_iszero(dx))
         return ERR(NLOPT_INVALID_ARGS, opt, "zero step size");
     if (!opt->dx && opt->n > 0) {
         opt->dx = (double *) malloc(sizeof(double) * (opt->n));
@@ -881,7 +882,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_initial_step(nlopt_opt opt, const double *d
         return NLOPT_SUCCESS;
     }
     for (i = 0; i < opt->n; ++i)
-        if (dx[i] == 0)
+        if (nlopt_iszero(dx[i]))
             return ERR(NLOPT_INVALID_ARGS, opt, "zero step size");
     if (!opt->dx && nlopt_set_initial_step1(opt, 1) == NLOPT_OUT_OF_MEMORY)
         return NLOPT_OUT_OF_MEMORY;
@@ -948,7 +949,7 @@ nlopt_result NLOPT_STDCALL nlopt_set_default_initial_step(nlopt_opt opt, const d
         if (nlopt_isinf(step) || nlopt_istiny(step)) {
             step = x[i];
         }
-        if (nlopt_isinf(step) || step == 0.0)
+        if (nlopt_isinf(step) || nlopt_iszero(step))
             step = 1;
 
         opt->dx[i] = step;

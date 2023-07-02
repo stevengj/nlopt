@@ -435,14 +435,14 @@ L120:
     i__2 = *npt;
     for (k = 1; k <= i__2; ++k) {
 	if (w[*ndim + k] > zero) {
-	    if (dsqmin == zero || w[*ndim + k] < dsqmin) {
+	    if (nlopt_iszero(dsqmin) || w[*ndim + k] < dsqmin) {
 		knew = k;
 		dsqmin = w[*ndim + k];
 	    }
 	}
 /* L130: */
     }
-    if (dsqmin == zero) {
+    if (nlopt_iszero(dsqmin)) {
 	goto L260;
     }
 
@@ -457,7 +457,7 @@ L120:
     for (k = 1; k <= i__2; ++k) {
 	sum = zero;
 	if (k == *kopt) {
-	} else if (ptsid[k] == zero) {
+	} else if (nlopt_iszero(ptsid[k])) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 /* L150: */
@@ -548,7 +548,7 @@ L120:
     vlmxsq = zero;
     i__1 = *npt;
     for (k = 1; k <= i__1; ++k) {
-	if (ptsid[k] != zero) {
+	if (!nlopt_iszero(ptsid[k])) {
 	    hdiag = zero;
 	    i__2 = nptm;
 	    for (j = 1; j <= i__2; ++j) {
@@ -589,7 +589,7 @@ L120:
 L260:
     i__1 = *npt;
     for (kpt = 1; kpt <= i__1; ++kpt) {
-	if (ptsid[kpt] == zero) {
+	if (nlopt_iszero(ptsid[kpt])) {
 	    goto L340;
 	}
 
@@ -665,10 +665,10 @@ L260:
 	    d__3 = xl[i__], d__4 = xbase[i__] + xpt[kpt + i__ * xpt_dim1];
 	    d__1 = MAX2(d__3,d__4), d__2 = xu[i__];
 	    w[i__] = MIN2(d__1,d__2);
-	    if (xpt[kpt + i__ * xpt_dim1] == sl[i__]) {
+	    if (nlopt_isequal(xpt[kpt + i__ * xpt_dim1], sl[i__])) {
 		w[i__] = xl[i__];
 	    }
-	    if (xpt[kpt + i__ * xpt_dim1] == su[i__]) {
+	    if (nlopt_isequal(xpt[kpt + i__ * xpt_dim1], su[i__])) {
 		w[i__] = xu[i__];
 	    }
 /* L290: */
@@ -704,7 +704,7 @@ L260:
 		sum += zmat[k + j * zmat_dim1] * zmat[kpt + j * zmat_dim1];
 	    }
 	    temp = diff * sum;
-	    if (ptsid[k] == zero) {
+	    if (nlopt_iszero(ptsid[k])) {
 		pq[k] += temp;
 	    } else {
 		ip = (int) ptsid[k];
@@ -1026,7 +1026,7 @@ L100:
 	}
 /* L110: */
     }
-    if (ggfree == zero) {
+    if (nlopt_iszero(ggfree)) {
 	*cauchy = zero;
 	goto L200;
     }
@@ -1041,7 +1041,7 @@ L120:
 	ggfree = zero;
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
-	    if (w[i__] == bigstp) {
+	    if (nlopt_isequal(w[i__],bigstp)) {
 		temp = xopt[i__] - step * glag[i__];
 		if (temp <= sl[i__]) {
 		    w[i__] = sl[i__] - xopt[i__];
@@ -1072,14 +1072,14 @@ L120:
     gw = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (w[i__] == bigstp) {
+	if (nlopt_isequal(w[i__],bigstp)) {
 	    w[i__] = -step * glag[i__];
 /* Computing MAX */
 /* Computing MIN */
 	    d__3 = su[i__], d__4 = xopt[i__] + w[i__];
 	    d__1 = sl[i__], d__2 = MIN2(d__3,d__4);
 	    xalt[i__] = MAX2(d__1,d__2);
-	} else if (w[i__] == zero) {
+	} else if (nlopt_iszero(w[i__])) {
 	    xalt[i__] = xopt[i__];
 	} else if (glag[i__] > zero) {
 	    xalt[i__] = sl[i__];
@@ -1270,7 +1270,7 @@ static void trsbox_(int *n, int *npt, double *xpt,
 		xbdi[i__] = one;
 	    }
 	}
-	if (xbdi[i__] != zero) {
+	if (!nlopt_iszero(xbdi[i__])) {
 	    ++nact;
 	}
 	d__[i__] = zero;
@@ -1293,9 +1293,9 @@ L30:
     stepsq = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (xbdi[i__] != zero) {
+	if (!nlopt_iszero(xbdi[i__])) {
 	    s[i__] = zero;
-	} else if (beta == zero) {
+	} else if (nlopt_iszero(beta )) {
 	    s[i__] = -gnew[i__];
 	} else {
 	    s[i__] = beta * s[i__] - gnew[i__];
@@ -1305,10 +1305,10 @@ L30:
 	d__1 = s[i__];
 	stepsq += d__1 * d__1;
     }
-    if (stepsq == zero) {
+    if (nlopt_iszero(stepsq)) {
 	goto L190;
     }
-    if (beta == zero) {
+    if (nlopt_iszero(beta)) {
 	gredsq = stepsq;
 	itermax = iterc + *n - nact;
     }
@@ -1328,7 +1328,7 @@ L50:
     shs = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (xbdi[i__] == zero) {
+	if (nlopt_iszero(xbdi[i__] )) {
 /* Computing 2nd power */
 	    d__1 = d__[i__];
 	    resid -= d__1 * d__1;
@@ -1359,7 +1359,7 @@ L50:
     iact = 0;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (s[i__] != zero) {
+	if (!nlopt_iszero(s[i__])) {
 	    xsum = xopt[i__] + d__[i__];
 	    if (s[i__] > zero) {
 		temp = (su[i__] - xsum) / s[i__];
@@ -1382,7 +1382,7 @@ L50:
 	temp = shs / stepsq;
 	if (iact == 0 && temp > zero) {
 	    *crvmin = MIN2(*crvmin,temp);
-	    if (*crvmin == onemin) {
+	    if (nlopt_isequal(*crvmin, onemin)) {
 		*crvmin = temp;
 	    }
 	}
@@ -1391,7 +1391,7 @@ L50:
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    gnew[i__] += stplen * hs[i__];
-	    if (xbdi[i__] == zero) {
+	    if (nlopt_iszero(xbdi[i__] )) {
 /* Computing 2nd power */
 		d__1 = gnew[i__];
 		gredsq += d__1 * d__1;
@@ -1451,7 +1451,7 @@ L100:
     gredsq = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (xbdi[i__] == zero) {
+	if (nlopt_iszero(xbdi[i__] )) {
 /* Computing 2nd power */
 	    d__1 = d__[i__];
 	    dredsq += d__1 * d__1;
@@ -1480,7 +1480,7 @@ L120:
     temp = sqrt(temp);
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (xbdi[i__] == zero) {
+	if (nlopt_iszero(xbdi[i__] )) {
 	    s[i__] = (dredg * d__[i__] - dredsq * gnew[i__]) / temp;
 	} else {
 	    s[i__] = zero;
@@ -1498,7 +1498,7 @@ L120:
     iact = 0;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (xbdi[i__] == zero) {
+	if (nlopt_iszero(xbdi[i__] )) {
 	    tempa = xopt[i__] + d__[i__] - sl[i__];
 	    tempb = su[i__] - xopt[i__] - d__[i__];
 	    if (tempa <= zero) {
@@ -1550,7 +1550,7 @@ L150:
     dhd = zero;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (xbdi[i__] == zero) {
+	if (nlopt_iszero(xbdi[i__] )) {
 	    shs += s[i__] * hs[i__];
 	    dhs += d__[i__] * hs[i__];
 	    dhd += d__[i__] * hred[i__];
@@ -1610,7 +1610,7 @@ L150:
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	gnew[i__] = gnew[i__] + (cth - one) * hred[i__] + sth * hs[i__];
-	if (xbdi[i__] == zero) {
+	if (nlopt_iszero(xbdi[i__] )) {
 	    d__[i__] = cth * d__[i__] + sth * s[i__];
 	    dredg += d__[i__] * gnew[i__];
 /* Computing 2nd power */
@@ -1642,10 +1642,10 @@ L190:
 	d__3 = xopt[i__] + d__[i__], d__4 = su[i__];
 	d__1 = MIN2(d__3,d__4), d__2 = sl[i__];
 	xnew[i__] = MAX2(d__1,d__2);
-	if (xbdi[i__] == onemin) {
+	if (nlopt_isequal(xbdi[i__], onemin)) {
 	    xnew[i__] = sl[i__];
 	}
-	if (xbdi[i__] == one) {
+	if (nlopt_isequal(xbdi[i__], one)) {
 	    xnew[i__] = su[i__];
 	}
 	d__[i__] = xnew[i__] - xopt[i__];
@@ -1677,7 +1677,7 @@ L210:
     }
     i__2 = *npt;
     for (k = 1; k <= i__2; ++k) {
-	if (pq[k] != zero) {
+	if (!nlopt_iszero(pq[k])) {
 	    temp = zero;
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
@@ -1693,7 +1693,7 @@ L210:
 	}
 /* L250: */
     }
-    if (*crvmin != zero) {
+    if (!nlopt_iszero(*crvmin)) {
 	goto L50;
     }
     if (iterc > itcsav) {
@@ -1825,19 +1825,19 @@ L50:
     if (nfm <= *n << 1) {
 	if (nfm >= 1 && nfm <= *n) {
 	    stepa = *rhobeg;
-	    if (su[nfm] == zero) {
+	    if (nlopt_iszero(su[nfm])) {
 		stepa = -stepa;
 	    }
 	    xpt[nf + nfm * xpt_dim1] = stepa;
 	} else if (nfm > *n) {
 	    stepa = xpt[nf - *n + nfx * xpt_dim1];
 	    stepb = -(*rhobeg);
-	    if (sl[nfx] == zero) {
+	    if (nlopt_iszero(sl[nfx])) {
 /* Computing MIN */
 		d__1 = two * *rhobeg, d__2 = su[nfx];
 		stepb = MIN2(d__1,d__2);
 	    }
-	    if (su[nfx] == zero) {
+	    if (nlopt_iszero(su[nfx])) {
 /* Computing MAX */
 		d__1 = -two * *rhobeg, d__2 = sl[nfx];
 		stepb = MAX2(d__1,d__2);
@@ -1867,10 +1867,10 @@ L50:
 	d__3 = xl[j], d__4 = xbase[j] + xpt[nf + j * xpt_dim1];
 	d__1 = MAX2(d__3,d__4), d__2 = xu[j];
 	x[j] = MIN2(d__1,d__2);
-	if (xpt[nf + j * xpt_dim1] == sl[j]) {
+	if (nlopt_isequal(xpt[nf + j * xpt_dim1], sl[j])) {
 	    x[j] = xl[j];
 	}
-	if (xpt[nf + j * xpt_dim1] == su[j]) {
+	if (nlopt_isequal(xpt[nf + j * xpt_dim1], su[j])) {
 	    x[j] = xu[j];
 	}
 /* L60: */
@@ -2180,10 +2180,10 @@ L60:
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    bdtest = bdtol;
-	    if (xnew[j] == sl[j]) {
+	    if (nlopt_isequal(xnew[j], sl[j])) {
 		bdtest = w[j];
 	    }
-	    if (xnew[j] == su[j]) {
+	    if (nlopt_isequal(xnew[j], su[j])) {
 		bdtest = -w[j];
 	    }
 	    if (bdtest < bdtol) {
@@ -2563,10 +2563,10 @@ L360:
 	d__3 = xl[i__], d__4 = xbase[i__] + xnew[i__];
 	d__1 = MAX2(d__3,d__4), d__2 = xu[i__];
 	x[i__] = MIN2(d__1,d__2);
-	if (xnew[i__] == sl[i__]) {
+	if (nlopt_isequal(xnew[i__], sl[i__])) {
 	    x[i__] = xl[i__];
 	}
-	if (xnew[i__] == su[i__]) {
+	if (nlopt_isequal(xnew[i__], su[i__])) {
 	    x[i__] = xu[i__];
 	}
 /* L380: */
@@ -2869,7 +2869,7 @@ L360:
 		sum = sum + bmat[k + i__ * bmat_dim1] * vlag[k] + xpt[k + i__ 
 			* xpt_dim1] * w[k];
 	    }
-	    if (xopt[i__] == sl[i__]) {
+	    if (nlopt_isequal(xopt[i__], sl[i__])) {
 /* Computing MIN */
 		d__2 = zero, d__3 = gopt[i__];
 /* Computing 2nd power */
@@ -2878,7 +2878,7 @@ L360:
 /* Computing 2nd power */
 		d__1 = MIN2(zero,sum);
 		gisq += d__1 * d__1;
-	    } else if (xopt[i__] == su[i__]) {
+	    } else if (nlopt_isequal(xopt[i__], su[i__])) {
 /* Computing MAX */
 		d__2 = zero, d__3 = gopt[i__];
 /* Computing 2nd power */
@@ -3038,10 +3038,10 @@ L720:
 	    d__3 = xl[i__], d__4 = xbase[i__] + xopt[i__];
 	    d__1 = MAX2(d__3,d__4), d__2 = xu[i__];
 	    x[i__] = MIN2(d__1,d__2);
-	    if (xopt[i__] == sl[i__]) {
+	    if (nlopt_isequal(xopt[i__], sl[i__])) {
 		x[i__] = xl[i__];
 	    }
-	    if (xopt[i__] == su[i__]) {
+	    if (nlopt_isequal(xopt[i__],su[i__])) {
 		x[i__] = xu[i__];
 	    }
 /* L730: */
@@ -3095,7 +3095,7 @@ nlopt_result bobyqa(int n, int npt, double *x,
     s = nlopt_compute_rescaling(U(n), dx);
     if (!s) return NLOPT_OUT_OF_MEMORY;
     for (j = 0; j < n; ++j)
-        if (s[j] == 0 || !nlopt_isfinite(s[j])) {
+        if (nlopt_iszero(s[j]) || !nlopt_isfinite(s[j])) {
             nlopt_stop_msg(stop, "invalid scaling %g of dimension %d: possible over/underflow?", s[j], j);
             ret = NLOPT_INVALID_ARGS; goto done;
         }

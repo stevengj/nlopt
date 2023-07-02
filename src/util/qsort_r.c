@@ -26,6 +26,7 @@
 typedef int		 cmp_t(void *, const void *, const void *);
 
 static char	*med3(char *, char *, char *, cmp_t *, void *);
+void qsort_r_fallback(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp);
 
 #define	MIN(a, b)	((a) < (b) ? a : b)
 

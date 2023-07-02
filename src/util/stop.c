@@ -82,7 +82,7 @@ static int relstop(double vold, double vnew, double reltol, double abstol)
 {
     if (nlopt_isinf(vold))
         return 0;
-    return (fabs(vnew - vold) < abstol || fabs(vnew - vold) < reltol * (fabs(vnew) + fabs(vold)) * 0.5 || (reltol > 0 && vnew == vold));        /* catch vnew == vold == 0 */
+    return (fabs(vnew - vold) < abstol || fabs(vnew - vold) < reltol * (fabs(vnew) + fabs(vold)) * 0.5 || (reltol > 0 && nlopt_isequal(vnew, vold)));        /* catch vnew == vold == 0 */
 }
 
 int nlopt_stop_ftol(const nlopt_stopping * s, double f, double oldf)
@@ -215,6 +215,13 @@ void nlopt_stop_msg(const nlopt_stopping * s, const char *format, ...)
 }
 
 /*************************************************************************/
+int nlopt_iszero(const double x) {
+    return fabs(x) < __FLT_EPSILON__;
+}
+
+int nlopt_isequal(const double x, const double y) {
+    return fabs(x - y) < __FLT_EPSILON__;
+}
 
 int nlopt_isinf(double x)
 {
@@ -240,7 +247,7 @@ int nlopt_isfinite(double x)
 
 int nlopt_istiny(double x)
 {
-    if (x == 0.0)
+    if (nlopt_iszero(x))
         return 1;
     else {
 #if defined(HAVE_FPCLASSIFY)

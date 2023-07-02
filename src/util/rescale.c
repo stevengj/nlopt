@@ -38,7 +38,7 @@ double *nlopt_compute_rescaling(unsigned n, const double *dx)
     if (n == 1)
         return s;
 
-    for (i = 1; i < n && dx[i] == dx[i - 1]; ++i);
+    for (i = 1; i < n && nlopt_isequal(dx[i], dx[i - 1]); ++i);
     if (i < n) {                /* unequal initial steps, rescale to make equal to dx[0] */
         for (i = 1; i < n; ++i)
             s[i] = dx[i] / dx[0];

@@ -202,7 +202,7 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      s.scale = nlopt_compute_rescaling(n, dx);
      if (!s.scale) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
      for (j = 0; j < n; ++j)
-         if (s.scale[j] == 0 || !nlopt_isfinite(s.scale[j])) {
+         if (nlopt_iszero(s.scale[j]) || !nlopt_isfinite(s.scale[j])) {
              nlopt_stop_msg(stop, "invalid scaling %g of dimension %d: possible over/underflow?", s.scale[j], j);
              ret = NLOPT_INVALID_ARGS; goto done;
          }
@@ -698,7 +698,7 @@ L140:
     if (temp < phimin) {
       nbest = j;
       phimin = temp;
-    } else if (temp == phimin && parmu == 0.) {
+    } else if (nlopt_isequal(temp, phimin) && nlopt_iszero(parmu)) {
       if (datmat[*mpp + j * datmat_dim1] < datmat[*mpp + nbest * 
           datmat_dim1]) {
         nbest = j;
@@ -745,7 +745,7 @@ L140:
         temp += -1.;
       }
       i__3 = *n;
-      for (k = 1; k <= i__3; ++k) if (sim[k + j * sim_dim1] != 0) {
+      for (k = 1; k <= i__3; ++k) if (!nlopt_iszero(sim[k + j * sim_dim1])) {
         temp += simi[i__ + k * simi_dim1] * sim[k + j * sim_dim1];
       }
       d__1 = error, d__2 = fabs(temp);
@@ -990,7 +990,7 @@ L370:
       if (temp < phi) {
         goto L140;
       }
-      if (temp == phi && parmu == 0.f) {
+      if (nlopt_isequal(temp, phi) && nlopt_iszero(parmu)) {
         if (datmat[*mpp + j * datmat_dim1] < datmat[*mpp + np * 
             datmat_dim1]) {
           goto L140;
@@ -1014,7 +1014,7 @@ L440:
       datmat_dim1];
   vmnew = f + parmu * resmax;
   trured = vmold - vmnew;
-  if (parmu == 0. && f == datmat[mp + np * datmat_dim1]) {
+  if (nlopt_iszero(parmu) && nlopt_isequal(f, datmat[mp + np * datmat_dim1])) {
     prerem = prerec;
     trured = datmat[*mpp + np * datmat_dim1] - resmax;
   }
@@ -1171,7 +1171,7 @@ L550:
           }
         }
       }
-      if (denom == 0.) {
+      if (nlopt_iszero(denom)) {
         parmu = 0.;
       } else if (cmax - cmin < parmu * denom) {
         parmu = (cmax - cmin) / denom;
@@ -1352,7 +1352,7 @@ static nlopt_result trstlp(int *n, int *m, double *a,
       vmultc[k] = resmax - b[k];
     }
   }
-  if (resmax == 0.) {
+  if (nlopt_iszero(resmax)) {
     goto L480;
   }
   i__1 = *n;
@@ -1424,7 +1424,7 @@ L100:
     if (spabs >= acca || acca >= accb) {
       sp = 0.;
     }
-    if (tot == 0.) {
+    if (nlopt_iszero(tot)) {
       tot = sp;
     } else {
       kp = k + 1;
@@ -1448,7 +1448,7 @@ L100:
 /* Add the new constraint if this can be done without a deletion from the */
 /* active set. */
 
-  if (tot != 0.) {
+  if (!nlopt_iszero(tot)) {
     ++nact;
     zdota[nact] = tot;
     vmultc[icon] = vmultc[nact];
@@ -1557,7 +1557,7 @@ L170:
   for (i__ = 1; i__ <= i__1; ++i__) {
     temp += z__[i__ + nact * z_dim1] * a[i__ + kk * a_dim1];
   }
-  if (temp == 0.) {
+  if (nlopt_iszero(temp)) {
     goto L490;
   }
   zdota[nact] = temp;
@@ -1849,7 +1849,7 @@ L390:
   if (icon > 0) {
     goto L70;
   }
-  if (step == stpful) {
+  if (nlopt_isequal(step, stpful)) {
     goto L500;
   }
 L480:

@@ -242,7 +242,7 @@ L20:
 	dd += d__1 * d__1;
     }
     *crvmin = zero;
-    if (dd == zero) {
+    if (nlopt_iszero(dd)) {
 	goto L160;
     }
     ds = zero;
@@ -403,14 +403,14 @@ L120:
 /* L140: */
 	qsav = qnew;
     }
-    if ((double) isave == zero) {
+    if (nlopt_iszero((double) isave)) {
 	tempa = qnew;
     }
     if (isave == iu) {
 	tempb = qbeg;
     }
     angle = zero;
-    if (tempa != tempb) {
+    if (nlopt_isequal(tempa,tempb)) {
 	tempa -= qmin;
 	tempb -= qmin;
 	angle = half * (tempa - tempb) / (tempa + tempb);
@@ -640,7 +640,7 @@ static nlopt_result bigden_(int *n, int *npt, double *xopt,
 /* L40: */
 		    sstemp += diff * diff;
 		}
-		if (sstemp == 0) return NLOPT_ROUNDOFF_LIMITED;
+		if (nlopt_iszero(sstemp)) return NLOPT_ROUNDOFF_LIMITED;
 		if (dstemp * dstemp / sstemp < dtest) {
 		    ksav = k;
 		    dtest = dstemp * dstemp / sstemp;
@@ -894,7 +894,7 @@ L70:
 	tempb = denold;
     }
     step = zero;
-    if (tempa != tempb) {
+    if (nlopt_isequal(tempa,tempb)) {
 	tempa -= denmax;
 	tempb -= denmax;
 	step = half * (tempa - tempb) / (tempa + tempb);
@@ -1359,7 +1359,7 @@ L80:
 	tempb = taubeg;
     }
     step = zero;
-    if (tempa != tempb) {
+    if (nlopt_isequal(tempa,tempb)) {
 	tempa -= taumax;
 	tempb -= taumax;
 	step = half * (tempa - tempb) / (tempa + tempb);
@@ -1440,7 +1440,7 @@ static void update_(int *n, int *npt, double *bmat,
     for (j = 2; j <= i__1; ++j) {
 	if (j == *idz) {
 	    jl = *idz;
-	} else if (zmat[*knew + j * zmat_dim1] != zero) {
+	} else if (!nlopt_iszero(zmat[*knew + j * zmat_dim1])) {
 /* Computing 2nd power */
 	    d__1 = zmat[*knew + jl * zmat_dim1];
 /* Computing 2nd power */
@@ -2087,7 +2087,7 @@ L120:
     if (knew > 0) {
 /* Computing 2nd power */
 	d__1 = vlag[knew];
-	if (d__1 == 0) { rc = NLOPT_ROUNDOFF_LIMITED; goto L530; }
+	if (nlopt_iszero(d__1)) { rc = NLOPT_ROUNDOFF_LIMITED; goto L530; }
 	temp = one + alpha * beta / (d__1 * d__1);
 	if (fabs(temp) <= .8) {
 	  rc2 =
@@ -2322,7 +2322,7 @@ L410:
 /* then calculate the gradient of the least Frobenius norm interpolant at */
 /* XBASE, and store it in W, using VLAG for a vector of right hand sides. */
 
-    if (ksave == 0 && delta == rho) {
+    if (ksave == 0 && nlopt_isequal(delta, rho)) {
 	if (fabs(ratio) > .01) {
 	    itest = 0;
 	} else {

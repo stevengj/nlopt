@@ -367,7 +367,7 @@ L11130:
     }
     luksan_pytrcs__(nf, &x[1], &ix[1], &xo[1], &xl[1], &xu[1], &gf[1], &go[1],
 	     &s[1], &ro, &fp, &fo, f, &po, &p, &rmax, &eta9, &kbf);
-    if (rmax == 0.) {
+    if (nlopt_iszero(rmax)) {
 	goto L11175;
     }
 L11170:
@@ -469,7 +469,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
      for (i = 0; i < n; ++i) {
 	  int lbu = lb[i] <= -0.99 * HUGE_VAL; /* lb unbounded */
 	  int ubu = ub[i] >= 0.99 * HUGE_VAL;  /* ub unbounded */
-	  ix[i] = lbu ? (ubu ? 0 : 2) : (ubu ? 1 : (lb[i] == ub[i] ? 5 : 3));
+	  ix[i] = lbu ? (ubu ? 0 : 2) : (ubu ? 1 : (nlopt_isequal(lb[i], ub[i]) ? 5 : 3));
 	  xl[i] = lb[i];
 	  xu[i] = ub[i];
      }

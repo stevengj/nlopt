@@ -189,7 +189,7 @@ static int daxpy_(integer *n, doublereal *da, doublereal *dx,
     if (*n <= 0) {
 	return 0;
     }
-    if (*da == 0.) {
+    if (nlopt_iszero(*da)) {
 	return 0;
     }
     if (*incx == 1 && *incy == 1) {
@@ -948,8 +948,8 @@ static int newpt_(integer *ns, doublereal *coef, doublereal *xbase,
 	i__1 = *ns;
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    xnew[i__] = xbase[i__] + *coef * (xbase[i__] - xold[i__]);
-	    eqbase = eqbase && xnew[i__] == xbase[i__];
-	    eqold = eqold && xnew[i__] == xold[i__];
+	    eqbase = eqbase && nlopt_isequal(xnew[i__], xbase[i__]);
+	    eqold = eqold && nlopt_isequal(xnew[i__],xold[i__]);
 /* L10: */
 	}
     } else {
@@ -957,8 +957,8 @@ static int newpt_(integer *ns, doublereal *coef, doublereal *xbase,
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    xoldi = xold[i__];
 	    xold[i__] = xbase[i__] + *coef * (xbase[i__] - xold[i__]);
-	    eqbase = eqbase && xold[i__] == xbase[i__];
-	    eqold = eqold && xold[i__] == xoldi;
+	    eqbase = eqbase && nlopt_isequal(xold[i__], xbase[i__]);
+	    eqold = eqold && nlopt_isequal(xold[i__], xoldi);
 /* L20: */
 	}
     }
@@ -1043,7 +1043,7 @@ static int start_(integer *n, doublereal *x, doublereal *step,
 
     i__1 = *ns + 1;
     for (j = 2; j <= i__1; ++j) {
-	if (s[j - 1 + j * s_dim1] == s[j - 1 + s_dim1]) {
+	if (nlopt_isequal(s[j - 1 + j * s_dim1],s[j - 1 + s_dim1])) {
 	    goto L40;
 	}
 /* L30: */
@@ -1783,7 +1783,7 @@ static int setstp_(integer *nsubs, integer *n, doublereal *deltax,
 
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	if (deltax[i__] != 0.) {
+	if (!nlopt_iszero(deltax[i__])) {
 	    step[i__] = d_sign(&step[i__], &deltax[i__]);
 	} else {
 	    step[i__] = -step[i__];
@@ -1940,7 +1940,7 @@ static int subplx_(D_fp f, void *fdata, integer *n,
 	    i__1 = *n;
 	    for (i__ = 1; i__ <= i__1; ++i__) {
 		xpscl = x[i__] + scale[i__];
-		if (xpscl == x[i__]) {
+		if (nlopt_isequal(xpscl, x[i__])) {
 		    goto L120;
 		}
 /* L10: */
@@ -1950,7 +1950,7 @@ static int subplx_(D_fp f, void *fdata, integer *n,
 	    i__1 = *n;
 	    for (i__ = 1; i__ <= i__1; ++i__) {
 		xpscl = x[i__] + scl;
-		if (xpscl == x[i__]) {
+		if (nlopt_isequal(xpscl, x[i__])) {
 		    goto L120;
 		}
 /* L20: */

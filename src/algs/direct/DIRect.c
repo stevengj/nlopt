@@ -364,7 +364,7 @@
 /* | Therefore we set it to 1. If not, we set the divisionfactor to the    | */
 /* | absolute value of the global minimum.                                 | */
 /* +-----------------------------------------------------------------------+ */
-    if (*fglobal == 0.) {
+    if (nlopt_iszero(*fglobal)) {
 	divfactor = 1.;
     } else {
 	divfactor = fabs(*fglobal);

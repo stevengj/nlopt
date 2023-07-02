@@ -279,11 +279,11 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 	  do { /* include any duplicate points at (xmin,yminmin) */
 	       hull[nhull++] = n->k;
 	       n = nlopt_rb_tree_succ(n);
-	  } while (n && n->k[0] == xmin && n->k[1] == yminmin);
+	  } while (n && nlopt_isequal(n->k[0], xmin) && nlopt_isequal(n->k[1], yminmin));
      else
 	  hull[nhull++] = n->k;
 
-     if (xmin == xmax) return nhull;
+     if (nlopt_isequal(xmin, xmax)) return nhull;
 
      /* set nmax = min mode with x == xmax */
 #if 0
@@ -324,7 +324,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 
 	  /* performance hack: most of the points in DIRECT lie along
 	     vertical lines at a few x values, and we can exploit this */
-	  if (nhull && k[0] == hull[nhull - 1][0]) { /* x == previous x */
+	  if (nhull && nlopt_isequal(k[0],hull[nhull - 1][0])) { /* x == previous x */
 	       if (k[1] > hull[nhull - 1][1]) {
 		    double kshift[2];
 		    /* because of the round to float in rect_diameter, above,
@@ -354,7 +354,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 	       int it2 = nhull - 2;
 	       do {
 		    t2 = hull[it2--];
-	       } while (it2 >= 0 && t2[0] == t1[0] && t2[1] == t1[1]);
+	       } while (it2 >= 0 && nlopt_isequal(t2[0], t1[0]) && nlopt_isequal(t2[1], t1[1]));
 	       if (it2 < 0) break;
 
 	       /* cross product (t1-t2) x (k-t2) > 0 for a left turn: */
@@ -370,7 +370,7 @@ static int convex_hull(rb_tree *t, double **hull, int allow_dups)
 	  do { /* include any duplicate points at (xmax,ymaxmin) */
 	       hull[nhull++] = nmax->k;
 	       nmax = nlopt_rb_tree_succ(nmax);
-	  } while (nmax && nmax->k[0] == xmax && nmax->k[1] == ymaxmin);
+	  } while (nmax && nlopt_isequal(nmax->k[0], xmax) && nlopt_isequal(nmax->k[1], ymaxmin));
      else
 	  hull[nhull++] = nmax->k;
 
@@ -408,8 +408,8 @@ static nlopt_result divide_good_rects(params *p)
 	  int im, ip;
 
 	  /* find unequal points before (im) and after (ip) to get slope */
-	  for (im = i-1; im >= 0 && hull[im][0] == hull[i][0]; --im) ;
-	  for (ip = i+1; ip < nhull && hull[ip][0] == hull[i][0]; ++ip) ;
+	  for (im = i-1; im >= 0 && nlopt_isequal(hull[im][0], hull[i][0]); --im) ;
+	  for (ip = i+1; ip < nhull && nlopt_isequal(hull[ip][0], hull[i][0]); ++ip) ;
 
 	  if (im >= 0)
 	       K1 = (hull[i][1] - hull[im][1]) / (hull[i][0] - hull[im][0]);
@@ -435,7 +435,7 @@ static nlopt_result divide_good_rects(params *p)
 	       i += nlopt_iurand(ip - i); /* possibly do another equal pt */
      }
      if (!divided_some) {
-	  if (magic_eps != 0) {
+	  if (!nlopt_iszero(magic_eps)) {
 	       magic_eps = 0;
 	       goto divisions; /* try again */
 	  }
@@ -450,7 +450,7 @@ static nlopt_result divide_good_rects(params *p)
 	       do { /* note: this loop is O(N) worst-case time */
 		    max = pred;
 		    pred = nlopt_rb_tree_pred(max);
-	       } while (pred && pred->k[0] == wmax);
+	       } while (pred && nlopt_isequal(pred->k[0], wmax));
 	       return divide_rect(max->k, p);
 	  }
      }

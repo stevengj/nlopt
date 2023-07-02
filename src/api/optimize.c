@@ -200,7 +200,7 @@ static double elimdim_func(unsigned n0, const double *x0, double *grad, void *d_
 
     (void) n0;                  /* unused */
     for (i = j = 0; i < n; ++i) {
-        if (lb[i] == ub[i])
+        if (nlopt_isequal(lb[i], ub[i]))
             x[i] = lb[i];
         else                    /* assert: j < n0 */
             x[i] = x0[j++];
@@ -209,7 +209,7 @@ static double elimdim_func(unsigned n0, const double *x0, double *grad, void *d_
     if (grad) {
         /* assert: d->grad != NULL */
         for (i = j = 0; i < n; ++i)
-            if (lb[i] != ub[i])
+            if (!nlopt_isequal(lb[i], ub[i]))
                 grad[j++] = d->grad[i];
     }
     return val;
@@ -225,7 +225,7 @@ static void elimdim_mfunc(unsigned m, double *result, unsigned n0, const double 
     (void) n0;                  /* unused */
     (void) grad;                /* assert: grad == NULL */
     for (i = j = 0; i < n; ++i) {
-        if (lb[i] == ub[i])
+        if (nlopt_isequal(lb[i], ub[i]))
             x[i] = lb[i];
         else                    /* assert: j < n0 */
             x[i] = x0[j++];
@@ -233,22 +233,22 @@ static void elimdim_mfunc(unsigned m, double *result, unsigned n0, const double 
     d->mf(m, result, n, x, NULL, d->f_data);
 }
 
-/* compute the eliminated dimension: number of dims with lb[i] != ub[i] */
+/* compute the eliminated dimension: number of dims with !nlopt_isequal(lb[i], ub[i]) */
 static unsigned elimdim_dimension(unsigned n, const double *lb, const double *ub)
 {
     unsigned n0 = 0, i;
     for (i = 0; i < n; ++i)
-        n0 += lb[i] != ub[i] ? 1U : 0;
+        n0 += !nlopt_isequal(lb[i], ub[i]) ? 1U : 0;
     return n0;
 }
 
-/* modify v to "shrunk" version, with dimensions for lb[i] == ub[i] elim'ed */
+/* modify v to "shrunk" version, with dimensions for nlopt_isequal(lb[i], ub[i]) elim'ed */
 static void elimdim_shrink(unsigned n, double *v, const double *lb, const double *ub)
 {
     unsigned i, j;
     if (v)
         for (i = j = 0; i < n; ++i)
-            if (lb[i] != ub[i])
+            if (!nlopt_isequal(lb[i], ub[i]))
                 v[j++] = v[i];
 }
 
@@ -259,12 +259,12 @@ static void elimdim_expand(unsigned n, double *v, const double *lb, const double
     if (v && n > 0) {
         j = elimdim_dimension(n, lb, ub) - 1;
         for (i = n - 1; i > 0; --i) {
-            if (lb[i] != ub[i])
+            if (!nlopt_isequal(lb[i], ub[i]))
                 v[i] = v[j--];
             else
                 v[i] = lb[i];
         }
-        if (lb[0] == ub[0])
+        if (nlopt_isequal(lb[0], ub[0]))
             v[0] = lb[0];
     }
 }

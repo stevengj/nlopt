@@ -173,8 +173,8 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 
 	       if ((penalty[k] <= minf_penalty || feasible)
 		   && (fval[k] <= *minf || minf_gpenalty > 0)
-		   && ((feasible ? 0 : penalty[k]) != minf_penalty
-		       || fval[k] != *minf)) {
+		   && (!nlopt_isequal((feasible ? 0 : penalty[k]), minf_penalty)
+		       || !nlopt_isequal(fval[k],*minf))) {
 		    if (fval[k] < stop->minf_max && feasible) 
 			 ret = NLOPT_MINF_MAX_REACHED;
 		    else if (!nlopt_isinf(*minf)) {
@@ -208,8 +208,8 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 		    int swapped = 0;
 		    for (j = 0; j < population-1; ++j) {
 			 double u = nlopt_urand(0,1);
-			 if (u < PF || (penalty[irank[j]] == 0
-					&& penalty[irank[j+1]] == 0)) {
+			 if (u < PF || (nlopt_iszero(penalty[irank[j]])
+					&& nlopt_iszero(penalty[irank[j+1]]))) {
 			      if (fval[irank[j]] > fval[irank[j+1]]) {
 				   int irankj = irank[j];
 				   irank[j] = irank[j+1];

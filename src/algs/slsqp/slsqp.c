@@ -68,7 +68,7 @@ static void daxpy_sl__(int *n_, const double *da_, const double *dx,
      int n = *n_, i;  
      double da = *da_;
 
-     if (n <= 0 || da == 0) return;
+     if (n <= 0 || nlopt_iszero(da)) return;
      for (i = 0; i < n; ++i) dy[i*incy] += da * dx[i*incx];
 }
 
@@ -92,7 +92,7 @@ static double dnrm2___(int *n_, double *dx, int incx)
           double xabs = fabs(dx[incx*i]);
           if (xmax < xabs) xmax = xabs;
      }
-     if (xmax == 0) return 0;
+     if (nlopt_iszero(xmax)) return 0;
      scale = 1.0 / xmax;
      for (i = 0; i < n; ++i) {
           double xs = scale * dx[incx*i];
@@ -130,13 +130,13 @@ static void dsrotg_(double *da, double *db, double *c, double *s)
 	  scale = absb;
      }
 
-     if (scale != 0) {
+     if (!nlopt_iszero(scale)) {
 	  double r, iscale = 1 / scale;
 	  double tmpa = (*da) * iscale, tmpb = (*db) * iscale;
 	  r = (roe < 0 ? -scale : scale) * sqrt((tmpa * tmpa) + (tmpb * tmpb)); 
 	  *c = *da / r; *s = *db / r; 
 	  *da = r;
-	  if (*c != 0 && fabs(*c) <= *s) *db = 1 / *c;
+	  if (!nlopt_iszero(*c) && fabs(*c) <= *s) *db = 1 / *c;
 	  else *db = *s;
      }
      else { 
@@ -276,7 +276,7 @@ L40:
 /* L50: */
 	    i3 += *ice;
 	}
-	if (sm == 0.0) {
+	if (nlopt_iszero(sm)) {
 	    goto L70;
 	}
 	sm *= b;
@@ -1483,7 +1483,7 @@ static void ldl_(int *n, double *a, double *z__,
     --a;
 
     /* Function Body */
-    if (*sigma == 0.0) {
+    if (nlopt_iszero(*sigma)) {
 	goto L280;
     }
     ij = 1;

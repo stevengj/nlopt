@@ -223,7 +223,7 @@ double nlopt_nrand(double mean, double stddev)
     v2 = nlopt_urand(-1, 1);
     s = v1*v1 + v2*v2;
   } while (s >= 1.0);
-  if (s == 0) {
+  if (nlopt_iszero(s)) {
     return mean;
   }
   else {

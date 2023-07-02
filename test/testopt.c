@@ -254,7 +254,7 @@ static int test_function(int ifunc)
         for (i = 0; i < func.n; ++i)
             printf(" %g", x[i]);
         printf("]\n");
-        if (func.minf == 0)
+        if (nlopt_iszero(func.minf))
             printf("|f - minf| = %g\n", fabs(minf - func.minf));
         else
             printf("|f - minf| = %g, |f - minf| / |minf| = %e\n", fabs(minf - func.minf), fabs(minf - func.minf) / fabs(func.minf));

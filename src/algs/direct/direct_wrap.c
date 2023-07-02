@@ -73,7 +73,7 @@ direct_return_code direct_optimize(
      if (volume_reltol <= 0) volume_reltol = -1;
      if (sigma_reltol <= 0) sigma_reltol = -1;
 
-     if (fglobal == DIRECT_UNKNOWN_FGLOBAL)
+     if (nlopt_isequal(fglobal, DIRECT_UNKNOWN_FGLOBAL))
 	  fglobal_reltol = DIRECT_UNKNOWN_FGLOBAL_RELTOL;
 
      if (dimension < 1) return DIRECT_INVALID_ARGS;

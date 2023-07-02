@@ -183,7 +183,7 @@ void luksan_pnint1__(double *rl, double *ru, double *fl,
 /*     INTERPOLATION ACCEPTED */
 
 	    *r__ = *rl + (*ru - *rl) / den;
-	    if (*rl == 0.) {
+	    if (nlopt_iszero(*rl)) {
 /* Computing MAX */
 		d__1 = *r__, d__2 = *rl + (*ru - *rl) * .01;
 		*r__ = MAX2(d__1,d__2);
@@ -1016,7 +1016,7 @@ void luksan_pyrmc0__(int *nf, int *n, int *ix,
 /* Computing MIN */
 		    i__3 = (i__2 = ix[i__], iabs(i__2));
 		    ix[i__] = MIN2(i__3,3);
-		    if (*rmax == 0.) {
+		    if (nlopt_iszero(*rmax)) {
 			goto L2;
 		    }
 		}

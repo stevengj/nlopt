@@ -754,7 +754,7 @@ L10:
     i__1 = n;
     for (ii = 2; ii <= i__1; ++ii) {
 	i__ = n - ii + 1;
-	if (g == 0.) {
+	if (nlopt_iszero(g)) {
 	    goto L23;
 	}
 	h__ = ab[i__ + (i__ + 1) * ab_dim1] * g;
@@ -836,7 +836,7 @@ L110:
 	    if (fabs(f) < fabs(g)) {
 		goto L113;
 	    }
-	    if (f != 0.) {
+	    if (!nlopt_iszero(f)) {
 		goto L112;
 	    } else {
 		goto L111;
@@ -855,7 +855,7 @@ L113:
 	    h__ = fabs(g) * sqrt(d__1 * d__1 + 1);
 L114:
 	    q[i__] = h__;
-	    if (h__ != 0.) {
+	    if (!nlopt_iszero(h__)) {
 		goto L115;
 	    }
 	    g = 1.;
@@ -899,7 +899,7 @@ L120:
 	    if (fabs(f) < fabs(h__)) {
 		goto L123;
 	    }
-	    if (f != 0.) {
+	    if (!nlopt_iszero(f)) {
 		goto L122;
 	    } else {
 		goto L121;
@@ -918,7 +918,7 @@ L123:
 	    z__ = fabs(h__) * sqrt(d__1 * d__1 + 1);
 L124:
 	    e[i__ - 2] = z__;
-	    if (z__ != 0.) {
+	    if (!nlopt_iszero(z__)) {
 		goto L125;
 	    }
 	    f = 1.;
@@ -941,7 +941,7 @@ L125:
 	    if (fabs(f) < fabs(h__)) {
 		goto L129;
 	    }
-	    if (f != 0.) {
+	    if (!nlopt_iszero(f)) {
 		goto L128;
 	    } else {
 		goto L127;
@@ -960,7 +960,7 @@ L129:
 	    z__ = fabs(h__) * sqrt(d__1 * d__1 + 1);
 L130:
 	    q[i__ - 1] = z__;
-	    if (z__ != 0.) {
+	    if (!nlopt_iszero(z__)) {
 		goto L131;
 	    }
 	    f = 1.;
