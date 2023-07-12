@@ -1,3 +1,5 @@
+cmake_minimum_required (VERSION 3.13)
+
 # generate nlopt.hpp from nlopt-in.hpp
 file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.hpp "")
 file (STRINGS ${API_SOURCE_DIR}/nlopt-in.hpp NLOPT_HPP_LINES)
