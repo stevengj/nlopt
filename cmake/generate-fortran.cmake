@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.13)
 
 # generate nlopt.f from nlopt.h enums
 file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f "")
