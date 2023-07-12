@@ -9,7 +9,7 @@ The main purpose of this section is to document the syntax and unique features o
 Using the NLopt Guile API
 -------------------------
 
-To use NLopt in Python, your Python program should include the lines:
+To use NLopt in GNU Guile, your Guile program should include the lines:
 
 ```
 (use-modules (nlopt))
