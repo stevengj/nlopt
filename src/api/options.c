@@ -632,8 +632,6 @@ nlopt_result NLOPT_STDCALL nlopt_add_equality_mconstraint(nlopt_opt opt, unsigne
         ret = NLOPT_INVALID_ARGS;
     else if (!equality_ok(opt->algorithm))
         ret = ERR(NLOPT_INVALID_ARGS, opt, "invalid algorithm for constraints");
-    else if (nlopt_count_constraints(opt->p, opt->h) + m > opt->n)
-        ret = ERR(NLOPT_INVALID_ARGS, opt, "too many equality constraints");
     else
         ret = add_constraint(opt, &opt->p, &opt->p_alloc, &opt->h, m, NULL, fc, NULL, fc_data, tol);
     if (ret < 0 && opt && opt->munge_on_destroy)
@@ -649,8 +647,6 @@ nlopt_result NLOPT_STDCALL nlopt_add_precond_equality_constraint(nlopt_opt opt, 
         ret = NLOPT_INVALID_ARGS;
     else if (!equality_ok(opt->algorithm))
         ret = ERR(NLOPT_INVALID_ARGS, opt, "invalid algorithm for constraints");
-    else if (nlopt_count_constraints(opt->p, opt->h) + 1 > opt->n)
-        ret = ERR(NLOPT_INVALID_ARGS, opt, "too many equality constraints");
     else
         ret = add_constraint(opt, &opt->p, &opt->p_alloc, &opt->h, 1, fc, NULL, pre, fc_data, &tol);
     if (ret < 0 && opt && opt->munge_on_destroy)
@@ -691,6 +687,11 @@ GETSET(ftol_rel, double, ftol_rel) GETSET(ftol_abs, double, ftol_abs) GETSET(xto
 {
     if (opt) {
         nlopt_unset_errmsg(opt);
+	if (!xtol_abs) {
+	    free(opt->xtol_abs);
+	    opt->xtol_abs = NULL;
+	    return NLOPT_SUCCESS;
+	}
         if (!opt->xtol_abs && opt->n > 0) {
             opt->xtol_abs = (double *) calloc(opt->n, sizeof(double));
             if (!opt->xtol_abs) return NLOPT_OUT_OF_MEMORY;
@@ -738,6 +739,11 @@ nlopt_result NLOPT_STDCALL nlopt_set_x_weights(nlopt_opt opt, const double *x_we
     if (opt) {
         unsigned i;
         nlopt_unset_errmsg(opt);
+	if (!x_weights) {
+	  free(opt->x_weights);
+	  opt->x_weights = NULL;
+	  return NLOPT_SUCCESS;
+	}
         for (i = 0; i < opt->n; i++)
             if (x_weights[i] < 0)
                 return ERR(NLOPT_INVALID_ARGS, opt, "invalid negative weight");

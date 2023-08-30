@@ -187,7 +187,7 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	       goto done;
 	  }
 
-	  /* compute centroid ... if we cared about the perfomance of this,
+	  /* compute centroid ... if we cared about the performance of this,
 	     we could do it iteratively by updating the centroid on
 	     each step, but then we would have to be more careful about
 	     accumulation of rounding errors... anyway n is unlikely to

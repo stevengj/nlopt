@@ -373,7 +373,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 	       }
 	  }
 
-	  /* distance threshhold parameter R in MLSL */
+	  /* distance threshold parameter R in MLSL */
 	  R = d.R_prefactor 
 	       * pow(log((double) d.pts.N) / d.pts.N, 1.0 / n);
 

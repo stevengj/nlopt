@@ -46,10 +46,6 @@ foreach (algo_index RANGE 29)# 43
     if (algo_index STREQUAL 10)
       set (enable_ FALSE)
     endif ()
-    # LN_NEWUOA_BOUND timeouts on msvc
-    if (algo_index STREQUAL 27)
-      set (enable_ FALSE)
-    endif ()
     if (enable_)
       add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -r 0 -a ${algo_index} -o ${obj_index})
       if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
@@ -59,11 +55,11 @@ foreach (algo_index RANGE 29)# 43
   endforeach ()
 endforeach ()
 
-if (NUMPY_FOUND AND PYTHONLIBS_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-python.cpp)))
+if (Python_FOUND AND NUMPY_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-python.cpp)))
   set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                                   "PYTHONPATH=${PROJECT_BINARY_DIR}/src/swig"
     )
-  add_test (NAME test_python COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py)
+  add_test (NAME test_python COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py)
   set_tests_properties (test_python PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
 endif ()
 
@@ -75,7 +71,7 @@ if (MATLAB_FOUND)
   add_test (NAME test_matlab COMMAND ${Matlab_MAIN_PROGRAM} -nodesktop -nosplash  -r "addpath('${PROJECT_SOURCE_DIR}/src/octave'); addpath('${PROJECT_BINARY_DIR}/src/octave'); try; run('${CMAKE_CURRENT_SOURCE_DIR}/t_matlab.m'); catch; exit(1); end; quit")
 endif ()
 
-if (GUILE_FOUND AND ((SWIG_FOUND AND SWIG_VERSION VERSION_GREATER 2.0.9) OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-guile.cpp)))
+if (GUILE_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-guile.cpp)))
   set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                               "GUILE_LOAD_PATH=${PROJECT_BINARY_DIR}/src/swig"
     )

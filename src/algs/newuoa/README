@@ -1,6 +1,6 @@
 This is the NEWUOA software by M. J. D. Powell, which performs
 derivative-free unconstrained optimization using an iteratively
-constructred quadratic approximation for the objective function.  See:
+constructed quadratic approximation for the objective function.  See:
 
 	M. J. D. Powell, "The NEWUOA software for unconstrained
 	optimization without derivatives," Proc. 40th Workshop

@@ -139,7 +139,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
   if (axis == -1) {
     // Skipping AV
 #ifdef INI3
-    // Elaborate scheme to initalize delta
+    // Elaborate scheme to initialize delta
     delta=delta_coef*norm2(g) ;
     copy(g,z) ;
     axpy(1.0,x,z) ;
@@ -191,7 +191,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     nrm_sd=norm2(h_sd) ;
 
     if (nrm_sd < epsilon) {
-      // Stop criterion (gradient) fullfilled
+      // Stop criterion (gradient) fulfilled
 #ifdef LS_DEBUG
       cout << "Gradient small enough" << endl ;
 #endif

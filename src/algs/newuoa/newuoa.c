@@ -724,7 +724,7 @@ L70:
 	wvec[ip + wvec_dim1 * 5] = zero;
     }
 
-/* Put the coefficents of THETA*Wcheck in PROD. */
+/* Put the coefficients of THETA*Wcheck in PROD. */
 
     for (jc = 1; jc <= 5; ++jc) {
 	nw = *npt;
