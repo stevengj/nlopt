@@ -149,6 +149,10 @@ static double func_python(unsigned n, const double *x, double *grad, void *f)
     val = PyFloat_AsDouble(result);
     Py_DECREF(result);
   }
+  else if (result && PyLong_Check(result)) {
+    val = PyLong_AsUnsignedLong(result);
+    Py_DECREF(result);
+  }
   else {
     Py_XDECREF(result);
     throw std::invalid_argument("invalid result passed to nlopt");
