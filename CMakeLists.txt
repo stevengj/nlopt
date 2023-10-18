@@ -122,6 +122,7 @@ check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
 check_library_exists ("m" sqrt "" HAVE_LIBM)
 if (HAVE_LIBM)
   set (M_LIBRARY m)
+  set (LIBS_PRIVATE "-l${M_LIBRARY}")
 endif()
 
 if (NOT DEFINED HAVE_FPCLASSIFY)
@@ -174,10 +175,8 @@ endif ()
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt_config.h IMMEDIATE)
 
 # pkgconfig file
-if (UNIX OR MINGW)
-  configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
-  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTALL_LIB_DIR}/pkgconfig)
-endif ()
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTALL_LIB_DIR}/pkgconfig)
 
 #==============================================================================
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
