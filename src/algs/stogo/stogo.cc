@@ -4,6 +4,7 @@
 #include "stogo.h"
 #include "global.h"
 
+namespace {
 class MyGlobal : public Global {
 protected:
   objective_func my_func;
@@ -25,6 +26,7 @@ public:
     return 0.0;
   }
 };
+}  // namespace
 
 int stogo_minimize(int n,
 		   objective_func fgrad, void *data,
