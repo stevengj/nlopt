@@ -21,7 +21,7 @@ Compiling and linking your program to NLopt
 
 An NLopt program in C++ should include the NLopt C++ header file:
 
-`#include `<nlopt.hpp>
+`#include <nlopt.hpp>`
 
 On Unix, you would normally link your program exactly as for the C API, with a command something like:
 
