@@ -243,7 +243,7 @@ nlopt_result nlopt_set_x_weights1(nlopt_opt opt, const double w);
 nlopt_result nlopt_get_x_weights(const nlopt_opt opt, double *w);
 ```
 
-Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above, where `*w` must point to an array of length equal to the number of optimization parameters in `opt`.   `nlopt_set_x_weights1` can be used to set all of the weights to the same value `w`. Also passing NULL to `nlopt_set_xtol_abs` allows to unset all the weights. The weights default to `1`, but non-constant weights can be used to handle situations where the different parameters `x` have different units or importance, for example.
+Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above, where `*w` must point to an array of length equal to the number of optimization parameters in `opt`.   `nlopt_set_x_weights1` can be used to set all of the weights to the same value `w`. Also passing NULL to `nlopt_set_x_weights` allows to unset all the weights. The weights default to `1`, but non-constant weights can be used to handle situations where the different parameters `x` have different units or importance, for example.
 
 ```c
 nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double *tol);
@@ -414,7 +414,7 @@ NLOPT_FORCED_STOP = -5
 
 Halted because of a [forced termination](#forced-termination): the user called `nlopt_force_stop(opt)` on the optimization’s `nlopt_opt` object `opt` from the user’s objective function or constraints.
 
-An string with further details about the error is available through `nlopt_get_errmsg` if an error is set:
+A string with further details about the error is available through `nlopt_get_errmsg` if an error is set:
 ```c
 const char * nlopt_get_errmsg(nlopt_opt opt);
 ```
