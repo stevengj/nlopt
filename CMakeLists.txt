@@ -216,6 +216,10 @@ set (NLOPT_SOURCES
   src/util/mt19937ar.c src/util/sobolseq.c src/util/soboldata.h src/util/timer.c src/util/stop.c src/util/nlopt-util.h src/util/redblack.c src/util/redblack.h src/util/qsort_r.c src/util/rescale.c
 )
 
+set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/mma/ccsa_quadratic.c src/algs/cobyla/cobyla.c
+                    src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c
+	     PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+
 if (NLOPT_CXX)
   list (APPEND NLOPT_SOURCES
     src/algs/stogo/global.cc
@@ -238,6 +242,9 @@ if (NLOPT_CXX)
     src/algs/ags/local_optimizer.cc
     src/algs/ags/ags.h
     src/algs/ags/ags.cc)
+
+set_property(SOURCE src/algs/ags/solver.cc src/algs/ags/local_optimizer.cc src/algs/ags/ags.cc src/algs/slsqp/slsqp.c
+             PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
