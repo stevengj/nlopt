@@ -83,7 +83,7 @@ Trial HookeJeevesOptimizer::Optimize(std::shared_ptr<IGOProblem<double>> problem
     mTrialsCounters[mPreviousResearchDirection.idx]++;
   }
 
-  for(size_t i = 0; i < mTrialsCounters.size(); i++)
+  for(size_t j = 0; j < mTrialsCounters.size(); ++ j)
     trialsCounters[i] += mTrialsCounters[i];
 
   return mPreviousResearchDirection;

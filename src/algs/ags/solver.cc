@@ -239,8 +239,8 @@ void NLPSolver::MakeTrials()
     if(idx > mMaxIdx)
     {
       mMaxIdx = idx;
-      for(int i = 0; i < mMaxIdx; i++)
-        mZEstimations[i] = -mParameters.epsR*mHEstimations[i];
+      for(int j = 0; j < mMaxIdx; ++ j)
+        mZEstimations[j] = -mParameters.epsR*mHEstimations[j];
       mNeedRefillQueue = true;
     }
     if (idx == mProblem->GetConstraintsNumber())
