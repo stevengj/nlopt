@@ -36,7 +36,7 @@ set(SO_PATCH 1)
 list (APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option (NLOPT_CXX "enable cxx routines" ON)
-option (NLOPT_FORTRAN "enable fortran tests" OFF)
+option (NLOPT_FORTRAN "enable fortran" OFF)
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 option (NLOPT_PYTHON "build python bindings" ON)
 option (NLOPT_OCTAVE "build octave bindings" ON)
@@ -183,7 +183,7 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTA
 #==============================================================================
 
 set (NLOPT_HEADERS
-  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp ${PROJECT_BINARY_DIR}/nlopt.f
+  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp
 )
 
 add_custom_command (OUTPUT nlopt.hpp
@@ -191,10 +191,13 @@ add_custom_command (OUTPUT nlopt.hpp
   MAIN_DEPENDENCY src/api/nlopt-in.hpp)
 add_custom_target (generate-cpp ALL DEPENDS nlopt.hpp)
 
-add_custom_command (OUTPUT nlopt.f
-  COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
-  MAIN_DEPENDENCY src/api/nlopt.h)
-add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
+if (NLOPT_FORTRAN)
+  add_custom_command (OUTPUT nlopt.f
+    COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
+    MAIN_DEPENDENCY src/api/nlopt.h)
+  add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
+  list (APPEND NLOPT_HEADERS ${PROJECT_BINARY_DIR}/nlopt.f)
+endif()
 
 set (NLOPT_SOURCES
   src/algs/direct/DIRect.c src/algs/direct/direct_wrap.c src/algs/direct/DIRserial.c src/algs/direct/DIRsubrout.c src/algs/direct/direct-internal.h src/algs/direct/direct.h
