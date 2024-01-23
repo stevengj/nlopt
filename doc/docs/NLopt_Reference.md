@@ -243,7 +243,7 @@ nlopt_result nlopt_set_x_weights1(nlopt_opt opt, const double w);
 nlopt_result nlopt_get_x_weights(const nlopt_opt opt, double *w);
 ```
 
-Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above, where `*w` must point to an array of length equal to the number of optimization parameters in `opt`.   `nlopt_set_x_weights1` can be used to set all of the weights to the same value `w`. Also passing NULL to `nlopt_set_xtol_abs` allows to unset all the weights. The weights default to `1`, but non-constant weights can be used to handle situations where the different parameters `x` have different units or importance, for example.
+Set/get the weights used when the computing L₁ norm for the `xtol_rel` stopping criterion above, where `*w` must point to an array of length equal to the number of optimization parameters in `opt`.   `nlopt_set_x_weights1` can be used to set all of the weights to the same value `w`. Also passing NULL to `nlopt_set_x_weights` allows to unset all the weights. The weights default to `1`, but non-constant weights can be used to handle situations where the different parameters `x` have different units or importance, for example.
 
 ```c
 nlopt_result nlopt_set_xtol_abs(nlopt_opt opt, const double *tol);
@@ -310,11 +310,11 @@ Certain NLopt optimization algorithms allow you to specify additional parameters
 nlopt_result nlopt_set_param(nlopt_opt opt, const char *name, double val);
 ```
 
-where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   For example, the MMA algorithm has a parameter `"inner_maxeval"`, an upper bound on the number of "inner" iterations of the algorithm, which you can set via `nlopt_set_param(opt, "inner_maxeval", 100)`.
+where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to. For example, the MMA algorithm has a parameter `"inner_maxeval"`, an upper bound on the number of "inner" iterations of the algorithm, which you can set via `nlopt_set_param(opt, "inner_maxeval", 100)`.
 
 You can also check whether a parameter is set or get the current value of a parameter with
 ```c
-double nlopt_has_param(const nlopt_opt opt, const char *name);
+int nlopt_has_param(const nlopt_opt opt, const char *name);
 double nlopt_get_param(const nlopt_opt opt, const char *name, double defaultval);
 ```
 where `defaultval` is returned by `nlopt_get_param` if the parameter `name` has not been set.
@@ -414,7 +414,7 @@ NLOPT_FORCED_STOP = -5
 
 Halted because of a [forced termination](#forced-termination): the user called `nlopt_force_stop(opt)` on the optimization’s `nlopt_opt` object `opt` from the user’s objective function or constraints.
 
-An string with further details about the error is available through `nlopt_get_errmsg` if an error is set:
+A string with further details about the error is available through `nlopt_get_errmsg` if an error is set:
 ```c
 const char * nlopt_get_errmsg(nlopt_opt opt);
 ```

@@ -11,7 +11,7 @@ Other sources of information include the Unix [man pages](https://en.wikipedia.o
 Linking your program to NLopt
 -----------------------------
 
-For programs in compiled languages like C or Fortran, when you compile your program you will have to link it to the NLopt library. This is *in addition* to including the header file (`#include` <nlopt.h> in C/C++). On Unix, you would normally link with a command something like:
+For programs in compiled languages like C or Fortran, when you compile your program you will have to link it to the NLopt library. This is *in addition* to including the header file (`#include <nlopt.h>` in C/C++). On Unix, you would normally link with a command something like:
 
 *`compiler`*` `*`...source/object` `files...`*` -lnlopt -lm -o myprogram`
 

@@ -29,7 +29,7 @@ Usage
 
 ### I included your header file, but the compiler still complains
 
-You need to link to the NLopt library in addition to doing `#include` <nlopt.h>. On Unix, this means adding `-lnlopt` `-lm` at the *end* of your link command.
+You need to link to the NLopt library in addition to doing `#include <nlopt.h>`. On Unix, this means adding `-lnlopt` `-lm` at the *end* of your link command.
 
 ### It's not converging
 
