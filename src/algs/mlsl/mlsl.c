@@ -64,6 +64,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "redblack.h"
 #include "mlsl.h"
@@ -342,7 +343,11 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
      else if (nlopt_stop_time(stop)) ret = NLOPT_MAXTIME_REACHED;
      else if (p->f < stop->minf_max) ret = NLOPT_MINF_MAX_REACHED;
 
+    int MLSL_macroit_ctr = 0;
      while (ret == NLOPT_SUCCESS) {
+	  printf("Entering MLSL macroiteration %i", MLSL_macroit_ctr);
+	  MLSL_macroit_ctr++;
+
 	  rb_node *node;
 	  double R;
 
@@ -401,6 +406,7 @@ nlopt_result mlsl_minimize(int n, nlopt_func f, void *f_data,
 		    lm = (double *) malloc(sizeof(double) * (n+1));
 		    if (!lm) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
 		    memcpy(lm+1, p->x, sizeof(double) * n);
+		    printf("MLSL is entering a local optimization, macroiteration=%i, i=%i ", MLSL_macroit_ctr, i);
 		    lret = nlopt_optimize_limited(local_opt, lm+1, lm,
 						  stop->maxeval - *(stop->nevals_p),
 						  stop->maxtime -
