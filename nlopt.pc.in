@@ -7,6 +7,6 @@ Name: NLopt
 Description: nonlinear optimization library
 Version: @NLOPT_VERSION_STRING@
 Libs: -L${libdir} -lnlopt
-Libs.private: -lm
+Libs.private: @LIBS_PRIVATE@
 Cflags: -I${includedir}
 

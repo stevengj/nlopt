@@ -8,4 +8,4 @@ If you use NLopt in work that leads to a publication, we would appreciate it if 
 
 The authors and appropriate citations for the specific optimization algorithms in NLopt are listed in the [NLopt Algorithms](NLopt_Algorithms.md) page.
 
-
+See also the [NLopt `CITATION.bib` file](https://github.com/stevengj/nlopt/blob/master/CITATION.bib) for citations in BibTeX format.

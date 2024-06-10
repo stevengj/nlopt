@@ -21,7 +21,7 @@ Compiling and linking your program to NLopt
 
 An NLopt program in C++ should include the NLopt C++ header file:
 
-`#include `<nlopt.hpp>
+`#include <nlopt.hpp>`
 
 On Unix, you would normally link your program exactly as for the C API, with a command something like:
 
@@ -256,13 +256,13 @@ Algorithm-specific parameters
 
 Certain NLopt optimization algorithms allow you to specify additional parameters by calling
 ```
-nlopt_result nlopt::opt::set_param(const char *name, double val);
+void nlopt::opt::set_param(const char *name, double val);
 bool nlopt::opt::has_param(const char *name);
 double nlopt::opt::get_param(const char *name, double defaultval);
 unsigned nlopt::opt::num_params();
 const char *nlopt::opt::nth_param(unsigned n);
 ```
-where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference#algorithm-specific-parameters) functions of the corresponding names.
+where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to. These functions are equivalent to the [C API](NLopt_Reference#algorithm-specific-parameters) functions of the corresponding names.
 
 
 Performing the optimization

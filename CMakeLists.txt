@@ -38,7 +38,7 @@ set(SO_PATCH 1)
 list (APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option (NLOPT_CXX "enable cxx routines" ON)
-option (NLOPT_FORTRAN "enable fortran tests" OFF)
+option (NLOPT_FORTRAN "enable fortran" OFF)
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 option (NLOPT_PYTHON "build python bindings" ON)
 option (NLOPT_OCTAVE "build octave bindings" ON)
@@ -76,8 +76,8 @@ foreach (p LIB BIN INCLUDE DATA CMAKE)
 endforeach ()
 
 
-set (CMAKE_INSTALL_RPATH ${INSTALL_LIB_DIR})
-set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set (CMAKE_INSTALL_RPATH ${INSTALL_LIB_DIR} CACHE PATH "rpath")
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "use link path")
 if(POLICY CMP0042)
   # Set MACOSX_RPATH to ON
   cmake_policy(SET CMP0042 NEW)
@@ -92,6 +92,7 @@ include (CheckFunctionExists)
 include (CheckTypeSize)
 include (CheckCCompilerFlag)
 include (CheckCXXSymbolExists)
+include (CheckCSourceCompiles)
 include (CheckCXXCompilerFlag)
 include (CheckLibraryExists)
 
@@ -123,6 +124,7 @@ check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
 check_library_exists ("m" sqrt "" HAVE_LIBM)
 if (HAVE_LIBM)
   set (M_LIBRARY m)
+  set (LIBS_PRIVATE "-l${M_LIBRARY}")
 endif()
 
 if (NOT DEFINED HAVE_FPCLASSIFY)
@@ -175,17 +177,15 @@ endif ()
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt_config.h IMMEDIATE)
 
 # pkgconfig file
-if (UNIX OR MINGW)
-  configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
-  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTALL_LIB_DIR}/pkgconfig)
-endif ()
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/nlopt.pc.in ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc @ONLY)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.pc DESTINATION ${RELATIVE_INSTALL_LIB_DIR}/pkgconfig)
 
 #==============================================================================
 # nlopt LIBRARY TARGET (SHARED OR STATIC)
 #==============================================================================
 
 set (NLOPT_HEADERS
-  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp ${PROJECT_BINARY_DIR}/nlopt.f
+  src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp
 )
 
 add_custom_command (OUTPUT nlopt.hpp
@@ -193,10 +193,13 @@ add_custom_command (OUTPUT nlopt.hpp
   MAIN_DEPENDENCY src/api/nlopt-in.hpp)
 add_custom_target (generate-cpp ALL DEPENDS nlopt.hpp)
 
-add_custom_command (OUTPUT nlopt.f
-  COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
-  MAIN_DEPENDENCY src/api/nlopt.h)
-add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
+if (NLOPT_FORTRAN)
+  add_custom_command (OUTPUT nlopt.f
+    COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
+    MAIN_DEPENDENCY src/api/nlopt.h)
+  add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
+  list (APPEND NLOPT_HEADERS ${PROJECT_BINARY_DIR}/nlopt.f)
+endif()
 
 set (NLOPT_SOURCES
   src/algs/direct/DIRect.c src/algs/direct/direct_wrap.c src/algs/direct/DIRserial.c src/algs/direct/DIRsubrout.c src/algs/direct/direct-internal.h src/algs/direct/direct.h
@@ -217,6 +220,10 @@ set (NLOPT_SOURCES
   src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h ${PROJECT_BINARY_DIR}/nlopt.hpp
   src/util/mt19937ar.c src/util/sobolseq.c src/util/soboldata.h src/util/timer.c src/util/stop.c src/util/nlopt-util.h src/util/redblack.c src/util/redblack.h src/util/qsort_r.c src/util/rescale.c
 )
+
+set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/mma/ccsa_quadratic.c src/algs/cobyla/cobyla.c
+                    src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c
+	     PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 
 if (NLOPT_CXX)
   list (APPEND NLOPT_SOURCES
@@ -240,6 +247,9 @@ if (NLOPT_CXX)
     src/algs/ags/local_optimizer.cc
     src/algs/ags/ags.h
     src/algs/ags/ags.cc)
+
+set_property(SOURCE src/algs/ags/solver.cc src/algs/ags/local_optimizer.cc src/algs/ags/ags.cc src/algs/slsqp/slsqp.c
+             PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif ()
 
 install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.13)
 
 # generate nlopt.f from nlopt.h enums
 file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f "")
@@ -13,12 +13,6 @@ foreach (NLOPT_H_LINE ${NLOPT_H_LINES})
     endif ()
     set (ENUM_LINE "      integer NLOPT_${ENUM_STRING}\n      parameter (NLOPT_${ENUM_STRING}=${i})\n")
     file (APPEND ${CMAKE_CURRENT_BINARY_DIR}/nlopt.f "${ENUM_LINE}")
-
-    # https://public.kitware.com/Bug/print_bug_page.php?bug_id=8996
-    if (i MATCHES "^-")
-      math (EXPR i "1 ${i}")
-    else ()
-      math (EXPR i "${i} + 1")
-    endif ()
+    math (EXPR i "${i} + 1")
   endif ()
 endforeach ()

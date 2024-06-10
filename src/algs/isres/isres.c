@@ -41,7 +41,7 @@
    vol. 4 (no. 3), pp. 284-294 (2000).
 
    This is an independent implementation by S. G. Johnson (2009) based
-   on the papers above.  Runarsson also has his own Matlab implemention
+   on the papers above.  Runarsson also has his own Matlab implementation
    available from his web page: http://www3.hi.is/~tpr
 */
 

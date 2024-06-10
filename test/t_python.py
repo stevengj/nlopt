@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import nlopt
-import numpy as np
+import math as m
 
 
 def myfunc(x, grad):
     if grad.size > 0:
         grad[0] = 0.0
-        grad[1] = 0.5 / np.sqrt(x[1])
-    return np.sqrt(x[1])
+        grad[1] = 0.5 / m.sqrt(x[1])
+    return m.sqrt(x[1])
 
 def myconstraint(x, grad, a, b):
     if grad.size > 0:

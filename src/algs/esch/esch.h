@@ -32,7 +32,7 @@ extern "C"
 
 nlopt_result chevolutionarystrategy(
      unsigned, /* Number of input parameters */
-     nlopt_func, /* Recursive Objective Funtion Call */
+     nlopt_func, /* Recursive Objective Function Call */
      void *,	/* Data to Objective Function */
      const double*,				/* Lower bound values */
      const double*,				/* Upper bound values */

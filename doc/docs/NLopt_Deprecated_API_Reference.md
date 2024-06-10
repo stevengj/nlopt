@@ -11,7 +11,7 @@ Other sources of information include the Unix [man pages](https://en.wikipedia.o
 Linking your program to NLopt
 -----------------------------
 
-For programs in compiled languages like C or Fortran, when you compile your program you will have to link it to the NLopt library. This is *in addition* to including the header file (`#include` <nlopt.h> in C/C++). On Unix, you would normally link with a command something like:
+For programs in compiled languages like C or Fortran, when you compile your program you will have to link it to the NLopt library. This is *in addition* to including the header file (`#include <nlopt.h>` in C/C++). On Unix, you would normally link with a command something like:
 
 *`compiler`*` `*`...source/object` `files...`*` -lnlopt -lm -o myprogram`
 
@@ -57,7 +57,7 @@ The parameters specifying the optimization problem are:
 -   `algorithm` — which optimization algorithm to use; its values are one of a set of predefined constants like`NLOPT_LD_MMA`, `NLOPT_GN_DIRECT`, etcetera, as described on the [NLopt Algorithms](NLopt_Algorithms.md) page.
 -   `n` — the dimension *n* ≥ 0 of the optimization problem, the number of optimization parameters.
 -   `f` — the objective function (see below)
--   `f_data` — a pointer to any data you want to pass to the the objective function (see below)
+-   `f_data` — a pointer to any data you want to pass to the objective function (see below)
 -   `m` — the number of nonlinear inequality constraints (zero for no such constraints).
 -   `fc` — the nonlinear inequality constraint function (see below). Ignored if `m` = 0.
 -   `fc_data`, `fc_datum_size` — `fc_data` is a pointer to an array of data to pass to the constraint function `fc`. The array should of length `m`, and each element of the array should have size `fc_datum_size` bytes. (See below for more information on constraint functions.) Ignored if `m` = 0.
@@ -404,7 +404,7 @@ Some of the algorithms (currently `NLOPT_LD_MMA` and `NLOPT_LN_COBYLA`) support 
 
 (where the `gradient` return value is only used for gradient-based algorithms), and the `...` arguments are given by `fc_data{i}{:}`.
 
-If you have no nonlinear constraints, i.e. `fc` = `fc_data` = `{}`, then it is equivalent to calling the the `nlopt_minimize` function below, which omits the `fc` and `fc_data` arguments.
+If you have no nonlinear constraints, i.e. `fc` = `fc_data` = `{}`, then it is equivalent to calling the `nlopt_minimize` function below, which omits the `fc` and `fc_data` arguments.
 
 #### Matlab termination conditions
 

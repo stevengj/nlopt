@@ -96,7 +96,7 @@ extern "C" {
     extern nlopt_algorithm nlopt_local_search_alg_deriv;
     extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
     extern int nlopt_local_search_maxeval;
-    extern unsigned nlopt_stochastic_population;
+    extern int nlopt_stochastic_population;
 
 /*********************************************************************/
 
