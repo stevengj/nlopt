@@ -43,6 +43,7 @@ option (NLOPT_OCTAVE "build octave bindings" ON)
 option (NLOPT_MATLAB "build matlab bindings" ON)
 option (NLOPT_GUILE "build guile bindings" ON)
 option (NLOPT_SWIG "use SWIG to build bindings" ON)
+option (NLOPT_PYTHON_SCIKIT_BUILD "generate a project folder for scikit-build" OFF)
 
 if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
   option (NLOPT_TESTS "build unit tests" ON)

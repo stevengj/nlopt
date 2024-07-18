@@ -126,6 +126,26 @@ To specify a particular version or location of Python, use the `Python_EXECUTABL
 cmake -DPython_EXECUTABLE=/usr/bin/python ..
 ```
 
+### Creating pip package
+
+To create a pip compatible package using wheels, you have to install [scikit-build](https://scikit-build.readthedocs.io/en/latest) and then configure cmake to generate a python project.
+
+```sh
+cmake -DNLOPT_PYTHON_SCIKIT_BUILD=ON -DBUILD_SHARED_LIBS=NO ..
+```
+
+Then to install the python package:
+
+```sh
+pip install src/swig/python
+```
+
+or to create a wheel:
+```sh
+pip wheel src/swig/python
+```
+
+
 GNU Guile plugins
 -----------------
 
