@@ -2,6 +2,7 @@
 
 import nlopt
 import math as m
+import sys
 
 
 def myfunc(x, grad):
@@ -16,8 +17,9 @@ def myconstraint(x, grad, a, b):
         grad[1] = -1.0
     return (a*x[0] + b)**3 - x[1]
 
-opt = nlopt.opt(nlopt.LD_MMA, 2)
-opt.set_lower_bounds([-float('inf'), 0])
+algo = nlopt.LD_MMA if len(sys.argv) < 2 else int(sys.argv[1])
+opt = nlopt.opt(algo, 2)
+opt.set_lower_bounds([-float('inf'), 1e-6])
 opt.set_min_objective(myfunc)
 opt.add_inequality_constraint(lambda x, grad: myconstraint(x,grad, 2, 0), 1e-8)
 opt.add_inequality_constraint(lambda x, grad: myconstraint(x,grad, -1, 1), 1e-8)
@@ -30,3 +32,5 @@ print('minimum value = ', minf)
 print('result code = ', opt.last_optimize_result())
 print('nevals = ', opt.get_numevals())
 print('initial step =', opt.get_initial_step(x0))
+if m.fabs(minf - 0.5443310474) > 1e-3:
+    sys.exit(1)
