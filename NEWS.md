@@ -489,3 +489,15 @@
 [#365]: https://github.com/stevengj/nlopt/issues/365
 [#409]: https://github.com/stevengj/nlopt/issues/409
 [#420]: https://github.com/stevengj/nlopt/issues/420
+[#445]: https://github.com/stevengj/nlopt/issues/445
+[#457]: https://github.com/stevengj/nlopt/issues/457
+[#465]: https://github.com/stevengj/nlopt/issues/465
+[#473]: https://github.com/stevengj/nlopt/issues/473
+[#509]: https://github.com/stevengj/nlopt/issues/509
+[#510]: https://github.com/stevengj/nlopt/issues/510
+[#533]: https://github.com/stevengj/nlopt/issues/533
+[#534]: https://github.com/stevengj/nlopt/issues/534
+[#535]: https://github.com/stevengj/nlopt/issues/535
+[#551]: https://github.com/stevengj/nlopt/issues/551
+[#558]: https://github.com/stevengj/nlopt/issues/558
+[#561]: https://github.com/stevengj/nlopt/issues/561
