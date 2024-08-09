@@ -656,8 +656,16 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_LD_MMA:
     case NLOPT_LD_CCSAQ:
         {
+            int inner_maxeval = (int)nlopt_get_param(opt, "inner_maxeval",0);
+            int verbosity = (int)nlopt_get_param(opt, "verbosity",0);
+            double rho_init = nlopt_get_param(opt, "rho_init",1.0);
             nlopt_opt dual_opt;
             nlopt_result ret;
+
+            if (!(rho_init > 0) && !nlopt_isinf(rho_init))
+                RETURN_ERR(NLOPT_INVALID_ARGS, opt, "rho_init must be positive and finite");
+            verbosity = verbosity < 0 ? 0 : verbosity;
+
 #define LO(param, def) (opt->local_opt ? opt->local_opt->param : (def))
             dual_opt = nlopt_create((nlopt_algorithm)nlopt_get_param(opt, "dual_algorithm", LO(algorithm, nlopt_local_search_alg_deriv)),
                                     nlopt_count_constraints(opt->m, opt->fc));
@@ -669,11 +677,10 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             nlopt_set_xtol_abs1(dual_opt, nlopt_get_param(opt, "dual_xtol_abs", 0.0));
             nlopt_set_maxeval(dual_opt, nlopt_get_param(opt, "dual_maxeval", LO(maxeval, 100000)));
 #undef LO
-
             if (algorithm == NLOPT_LD_MMA)
-                ret = mma_minimize(n, f, f_data, opt->m, opt->fc, lb, ub, x, minf, &stop, dual_opt, (int)nlopt_get_param(opt, "inner_maxeval",0), (unsigned)nlopt_get_param(opt, "verbosity",0));
+                ret = mma_minimize(n, f, f_data, opt->m, opt->fc, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init);
             else
-                ret = ccsa_quadratic_minimize(n, f, f_data, opt->m, opt->fc, opt->pre, lb, ub, x, minf, &stop, dual_opt, (int)nlopt_get_param(opt, "inner_maxeval",0), (unsigned)nlopt_get_param(opt, "verbosity",0));
+                ret = ccsa_quadratic_minimize(n, f, f_data, opt->m, opt->fc, opt->pre, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init);
             nlopt_destroy(dual_opt);
             return ret;
         }

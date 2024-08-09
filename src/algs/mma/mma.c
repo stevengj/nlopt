@@ -148,7 +148,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
 			  nlopt_stopping *stop,
-			  nlopt_opt dual_opt, int inner_maxeval, unsigned verbose)
+			  nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init)
 {
      nlopt_result ret = NLOPT_SUCCESS;
      double *xcur, rho, *sigma, *dfdx, *dfdx_cur, *xprev, *xprevprev, fcur;
@@ -203,9 +203,9 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	  else
 	       sigma[j] = 0.5 * (ub[j] - lb[j]);
      }
-     rho = 1.0;
+     rho = rho_init;
      for (i = 0; i < m; ++i) {
-	  rhoc[i] = 1.0;
+	  rhoc[i] = rho_init;
 	  dual_lb[i] = y[i] = 0.0;
 	  dual_ub[i] = HUGE_VAL;
      }
