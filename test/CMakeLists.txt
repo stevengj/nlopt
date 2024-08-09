@@ -60,7 +60,7 @@ foreach (algo_index RANGE 43)
       set (enable_ FALSE)
     endif ()
     if (enable_)
-      add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -r 0 -a ${algo_index} -o ${obj_index})
+      add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -r 0 -m 1e-3 -a ${algo_index} -o ${obj_index})
       if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
         set_tests_properties (testopt_algo${algo_index}_obj${obj_index} PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
       endif ()
