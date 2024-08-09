@@ -342,10 +342,9 @@ Initial step size
 Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. The C++ equivalents of the C functions are the following methods:
 
 ```
-void nlopt::opt::set_initial_step(const std::vector`<double>` &dx);
+void nlopt::opt::set_initial_step(const std::vector<double> &dx);
 void nlopt::opt::set_initial_step(double dx);
-void nlopt::opt::get_initial_step(const std::vector`<double>` &x, std::vector`<double>` &dx) const;
-std::vector`<double>` nlopt::opt::get_initial_step(const std::vector`<double>` &x) const;
+void nlopt::opt::get_initial_step(const std::vector<double> &x, std::vector<double> &dx) const;
 ```
 
 
