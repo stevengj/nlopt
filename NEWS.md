@@ -1,5 +1,20 @@
 # NLopt Release Notes
 
+## NLopt 2.8
+
+9 August 2024
+
+* Support C++ functors for objective functions ([#457]).
+
+* CCSA/MMA an now use the `initial_step` parameter to bound their initial stepsize,
+  and also expose a new internal parameter `rho_init` ([#561]).
+
+* Install `pkg-config` file on Windows ([#534]).
+
+* Allow having more equality constraints than there are variables ([#509]).
+
+* Bugfixes to `nlopt_algorithm_name` ([#558]), Matlab `NLOPT_GN_AGS` ([#533]), forced stop for empty dimensions ([#473]), SLSQP ([#465]), and build improvements ([#551], [#535],[#510], [#445]…).
+
 ## NLopt 2.7.1
 
 3 December 2021
