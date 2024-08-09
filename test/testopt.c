@@ -49,6 +49,7 @@ extern "C" int feenableexcept(int EXCEPTS);
 
 static nlopt_algorithm algorithm = NLOPT_GN_DIRECT_L;
 static double ftol_rel = 0, ftol_abs = 0, xtol_rel = 0, xtol_abs = 0, minf_max_delta;
+static double initial_step = 0;
 static int maxeval = 1000, iterations = 1, center_start = 0;
 static double maxtime = 0.0;
 static double xinit_tol = -1;
@@ -235,6 +236,8 @@ static int test_function(int ifunc)
         nlopt_set_xtol_abs(opt, xtabs);
         nlopt_set_maxeval(opt, maxeval);
         nlopt_set_maxtime(opt, maxtime);
+        if (initial_step != 0)
+            nlopt_set_initial_step1(opt, initial_step);
         ret = nlopt_optimize(opt, x, &minf);
         printf("finished after %g seconds.\n", nlopt_seconds() - start);
         printf("return code %d from nlopt_minimize\n", ret);
@@ -290,6 +293,7 @@ static void usage(FILE * f)
             " -a <n> : use optimization algorithm <n>\n"
             " -o <n> : use objective function <n>\n"
             " -0 <x> : starting guess within <x> + (1+<x>) * optimum\n"
+            " -S <dx>: initial step size dx (default: none)\n"
             " -b <dim0,dim1,...>: eliminate given dims by equating bounds\n");
     fprintf(f,
             "     -c : starting guess at center of cell\n"
@@ -321,7 +325,7 @@ int main(int argc, char **argv)
     feenableexcept(FE_INVALID);
 #endif
 
-    while ((c = getopt(argc, argv, "hLvVCc0:r:a:o:i:e:t:x:X:f:F:m:b:")) != -1)
+    while ((c = getopt(argc, argv, "hLvVCc0:r:a:o:i:e:t:x:X:f:F:m:b:S:")) != -1)
         switch (c) {
         case 'h':
             usage(stdout);
@@ -388,6 +392,9 @@ int main(int argc, char **argv)
         case '0':
             center_start = 0;
             xinit_tol = atof(optarg);
+            break;
+        case 'S':
+            initial_step = atof(optarg);
             break;
         case 'b':{
                 const char *s = optarg;
