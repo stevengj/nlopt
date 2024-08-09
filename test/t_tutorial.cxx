@@ -51,6 +51,10 @@ int main() {
     return EXIT_FAILURE;
   }
 
+  // set a couple of other parameters
+  opt.set_param("rho_init", 0.5);
+  opt.set_initial_step(0.1);
+
   std::vector<double> x(2);
   x[0] = 1.234; x[1] = 5.678;
   double minf;
