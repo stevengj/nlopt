@@ -40,7 +40,8 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf,
 			  nlopt_stopping *stop,
-			  nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init);
+			  nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init,
+                 const double *sigma_init);
 
 nlopt_result ccsa_quadratic_minimize(
      unsigned n, nlopt_func f, void *f_data,
@@ -52,7 +53,8 @@ nlopt_result ccsa_quadratic_minimize(
      double *x, /* in: initial guess, out: minimizer */
      double *minf,
      nlopt_stopping *stop,
-     nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init);
+     nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init,
+     const double *sigma_init);
 
 #ifdef __cplusplus
 }  /* extern "C" */
