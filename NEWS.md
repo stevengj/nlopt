@@ -1,5 +1,20 @@
 # NLopt Release Notes
 
+## NLopt 2.8
+
+9 August 2024
+
+* Support C++ functors for objective functions ([#457]).
+
+* CCSA/MMA an now use the `initial_step` parameter to bound their initial stepsize,
+  and also expose a new internal parameter `rho_init` ([#561]).
+
+* Install `pkg-config` file on Windows ([#534]).
+
+* Allow having more equality constraints than there are variables ([#509]).
+
+* Bugfixes to `nlopt_algorithm_name` ([#558]), Matlab `NLOPT_GN_AGS` ([#533]), forced stop for empty dimensions ([#473]), SLSQP ([#465]), and build improvements ([#551], [#535],[#510], [#445]…).
+
 ## NLopt 2.7.1
 
 3 December 2021
@@ -474,3 +489,15 @@
 [#365]: https://github.com/stevengj/nlopt/issues/365
 [#409]: https://github.com/stevengj/nlopt/issues/409
 [#420]: https://github.com/stevengj/nlopt/issues/420
+[#445]: https://github.com/stevengj/nlopt/issues/445
+[#457]: https://github.com/stevengj/nlopt/issues/457
+[#465]: https://github.com/stevengj/nlopt/issues/465
+[#473]: https://github.com/stevengj/nlopt/issues/473
+[#509]: https://github.com/stevengj/nlopt/issues/509
+[#510]: https://github.com/stevengj/nlopt/issues/510
+[#533]: https://github.com/stevengj/nlopt/issues/533
+[#534]: https://github.com/stevengj/nlopt/issues/534
+[#535]: https://github.com/stevengj/nlopt/issues/535
+[#551]: https://github.com/stevengj/nlopt/issues/551
+[#558]: https://github.com/stevengj/nlopt/issues/558
+[#561]: https://github.com/stevengj/nlopt/issues/561
