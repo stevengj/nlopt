@@ -14,6 +14,8 @@ To simplify installation, there are also precompiled 32-bit and 64-bit Windows [
 
 These `.tar.gz` files unpack (with a variety of Windows software, e.g. 7-zip) into a folder with a `bin` subdirectory that contains `libnlopt.dll`.  To link with this in your compiler, you will typically also want the [import library](https://stackoverflow.com/questions/3573475/how-does-the-import-library-work-details) for the DLL, which can be found in the `lib` subdirectory and is called `libnlopt.dll.a` (this can be used similarly to the `.lib` files you may be used to).   See, in particular, [these instructions for nlopt](https://www.mathworks.com/matlabcentral/answers/380072-mex-error-undefined-reference#answer_356517).
 
+If you need a step-by-step guide on how to install NLopt and run the [tutorial](https://nlopt.readthedocs.io/en/latest/NLopt_Tutorial/) you might be interested in [this blog post](https://medium.com/@gabrielr.domingos/installing-nlopt-on-windows-and-using-it-with-c-3e84d91c8960).
+
 Unofficial Python binaries for Windows are available from Christoph Gohike:
 
 -   [Python binaries for 64-bit Windows](http://www.lfd.uci.edu/~gohlke/pythonlibs/#nlopt)
