@@ -325,18 +325,10 @@ if (NLOPT_PYTHON)
   find_package (NumPy)
 endif ()
 
-if (NOT DEFINED INSTALL_PYTHON_DIR AND NOT CMAKE_CROSSCOMPILING)
-  execute_process (COMMAND ${Python_EXECUTABLE} -c "import sysconfig, os; print(sysconfig.get_path('platlib').replace(sysconfig.get_path('data'), '').lstrip(os.path.sep))"
-                    OUTPUT_VARIABLE INSTALL_PYTHON_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
-  file (TO_CMAKE_PATH "${INSTALL_PYTHON_DIR}" INSTALL_PYTHON_DIR)
-endif ()
-
-if (NOT DEFINED INSTALL_PYTHON_DIR)
-  if (WIN32)
-    set (INSTALL_PYTHON_DIR Lib/site-packages)
-  else ()
-    set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages)
-  endif ()
+if (WIN32)
+  set (INSTALL_PYTHON_DIR Lib/site-packages CACHE PATH "site packages dir")
+else ()
+  set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages CACHE PATH "site packages dir")
 endif ()
 
 if (NLOPT_GUILE)
