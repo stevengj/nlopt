@@ -1,0 +1,3 @@
+Metadata-Version: 1.2
+Name: nlopt
+Version: @NLOPT_VERSION_STRING@
