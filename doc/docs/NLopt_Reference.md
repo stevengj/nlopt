@@ -516,7 +516,7 @@ Currently, support for preconditioners in NLopt is somewhat experimental, and is
 
 ```c
 nlopt_result nlopt_set_precond_min_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
-nlopt_result nlopt_set_precond_min_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
+nlopt_result nlopt_set_precond_max_objective(nlopt_opt opt, nlopt_func f, nlopt_precond pre, void *f_data);
 ```
 
 which are identical to `nlopt_set_min_objective` and `nlopt_set_max_objective`, respectively, except that they additionally specify a preconditioner `pre`, which is a function of the form:
