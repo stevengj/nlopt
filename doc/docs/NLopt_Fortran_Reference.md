@@ -149,7 +149,7 @@ Just as for [nonlinear constraints in C](NLopt_Reference#nonlinear-constraints),
 
 ```
 call nlo_add_inequality_constraint(ires, opt, fc, fc_data, tol)
-call nlo_add_inequality_constraint(ires, opt, h, h_data, tol)
+call nlo_add_equality_constraint(ires, opt, h, h_data, tol)
 ```
 
 
