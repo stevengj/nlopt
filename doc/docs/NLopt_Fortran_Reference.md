@@ -2,9 +2,11 @@
 # NLopt Fortran Reference
 ---
 
-The NLopt includes an interface callable from the [Fortran programming language](https://en.wikipedia.org/wiki/Fortran).
+The NLopt library includes an interface callable from the [Fortran programming language](https://en.wikipedia.org/wiki/Fortran).
 
 The main purpose of this section is to document the syntax and unique features of the Fortran API; for more detail on the underlying features, please refer to the C documentation in the [NLopt Reference](NLopt_Reference.md).
+
+Before anything else, make sure NLopt is compiled with Fortran support explicitely enabled (with `cmake -DNLOPT_FORTRAN=ON` option).
 
 Compiling and linking your Fortran program
 ------------------------------------------
@@ -14,7 +16,6 @@ To obtain the definitions of the NLopt constants in Fortran, your Fortran progra
 ```
 include 'nlopt.f'
 ```
-
 
 The `nlopt.f` file is installed into the `include` directory along with the C/C++ header files (by default, this is `/usr/local/include` ... you may need to include `-I/usr/local/include` in your Fortran compiler flags if this directory is not in your compiler's standard include path).
 
