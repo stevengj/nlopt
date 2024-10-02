@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.18...3.22)
+
+project(_nlopt)
+
+find_package(PythonExtensions REQUIRED)
+find_package (NumPy REQUIRED)
+find_package (SWIG 3)
+include (UseSWIG)
+
+# Find NLopt C++ package
+set (NLopt_ROOT @CMAKE_CURRENT_BINARY_DIR@/../../)
+find_package (NLopt CONFIG REQUIRED)
+
+set (SWIG_MODULE__nlopt_EXTRA_DEPS nlopt-python.i numpy.i)
+set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
+swig_add_library (_nlopt LANGUAGE python SOURCES nlopt.i)
+set_property(TARGET _nlopt PROPERTY SWIG_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:NLopt::nlopt,INTERFACE_INCLUDE_DIRECTORIES>)
+target_include_directories(_nlopt PRIVATE ${NumPy_INCLUDE_DIRS})
+target_link_libraries(_nlopt NLopt::nlopt)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/__init__.py "from .nlopt import *")
+
+python_extension_module(_nlopt)
+install(TARGETS _nlopt LIBRARY DESTINATION nlopt)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION nlopt)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/__init__.py DESTINATION nlopt)
