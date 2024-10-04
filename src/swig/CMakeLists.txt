@@ -54,9 +54,11 @@ if (GUILE_FOUND)
   swig_add_library (nlopt_guile LANGUAGE guile SOURCES nlopt.i)
 
   target_include_directories (nlopt_guile PRIVATE ${GUILE_INCLUDE_DIRS})
+  target_compile_options(nlopt_guile PRIVATE ${GUILE_CFLAGS})
 
   swig_link_libraries (nlopt_guile ${nlopt_lib})
   target_link_libraries (nlopt_guile ${GUILE_LIBRARIES})
+  target_link_options(nlopt_guile PRIVATE ${GUILE_LDFLAGS})
 
   file (RELATIVE_PATH _REL_GUILE_SITE_PATH ${GUILE_ROOT_DIR} ${GUILE_SITE_DIR})
   set (GUILE_SITE_PATH ${_REL_GUILE_SITE_PATH})
