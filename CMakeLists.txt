@@ -38,6 +38,7 @@ list (APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 option (NLOPT_CXX "enable cxx routines" ON)
 option (NLOPT_FORTRAN "enable fortran" OFF)
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
+option (NLOPT_RPATH "Link RPATH into installed NLopt libraries." ON)
 option (NLOPT_PYTHON "build python bindings" ON)
 option (NLOPT_OCTAVE "build octave bindings" ON)
 option (NLOPT_MATLAB "build matlab bindings" ON)
@@ -74,8 +75,10 @@ foreach (p LIB BIN INCLUDE DATA CMAKE)
 endforeach ()
 
 
+if (NLOPT_RPATH)
 set (CMAKE_INSTALL_RPATH ${INSTALL_LIB_DIR} CACHE PATH "rpath")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "use link path")
+endif()
 if(POLICY CMP0042)
   # Set MACOSX_RPATH to ON
   cmake_policy(SET CMP0042 NEW)
