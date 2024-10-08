@@ -43,6 +43,7 @@ option (NLOPT_OCTAVE "build octave bindings" ON)
 option (NLOPT_MATLAB "build matlab bindings" ON)
 option (NLOPT_GUILE "build guile bindings" ON)
 option (NLOPT_SWIG "use SWIG to build bindings" ON)
+option (NLOPT_WITH_LUKSAN "Build NLOpt including L-GPL licensed 'Luksan' solver." ON)
 
 if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
   option (NLOPT_TESTS "build unit tests" ON)
@@ -203,7 +204,6 @@ set (NLOPT_SOURCES
   src/algs/direct/DIRect.c src/algs/direct/direct_wrap.c src/algs/direct/DIRserial.c src/algs/direct/DIRsubrout.c src/algs/direct/direct-internal.h src/algs/direct/direct.h
   src/algs/cdirect/cdirect.c src/algs/cdirect/hybrid.c src/algs/cdirect/cdirect.h
   src/algs/praxis/praxis.c src/algs/praxis/praxis.h
-  src/algs/luksan/plis.c src/algs/luksan/plip.c src/algs/luksan/pnet.c src/algs/luksan/mssubs.c src/algs/luksan/pssubs.c src/algs/luksan/luksan.h
   src/algs/crs/crs.c src/algs/crs/crs.h
   src/algs/mlsl/mlsl.c src/algs/mlsl/mlsl.h
   src/algs/mma/mma.c src/algs/mma/mma.h src/algs/mma/ccsa_quadratic.c
@@ -218,10 +218,11 @@ set (NLOPT_SOURCES
   src/api/general.c src/api/options.c src/api/optimize.c src/api/deprecated.c src/api/nlopt-internal.h src/api/nlopt.h src/api/f77api.c src/api/f77funcs.h src/api/f77funcs_.h ${PROJECT_BINARY_DIR}/nlopt.hpp
   src/util/mt19937ar.c src/util/sobolseq.c src/util/soboldata.h src/util/timer.c src/util/stop.c src/util/nlopt-util.h src/util/redblack.c src/util/redblack.h src/util/qsort_r.c src/util/rescale.c
 )
-
-set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/mma/ccsa_quadratic.c src/algs/cobyla/cobyla.c
-                    src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c
-	     PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+if(NLOPT_WITH_LUKSAN)
+  list(APPEND NLOPT_SOURCES
+    src/algs/luksan/plis.c src/algs/luksan/plip.c src/algs/luksan/pnet.c src/algs/luksan/mssubs.c src/algs/luksan/pssubs.c src/algs/luksan/luksan.h
+  )
+endif()
 
 if (NLOPT_CXX)
   list (APPEND NLOPT_SOURCES
@@ -246,6 +247,10 @@ if (NLOPT_CXX)
     src/algs/ags/ags.h
     src/algs/ags/ags.cc)
 
+set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/mma/ccsa_quadratic.c src/algs/cobyla/cobyla.c
+                    src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c
+	     PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+
 set_property(SOURCE src/algs/ags/solver.cc src/algs/ags/local_optimizer.cc src/algs/ags/ags.cc src/algs/slsqp/slsqp.c
              PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif ()
@@ -255,8 +260,10 @@ install (FILES ${NLOPT_HEADERS} DESTINATION ${RELATIVE_INSTALL_INCLUDE_DIR})
 set (nlopt_lib nlopt)
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
 add_dependencies(${nlopt_lib} generate-cpp)
+if(NLOPT_WITH_LUKSAN)
+  target_compile_definitions(${nlopt_lib} PRIVATE NLOPT_WITH_LUKSAN)
+endif()
 target_link_libraries (${nlopt_lib} ${M_LIBRARY})
-
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${SO_MAJOR})
 set_target_properties (${nlopt_lib} PROPERTIES VERSION "${SO_MAJOR}.${SO_MINOR}.${SO_PATCH}")
 
@@ -272,7 +279,6 @@ target_include_directories (${nlopt_lib} PRIVATE
   src/algs/direct
   src/algs/cdirect
   src/algs/praxis
-  src/algs/luksan
   src/algs/crs
   src/algs/mlsl
   src/algs/mma
@@ -284,7 +290,8 @@ target_include_directories (${nlopt_lib} PRIVATE
   src/algs/isres
   src/algs/slsqp
   src/algs/esch
-  src/api)
+  src/api
+  src/algs/luksan)
 
 get_target_property (NLOPT_PRIVATE_INCLUDE_DIRS ${nlopt_lib} INCLUDE_DIRECTORIES)
 target_include_directories (${nlopt_lib} INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/api;${PROJECT_BINARY_DIR}>" "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")

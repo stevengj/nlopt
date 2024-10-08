@@ -21,8 +21,10 @@ NLopt is compiled and installed with the [CMake](https://cmake.org/) build syste
     make
     sudo make install
 
-(To build the latest development sources from git, you will need [SWIG](http://www.swig.org/)
-to generate the Python and Guile bindings.)
+To build NLopt as fully permissive library without LGPL-licensed "luksan" solvers, use `cmake -DNLOPT_WITH_LUKSAN=OFF ..`
+
+To build the latest development sources from git, you will need [SWIG](http://www.swig.org/)
+to generate the Python and Guile bindings.
 
 Once it is installed, `#include <nlopt.h>` in your C/C++ programs and
 link it with `-lnlopt -lm`.  You may need to use a C++ compiler to link
