@@ -51,6 +51,13 @@ foreach (algo_index RANGE 29)# 43
       if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
         set_tests_properties (testopt_algo${algo_index}_obj${obj_index} PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
       endif ()
+      # Check if LUKSAN targets are available.
+      if(NOT NLOPT_WITH_LUKSAN)
+        set(list_of_algorithms_requiring_luksan 11 12 13 14 15 16 17 18)
+        if(${algo_index} IN_LIST list_of_algorithms_requiring_luksan)
+          set_tests_properties(testopt_algo${algo_index}_obj${obj_index} PROPERTIES DISABLED TRUE)
+        endif()
+      endif()
     endif ()
   endforeach ()
 endforeach ()

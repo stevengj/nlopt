@@ -38,7 +38,9 @@
 
 #include "cdirect.h"
 
+#ifdef NLOPT_WITH_LUKSAN
 #include "luksan.h"
+#endif
 
 #include "crs.h"
 
@@ -590,17 +592,32 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
         }
 
     case NLOPT_LD_LBFGS:
+#ifdef NLOPT_WITH_LUKSAN
         return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage);
+#else
+        printf("ERROR - attempting to use 'luksan_plis', but not built with -DNLOPT_WITH_LUKSAN\n");
+        return NLOPT_INVALID_ARGS;
+#endif
 
     case NLOPT_LD_VAR1:
     case NLOPT_LD_VAR2:
+#ifdef NLOPT_WITH_LUKSAN
         return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2);
+#else
+        printf("ERROR - attempting to use 'luksan_plip', but not build with -DNLOPT_WITH_LUKSAN\n");
+        return NLOPT_INVALID_ARGS;
+#endif
 
     case NLOPT_LD_TNEWTON:
     case NLOPT_LD_TNEWTON_RESTART:
     case NLOPT_LD_TNEWTON_PRECOND:
     case NLOPT_LD_TNEWTON_PRECOND_RESTART:
+#ifdef NLOPT_WITH_LUKSAN
         return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
+#else
+        printf("ERROR - attempting to use 'luksan_pnet', but not build with -DNLOPT_WITH_LUKSAN\n");
+        return NLOPT_INVALID_ARGS;
+#endif
 
     case NLOPT_GN_CRS2_LM:
         if (!finite_domain(n, lb, ub))
