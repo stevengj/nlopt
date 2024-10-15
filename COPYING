@@ -5,20 +5,19 @@ information of these packages.
 
 The compiled NLopt library, i.e. the combined work of all of the
 included optimization routines, is licensed under the conjunction of
-all of these licensing terms.  Currently, the most restrictive terms
+all of these licensing terms. By default, the most restrictive terms
 are for the code in the "luksan" directory, which is licensed under
 the GNU Lesser General Public License (GNU LGPL), version 2.1 or
-later (see luksan/COPYRIGHT).
-
-That means that the compiled NLopt library is governed by the terms of
-the LGPL.
+later (see luksan/COPYRIGHT). That means that, by default, the compiled
+NLopt library is governed by the terms of the LGPL.
 
 ---------------------------------------------------------------------------
 
-Other portions of NLopt, including any modifications to the abovementioned
-packages, are licensed under the standard "MIT License:"
+However, NLopt also offers the option to be built without the code in
+the "luksan" directory. In this case, NLopt, including any modifications
+to the abovementioned packages, are licensed under the standard "MIT License:"
 
-Copyright (c) 2007-2011 Massachusetts Institute of Technology
+Copyright (c) 2007-2024 Massachusetts Institute of Technology
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
