@@ -440,7 +440,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 
      if (mf <= 0) {
 	  mf = MAX2(MEMAVAIL/n, 10);
-	  if (stop->maxeval && stop->maxeval <= mf)
+	  if (stop->maxeval > 0 && stop->maxeval <= mf)
 	       mf = MAX2(stop->maxeval, 1);
      }
 
