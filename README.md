@@ -24,6 +24,16 @@ NLopt is compiled and installed with the [CMake](https://cmake.org/) build syste
 (To build the latest development sources from git, you will need [SWIG](http://www.swig.org/)
 to generate the Python and Guile bindings.)
 
+Alternatively, you can build and install NLopt using [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    ./vcpkg install nlopt
+
+The NLopt port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
 Once it is installed, `#include <nlopt.h>` in your C/C++ programs and
 link it with `-lnlopt -lm`.  You may need to use a C++ compiler to link
 in order to include the C++ libraries (which are used internally by NLopt,
