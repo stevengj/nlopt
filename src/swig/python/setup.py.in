@@ -1,0 +1,8 @@
+from skbuild import setup
+
+setup(
+    name = 'nlopt',
+    version = '@NLOPT_MAJOR_VERSION@.@NLOPT_MINOR_VERSION@.@NLOPT_BUGFIX_VERSION@',
+    packages = ['nlopt'],
+    zip_safe = False
+)

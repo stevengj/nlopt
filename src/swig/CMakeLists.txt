@@ -16,7 +16,40 @@ endif ()
 include_directories (${NLOPT_PRIVATE_INCLUDE_DIRS})
 set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
 
-if (NUMPY_FOUND AND Python_FOUND)
+if (NLOPT_PYTHON_SCIKIT_BUILD)
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/python/CMakeLists.txt.in
+    ${CMAKE_CURRENT_BINARY_DIR}/python/CMakeLists.txt
+    @ONLY
+  )
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/nlopt.i
+    ${CMAKE_CURRENT_BINARY_DIR}/python/nlopt.i
+    COPYONLY
+  )
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-python.i
+    ${CMAKE_CURRENT_BINARY_DIR}/python/nlopt-python.i
+    COPYONLY
+  )
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/numpy.i
+    ${CMAKE_CURRENT_BINARY_DIR}/python/numpy.i
+    COPYONLY
+  )
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-exceptions.i
+    ${CMAKE_CURRENT_BINARY_DIR}/python/nlopt-exceptions.i
+    COPYONLY
+  )
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/python/setup.py.in
+    ${CMAKE_CURRENT_BINARY_DIR}/python/setup.py
+    @ONLY
+  )
+endif()
+
+if (NUMPY_FOUND AND Python_FOUND AND NOT NLOPT_PYTHON_SCIKIT_BUILD)
 
   set (SWIG_MODULE_nlopt_python_EXTRA_DEPS nlopt-python.i numpy.i generate-cpp)
 
