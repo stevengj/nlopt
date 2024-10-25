@@ -40,7 +40,7 @@ option (NLOPT_FORTRAN "enable fortran" OFF)
 option (BUILD_SHARED_LIBS "Build NLopt as a shared library" ON)
 option (NLOPT_PYTHON "build python bindings" ON)
 option (NLOPT_OCTAVE "build octave bindings" ON)
-option (NLOPT_MATLAB "build matlab bindings" ON)
+option (NLOPT_MATLAB "build matlab bindings" OFF)
 option (NLOPT_GUILE "build guile bindings" ON)
 option (NLOPT_SWIG "use SWIG to build bindings" ON)
 

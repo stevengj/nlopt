@@ -86,7 +86,7 @@ When you compile NLopt using the above commands, it will automatically compile p
 In particular, for Matlab plugins to be installed, you should provide the Matlab installation dir, eg:
 
 ```sh
-cmake -DMatlab_ROOT_DIR=/opt/matlab/RYYYYx/ ..
+cmake -DNLOPT_MATLAB=ON -DMatlab_ROOT_DIR=/opt/matlab/RYYYYx/ ..
 ```
 
 Some versions of Matlab also require that you compile NLopt as a shared library in order to produce a Matlab plugin; see below.
