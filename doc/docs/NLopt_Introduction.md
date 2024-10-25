@@ -147,7 +147,7 @@ Because of this, the most reasonable termination criterion for global optimizati
 
 I would advise you *not* to use function-value (ftol) or parameter tolerances (xtol) in global optimization. I made a half-hearted attempt to implement these tests in the various global-optimization algorithms, but it doesn't seem like there is any really satisfactory way to go about this, and I can't claim that my choices were especially compelling.
 
-For the [MLSL](NLopt_Algorithms#mlsl-multi-level-single-linkage) algorithm, you need to set the ftol and xtol [parameters of the local optimization algorithm](NLopt_Reference#localsubsidiary-optimization-algorithm) control the tolerances of the *local* searches, *not* of the global search; you should definitely set these, lest the algorithm spend an excessive amount of time trying to run local searches to machine precision.
+For the [MLSL](NLopt_Algorithms.md#mlsl-multi-level-single-linkage) algorithm, you need to set the ftol and xtol [parameters of the local optimization algorithm](NLopt_Reference.md#localsubsidiary-optimization-algorithm) control the tolerances of the *local* searches, *not* of the global search; you should definitely set these, lest the algorithm spend an excessive amount of time trying to run local searches to machine precision.
 
 Background and goals of NLopt
 -----------------------------

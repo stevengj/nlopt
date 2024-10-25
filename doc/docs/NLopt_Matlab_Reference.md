@@ -50,19 +50,19 @@ The first return value should be the value of the function at the point `x`, whe
 
 In addition, if the caller requests two return values (`nargout` `>` `1`), then the second return value `gradient` should be a vector (row or column) of length `n` that is the gradient of the function with respect to the optimization parameters at `x`. That is, `grad(i)` should upon return contain the partial derivative $\partial f / \partial x_i$, for $1 < i \leq n$. Not all of the optimization algorithms (below) use the gradient information: for algorithms listed as "derivative-free," the `nargout` will always be 1 and the gradient need never be computed.
 
-If your objective function returns [NaN](https://en.wikipedia.org/wiki/NaN) (`nan` in Matlab), that will force the optimization to terminate, equivalent to calling [nlopt_force_stop](NLopt_Reference#forced-termination) in C.
+If your objective function returns [NaN](https://en.wikipedia.org/wiki/NaN) (`nan` in Matlab), that will force the optimization to terminate, equivalent to calling [nlopt_force_stop](NLopt_Reference.md#forced-termination) in C.
 
 Bound constraints
 -----------------
 
-The [bound constraints](NLopt_Reference#bound-constraints) can be specified by setting `opt.lower_bounds` and/or `opt.upper_bounds` to vectors of length *n* (the same as the length of the initial guess passed to `nlopt_optimize`).
+The [bound constraints](NLopt_Reference.md#bound-constraints) can be specified by setting `opt.lower_bounds` and/or `opt.upper_bounds` to vectors of length *n* (the same as the length of the initial guess passed to `nlopt_optimize`).
 
 To specify an unbounded dimension, you can use ±`inf` in Matlab to specify ±∞.
 
 Nonlinear constraints
 ---------------------
 
-Just as for [nonlinear constraints in C](NLopt_Reference#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by setting `opt.fc` and `opt.h` to be [cell arrays](http://blogs.mathworks.com/loren/2006/06/21/cell-arrays-and-their-contents/) of function handles (of the same form as the objective function above) for the inequality and equality constraints, respectively.
+Just as for [nonlinear constraints in C](NLopt_Reference.md#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by setting `opt.fc` and `opt.h` to be [cell arrays](http://blogs.mathworks.com/loren/2006/06/21/cell-arrays-and-their-contents/) of function handles (of the same form as the objective function above) for the inequality and equality constraints, respectively.
 
 Recall that a cell array is specified via `{...}` in Matlab, e.g. `{` `@constraint1,` `@constraint2` `}`.
 
@@ -71,7 +71,7 @@ Optionally, you can specify a tolerance in judging feasibility for the purposes 
 Stopping criteria
 -----------------
 
-As explained in the [C API Reference](NLopt_Reference#stopping-criteria) and the [Introduction](NLopt_Introduction#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.) The various stopping criteria can be specified via the following fields of your structure.
+As explained in the [C API Reference](NLopt_Reference.md#stopping-criteria) and the [Introduction](NLopt_Introduction.md#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.) The various stopping criteria can be specified via the following fields of your structure.
 
 ```
 opt.stopval
@@ -155,17 +155,17 @@ The fields of `opt.local_optimizer` are used to determine the local search algor
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. In Matlab, you set the `opt.initial_step` field to a vector of the (nonzero) initial steps for each dimension.
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference.md#initial-step-size) for derivative-free optimization algorithms. In Matlab, you set the `opt.initial_step` field to a vector of the (nonzero) initial steps for each dimension.
 
 Stochastic population
 ---------------------
 
-Just as in the C API, you can [get and set the initial population](NLopt_Reference#stochastic-population) for stochastic optimization algorithms, by setting `opt.population` to an (integer) initial population. (An `opt.population` of zero implies that the heuristic default will be used.)
+Just as in the C API, you can [get and set the initial population](NLopt_Reference.md#stochastic-population) for stochastic optimization algorithms, by setting `opt.population` to an (integer) initial population. (An `opt.population` of zero implies that the heuristic default will be used.)
 
 Vector storage for limited-memory quasi-Newton algorithms
 ---------------------------------------------------------
 
-Just as in the C API, you can set the [number *M* of stored vectors for limited-memory quasi-Newton algorithms](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms), via:
+Just as in the C API, you can set the [number *M* of stored vectors for limited-memory quasi-Newton algorithms](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms), via:
 
 ```
 opt.vector_storage

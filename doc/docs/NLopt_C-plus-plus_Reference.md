@@ -96,12 +96,12 @@ void nlopt::opt::set_max_objective(nlopt::func f, void* f_data);
 ```
 
 
-where `f` is of the same form as the [C objective function](NLopt_Reference#objective-function).
+where `f` is of the same form as the [C objective function](NLopt_Reference.md#objective-function).
 
 Bound constraints
 -----------------
 
-The [bound constraints](NLopt_Reference#bound-constraints) can be specified by calling the methods:
+The [bound constraints](NLopt_Reference.md#bound-constraints) can be specified by calling the methods:
 
 ```
 void nlopt::opt::set_lower_bounds(const std::vector`<double>` &lb);
@@ -132,7 +132,7 @@ where the first two functions set their arguments (which must be vectors of leng
 Nonlinear constraints
 ---------------------
 
-Just as for [nonlinear constraints in C](NLopt_Reference#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
+Just as for [nonlinear constraints in C](NLopt_Reference.md#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
 
 ```
 void nlopt::opt::add_inequality_constraint(nlopt::vfunc fc, void *fc_data, double tol=0);
@@ -152,7 +152,7 @@ void nlopt::opt::remove_equality_constraints();
 
 ### Vector-valued constraints
 
-Just as for [nonlinear constraints in C](NLopt_Reference#vector-valued-constraints), you can specify nonlinear inequality and equality constraints by the methods:
+Just as for [nonlinear constraints in C](NLopt_Reference.md#vector-valued-constraints), you can specify nonlinear inequality and equality constraints by the methods:
 
 ```
 void nlopt::opt::add_inequality_mconstraint(nlopt::mfunc c, void *c_data, const vector`<double>` &tol);
@@ -167,7 +167,7 @@ Here, `tol` is a vector of the tolerances in each constraint dimension; the dime
 Stopping criteria
 -----------------
 
-As explained in the [C API Reference](NLopt_Reference#stopping-criteria) and the [Introduction](NLopt_Introduction#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
+As explained in the [C API Reference](NLopt_Reference.md#stopping-criteria) and the [Introduction](NLopt_Introduction.md#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
 
 For each stopping criteria, there are (at least) two method: a `set` method to specify the stopping criterion, and a `get` method to retrieve the current value for that criterion. The meanings of each criterion are exactly the same as in the C API.
 
@@ -248,7 +248,7 @@ Request the number of evaluations.
 
 ### Forced termination
 
-In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. You can do this by throwing *any* exception inside your objective/constraint functions: the exception will be caught, the optimization will be halted gracefully, and another exception (possibly not the same one) will be rethrown. See [Exceptions](#exceptions), below. The C++ equivalent of `nlopt_forced_stop` from the [C API](NLopt_Reference#forced-termination) is to throw an `nlopt::forced_stop` exception.
+In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. You can do this by throwing *any* exception inside your objective/constraint functions: the exception will be caught, the optimization will be halted gracefully, and another exception (possibly not the same one) will be rethrown. See [Exceptions](#exceptions), below. The C++ equivalent of `nlopt_forced_stop` from the [C API](NLopt_Reference.md#forced-termination) is to throw an `nlopt::forced_stop` exception.
 
 
 Algorithm-specific parameters
@@ -262,7 +262,7 @@ double nlopt::opt::get_param(const char *name, double defaultval);
 unsigned nlopt::opt::num_params();
 const char *nlopt::opt::nth_param(unsigned n);
 ```
-where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to. These functions are equivalent to the [C API](NLopt_Reference#algorithm-specific-parameters) functions of the corresponding names.
+where the string `name` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to. These functions are equivalent to the [C API](NLopt_Reference.md#algorithm-specific-parameters) functions of the corresponding names.
 
 
 Performing the optimization
@@ -289,12 +289,12 @@ nlopt::result nlopt::opt::last_optimize_result() const;
 
 ### Return values
 
-The possible return values are the same as the [return values in the C API](NLopt_Reference#return-values), except that the `NLOPT_` prefix is replaced with the `nlopt::` namespace. That is, `NLOPT_SUCCESS` becomes `nlopt::SUCCESS`, etcetera.
+The possible return values are the same as the [return values in the C API](NLopt_Reference.md#return-values), except that the `NLOPT_` prefix is replaced with the `nlopt::` namespace. That is, `NLOPT_SUCCESS` becomes `nlopt::SUCCESS`, etcetera.
 
 Exceptions
 ----------
 
-The [Error codes (negative return values)](NLopt_Reference#error-codes-negative-return-values) in the C API are replaced in the C++ API by thrown exceptions. The following exceptions are thrown by the various routines:
+The [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the C++ API by thrown exceptions. The following exceptions are thrown by the various routines:
 
 ```
 std::runtime_error
@@ -339,7 +339,7 @@ This function makes a copy of the `local_opt` object, so you can freely destroy 
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. The C++ equivalents of the C functions are the following methods:
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference.md#initial-step-size) for derivative-free optimization algorithms. The C++ equivalents of the C functions are the following methods:
 
 ```
 void nlopt::opt::set_initial_step(const std::vector<double> &dx);
@@ -351,7 +351,7 @@ void nlopt::opt::get_initial_step(const std::vector<double> &x, std::vector<
 Stochastic population
 ---------------------
 
-Just as in the C API, you can [get and set the initial population](NLopt_Reference#stochastic-population) for stochastic optimization algorithms, by the methods:
+Just as in the C API, you can [get and set the initial population](NLopt_Reference.md#stochastic-population) for stochastic optimization algorithms, by the methods:
 
 ```
 void nlopt::opt::set_population(unsigned pop);
@@ -383,7 +383,7 @@ void nlopt::srand_time();
 Vector storage for limited-memory quasi-Newton algorithms
 ---------------------------------------------------------
 
-Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms, via the methods:
+Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms, via the methods:
 
 ```
 void nlopt::opt::set_vector_storage(unsigned M);
