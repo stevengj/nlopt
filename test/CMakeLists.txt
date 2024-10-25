@@ -74,8 +74,10 @@ endif ()
 if (GUILE_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-guile.cpp)))
   set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                               "GUILE_LOAD_PATH=${PROJECT_BINARY_DIR}/src/swig"
-    )
-  add_test (NAME test_guile COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm)
+                              "GUILE_AUTO_COMPILE=0")
+  add_test (NAME test_guile
+            COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm
+            WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/src/swig)
   set_tests_properties (test_guile PROPERTIES ENVIRONMENT "${GUILECHECK_ENVIRONMENT}")
 endif ()
 

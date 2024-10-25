@@ -37,6 +37,10 @@ find_library (GUILE_LIBRARY NAMES guile-3.0 guile-2.2 guile-2.0 guile
 set (GUILE_LIBRARIES ${GUILE_LIBRARY})
 set (GUILE_INCLUDE_DIRS ${GUILE_INCLUDE_DIR})
 
+find_path (GMP_INCLUDE_DIR gmp.h)
+if (GMP_INCLUDE_DIR)
+  list (APPEND GUILE_INCLUDE_DIRS ${GMP_INCLUDE_DIR})
+endif ()
 
 # check guile's version if we're using cmake >= 2.6
 if (GUILE_INCLUDE_DIR)

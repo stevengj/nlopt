@@ -23,9 +23,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: |
-          brew upgrade && brew install swig octave
+          brew upgrade && brew install swig octave guile
           mkdir build && pushd build
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=OFF -DNLOPT_GUILE=OFF ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=OFF ..
           make install -j3 && ctest --output-on-failure
 
   windows:
