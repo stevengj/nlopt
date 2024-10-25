@@ -4,6 +4,9 @@ if (POLICY CMP0078)
 endif ()
 include (UseSWIG)
 
+# allows one set C++ flags for swig wrappers
+set (SWIG_COMPILE_FLAGS "" CACHE STRING "C++ compiler flags used for wrapper code")
+
 if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nlopt-enum-renames.i)
   file (WRITE ${CMAKE_CURRENT_BINARY_DIR}/nlopt-enum-renames.i "// AUTOMATICALLY GENERATED -- DO NOT EDIT\n")
   file (STRINGS ${PROJECT_SOURCE_DIR}/src/api/nlopt.h NLOPT_H_LINES REGEX "    NLOPT_[A-Z0-9_]+")
@@ -35,6 +38,7 @@ if (NUMPY_FOUND AND Python_FOUND)
   endif ()
 
   set_target_properties (nlopt_python PROPERTIES OUTPUT_NAME nlopt)
+  set_target_properties (nlopt_python PROPERTIES COMPILE_FLAGS "${SWIG_COMPILE_FLAGS}")
 
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/nlopt.py DESTINATION ${INSTALL_PYTHON_DIR})
   install (TARGETS nlopt_python DESTINATION ${INSTALL_PYTHON_DIR})
@@ -57,6 +61,7 @@ if (GUILE_FOUND)
 
   swig_link_libraries (nlopt_guile ${nlopt_lib})
   target_link_libraries (nlopt_guile ${GUILE_LIBRARIES})
+  set_target_properties (nlopt_guile PROPERTIES COMPILE_FLAGS "${SWIG_COMPILE_FLAGS}")
 
   file (RELATIVE_PATH _REL_GUILE_SITE_PATH ${GUILE_ROOT_DIR} ${GUILE_SITE_DIR})
   set (GUILE_SITE_PATH ${_REL_GUILE_SITE_PATH})
