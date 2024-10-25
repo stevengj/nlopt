@@ -88,7 +88,7 @@ Note that `grad` must be modified `in-place` by your function `f`, by using `(ve
 Bound constraints
 -----------------
 
-The [bound constraints](NLopt_Reference#bound-constraints) can be specified by calling the methods:
+The [bound constraints](NLopt_Reference.md#bound-constraints) can be specified by calling the methods:
 
 ```
 (nlopt-opt-set-lower-bounds opt lb)
@@ -113,7 +113,7 @@ To specify an unbounded dimension, you can use `(inf)` or `(-` `(inf))` in Guile
 Nonlinear constraints
 ---------------------
 
-Just as for [nonlinear constraints in C](NLopt_Reference#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
+Just as for [nonlinear constraints in C](NLopt_Reference.md#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
 
 ```
 (nlopt-opt-add-inequality-constraint opt fc tol)
@@ -134,7 +134,7 @@ To remove all of the inequality and/or equality constraints from a given problem
 Stopping criteria
 -----------------
 
-As explained in the [C API Reference](NLopt_Reference#stopping-criteria) and the [Introduction](NLopt_Introduction#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
+As explained in the [C API Reference](NLopt_Reference.md#stopping-criteria) and the [Introduction](NLopt_Introduction.md#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
 
 For each stopping criteria, there are (at least) two method: a `set` method to specify the stopping criterion, and a `get` method to retrieve the current value for that criterion. The meanings of each criterion are exactly the same as in the C API.
 
@@ -234,12 +234,12 @@ The return code (see below) is positive on success, indicating the reason for te
 
 ### Return values
 
-The possible return values are the same as the [return values in the C API](NLopt_Reference#return-values), except that the `NLOPT_` prefix is replaced with the `NLOPT-` namespace. That is, `NLOPT_SUCCESS` becomes `NLOPT-SUCCESS`, etcetera.
+The possible return values are the same as the [return values in the C API](NLopt_Reference.md#return-values), except that the `NLOPT_` prefix is replaced with the `NLOPT-` namespace. That is, `NLOPT_SUCCESS` becomes `NLOPT-SUCCESS`, etcetera.
 
 Exceptions
 ----------
 
-The [Error codes (negative return values)](NLopt_Reference#error-codes-negative-return-values) in the C API are replaced in the Guile API by thrown exceptions. The exception key takes the form of a Scheme symbol. The following exception keys are thrown by the various routines:
+The [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the Guile API by thrown exceptions. The exception key takes the form of a Scheme symbol. The following exception keys are thrown by the various routines:
 
 ```
 runtime-error
@@ -263,7 +263,7 @@ Ran out of memory (a memory allocation failed), equivalent to `NLOPT_OUT_OF_MEMO
 Halted because roundoff errors limited progress, equivalent to `NLOPT_ROUNDOFF_LIMITED`.
 
 `forced-stop` (subclass of `Exception`)
-Halted because of a [forced termination](#forced-termination): the user called `opt.force_stop()` from the user’s objective function. Equivalent to `NLOPT_FORCED_STOP`.
+Halted because of a forced termination: the user called `opt.force_stop()` from the user’s objective function. Equivalent to `NLOPT_FORCED_STOP`.
 
 Currently, NLopt does not catch any exceptions that you might throw from your objective or constraint functions. (In the future, we might catch these exceptions, halt the optimization gracefully, and then re-throw, as in Python or C++, but this is not yet implemented.) So, throwing an exception in your objective/constraint may result in a memory leak.
 
@@ -300,7 +300,7 @@ This function makes a copy of the `local-opt` object, so you can freely change y
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. The Guile equivalents of the C functions are the following methods:
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference.md#initial-step-size) for derivative-free optimization algorithms. The Guile equivalents of the C functions are the following methods:
 
 ```
 (nlopt-opt-set-initial-step opt dx)
@@ -313,7 +313,7 @@ Here, `dx` is a vector or list of the (nonzero) initial steps for each dimension
 Stochastic population
 ---------------------
 
-Just as in the C API, you can [get and set the initial population](NLopt_Reference#stochastic-population) for stochastic optimization algorithms, by the methods:
+Just as in the C API, you can [get and set the initial population](NLopt_Reference.md#stochastic-population) for stochastic optimization algorithms, by the methods:
 
 ```
 (nlopt-opt-set-population opt pop)
@@ -345,7 +345,7 @@ where `seed` is an integer. o reset the seed based on the system time, you can c
 Vector storage for limited-memory quasi-Newton algorithms
 ---------------------------------------------------------
 
-Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms, via the functions:
+Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms, via the functions:
 
 ```
 (nlopt-opt-set-vector-storage opt M)

@@ -25,12 +25,12 @@ When you compile your program you will have to link it to the NLopt library. On 
 
 where *compiler* is `f77`, `gfortran`, or whatever is appropriate for your machine.
 
-*Note:* the above example assumes that you have installed the NLopt library in a place where the compiler knows to find it (e.g. in a standard directory like `/usr/lib` or `/usr/local/lib`). If you installed somewhere else (e.g. in your home directory if you are not a system administrator), then you will need to use a `-L` flag to tell the compiler where to find the library. See [the installation manual](NLopt_Installation#changing-the-installation-directory).
+*Note:* the above example assumes that you have installed the NLopt library in a place where the compiler knows to find it (e.g. in a standard directory like `/usr/lib` or `/usr/local/lib`). If you installed somewhere else (e.g. in your home directory if you are not a system administrator), then you will need to use a `-L` flag to tell the compiler where to find the library. See [the installation manual](NLopt_Installation.md#changing-the-installation-directory).
 
 Fortran vs. C API
 -----------------
 
-As explained in the [NLopt Tutorial](NLopt_Tutorial#example-in-fortran), there are a few simple rules that define the differences between the C and Fortran APIs:
+As explained in the [NLopt Tutorial](NLopt_Tutorial.md#example-in-fortran), there are a few simple rules that define the differences between the C and Fortran APIs:
 
 -   All `nlopt_` functions are converted into `nlo_` subroutines, with return values converted into the first argument.
 -   The `nlopt_opt` type corresponds to `integer*8`. (Technically, we could use any type that is big enough to hold a pointer on all platforms; `integer*8` is big enough for pointers on both 32-bit and 64-bit machines.)
@@ -114,7 +114,7 @@ The `f_data` argument can be used to pass through a single variable containing a
 Bound constraints
 -----------------
 
-The [bound constraints](NLopt_Reference#bound-constraints) can be specified by calling the methods:
+The [bound constraints](NLopt_Reference.md#bound-constraints) can be specified by calling the methods:
 
 ```
 double precision lb(n), ub(n)
@@ -146,7 +146,7 @@ To specify an unbounded dimension, you can use ±`huge(lb(1))` in Fortran to spe
 Nonlinear constraints
 ---------------------
 
-Just as for [nonlinear constraints in C](NLopt_Reference#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
+Just as for [nonlinear constraints in C](NLopt_Reference.md#nonlinear-constraints), you can specify nonlinear inequality and equality constraints by the methods:
 
 ```
 call nlo_add_inequality_constraint(ires, opt, fc, fc_data, tol)
@@ -166,7 +166,7 @@ call nlo_remove_equality_constraints(ires, opt)
 
 ### Vector-valued constraints
 
-Just as for [nonlinear constraints in C](NLopt_Reference#vector-valued-constraints), you can specify vector-valued nonlinear inequality and equality constraints by the subroutines
+Just as for [nonlinear constraints in C](NLopt_Reference.md#vector-valued-constraints), you can specify vector-valued nonlinear inequality and equality constraints by the subroutines
 
 ```
 double precision tol(m)
@@ -206,7 +206,7 @@ An inequality constraint corresponds to $c_i \le 0$ for $1 \le i \le m$, and an 
 Stopping criteria
 -----------------
 
-As explained in the [C API Reference](NLopt_Reference#stopping-criteria) and the [Introduction](NLopt_Introduction#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
+As explained in the [C API Reference](NLopt_Reference.md#stopping-criteria) and the [Introduction](NLopt_Introduction.md#termination-conditions)), you have multiple options for different stopping criteria that you can specify. (Unspecified stopping criteria are disabled; i.e., they have innocuous defaults.)
 
 For each stopping criteria, there are (at least) two subroutines: a `set` subroutine to specify the stopping criterion, and a `get` subroutine to retrieve the current value for that criterion. The meanings of each criterion are exactly the same as in the C API. The first argument `ires` of each `set` subroutine is an `integer` [return value](#return-values) (positive on success).
 
@@ -286,7 +286,7 @@ Stop when the optimization time (in seconds) exceeds `maxtime` (`double` `precis
 
 ### Forced termination
 
-In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. In this case, it is possible to tell NLopt to halt the optimization gracefully, returning the best point found so far, by calling the following subroutine from *within* your objective or constraint functions (exactly analogous to the corresponding [C routines](NLopt_Reference#forced-termination)):
+In certain cases, the caller may wish to *force* the optimization to halt, for some reason unknown to NLopt. For example, if the user presses Ctrl-C, or there is an error of some sort in the objective function. In this case, it is possible to tell NLopt to halt the optimization gracefully, returning the best point found so far, by calling the following subroutine from *within* your objective or constraint functions (exactly analogous to the corresponding [C routines](NLopt_Reference.md#forced-termination)):
 
 ```
 call nlo_force_stop(ires, opt)
@@ -318,7 +318,7 @@ On input, `x` is an array of length `n` (the dimension of the problem from the `
 
 ### Return values
 
-The possible return values are the same as the [return values in the C API](NLopt_Reference#return-values), with the corresponding integer constants defined in the `nlopt.f` include file.
+The possible return values are the same as the [return values in the C API](NLopt_Reference.md#return-values), with the corresponding integer constants defined in the `nlopt.f` include file.
 
 Local/subsidiary optimization algorithm
 ---------------------------------------
@@ -337,7 +337,7 @@ This function makes a copy of the `local_opt` object, so you can freely change o
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. The Fortran equivalents of the C functions are the following methods:
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference.md#initial-step-size) for derivative-free optimization algorithms. The Fortran equivalents of the C functions are the following methods:
 
 ```
 double precision x(n) dx(n), dx1
@@ -352,7 +352,7 @@ Here, `dx` is an array of the (nonzero) initial steps for each dimension. For co
 Stochastic population
 ---------------------
 
-Just as in the C API, you can [get and set the initial population](NLopt_Reference#stochastic-population) for stochastic optimization algorithms, by the methods:
+Just as in the C API, you can [get and set the initial population](NLopt_Reference.md#stochastic-population) for stochastic optimization algorithms, by the methods:
 
 ```
 call nlo_set_population(ires, opt, ipop)
@@ -384,7 +384,7 @@ call nlosrt
 Vector storage for limited-memory quasi-Newton algorithms
 ---------------------------------------------------------
 
-Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms:
+Just as in the C API, you can get and set the [number *M* of stored vectors](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms) for limited-memory quasi-Newton algorithms:
 
 ```
 call nlo_set_vector_storage(ires, opt, M)

@@ -19,7 +19,7 @@ where *compiler* is `cc`, `f77`, `g++`, or whatever is appropriate for your mach
 
 *Note:* the `-lnlopt` `-lm` options, which link to the NLopt library (and the math library, which it requires), must come *after* your source/object files. In general, the rule is that if *A* depends upon *B*, then *A* must come before *B* in the link command.
 
-*Note:* the above example assumes that you have installed the NLopt library in a place where the compiler knows to find it (e.g. in a standard directory like `/usr/lib` or `/usr/local/lib`). If you installed somewhere else (e.g. in your home directory if you are not a system administrator), then you will need to use a `-L` flag to tell the compiler where to find the library. See [the installation manual](NLopt_Installation#changing-the-installation-directory).
+*Note:* the above example assumes that you have installed the NLopt library in a place where the compiler knows to find it (e.g. in a standard directory like `/usr/lib` or `/usr/local/lib`). If you installed somewhere else (e.g. in your home directory if you are not a system administrator), then you will need to use a `-L` flag to tell the compiler where to find the library. See [the installation manual](NLopt_Installation.md#changing-the-installation-directory).
 
 C/C++ programming interface
 ---------------------------
@@ -69,7 +69,7 @@ Starting guess and returned optimum:
 -   `x` — an array of length `n` of the optimization parameters `x[0]`, ..., `x[n-1]`. On input, a starting guess for the optimum parameters; on output, the best found values of the parameters. (For a *local* optimization routine, the starting guess `x` determines which local optimum is found.) The starting guess is required to satisfy the bound constraints `lb` and `ub`; it need not satisfy the nonlinear inequality constraints `fc` (although it might be more efficient if you have a feasible starting guess.)
 -   `minf` — on output, the minimum value of the objective function that was found (corresponding to the output value of the parameters `x`).
 
-The remaining parameters specify the termination conditions. Please read the [introduction to the termination conditions](NLopt_Introduction#termination-conditions) for a general overview of these criteria. (In particular, note that you do *not* need to use *all* of these conditions; typically, you will use only one or two, and set the remainder to innocuous values.)
+The remaining parameters specify the termination conditions. Please read the [introduction to the termination conditions](NLopt_Introduction.md#termination-conditions) for a general overview of these criteria. (In particular, note that you do *not* need to use *all* of these conditions; typically, you will use only one or two, and set the remainder to innocuous values.)
 
 -   `minf_max` — stop if the objective function value drops below `minf_max`. (Set to `-HUGE_VAL` to ignore.)
 -   `ftol_rel`, `ftol_abs` — relative and absolute tolerances in the objective function value. (Set to zero to ignore.)
@@ -152,7 +152,7 @@ In particular, the constraint function `fc` will be called (at most) `m` times f
 
 ### Mixed global/local search algorithm
 
-Some of the [global optimization algorithms](NLopt_Algorithms#Global_optimization.md) (currently, only MLSL) combine some global search scheme with a separate local optimization algorithm for local searches. For example, MLSL performs a sequence of local searches from semi-random starting points.
+Some of the [global optimization algorithms](NLopt_Algorithms.md#global-optimization) (currently, only MLSL) combine some global search scheme with a separate local optimization algorithm for local searches. For example, MLSL performs a sequence of local searches from semi-random starting points.
 
 Using the following functions, you can control *which* local search algorithm is used for MLSL (and any similar algorithm that is added in the future), as well as specifying a maximum number of function evaluations for the local search:
 
@@ -239,7 +239,7 @@ The parameters are similar to those of `nlopt_minimize_constrained` (see also th
 -   `x` (double precision array(`n`), IN/OUT) — on input, an initial guess for the optimization parameters; on output, the best parameters found
 -   `minf` (double precision, OUT) — on output, the minimum value of the objective function that was found
 
-Termination conditions (see [introduction](NLopt_Introduction#termination-conditions)):
+Termination conditions (see [introduction](NLopt_Introduction.md#termination-conditions)):
 
 -   `minf_max` (double precision, IN) — stop if the an objective function value ≤ `minf_max` is found (set to `-Infinity`, or a huge negative number, to ignore).
 -   `ftol_rel`, `ftol_abs` (double precision, IN) — relative and absolute tolerances in the objective function value (ignored if zero).
@@ -419,7 +419,7 @@ If you have no nonlinear constraints, i.e. `fc` = `fc_data` = `{}`, then it is e
 -   `stop.maxtime` — maximum run time in seconds
 -   `stop.verbose` — &gt; 0 indicates verbose output
 
-You do *not* need to set all of these fields; termination conditions corresponding to any fields that you do not set are ignored. As discussed in the [introduction](NLopt_Introduction#termination-conditions), normally you only want one or two of these conditions. For example to set a relative **x** tolerance of 10<sup>−4</sup> and run for no more than 5 minutes, you would do:
+You do *not* need to set all of these fields; termination conditions corresponding to any fields that you do not set are ignored. As discussed in the [introduction](NLopt_Introduction.md#termination-conditions), normally you only want one or two of these conditions. For example to set a relative **x** tolerance of 10<sup>−4</sup> and run for no more than 5 minutes, you would do:
 
 ```
 stop.xtol_rel = 1e-4;

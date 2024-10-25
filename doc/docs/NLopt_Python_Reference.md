@@ -247,7 +247,7 @@ opt.get_param("name", defaultval);
 opt.num_params();
 opt.nth_param(n);
 ```
-where the string `"name"` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference#algorithm-specific-parameters) functions of the corresponding names.
+where the string `"name"` is the name of an algorithm-specific parameter and `val` is the value you are setting the parameter to.   These functions are equivalent to the [C API](NLopt_Reference.md#algorithm-specific-parameters) functions of the corresponding names.
 
 
 Performing the optimization
@@ -321,7 +321,7 @@ This function makes a copy of the `local_opt` object, so you can freely change y
 Initial step size
 -----------------
 
-Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference#initial-step-size) for derivative-free optimization algorithms. The Python equivalents of the C functions are the following methods:
+Just as in the C API, you can [get and set the initial step sizes](NLopt_Reference.md#initial-step-size) for derivative-free optimization algorithms. The Python equivalents of the C functions are the following methods:
 
 ```py
 opt.set_initial_step(dx)

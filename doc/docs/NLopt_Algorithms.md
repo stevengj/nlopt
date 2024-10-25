@@ -24,14 +24,14 @@ For any given optimization problem, it is a good idea to compare several of the 
 
 However, comparing algorithms requires a little bit of care because the function-value/parameter tolerance tests are not all implemented in exactly the same way for different algorithms. So, for example, the same fractional 10<sup>−4</sup> tolerance on the function value might produce a much more accurate minimum in one algorithm compared to another, and matching them might require some experimentation with the tolerances.
 
-Instead, a more fair and reliable way to compare two different algorithms is to run one until the function value is converged to some value *f*<sub>A</sub>, and then run the second algorithm with the minf_max [termination test](NLopt_Introduction#termination-conditions) set to minf_max=*f*<sub>A</sub>. That is, ask how long it takes for the two algorithms to reach the same function value.
+Instead, a more fair and reliable way to compare two different algorithms is to run one until the function value is converged to some value *f*<sub>A</sub>, and then run the second algorithm with the minf_max [termination test](NLopt_Introduction.md#termination-conditions) set to minf_max=*f*<sub>A</sub>. That is, ask how long it takes for the two algorithms to reach the same function value.
 
 Better yet, run some algorithm for a really long time until the minimum *f*<sub>M</sub> is located to high precision. Then run the different algorithms you want to compare with the termination test: minf_max=*f*<sub>M</sub>+Δ*f*. That is, ask how long it takes for the different algorithms to obtain the minimum to within an absolute tolerance Δ*f*, for some Δ*f*. (This is *totally different* from using the ftol_abs termination test, because the latter uses only a crude estimate of the error in the function values, and moreover the estimate varies between algorithms.)
 
 Global optimization
 -------------------
 
-All of the global-optimization algorithms currently require you to specify bound constraints on all the optimization parameters. Of these algorithms, only ISRES, AGS, and ORIG_DIRECT support nonlinear inequality constraints, and only ISRES supports nonlinear equality constraints. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#augmented-lagrangian-algorithm) below.)
+All of the algorithms currently require you to specify bound constraints on all the optimization parameters. Of these algorithms, only ISRES, AGS, and ORIG_DIRECT support nonlinear inequality constraints, and only ISRES supports nonlinear equality constraints. (However, any of them can be applied to nonlinearly constrained problems by combining them with the [augmented Lagrangian method](#augmented-lagrangian-algorithm) below.)
 
 **Something you should consider** is that, after running the global optimization, it is often worthwhile to then use the global optimum as a starting point for a local optimization to "polish" the optimum to a greater accuracy. (Many of the global optimization algorithms devote more effort to searching the global parameter space than in finding the precise position of the local optimum accurately.)
 
@@ -75,7 +75,7 @@ The CRS algorithms are sometimes compared to genetic algorithms, in that they st
 
 -   Eligius M. T. Hendrix, P. M. Ortigosa, and I. García, "On success rates for controlled random search," *J. Global Optim.* **21**, p. 239-263 (2001).
 
-The initial population size for CRS defaults to 10×(*n*+1) in *n* dimensions, but this can be changed with the [nlopt_set_population](NLopt_Reference#stochastic-population) function; the initial population must be at least *n*+1.
+The initial population size for CRS defaults to 10×(*n*+1) in *n* dimensions, but this can be changed with the [nlopt_set_population](NLopt_Reference.md#stochastic-population) function; the initial population must be at least *n*+1.
 
 Only bound-constrained problems are supported by this algorithm.
 
@@ -95,11 +95,11 @@ In either case, MLSL is a "multistart" algorithm: it works by doing a sequence o
 
 The local-search portion of MLSL can use any of the other algorithms in NLopt, and in particular can use either gradient-based (`D`) or derivative-free algorithms (`N`) The local search uses the derivative/nonderivative algorithm set by `nlopt_opt_set_local_optimizer`.
 
-LDS-based MLSL with is specified as `NLOPT_G_MLSL_LDS`, while the original non-LDS original MLSL (using pseudo-random numbers, currently via the [Mersenne twister](https://en.wikipedia.org/wiki/Mersenne_twister) algorithm) is indicated by `NLOPT_G_MLSL`. In both cases, you must specify the [local optimization](NLopt_Reference#localsubsidiary-optimization-algorithm) algorithm (which can be gradient-based or derivative-free) via `nlopt_opt_set_local_optimizer`.
+LDS-based MLSL with is specified as `NLOPT_G_MLSL_LDS`, while the original non-LDS original MLSL (using pseudo-random numbers, currently via the [Mersenne twister](https://en.wikipedia.org/wiki/Mersenne_twister) algorithm) is indicated by `NLOPT_G_MLSL`. In both cases, you must specify the [local optimization](NLopt_Reference.md#localsubsidiary-optimization-algorithm) algorithm (which can be gradient-based or derivative-free) via `nlopt_opt_set_local_optimizer`.
 
 **Note**: If you do not set a stopping tolerance for your local-optimization algorithm, MLSL defaults to ftol_rel=10<sup>−15</sup> and xtol_rel=10<sup>−7</sup> for the local searches. Note that it is perfectly reasonable to set a relatively large tolerance for these local searches, run MLSL, and then at the end run another local optimization with a lower tolerance, using the MLSL result as a starting point, to "polish off" the optimum to high precision.
 
-By default, each iteration of MLSL samples 4 random new trial points, but this can be changed with the [nlopt_set_population](NLopt_Reference#stochastic-population) function.
+By default, each iteration of MLSL samples 4 random new trial points, but this can be changed with the [nlopt_set_population](NLopt_Reference.md#stochastic-population) function.
 
 Only bound-constrained problems are supported by this algorithm.
 
@@ -157,7 +157,7 @@ It is a refinement of an earlier method described in:
 
 This is an independent implementation by S. G. Johnson (2009) based on the papers above. Runarsson also has his own Matlab implemention available from his web page [here](http://www3.hi.is/~tpr).
 
-The evolution strategy is based on a combination of a mutation rule (with a log-normal step-size update and exponential smoothing) and differential variation (a Nelder–Mead-like update rule). The fitness ranking is simply via the objective function for problems without nonlinear constraints, but when nonlinear constraints are included the stochastic ranking proposed by Runarsson and Yao is employed. The population size for ISRES defaults to 20×(*n*+1) in *n* dimensions, but this can be changed with the [nlopt_set_population](NLopt_Reference#stochastic-population) function.
+The evolution strategy is based on a combination of a mutation rule (with a log-normal step-size update and exponential smoothing) and differential variation (a Nelder–Mead-like update rule). The fitness ranking is simply via the objective function for problems without nonlinear constraints, but when nonlinear constraints are included the stochastic ranking proposed by Runarsson and Yao is employed. The population size for ISRES defaults to 20×(*n*+1) in *n* dimensions, but this can be changed with the [nlopt_set_population](NLopt_Reference.md#stochastic-population) function.
 
 This method supports arbitrary nonlinear inequality and equality constraints in addition to the bound constraints, and is specified within NLopt as `NLOPT_GN_ISRES`.
 
@@ -206,7 +206,7 @@ The original code itself was written in Fortran by Powell and was converted to C
 
 NLopt's version is slightly modified in a few ways. First, we incorporated all of the NLopt termination criteria. Second, we added explicit support for bound constraints (although the original COBYLA could handle bound constraints as linear constraints, it would sometimes take a step that violated the bound constraints). Third, we allow `COBYLA` to increase the trust-region radius if the predicted improvement was approximately right and the simplex is OK, following a suggestion in the [SAS manual for PROC NLP](http://www.uc.edu/sashtml/iml/chap17/sect164.htm) that seems to improve convergence speed. Fourth, we pseudo-randomize simplex steps in COBYLA algorithm, improving robustness by avoiding accidentally taking steps that don't improve conditioning (which seems to happen sometimes with active bound constraints); the algorithm remains deterministic (a deterministic seed is used), however. Also, we support unequal initial-step sizes in the different parameters (by the simple expedient of internally rescaling the parameters proportional to the initial steps), which is important when different parameters have very different scales.
 
-(The underlying COBYLA code only supports inequality constraints. Equality constraints are automatically [transformed into pairs](NLopt_Introduction#equality-constraints) of inequality constraints, which in the case of this algorithm seems not to cause problems.)
+(The underlying COBYLA code only supports inequality constraints. Equality constraints are automatically [transformed into pairs](NLopt_Introduction.md#equality-constraints) of inequality constraints, which in the case of this algorithm seems not to cause problems.)
 
 It is specified within NLopt as `NLOPT_LN_COBYLA`.
 
@@ -314,10 +314,10 @@ I also implemented another CCSA algorithm from the same paper, `NLOPT_LD_CCSAQ`:
 For the quadratic variant I also implemented the possibility of [preconditioning](NLopt_Reference.md#preconditioning-with-approximate-hessians): including a user-supplied Hessian approximation in the local model. It is easy to incorporate this into the proof in Svanberg's paper, and to show that global convergence is still guaranteed as long as the user's "Hessian" is positive semidefinite, and in practice it can greatly improve convergence if the preconditioner is a good approximation for the real Hessian (at least for the eigenvectors of the largest eigenvalues).
 
 The `NLOPT_LD_MMA` and `NLOPT_LD_CCSAQ` algorithms support the following internal parameters, which can be
-specified using the [`nlopt_set_param` API](NLopt_Reference#algorithm-specific-parameters):
+specified using the [`nlopt_set_param` API](NLopt_Reference.md#algorithm-specific-parameters):
 
 * `inner_maxeval`: If ≥ 0, gives maximum number of "inner" iterations of the algorithm where it tries to ensure that its approximatations are "conservative"; defaults to `0` (no limit).   It can be useful to specify a finite number (e.g. `5` or `10`) for this parameter if inaccuracies in your gradient or objective function are preventing the algorithm from making progress.
-* `dual_algorithm` (defaults to `NLOPT_LD_MMA`), `dual_ftol_rel` (defaults to `1e-14`), `dual_ftol_abs` (defaults to `0`), `dual_xtol_rel` (defaults to `0`), `dual_xtol_abs` (defaults to `0`), `dual_maxeval` (defaults to `100000`): These specify how the algorithm internally solves the "dual" optimization problem for its approximate objective.   Because this subsidiary solve requires no evaluations of the user's objective function, it is typically fast enough that we can solve it to high precision without worrying too much about the details.  Howeve,r in high-dimensional problems you may notice that MMA/CCSA is taking a long time between optimization steps, in which case you may want to increase `dual_ftol_rel` or make other changes.   If these parameters are not specified, NLopt takes them from the [subsidiary-optimizer algorithm](NLopt_Reference#localsubsidiary-optimization-algorithm) if that has been specified, and otherwise uses the defaults indicated here.
+* `dual_algorithm` (defaults to `NLOPT_LD_MMA`), `dual_ftol_rel` (defaults to `1e-14`), `dual_ftol_abs` (defaults to `0`), `dual_xtol_rel` (defaults to `0`), `dual_xtol_abs` (defaults to `0`), `dual_maxeval` (defaults to `100000`): These specify how the algorithm internally solves the "dual" optimization problem for its approximate objective.   Because this subsidiary solve requires no evaluations of the user's objective function, it is typically fast enough that we can solve it to high precision without worrying too much about the details.  Howeve,r in high-dimensional problems you may notice that MMA/CCSA is taking a long time between optimization steps, in which case you may want to increase `dual_ftol_rel` or make other changes.   If these parameters are not specified, NLopt takes them from the [subsidiary-optimizer algorithm](NLopt_Reference.md#localsubsidiary-optimization-algorithm) if that has been specified, and otherwise uses the defaults indicated here.
 * `verbosity`: If > 0, causes the algorithm to print internal status information on each iteration.
 * `rho_init`: if specified, should be a rough upper bound for the second derivative (the biggest eigenvalue of the Hessian of the objective or constraints); defaults to `1.0`.   CCSA/MMA will adaptively adjust this as the optimization progresses, so even it if `rho_init` is completely wrong the algorithm will still converge.  A `rho_init` that is too large will cause the algorithm to take overly small steps at the beginning, while a `rho_init` that is too small will cause it to take overly large steps (and have to backtrack) at the beginning.   Similarly, you can also use the "initial stepsize" option ([NLopt reference](NLopt_Reference.md#initial-step-size)) to control the maximum size of the initial steps (half the diameter of the trust region).
 
@@ -349,7 +349,7 @@ The original L-BFGS algorithm, based on variable-metric updates via Strang recur
 
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 
-One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms).
+One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
 
 ### Preconditioned truncated Newton
 
@@ -366,7 +366,7 @@ p. 190-212 (1983) <http://doi.org/10.1007/BF02592055>.
 
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 
-One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms).
+One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
 
 ### Shifted limited-memory variable-metric
 
@@ -382,7 +382,7 @@ The algorithms are based on the ones described by:
 
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 
-One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference#vector-storage-for-limited-memory-quasi-newton-algorithms).
+One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
 
 Augmented Lagrangian algorithm
 ------------------------------
@@ -394,7 +394,7 @@ There is one algorithm in NLopt that fits into all of the above categories, depe
 
 This method combines the objective function and the nonlinear inequality/equality constraints (if any) in to a single function: essentially, the objective plus a "penalty" for any violated constraints. This modified objective function is then passed to *another* optimization algorithm with *no* nonlinear constraints. If the constraints are violated by the solution of this sub-problem, then the size of the penalties is increased and the process is repeated; eventually, the process must converge to the desired solution (if it exists).
 
-The subsidiary optimization algorithm is specified by the `nlopt_set_local_optimizer` function, described in the [NLopt Reference](NLopt_Reference#localsubsidiary-optimization-algorithm). (Don't forget to set a stopping tolerance for this subsidiary optimizer!) Since all of the actual optimization is performed in this subsidiary optimizer, the subsidiary algorithm that you specify determines whether the optimization is gradient-based or derivative-free. In fact, you can even specify a global optimization algorithm for the subsidiary optimizer, in order to perform global nonlinearly constrained optimization (although specifying a good stopping criterion for this subsidiary global optimizer is tricky).
+The subsidiary optimization algorithm is specified by the `nlopt_set_local_optimizer` function, described in the [NLopt Reference](NLopt_Reference.md#localsubsidiary-optimization-algorithm). (Don't forget to set a stopping tolerance for this subsidiary optimizer!) Since all of the actual optimization is performed in this subsidiary optimizer, the subsidiary algorithm that you specify determines whether the optimization is gradient-based or derivative-free. In fact, you can even specify a global optimization algorithm for the subsidiary optimizer, in order to perform global nonlinearly constrained optimization (although specifying a good stopping criterion for this subsidiary global optimizer is tricky).
 
 The augmented Lagrangian method is specified in NLopt as `NLOPT_AUGLAG`. We also provide a variant, `NLOPT_AUGLAG_EQ`, that only uses penalty functions for equality constraints, while inequality constraints are passed through to the subsidiary algorithm to be handled directly; in this case, the subsidiary algorithm must handle inequality constraints (e.g. MMA or COBYLA).
 
