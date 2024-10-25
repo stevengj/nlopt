@@ -326,9 +326,9 @@ if (NLOPT_PYTHON)
 endif ()
 
 if (WIN32)
-  set (INSTALL_PYTHON_DIR Lib/site-packages CACHE PATH "site packages dir")
+  set (INSTALL_PYTHON_DIR Lib/site-packages CACHE STRING "site packages dir")
 else ()
-  set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages CACHE PATH "site packages dir")
+  set (INSTALL_PYTHON_DIR ${INSTALL_LIB_DIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages CACHE STRING "site packages dir")
 endif ()
 
 if (NLOPT_GUILE)
