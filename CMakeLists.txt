@@ -221,7 +221,12 @@ set (NLOPT_SOURCES
 
 set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/mma/ccsa_quadratic.c src/algs/cobyla/cobyla.c
                     src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c
-	     PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+             PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+
+# workaround for false positive in newuoa
+if (CMAKE_C_COMPILER_ID MATCHES "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+  set_source_files_properties(src/algs/newuoa/newuoa.c PROPERTIES COMPILE_FLAGS -U_FORTIFY_SOURCE)
+endif ()
 
 if (NLOPT_CXX)
   list (APPEND NLOPT_SOURCES
