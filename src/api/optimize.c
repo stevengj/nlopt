@@ -394,7 +394,7 @@ static int elimdim_wrapcheck(nlopt_opt opt)
 
 /*********************************************************************/
 
-#define POP(defaultpop) (opt->stochastic_population > 0 ? opt->stochastic_population : (nlopt_stochastic_population > 0 ? nlopt_stochastic_population : (defaultpop)))
+#define POP(defaultpop) (opt->stochastic_population > 0 ? (int)opt->stochastic_population : (nlopt_stochastic_population > 0 ? nlopt_stochastic_population : (defaultpop)))
 
 /* unlike nlopt_optimize() below, only handles minimization case */
 static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
@@ -532,7 +532,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_CXX
         if (!finite_domain(n, lb, ub))
             RETURN_ERR(NLOPT_INVALID_ARGS, opt, "finite domain required for global algorithm");
-        if (!stogo_minimize(ni, f, f_data, x, minf, lb, ub, &stop, algorithm == NLOPT_GD_STOGO ? 0 : (int) POP(2 * n)))
+        if (!stogo_minimize(ni, f, f_data, x, minf, lb, ub, &stop, algorithm == NLOPT_GD_STOGO ? 0 : POP(2 * (int)n)))
             return NLOPT_FAILURE;
         break;
 #else
@@ -605,7 +605,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_GN_CRS2_LM:
         if (!finite_domain(n, lb, ub))
             RETURN_ERR(NLOPT_INVALID_ARGS, opt, "finite domain required for global algorithm");
-        return crs_minimize(ni, f, f_data, lb, ub, x, minf, &stop, (int) POP(0), 0);
+        return crs_minimize(ni, f, f_data, lb, ub, x, minf, &stop, POP(0), 0);
 
     case NLOPT_G_MLSL:
     case NLOPT_G_MLSL_LDS:
@@ -646,7 +646,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
                 nlopt_set_xtol_rel(local_opt, 1e-7);
             }
             push_force_stop_child(opt, local_opt);
-            ret = mlsl_minimize(ni, f, f_data, lb, ub, x, minf, &stop, local_opt, (int) POP(0), algorithm >= NLOPT_GN_MLSL_LDS && algorithm != NLOPT_G_MLSL);
+            ret = mlsl_minimize(ni, f, f_data, lb, ub, x, minf, &stop, local_opt, POP(0), algorithm >= NLOPT_GN_MLSL_LDS && algorithm != NLOPT_G_MLSL);
             pop_force_stop_child(opt);
             if (!opt->local_opt)
                 nlopt_destroy(local_opt);
@@ -675,7 +675,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             nlopt_set_ftol_abs(dual_opt, nlopt_get_param(opt, "dual_ftol_abs", LO(ftol_abs, 0.0)));
             nlopt_set_xtol_rel(dual_opt, nlopt_get_param(opt, "dual_xtol_rel", 0.0));
             nlopt_set_xtol_abs1(dual_opt, nlopt_get_param(opt, "dual_xtol_abs", 0.0));
-            nlopt_set_maxeval(dual_opt, nlopt_get_param(opt, "dual_maxeval", LO(maxeval, 100000)));
+            nlopt_set_maxeval(dual_opt, (int)nlopt_get_param(opt, "dual_maxeval", LO(maxeval, 100000)));
 #undef LO
             if (algorithm == NLOPT_LD_MMA)
                 ret = mma_minimize(n, f, f_data, opt->m, opt->fc, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init, opt->dx);
@@ -793,7 +793,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_GN_ISRES:
         if (!finite_domain(n, lb, ub))
             RETURN_ERR(NLOPT_INVALID_ARGS, opt, "finite domain required for global algorithm");
-        return isres_minimize(ni, f, f_data, (int) (opt->m), opt->fc, (int) (opt->p), opt->h, lb, ub, x, minf, &stop, (int) POP(0));
+        return isres_minimize(ni, f, f_data, (int) (opt->m), opt->fc, (int) (opt->p), opt->h, lb, ub, x, minf, &stop, POP(0));
 
     case NLOPT_GN_ESCH:
         if (!finite_domain(n, lb, ub))

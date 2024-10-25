@@ -124,8 +124,10 @@ __version__ = str(_nlopt.version_major())+'.'+str(_nlopt.version_minor())+'.'+st
 {
   npy_intp sz = $1.size();
   $result = PyArray_SimpleNew(1, &sz, NPY_DOUBLE);
-  std::memcpy(array_data($result), $1.empty() ? NULL : &$1[0],
-	      sizeof(double) * sz);
+  if (!$1.empty())
+  {
+    std::memcpy(array_data($result), &$1[0], sizeof(double) * sz);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

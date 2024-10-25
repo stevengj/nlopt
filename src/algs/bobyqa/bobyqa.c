@@ -1979,12 +1979,12 @@ static nlopt_result bobyqb_(int *n, int *npt, double *x,
     int ksav;
     double gqsq, dist, sumw, sumz, diffa, diffb, diffc = 0.0, hdiag;
     int kbase;
-    double alpha, delta, adelt, denom, fsave, bdtol, delsq;
+    double alpha = 0.0, delta, adelt = 0.0, denom, fsave, bdtol, delsq;
     int nresc, nfsav;
-    double ratio, dnorm, vquad, pqold, tenth;
+    double ratio = 0.0, dnorm, vquad, pqold, tenth;
     int itest;
     double sumpq, scaden;
-    double errbig, cauchy, fracsq, biglsq, densav;
+    double errbig, cauchy = 0.0, fracsq, biglsq, densav;
     double bdtest;
     double crvmin, frhosq;
     double distsq;
