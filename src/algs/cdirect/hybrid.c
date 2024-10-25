@@ -320,7 +320,7 @@ nlopt_result cdirect_hybrid(int n, nlopt_func f, void *f_data,
      int i;
 
      d.f = f; d.f_data = f_data; d.lb = lb; d.ub = ub;
-     d.x = (double *) malloc(sizeof(double) * n * (stop->xtol_abs ? 4 : 3));
+     d.x = (double *) calloc(n * (stop->xtol_abs ? 4 : 3), sizeof(double));
      if (!d.x) return NLOPT_OUT_OF_MEMORY;
 
      for (i = 0; i < n; ++i) {

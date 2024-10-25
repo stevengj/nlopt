@@ -424,7 +424,7 @@ namespace nlopt {
       d->mf     = mf;
       d->f_data = f_data;
 
-      mythrow(nlopt_add_inequality_mconstraint(o, tol.size(), mymfunc, d,
+      mythrow(nlopt_add_inequality_mconstraint(o, static_cast<unsigned int>(tol.size()), mymfunc, d,
 					       tol.empty() ? NULL : &tol[0]));
     }
 
@@ -453,7 +453,7 @@ namespace nlopt {
       d->mf     = mf;
       d->f_data = f_data;
 
-      mythrow(nlopt_add_equality_mconstraint(o, tol.size(), mymfunc, d,
+      mythrow(nlopt_add_equality_mconstraint(o, static_cast<unsigned int>(tol.size()), mymfunc, d,
 					     tol.empty() ? NULL : &tol[0]));
     }
 
@@ -489,7 +489,7 @@ namespace nlopt {
       d->munge_destroy = md;
       d->munge_copy    = mc;
 
-      mythrow(nlopt_add_inequality_mconstraint(o, tol.size(), mymfunc, d,
+      mythrow(nlopt_add_inequality_mconstraint(o, static_cast<unsigned int>(tol.size()), mymfunc, d,
 					       tol.empty() ? NULL : &tol[0]));
     }
     void add_equality_mconstraint(mfunc mf, void *f_data,
@@ -501,7 +501,7 @@ namespace nlopt {
       d->munge_destroy = md;
       d->munge_copy    = mc;
 
-      mythrow(nlopt_add_equality_mconstraint(o, tol.size(), mymfunc, d,
+      mythrow(nlopt_add_equality_mconstraint(o, static_cast<unsigned int>(tol.size()), mymfunc, d,
 					     tol.empty() ? NULL : &tol[0]));
     }
 

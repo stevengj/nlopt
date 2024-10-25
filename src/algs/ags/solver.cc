@@ -32,8 +32,8 @@ namespace
                       const std::vector<double>& leftBound, const std::vector<double>& rightBound)
       {
         mFunctions = functions;
-        mConstraintsNumber = mFunctions.size() - 1;
-        mDimension = leftBound.size();
+        mConstraintsNumber = static_cast<unsigned int>(mFunctions.size() - 1);
+        mDimension = static_cast<unsigned int>(leftBound.size());
         mLeftBound = leftBound;
         mRightBound = rightBound;
       }

@@ -52,7 +52,7 @@ static int crs_compare(double *k1, double *k2)
 {
      if (*k1 < *k2) return -1;
      if (*k1 > *k2) return +1;
-     return k1 - k2; /* tie-breaker */
+     return (int)(k1 - k2); /* tie-breaker */
 }
 
 /* set x to a random trial value, as defined by CRS:
@@ -67,7 +67,7 @@ static void random_trial(crs_data *d, double *x, rb_node *best)
 
      /* initialize x to x_0 = best point */
      memcpy(x, best->k + 1, sizeof(double) * n);
-     i0 = (best->k - ps) / n1;
+     i0 = (int)((best->k - ps) / n1);
 
      jn = nlopt_iurand(n); /* which of remaining n points is "x_n",
 			      i.e. which to reflect through ...

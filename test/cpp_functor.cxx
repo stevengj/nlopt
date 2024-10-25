@@ -100,7 +100,7 @@ class LinearRegression {
     LinearRegression(QuadraticForm quadratic_form_) :
       quadratic_form(std::move(quadratic_form_)) {}
 
-    double operator()(unsigned n, const double* x, double* grad) const
+    double operator()(unsigned /*n*/, const double* x, double* grad) const
     {
       const double result = quadratic_form.compute_form(x);
       if (!!grad) {

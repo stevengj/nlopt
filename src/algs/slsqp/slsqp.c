@@ -1249,7 +1249,7 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
 	     im, ip, iu, iw;
     double diag;
     int mineq;
-    double xnorm;
+    double xnorm = 0.0;
 
 /*   MINIMIZE with respect to X */
 /*             ||E*X - F|| */

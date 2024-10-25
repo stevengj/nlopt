@@ -102,7 +102,7 @@ public:
   void ClearBox();            
   bool CloseToMin(RVector&, double*, double);
 
-  unsigned int NStationary();      // Returns the number of stationary points
+  int NStationary();      // Returns the number of stationary points
 
   void split(RTBox, RTBox);     // Split a box
   void dispTrials();
