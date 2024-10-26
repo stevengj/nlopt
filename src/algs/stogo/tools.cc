@@ -392,7 +392,7 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
 
 double TBox::LowerBound(double maxgrad) {
 // Lower bound estimation
-  double lb=minf ;
+  double lbound=minf;
   double f1,f2,est ;
   list<Trial>::const_iterator itr1,itr2 ;
 
@@ -406,7 +406,7 @@ double TBox::LowerBound(double maxgrad) {
       x2=(*itr2).xvals ; f2=(*itr2).objval ;
       axpy(-1.0,x2,x1) ; // x1=x1-x2
       est=0.5*(f1+f2-maxgrad*norm2(x1)) ;
-      lb=min(lb,est) ;
+      lbound=min(lbound,est) ;
       // cout << "est=" << est << " x1=" << x1 << " x2=" << x2 << endl ;
     }
   }
@@ -419,5 +419,5 @@ double TBox::LowerBound(double maxgrad) {
     lb=min(lb,est);
   }
 #endif
-  return lb ;
+  return lbound;
 }

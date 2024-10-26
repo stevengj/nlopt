@@ -36,15 +36,15 @@ int ags_minimize(unsigned n, nlopt_func func, void *data, unsigned m, nlopt_cons
   {
     if (fc[i].m != 1)
       return NLOPT_INVALID_ARGS;
-    functions.push_back([fc, n, i](const double* x) {
+    functions.push_back([fc, n, i](const double* x_) {
       double val = 0;
-      nlopt_eval_constraint(&val, NULL, &fc[i], n, x);
+      nlopt_eval_constraint(&val, NULL, &fc[i], n, x_);
       return val;
     });
   }
-  functions.push_back([func, data, n, stop](const double* x) {
+  functions.push_back([func, data, n, stop](const double* x_) {
     ++ *(stop->nevals_p);
-    return func(n, x, NULL, data);});
+    return func(n, x_, NULL, data);});
 
   ags::SolverParameters params;
   params.r = ags_r;

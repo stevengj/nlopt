@@ -39,16 +39,16 @@ public:
   Pgrad Gradient ;
   long int numeval;
 
-  virtual double ObjectiveGradient(RCRVector xy, RVector&grad, whichO which){
+  virtual double ObjectiveGradient(RCRVector xy, RVector&gradient, whichO which){
        ++numeval;
        switch (which) {
 	   case OBJECTIVE_AND_GRADIENT:
-		Gradient(xy, grad);
+		Gradient(xy, gradient);
 		return Objective(xy);
 	   case OBJECTIVE_ONLY:
 		return Objective(xy);
 	   case GRADIENT_ONLY:
-		Gradient(xy, grad);
+		Gradient(xy, gradient);
        }
        return 0.0;
   }
