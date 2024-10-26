@@ -12,6 +12,10 @@ can be found at the NLopt web page: http://ab-initio.mit.edu/nlopt"
 #include "nlopt.hpp"
 %}
 
+#define SWIG_STD_EXCEPTIONS_AS_CLASSES
+
+%include "std_string.i"
+%include "std_except.i"
 %include "std_vector.i"
 namespace std {
   %template(nlopt_doublevector) vector<double>;
