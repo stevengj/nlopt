@@ -17,15 +17,11 @@ if (Matlab_FOUND AND Matlab_MX_LIBRARY)
     set_target_properties (nlopt_optimize-mex PROPERTIES LINKER_LANGUAGE CXX)
   endif ()
 
-  if (NOT DEFINED INSTALL_MEX_DIR)
-    set (INSTALL_MEX_DIR ${INSTALL_LIB_DIR}/matlab)
-  endif ()
-  install (TARGETS nlopt_optimize-mex DESTINATION ${INSTALL_MEX_DIR})
+  set (NLOPT_INSTALL_MEXDIR ${NLOPT_INSTALL_LIBDIR}/matlab CACHE STRING "mex dir")
+  install (TARGETS nlopt_optimize-mex DESTINATION ${NLOPT_INSTALL_MEXDIR})
 
-  if (NOT DEFINED INSTALL_M_DIR)
-    set (INSTALL_M_DIR ${INSTALL_MEX_DIR})
-  endif ()
-  install (FILES ${M_DATA} DESTINATION ${INSTALL_M_DIR})
+  set (NLOPT_INSTALL_MDIR ${NLOPT_INSTALL_LIBDIR}/matlab CACHE STRING "m dir")
+  install (FILES ${M_DATA} DESTINATION ${NLOPT_INSTALL_MDIR})
 endif ()
 
 
