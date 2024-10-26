@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "linux-debug",
+      "binaryDir": "${sourceDir}/build",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_FLAGS": "-Wall -Wextra -Wpedantic -Wshadow",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Wshadow -D_GLIBCXX_ASSERTIONS -fno-inline",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "SWIG_COMPILE_FLAGS": "-O1 -Wno-unused-parameter -Wno-shadow"
+      }
+    }
+  ]
+}
