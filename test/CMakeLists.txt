@@ -5,14 +5,16 @@ macro(NLOPT_add_cpp_test test_name)
   target_link_libraries (${test_name} ${nlopt_lib})
   add_dependencies (tests ${test_name})
   target_include_directories (${test_name} PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
-  add_test (NAME check_${test_name} COMMAND ${test_name})
-  if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
-    set_tests_properties (check_${test_name}
-      PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
-  endif ()
+  foreach(arg IN ITEMS ${ARGN})
+    add_test (NAME check_${test_name}_${arg} COMMAND ${test_name} ${arg})
+    if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+      set_tests_properties (check_${test_name}_${arg}
+        PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
+    endif ()
+  endforeach()
 endmacro()
 
-NLOPT_add_cpp_test(t_tutorial)
+NLOPT_add_cpp_test(t_tutorial 24 25 31 40)
 NLOPT_add_cpp_test(cpp_functor)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
