@@ -158,3 +158,11 @@ however, it will disable algorithms implemented in C++ (StoGO and AGS algorithms
 
 The resulting library has the *same* interface as the ordinary NLopt library, and can *still* be called from ordinary C, C++, and Fortran programs. However, one no longer has to link with the C++ standard libraries, which can sometimes be convenient for non-C++ programs, and allows libnlopt to be compatible with multiple C++ compilers simultaneously.
 
+LGPL solvers
+------------
+
+It is possible to build NLopt as fully permissive library by disabling the LGPL Luksan solvers with:
+
+```sh
+cmake -DNLOPT_LUKSAN=OFF ..
+```
