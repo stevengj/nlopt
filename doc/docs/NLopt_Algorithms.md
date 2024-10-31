@@ -97,7 +97,7 @@ The local-search portion of MLSL can use any of the other algorithms in NLopt, a
 
 LDS-based MLSL with is specified as `NLOPT_G_MLSL_LDS`, while the original non-LDS original MLSL (using pseudo-random numbers, currently via the [Mersenne twister](https://en.wikipedia.org/wiki/Mersenne_twister) algorithm) is indicated by `NLOPT_G_MLSL`. In both cases, you must specify the [local optimization](NLopt_Reference.md#localsubsidiary-optimization-algorithm) algorithm (which can be gradient-based or derivative-free) via `nlopt_opt_set_local_optimizer`.
 
-**Note**: If you do not set a stopping tolerance for your local-optimization algorithm, MLSL defaults to ftol_rel=10<sup>−15</sup> and xtol_rel=10<sup>−7</sup> for the local searches. Note that it is perfectly reasonable to set a relatively large tolerance for these local searches, run MLSL, and then at the end run another local optimization with a lower tolerance, using the MLSL result as a starting point, to "polish off" the optimum to high precision.
+**Note**: If you do not set a maximum evaluation number of maximum runtime the algorithm will run indefinitely. If you do not set a stopping tolerance for your local-optimization algorithm, MLSL defaults to ftol_rel=10<sup>−15</sup> and xtol_rel=10<sup>−7</sup> for the local searches. Note that it is perfectly reasonable to set a relatively large tolerance for these local searches, run MLSL, and then at the end run another local optimization with a lower tolerance, using the MLSL result as a starting point, to "polish off" the optimum to high precision.
 
 By default, each iteration of MLSL samples 4 random new trial points, but this can be changed with the [nlopt_set_population](NLopt_Reference.md#stochastic-population) function.
 
@@ -123,6 +123,8 @@ Some references on StoGO are:
 
 Only bound-constrained problems are supported by this algorithm.
 
+**Note**: If you do not set a maximum evaluation number of maximum runtime the algorithm will run indefinitely.
+
 ### AGS
 
 This algorithm adapted from [this repo](https://github.com/sovrasov/glob_search_nlp_solver).
@@ -144,6 +146,8 @@ References:
 -   Gergel V. and Lebedev I.: Heterogeneous Parallel Computations for Solving Global Optimization Problems. Proc. Comput. Science 66, pp. 53–62 (2015)
 
 -   [Implementation](https://github.com/sovrasov/multicriterial-go) of AGS for constrained multi-objective problems.
+
+**Note**: If you do not set a maximum evaluation number of maximum runtime the algorithm will run indefinitely.
 
 ### ISRES (Improved Stochastic Ranking Evolution Strategy)
 
