@@ -61,8 +61,8 @@ public:
 
   void Search(int, RCRVector);
   void DispMinimizers();
-  double OneMinimizer(RCRVector);
-  bool NoMinimizers();
+  virtual double OneMinimizer(RCRVector);
+  virtual bool NoMinimizers();
   void SetDomain(RTBox);
   void GetDomain(RTBox);
   double GetMinValue();
@@ -73,7 +73,7 @@ public:
   double GetTime();
   bool InTime();
 
-private:
+protected:
   list<Trial> SolSet;
   list<Trial>::const_iterator titr;
   priority_queue<TBox> CandSet;
