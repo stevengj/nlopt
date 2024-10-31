@@ -71,6 +71,8 @@ if (Python_FOUND AND NUMPY_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR
     set_tests_properties (test_python${algo_index} PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
   endforeach()
 
+  add_test (NAME test_memoize COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_memoize.py ${algo_index})
+  set_tests_properties (test_memoize PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
 endif ()
 
 if (OCTAVE_FOUND)

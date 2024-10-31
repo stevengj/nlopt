@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
+#include <string.h>
 
 #include "nlopt-internal.h"
 
@@ -393,6 +394,68 @@ static int elimdim_wrapcheck(nlopt_opt opt)
         return 0;
     }
 }
+
+/*********************************************************************/
+/* wrapper functions for algorithms not considering all evaluated points as candidates
+ * or returning only the last evaluation which might not be optimum */
+
+typedef struct {
+    nlopt_func f;
+    void *f_data;
+    const double *lb, *ub;      /* bounds, of length n */
+    double minf;
+    double *bestx;
+} memoize_data;
+
+
+static double memoize_func(unsigned n, const double *x, double *grad, void *d_)
+{
+    memoize_data *d = (memoize_data *) d_;
+    const double *lb = d->lb, *ub = d->ub;
+    double val;
+    unsigned i, feasible = 1;
+
+    val = d->f(n, x, grad, d->f_data);
+
+    for (i = 0; i < n; ++ i)
+    {
+        if (lb && (x[i] < lb[i]))
+            feasible = 0;
+        if (ub && (x[i] > ub[i]))
+            feasible = 0;
+    }
+    if (feasible && (val < d->minf))
+    {
+        d->minf = val;
+        memcpy(d->bestx, x, n * sizeof(double));
+    }
+    return val;
+}
+
+
+/* return whether to use memoize wrapping. */
+static int memoize_wrapcheck(nlopt_opt opt)
+{
+    if (!opt)
+        return 0;
+
+    /* constraints not supported */
+    if ((opt->m > 0) || (opt->p > 0))
+        return 0;
+
+    switch (opt->algorithm) {
+    case NLOPT_LN_COBYLA:
+    case NLOPT_LD_TNEWTON:
+    case NLOPT_LD_TNEWTON_RESTART:
+    case NLOPT_LD_TNEWTON_PRECOND:
+    case NLOPT_LD_TNEWTON_PRECOND_RESTART:
+        return 1;
+
+    default:
+        return 0;
+    }
+}
+
 
 /*********************************************************************/
 
@@ -863,6 +926,7 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
     void *f_data;
     nlopt_precond pre;
     f_max_data fmd;
+    memoize_data mmzd;
     int maximize;
     nlopt_result ret;
 
@@ -891,6 +955,18 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
         opt->maximize = 0;
     }
 
+    if (memoize_wrapcheck(opt))
+    {
+        mmzd.f = opt->f;
+        mmzd.f_data = opt->f_data;
+        mmzd.lb = opt->lb;
+        mmzd.ub = opt->ub;
+        mmzd.minf = DBL_MAX;
+        mmzd.bestx = (double *) malloc(opt->n * sizeof(double));
+        opt->f = memoize_func;
+        opt->f_data = &mmzd;
+    }
+
     { /* possibly eliminate lb == ub dimensions for some algorithms */
         nlopt_opt elim_opt = opt;
         if (elimdim_wrapcheck(opt)) {
@@ -916,6 +992,16 @@ nlopt_result NLOPT_STDCALL nlopt_optimize(nlopt_opt opt, double *x, double *opt_
     }
 
   done:
+
+    if (memoize_wrapcheck(opt))
+    {
+        memcpy(x, mmzd.bestx, opt->n * sizeof(double));
+        free(mmzd.bestx);
+        *opt_f = mmzd.minf;
+        opt->f = mmzd.f;
+        opt->f_data = mmzd.f_data;
+    }
+
     if (maximize) { /* restore original signs */
         opt->maximize = maximize;
         opt->stopval = -opt->stopval;
