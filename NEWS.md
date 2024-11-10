@@ -6,6 +6,8 @@
 
 * Dropped unused LD_LBFGS_NOCEDAL enum value.
 
+* Python 3.13 support ([#565])
+
 * Fixed COBYLA not returning the optimum ([#57])
 
 * Various minor bugfixes ([#570], [#368], [#563], [#504])
