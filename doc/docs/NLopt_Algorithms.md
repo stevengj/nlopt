@@ -185,6 +185,8 @@ The algorithm is adapted from ideas described in:
 
 The method supports bound constraints only (no nonlinear constraints), and is specified within NLopt as `NLOPT_GN_ESCH`.
 
+**Note**: If you do not set a maximum evaluation number of maximum runtime the algorithm will run indefinitely.
+
 Local derivative-free optimization
 ----------------------------------
 
