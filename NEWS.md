@@ -16,7 +16,7 @@
 
 * Fixed STOGO not registering new optimum ([#504])
 
-* Various minor bugfixes ([#570], [#563])
+* Various minor bugfixes ([#570], [#563], [#379])
 
 ## NLopt 2.8
 
@@ -507,6 +507,7 @@
 [#361]: https://github.com/stevengj/nlopt/issues/361
 [#365]: https://github.com/stevengj/nlopt/issues/365
 [#368]: https://github.com/stevengj/nlopt/issues/368
+[#379]: https://github.com/stevengj/nlopt/issues/379
 [#409]: https://github.com/stevengj/nlopt/issues/409
 [#420]: https://github.com/stevengj/nlopt/issues/420
 [#445]: https://github.com/stevengj/nlopt/issues/445
