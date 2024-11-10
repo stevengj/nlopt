@@ -270,7 +270,6 @@ set_target_properties (${nlopt_lib} PROPERTIES VERSION "${SO_MAJOR}.${SO_MINOR}.
 # INCLUDE DIRECTORIES
 #==============================================================================
 target_include_directories (${nlopt_lib} PRIVATE
-  ${PROJECT_BINARY_DIR}/src/api
   ${PROJECT_BINARY_DIR}
   src/algs/stogo
   src/algs/ags
