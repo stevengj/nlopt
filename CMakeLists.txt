@@ -218,7 +218,7 @@ endif()
 
 
 set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/mma/ccsa_quadratic.c src/algs/cobyla/cobyla.c
-                    src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c
+                    src/util/redblack.c src/algs/neldermead/nldrmd.c src/algs/newuoa/newuoa.c src/util/qsort_r.c src/util/mt19937ar.c
              PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 
 # workaround for false positive in newuoa
