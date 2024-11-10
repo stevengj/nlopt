@@ -12,7 +12,7 @@
 
 * Fixed COBYLA not returning the optimum ([#57])
 
-* Fixed SLSQP returing infeasible optimum ([#368])
+* Fixed SLSQP returning infeasible optimum ([#368])
 
 * Fixed STOGO not registering new optimum ([504])
 
