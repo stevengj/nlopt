@@ -14,7 +14,7 @@
 
 * Fixed SLSQP returning infeasible optimum ([#368])
 
-* Fixed STOGO not registering new optimum ([504])
+* Fixed STOGO not registering new optimum ([#504])
 
 * Various minor bugfixes ([#570], [#563])
 
