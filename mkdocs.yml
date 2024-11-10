@@ -8,10 +8,6 @@ site_dir: 'doc/site'
 
 theme: readthedocs
 
-python:
-   version: 2 # for unicode
-   setup_py_install: True
-
 markdown_extensions:
     - wikilinks
     - toc:
