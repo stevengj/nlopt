@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_LD_TNEWTON_RESTART
-  val = 16;
+  val = 15;

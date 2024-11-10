@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_LN_NEWUOA_BOUND
-  val = 27;
+  val = 26;

@@ -14,12 +14,12 @@ macro(NLOPT_add_cpp_test test_name)
   endforeach()
 endmacro()
 
-NLOPT_add_cpp_test(t_tutorial 24 25 31 40)
+NLOPT_add_cpp_test(t_tutorial 23 24 30 39)
 NLOPT_add_cpp_test(cpp_functor)
 
-NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 19 35 42 43)
+NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 18 34 41 42)
 if (NOT NLOPT_CXX)
-  set_tests_properties (check_t_bounded_8 check_t_bounded_43 PROPERTIES DISABLED TRUE)
+  set_tests_properties (check_t_bounded_8 check_t_bounded_42 PROPERTIES DISABLED TRUE)
 endif ()
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
@@ -36,22 +36,14 @@ if (NLOPT_CXX)
   set_target_properties(testopt PROPERTIES LINKER_LANGUAGE CXX)
 endif ()
 
-foreach (algo_index RANGE 29)# 43
-  foreach (obj_index RANGE 1)# 21
+foreach (algo_index RANGE 28) # 42
+  foreach (obj_index RANGE 1) # 21
     set (enable_ TRUE)
-    # cxx stogo
+    # cxx ags/stogo
     if (NOT NLOPT_CXX)
-      if (algo_index STREQUAL 8 OR algo_index STREQUAL 9)
+      if (algo_index STREQUAL 8 OR algo_index STREQUAL 9 OR algo_index STREQUAL 42)
         set (enable_ FALSE)
       endif ()
-    endif ()
-    # cxx ags
-    if (NOT NLOPT_CXX AND algo_index STREQUAL 43)
-      set (enable_ FALSE)
-    endif ()
-    # L-BFGS
-    if (algo_index STREQUAL 10)
-      set (enable_ FALSE)
     endif ()
     if (enable_)
       add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -r 0 -a ${algo_index} -o ${obj_index})
@@ -60,7 +52,7 @@ foreach (algo_index RANGE 29)# 43
       endif ()
       # Check if LUKSAN targets are available.
       if (NOT NLOPT_LUKSAN)
-        set (list_of_algorithms_requiring_luksan 11 12 13 14 15 16 17 18)
+        set (list_of_algorithms_requiring_luksan 10 11 12 13 14 15 16 17)
         if (algo_index IN_LIST list_of_algorithms_requiring_luksan)
           set_tests_properties (testopt_algo${algo_index}_obj${obj_index} PROPERTIES DISABLED TRUE)
         endif()
@@ -74,7 +66,7 @@ if (Python_FOUND AND NUMPY_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR
                                   "PYTHONPATH=${PROJECT_BINARY_DIR}/src/swig"
     )
 
-  foreach (algo_index 24 25 31 40)
+  foreach (algo_index 23 24 30 39)
     add_test (NAME test_python${algo_index} COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py ${algo_index})
     set_tests_properties (test_python${algo_index} PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
   endforeach()

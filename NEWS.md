@@ -4,6 +4,8 @@
 
 * New `NLOPT_LUKSAN` cmake option to build without Luksan LGPL code ([#569]).
 
+* Dropped unused LD_LBFGS_NOCEDAL enum value.
+
 * Various minor bugfixes ([#566], [#564], [#571], [#465], [#563], [#504], [#187])
 
 ## NLopt 2.8

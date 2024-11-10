@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_G_MLSL_LDS
-  val = 39;
+  val = 38;

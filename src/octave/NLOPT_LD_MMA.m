@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_LD_MMA
-  val = 24;
+  val = 23;
