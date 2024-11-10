@@ -6,7 +6,7 @@
 
 * Dropped unused LD_LBFGS_NOCEDAL enum value.
 
-* Various minor bugfixes ([#570], [#368], [#563], [#504], [#187])
+* Various minor bugfixes ([#570], [#368], [#563], [#504])
 
 ## NLopt 2.8
 
