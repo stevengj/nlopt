@@ -11,10 +11,10 @@ jobs:
           pip install mkdocs python-markdown-math --user
           PATH=$PATH:~/.local/bin mkdocs build
           mkdir build && pushd build
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=ON -DCMAKE_C_FLAGS='-std=c89 -pedantic -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Wshadow' -DCMAKE_CXX_FLAGS='-Wall -Wextra -pedantic -Wshadow' -DSWIG_COMPILE_FLAGS="-Wno-unused-parameter -Wno-missing-field-initializers" ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=ON -DCMAKE_C_FLAGS='-std=c89 -pedantic -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Wshadow' -DCMAKE_CXX_FLAGS='-Wall -Wextra -pedantic -Wshadow' -DSWIG_COMPILE_FLAGS="-Wno-shadow -Wno-unused-parameter -Wno-missing-field-initializers" -DNLOPT_TESTS=ON ..
           make install -j4 && ctest -j4 --output-on-failure
           rm -rf * ~/.local
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_PYTHON=OFF -DNLOPT_OCTAVE=OFF -DNLOPT_GUILE=OFF -DNLOPT_FORTRAN=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../cmake/toolchain-x86_64-w64-mingw32.cmake ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_PYTHON=OFF -DNLOPT_OCTAVE=OFF -DNLOPT_GUILE=OFF -DNLOPT_FORTRAN=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../cmake/toolchain-x86_64-w64-mingw32.cmake -DNLOPT_TESTS=ON ..
           make install -j4
 
   macos:
@@ -25,7 +25,7 @@ jobs:
         run: |
           brew upgrade && brew install swig octave guile
           mkdir build && pushd build
-          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=OFF ..
+          cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=OFF -DNLOPT_TESTS=ON ..
           make install -j3 && ctest --output-on-failure
 
   windows:
@@ -36,7 +36,7 @@ jobs:
         shell: cmd
         run: |
           pip install numpy
-          cmake -DCMAKE_INSTALL_PREFIX=%cd:\=/%/install .
+          cmake -DCMAKE_INSTALL_PREFIX=%cd:\=/%/install -DNLOPT_TESTS=ON .
           cmake --build . --config Release --target install
           xcopy %cd%\install\bin\nlopt.dll %cd%\src\swig
           xcopy %cd%\install\Lib\site-packages\_nlopt*.pyd %cd%\src\swig
