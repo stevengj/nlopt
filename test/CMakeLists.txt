@@ -15,7 +15,8 @@ macro(NLOPT_add_cpp_test test_name)
 endmacro()
 
 NLOPT_add_cpp_test(t_tutorial 23 24 30 39)
-NLOPT_add_cpp_test(cpp_functor)
+NLOPT_add_cpp_test(cpp_functor 0)
+NLOPT_add_cpp_test(t_fbound 0)
 
 NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 18 34 41 42)
 if (NOT NLOPT_CXX)

@@ -1,5 +1,9 @@
 # NLopt Release Notes
 
+in-progress
+
+* Fixed PRAXIS box constraints ([#528])
+
 ## NLopt 2.9
 
 10 November 2024
@@ -517,6 +521,7 @@
 [#504]: https://github.com/stevengj/nlopt/issues/504
 [#509]: https://github.com/stevengj/nlopt/issues/509
 [#510]: https://github.com/stevengj/nlopt/issues/510
+[#528]: https://github.com/stevengj/nlopt/issues/528
 [#533]: https://github.com/stevengj/nlopt/issues/533
 [#534]: https://github.com/stevengj/nlopt/issues/534
 [#535]: https://github.com/stevengj/nlopt/issues/535

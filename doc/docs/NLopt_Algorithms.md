@@ -258,7 +258,7 @@ The original Fortran code was written by Richard Brent and made available by the
 
 Specified in NLopt as `NLOPT_LN_PRAXIS`
 
-This algorithm was originally designed for unconstrained optimization. In NLopt, bound constraints are "implemented" in PRAXIS by the simple expedient of returning infinity (Inf) when the constraints are violated (this is done automatically—you don't have to do this in your own function). This seems to work, more-or-less, but appears to slow convergence significantly. If you have bound constraints, you are probably better off using COBYLA or BOBYQA.
+This algorithm was originally designed for unconstrained optimization. In NLopt, bound constraints are emulated by variable transformation unlike gradient-free algorithms that natively support them like COBYLA or BOBYQA.
 
 ### Nelder-Mead Simplex
 

@@ -57,22 +57,67 @@
 #include "slsqp.h"
 
 /*********************************************************************/
+/* to emulate box constraint support with variable transform */
+
+static void x_bound_inv(int n, double *x, const double *lb, const double *ub)
+{
+    int i;
+    double mid, width, th;
+    if (!lb || !ub)
+        return;
+    for (i = 0; i < n; ++ i)
+    {
+        if (!nlopt_isinf(lb[i]) && !nlopt_isinf(ub[i]))
+        {
+            mid = (lb[i] + ub[i]) * 0.5;
+            width = (ub[i] - lb[i]) * 0.5;
+            th = tanh(x[i]);
+            x[i] = mid + th * width;
+        }
+        else if (!nlopt_isinf(lb[i]))
+            x[i] = (x[i] > lb[i]) ? sqrt(x[i] - lb[i]) : 0.0;
+        else if (!nlopt_isinf(ub[i]))
+            x[i] = (x[i] < ub[i]) ? sqrt(ub[i] - x[i]) : 0.0;
+    }
+}
+
+static void x_bound(int n, double *x, const double *lb, const double *ub)
+{
+    int i;
+    double mid, width, th;
+    if (!lb || !ub)
+        return;
+    for (i = 0; i < n; ++ i)
+    {
+        if (!nlopt_isinf(lb[i]) && !nlopt_isinf(ub[i]))
+        {
+            mid = (lb[i] + ub[i]) * 0.5;
+            width = (ub[i] - lb[i]) * 0.5;
+            th = tanh(x[i]);
+            x[i] = mid + th * width;
+        }
+        else if (!nlopt_isinf(lb[i]))
+            x[i] = lb[i] + x[i] * x[i];
+        else if (!nlopt_isinf(ub[i]))
+            x[i] = ub[i] - x[i] * x[i];
+    }
+}
 
 static double f_bound(int n, const double *x, void *data_)
 {
-    int i;
     nlopt_opt data = (nlopt_opt) data_;
     double f;
+    double *x_tr = NULL;
 
-    /* some methods do not support bound constraints, but support
-       discontinuous objectives so we can just return Inf for invalid x */
-    for (i = 0; i < n; ++i)
-        if (x[i] < data->lb[i] || x[i] > data->ub[i])
-            return HUGE_VAL;
-
-    f = data->f((unsigned) n, x, NULL, data->f_data);
-    return (nlopt_isnan(f) || nlopt_isinf(f) ? HUGE_VAL : f);
+    x_tr = (double *) malloc(n * sizeof(double));
+    memcpy(x_tr, x, n * sizeof(double));
+    x_bound(n, x_tr, data->lb, data->ub);
+    f = data->f((unsigned) n, x_tr, NULL, data->f_data);
+    free(x_tr);
+    return f;
 }
+
+/*********************************************************************/
 
 static double f_noderiv(int n, const double *x, void *data_)
 {
@@ -649,9 +694,19 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_LN_PRAXIS:
         {
             double step;
+            nlopt_result result;
+
             if (initial_step(opt, x, &step) != NLOPT_SUCCESS)
                 return NLOPT_OUT_OF_MEMORY;
-            return praxis_(nlopt_get_param(opt, "t0_tol", 0.0), DBL_EPSILON, step, ni, x, f_bound, opt, &stop, minf);
+
+            /* transform starting point into unbound space */
+            x_bound_inv(ni, x, opt->lb, opt->ub);
+
+            result = praxis_(nlopt_get_param(opt, "t0_tol", 0.0), DBL_EPSILON, step, ni, x, f_bound, opt, &stop, minf);
+
+            /* transform back optimal point to bounded space */
+            x_bound(ni, x, opt->lb, opt->ub);
+            return result;
         }
 
     case NLOPT_LD_LBFGS:
