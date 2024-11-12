@@ -244,7 +244,7 @@ if (NLOPT_CXX)
     src/algs/ags/ags.h
     src/algs/ags/ags.cc)
 
-set_property(SOURCE src/algs/ags/solver.cc src/algs/ags/local_optimizer.cc src/algs/ags/ags.cc src/algs/slsqp/slsqp.c
+set_property(SOURCE src/algs/ags/solver.cc src/algs/ags/local_optimizer.cc src/algs/ags/ags.cc src/algs/slsqp/slsqp.c src/algs/stogo/linalg.cc
              PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif ()
 
