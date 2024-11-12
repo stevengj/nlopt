@@ -1,0 +1,65 @@
+name: Bug Report
+description: Create a bug report.
+labels:
+  - bug
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What should have happened instead? Please provide as many details as possible.
+    validations:
+      required: true
+  - type: textarea
+    id: info
+    attributes:
+      label: How to reproduce the issue?
+      description: Please add the minimal code that helps replicating the issue.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: |
+        Please tell us the version you are using.
+
+         ```python
+         import nlopt 
+         print(nlopt.__version__)
+         ```
+    validations:
+      required: true
+  - type: dropdown
+    id: oscheck
+    attributes:
+      label: Operating System
+      description: Please provide the operating system running.
+      options:
+        - unknown
+        - Windows
+        - Linux
+        - MacOS
+        - all
+        - other
+    validations:
+      required: true
+  - type: dropdown
+    id: sourcecheck
+    attributes:
+      label: Installation media
+      description: Please provide the installation media.
+      options:
+        - unknown
+        - pip
+        - conda
+        - from source
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Include any additional information that you think would be valuable.
