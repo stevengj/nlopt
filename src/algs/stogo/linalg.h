@@ -8,8 +8,8 @@
 
 #include <iostream>
 using namespace std;
-#include <math.h>         // for sqrt()
-#include <float.h>
+#include <cmath>         // for sqrt()
+#include <cfloat>
 
 typedef const class RVector CRVector;
 typedef CRVector& RCRVector;
@@ -18,17 +18,14 @@ typedef CRMatrix& RCRMatrix;
 
 double eps() ;
 
-#define max(A,B)    ((A) > (B) ? (A):(B))
-#define min(A,B)    ((A) < (B) ? (A):(B))
-
 /********************* Class RVector *********************/
 
 class RVector{
 protected:
 
  public:
-  int      len;       // size of array
-  double*  elements;  // array of values
+  int      len = 0;       // size of array
+  double*  elements = nullptr;  // array of values
 
   RVector() ;
   RVector(int);       // Constructor

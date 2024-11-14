@@ -4,7 +4,7 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include <float.h>
+#include <cfloat>
 #include <iostream>
 
 #include <algorithm>
@@ -12,13 +12,6 @@
 #include <list>
 
 #include "linalg.h"
-
-#ifndef FALSE
-const int FALSE=(1==0); // boolean FALSE
-#endif
-#ifndef FALSE
-const int TRUE=(1==1); // boolean TRUE
-#endif
 
 typedef const class Trial CTrial;
 typedef CTrial& RCTrial;
@@ -36,11 +29,7 @@ public:
   friend ostream & operator << (ostream &, RCTrial) ;
 };
 
-#if (!defined(_MSC_VER) && (__cplusplus < 201103L)) || (defined(_MSC_VER) && (_MSVC_LANG < 201103L))
-class TrialGT : public unary_function<Trial, bool>
-#else
 class TrialGT
-#endif
 // Predicate for Trial (needed for remove_if)
 {
 public:

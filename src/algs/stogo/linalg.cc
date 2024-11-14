@@ -4,7 +4,7 @@
 */
 
 #include <iostream>
-#include <math.h>         // for sqrt()
+#include <cmath>         // for sqrt()
 
 #include "linalg.h"
 
@@ -32,7 +32,9 @@ RVector::RVector() {
 RVector::RVector(int n) {
  // Constructor
  len=n;
- elements=new double[len]; (*this)=0.;
+ if (n > 0)
+   elements = new double[len];
+ (*this)=0.;
 }
 
 RVector::RVector(RCRVector vect)

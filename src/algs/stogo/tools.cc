@@ -96,7 +96,7 @@ double TBox::GetMin() {
 }
 
 bool TBox::EmptyBox() {
-  // Returns TRUE if the list of Trials is empty
+  // Returns true if the list of Trials is empty
   return TList.empty() ;
 }
 
@@ -137,7 +137,7 @@ void TBox::ClearBox() {
 }
 
 bool TBox::CloseToMin(RVector &vec, double *objval, double eps_cl) {
-  // Returns TRUE if 'vec' is close to some of the trials in the box,
+  // Returns true if 'vec' is close to some of the trials in the box,
   // in this case, 'vec' and 'objval' are overwritten by the Trial data
   // otherwise 'vec' and 'objval' are not affected.
   //
@@ -155,10 +155,10 @@ bool TBox::CloseToMin(RVector &vec, double *objval, double eps_cl) {
     if (norm2(y)<=eps_cl) {
       vec=x;
       *objval=(*itr).objval;
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 int TBox::NStationary() {
@@ -247,11 +247,11 @@ ostream & operator << (ostream & os, const TBox & B) {
 }
 
 bool TBox::InsideBox(RCRVector x) {
-  // Returns TRUE if the point X lies inside BOX, FALSE otherwise
+  // Returns true if the point X lies inside BOX, false otherwise
   int n=GetDim();
   for (int i=0 ; i<n ; i++)
-    if (x(i)<lb(i) || x(i)>ub(i)) return FALSE;
-  return TRUE;
+    if (x(i)<lb(i) || x(i)>ub(i)) return false;
+  return true;
 }
 
 int TBox::OutsideBox(RCRVector x, RCTBox domain) {
@@ -349,7 +349,7 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
 //   Due to round of errors the algorithm can fail to find an intersection
 //   The caller is notified and should act accordingly
 //
-//  The routine returns FALSE if no intersection was found, TRUE otherwise
+//  The routine returns false if no intersection was found, true otherwise
 
   int n=GetDim();
   RVector tmpV(n);
@@ -357,8 +357,8 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
   int i, j, k, isect;
   double alpha, gamma;
 
-  i=0; done=FALSE;
-  while (i<n && done==FALSE) {
+  i=0; done=false;
+  while (i<n && done==false) {
     if (h(i)==0) {
       z(i)=x(i);
       break;
@@ -382,7 +382,7 @@ bool TBox::Intersection(RCRVector x, RCRVector h, RCRVector z) {
       }
       copy(z,tmpV); axpy(-1.0,x,tmpV);  // tmpV=z-x
       if (isect==1 && dot(tmpV,h)>0) {
-	done=TRUE; break;
+	done=true; break;
       }
     }
     i++;
