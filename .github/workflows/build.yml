@@ -23,7 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: |
-          brew upgrade && brew install swig octave guile
+          brew install pkgconf --overwrite --force
+          brew install swig guile
           mkdir build && pushd build
           cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=OFF -DNLOPT_TESTS=ON ..
           make install -j3 && ctest --output-on-failure
