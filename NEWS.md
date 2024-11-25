@@ -1,6 +1,8 @@
 # NLopt Release Notes
 
-in-progress
+## NLopt 2.9.1
+
+25 november 2024
 
 * Fixed PRAXIS box constraints ([#528])
 
