@@ -62,7 +62,7 @@
 static void x_bound_inv(int n, double *x, const double *lb, const double *ub)
 {
     int i;
-    double mid, width, th;
+    double mid, width, v;
     if (!lb || !ub)
         return;
     for (i = 0; i < n; ++ i)
@@ -71,8 +71,12 @@ static void x_bound_inv(int n, double *x, const double *lb, const double *ub)
         {
             mid = (lb[i] + ub[i]) * 0.5;
             width = (ub[i] - lb[i]) * 0.5;
-            th = tanh(x[i]);
-            x[i] = mid + th * width;
+            v = (x[i] - mid) / width;
+            if (v <= -1.0)
+              v = -1.0 + 1e-12;
+            if (v >= 1.0)
+              v = 1.0 - 1e-12;
+            x[i] = atanh(v);
         }
         else if (!nlopt_isinf(lb[i]))
             x[i] = (x[i] > lb[i]) ? sqrt(x[i] - lb[i]) : 0.0;
