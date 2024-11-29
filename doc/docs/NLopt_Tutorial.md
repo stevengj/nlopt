@@ -544,6 +544,58 @@ On error conditions, the NLopt functions throw [exceptions](http://www.gnu.org/s
 
 The heavy use of side-effects here is a bit unnatural in Scheme, but is used in order to closely map to the C++ interface. (Notice that `nlopt::` C++ functions map to `nlopt-` Guile functions, and `nlopt::opt::` methods map to `nlopt-opt-` functions that take the `opt` object as the first argument.) Of course, you are free to wrap your own Scheme-like functional interface around this if you wish.
 
+Example in Java
+---------------
+
+In Java (1.8 or later), the equivalent of the example above would be:
+
+```java
+import nlopt.*;
+
+public class t_java {
+  private static double myfunc(double[] x, double[] grad) {
+    if (grad != null) {
+      grad[0] = 0.0;
+      grad[1] = 0.5 / Math.sqrt(x[1]);
+    }
+    return Math.sqrt(x[1]);
+  }
+
+  private static double myconstraint(double[] x, double[] grad, double a,
+                                     double b) {
+    if (grad != null) {
+      grad[0] = 3 * a * (a*x[0] + b) * (a*x[0] + b);
+      grad[1] = -1.0;
+    }
+    return ((a*x[0] + b) * (a*x[0] + b) * (a*x[0] + b) - x[1]);
+  }
+
+  public static void main(String[] args) {
+    System.loadLibrary("nloptjni");
+    Opt opt = new Opt(Algorithm.LD_MMA, 2);
+    opt.setLowerBounds(new DoubleVector(Double.NEGATIVE_INFINITY, 0.));
+    opt.setMinObjective(t_java::myfunc);
+    opt.addInequalityConstraint((x, grad) -> myconstraint(x, grad, 2, 0), 1e-8);
+    opt.addInequalityConstraint((x, grad) -> myconstraint(x, grad, -1, 1),
+                                1e-8);
+    opt.setXtolRel(1e-4);
+    DoubleVector x = opt.optimize(new DoubleVector(1.234, 5.678));
+    double minf = opt.lastOptimumValue();
+    System.out.println("optimum at " + x);
+    System.out.println("minimum value: " + minf);
+    System.out.println("result code: " + opt.lastOptimizeResult());
+  }
+}
+```
+
+Note that the objective/constraint functions take two arguments, `x` and `grad`, and return a number. `x` is a vector whose length is the dimension of the problem; grad is either `null` if it is not needed, or a `DoubleVector` that must be modified *in-place* to the gradient of the function.
+
+Also note that the above example uses lambdas, both in the explicit `(x, grad) -> ` notation and using the `::` operator, so it will compile as is only with Java 1.8 or later. The Java binding supports Java 1.5 or later, but if you wish to support versions 1.5 to 1.7, you cannot use lambdas. Instead, for Java prior to 1.8, you would have to explicitly declare the anonymous classes implementing the interfaces, leading to less readable code.
+
+On error conditions, the NLopt functions throw Java runtime exceptions (unchecked exceptions) that can be caught by your Java code if you wish.
+
+Note that the class and method names are renamed to camel case as usual in Java: upper camel case for classes, lower camel case for methods. The exception classes additionally have `Exception` appended to their names. The `nlopt` C++ namespace maps to the `nlopt` Java package, global `nlopt::` C++ functions map to static methods of the `nlopt.NLopt` class, methods of classes (e.g., `nlopt::opt`) map to the methods of the corresponding Java class (e.g., `nlopt.Opt`), and `std::vector<double>` maps to `nlopt.DoubleVector`.
+
 Example in Fortran
 ------------------
 

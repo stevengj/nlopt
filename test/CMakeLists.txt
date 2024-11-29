@@ -64,8 +64,8 @@ endforeach ()
 
 if (Python_NumPy_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-python.cpp)))
   set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
-                                  "PYTHONPATH=${PROJECT_BINARY_DIR}/src/swig"
-    )
+                                  "PYTHONPATH=$<SHELL_PATH:${PROJECT_BINARY_DIR}/src/swig/python;${PROJECT_BINARY_DIR}/src/swig>"
+      )
 
   foreach (algo_index 23 24 30 39)
     add_test (NAME test_python${algo_index} COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py ${algo_index})
@@ -74,6 +74,25 @@ if (Python_NumPy_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig
 
   add_test (NAME test_memoize COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_memoize.py ${algo_index})
   set_tests_properties (test_memoize PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
+endif ()
+
+# The test uses lambdas and the :: operator, which were introduced in Java 1.8.
+# The binding itself should also compile with more ancient Java versions that
+# have already reached their end of life, but it is not worth uglifying the test
+# code for them, because people will then cargo-cult the legacy boilerplate.
+if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND AND NOT Java_VERSION VERSION_LESS 1.8)
+  include (UseJava)
+  add_jar (t_java SOURCES t_java.java INCLUDE_JARS nlopt_jar ENTRY_POINT t_java)
+  get_property (t_java_jar TARGET t_java PROPERTY JAR_FILE)
+  get_property (nlopt_jar_jar TARGET nlopt_jar PROPERTY JAR_FILE)
+  set (nlopt_java_dir $<TARGET_FILE_DIR:nlopt_java>)
+  foreach (algo_index 23 24 30 39)
+    add_test (NAME test_java${algo_index}
+              COMMAND ${Java_JAVA_EXECUTABLE}
+                      -cp "$<SHELL_PATH:${t_java_jar};${nlopt_jar_jar}>"
+                      -Djava.library.path=${nlopt_java_dir} t_java
+                      ${algo_index})
+  endforeach()
 endif ()
 
 if (OCTAVE_FOUND)
@@ -86,7 +105,7 @@ endif ()
 
 if (GUILE_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-guile.cpp)))
   set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
-                              "GUILE_LOAD_PATH=${PROJECT_BINARY_DIR}/src/swig"
+                              "GUILE_LOAD_PATH=$<SHELL_PATH:${PROJECT_BINARY_DIR}/src/swig/guile;${PROJECT_BINARY_DIR}/src/swig>"
                               "GUILE_AUTO_COMPILE=0")
   add_test (NAME test_guile
             COMMAND ${GUILE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_guile.scm

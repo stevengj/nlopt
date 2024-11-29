@@ -42,6 +42,7 @@ option (NLOPT_PYTHON "build python bindings" ON)
 option (NLOPT_OCTAVE "build octave bindings" ON)
 option (NLOPT_MATLAB "build matlab bindings" OFF)
 option (NLOPT_GUILE "build guile bindings" ON)
+option (NLOPT_JAVA "build java bindings" ON)
 option (NLOPT_SWIG "use SWIG to build bindings" ON)
 option (NLOPT_LUKSAN "enable LGPL Luksan solvers" ON)
 option (NLOPT_TESTS "build unit tests" OFF)
@@ -143,7 +144,7 @@ if (WITH_THREADLOCAL AND NOT DEFINED THREADLOCAL)
 endif ()
 
 
-if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE)
+if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE OR NLOPT_JAVA)
   check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
   if (SYSTEM_HAS_CXX)
     set (CMAKE_CXX_STANDARD 11) # set the standard to C++11 but do not require it
@@ -338,6 +339,25 @@ endif ()
 
 if (NLOPT_GUILE)
   find_package (Guile)
+endif ()
+
+if (NLOPT_JAVA)
+  # we do not really need any component, only the main JNI target, but if the
+  # list of components is left empty, FindJNI defaults to "JVM AWT", and we
+  # specifically do not want to check for the AWT library that is not available
+  # on headless installations
+  find_package (JNI COMPONENTS JVM)
+  # FindJNI.cmake in CMake versions prior to 3.24 does not export any targets
+  if(JNI_FOUND AND NOT TARGET JNI::JNI)
+    add_library(JNI::JNI IMPORTED INTERFACE)
+    set_property(TARGET JNI::JNI PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+      ${JAVA_INCLUDE_PATH})
+    if(NOT JNI_INCLUDE_PATH2_OPTIONAL AND JAVA_INCLUDE_PATH2)
+      set_property(TARGET JNI::JNI APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+        ${JAVA_INCLUDE_PATH2})
+    endif()
+  endif()
+  find_package (Java 1.5)
 endif ()
 
 if (NLOPT_SWIG)
