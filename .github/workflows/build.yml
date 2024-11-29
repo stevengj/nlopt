@@ -41,7 +41,8 @@ jobs:
           pip install numpy
           cmake -DCMAKE_INSTALL_PREFIX=%cd:\=/%/install -DNLOPT_TESTS=ON .
           cmake --build . --config Release --target install
-          xcopy %cd%\install\bin\nlopt.dll %cd%\src\swig
-          xcopy %cd%\install\Lib\site-packages\_nlopt*.pyd %cd%\src\swig
+          xcopy %cd%\install\bin\nlopt.dll %cd%\src\swig\python
+          xcopy %cd%\install\Lib\site-packages\_nlopt*.pyd %cd%\src\swig\python
+          xcopy %cd%\install\bin\nlopt.dll %cd%\src\swig\Release
           dir /p %cd%\src\swig
           ctest -C Release --output-on-failure --timeout 100
