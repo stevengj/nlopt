@@ -26,14 +26,12 @@ if (Python_NumPy_FOUND)
   # swig_add_module is deprecated
   swig_add_library (nlopt_python LANGUAGE python SOURCES nlopt.i)
 
-  target_include_directories (nlopt_python PRIVATE ${Python_INCLUDE_DIRS})
-  target_include_directories (nlopt_python PRIVATE ${Python_NumPy_INCLUDE_DIRS})
-
   target_link_libraries (nlopt_python ${nlopt_lib})
   target_link_libraries (nlopt_python Python::NumPy)
   if (TARGET Python::Module)
     target_link_libraries (nlopt_python Python::Module)
   else ()
+    target_include_directories (nlopt_python PRIVATE ${Python_INCLUDE_DIRS})
     include (TargetLinkLibrariesWithDynamicLookup)
     target_link_libraries_with_dynamic_lookup (${nlopt_python} ${Python_LIBRARIES})
   endif ()
