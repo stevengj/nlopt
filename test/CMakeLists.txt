@@ -62,7 +62,7 @@ foreach (algo_index RANGE 28) # 42
   endforeach ()
 endforeach ()
 
-if (Python_FOUND AND NUMPY_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-python.cpp)))
+if (Python_NumPy_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-python.cpp)))
   set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                                   "PYTHONPATH=${PROJECT_BINARY_DIR}/src/swig"
     )

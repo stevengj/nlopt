@@ -12,7 +12,7 @@
 # Benoit Scherrer, 2010 CRL, Harvard Medical School
 # Copyright (c) 2008-2009 Children's Hospital Boston
 #==============================================================================
-cmake_minimum_required (VERSION 3.13)
+cmake_minimum_required (VERSION 3.14)
 
 set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 
@@ -324,13 +324,9 @@ endif ()
 
 if (NLOPT_PYTHON)
   if (CMAKE_VERSION VERSION_LESS 3.26)
-    find_package (Python 3.6 COMPONENTS Interpreter Development)
+    find_package (Python 3.6 COMPONENTS Interpreter Development NumPy)
   else ()
-    find_package (Python 3.6 COMPONENTS Interpreter Development.Module Development.SABIModule)
-  endif ()
-
-  if (Python_FOUND)
-    find_package (NumPy)
+    find_package (Python 3.6 COMPONENTS Interpreter Development.Module Development.SABIModule NumPy)
   endif ()
 endif ()
 

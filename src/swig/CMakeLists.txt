@@ -19,7 +19,7 @@ endif ()
 include_directories (${NLOPT_PRIVATE_INCLUDE_DIRS})
 set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
 
-if (NUMPY_FOUND AND Python_FOUND)
+if (Python_NumPy_FOUND)
 
   set (SWIG_MODULE_nlopt_python_EXTRA_DEPS nlopt-python.i numpy.i generate-cpp)
 
@@ -27,9 +27,10 @@ if (NUMPY_FOUND AND Python_FOUND)
   swig_add_library (nlopt_python LANGUAGE python SOURCES nlopt.i)
 
   target_include_directories (nlopt_python PRIVATE ${Python_INCLUDE_DIRS})
-  target_include_directories (nlopt_python PRIVATE ${NUMPY_INCLUDE_DIRS})
+  target_include_directories (nlopt_python PRIVATE ${Python_NumPy_INCLUDE_DIRS})
 
-  swig_link_libraries (nlopt_python ${nlopt_lib})
+  target_link_libraries (nlopt_python ${nlopt_lib})
+  target_link_libraries (nlopt_python Python::NumPy)
   if (TARGET Python::Module)
     target_link_libraries (nlopt_python Python::Module)
   else ()

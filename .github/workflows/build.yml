@@ -23,7 +23,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: |
-          brew install pkgconf --overwrite --force
           brew install swig guile
           mkdir build && pushd build
           cmake -DCMAKE_INSTALL_PREFIX=~/.local -DNLOPT_FORTRAN=OFF -DNLOPT_TESTS=ON ..
@@ -33,6 +32,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Build
         shell: cmd
         run: |
