@@ -246,26 +246,27 @@ namespace nlopt {
       }
     }
 
+    bool exceptions_enabled;
     result last_result;
     double last_optf;
     nlopt_result forced_stop_reason;
 
   public:
     // Constructors etc.
-    opt() : o(NULL), xtmp(0), gradtmp(0), gradtmp0(0),
+    opt() : o(NULL), xtmp(0), gradtmp(0), gradtmp0(0), exceptions_enabled(true),
 	    last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
 	    forced_stop_reason(NLOPT_FORCED_STOP) {}
     ~opt() { nlopt_destroy(o); }
     opt(algorithm a, unsigned n) :
       o(nlopt_create(nlopt_algorithm(a), n)),
-      xtmp(0), gradtmp(0), gradtmp0(0),
+      xtmp(0), gradtmp(0), gradtmp0(0), exceptions_enabled(true),
       last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
       forced_stop_reason(NLOPT_FORCED_STOP) {
       if (!o) throw std::bad_alloc();
       nlopt_set_munge(o, free_myfunc_data, dup_myfunc_data);
     }
     opt(const char * algo_str, unsigned n) :
-      o(NULL), xtmp(0), gradtmp(0), gradtmp0(0),
+      o(NULL), xtmp(0), gradtmp(0), gradtmp0(0), exceptions_enabled(true),
       last_result(nlopt::FAILURE), last_optf(HUGE_VAL),
       forced_stop_reason(NLOPT_FORCED_STOP) {
       const nlopt_algorithm a = nlopt_algorithm_from_string(algo_str);
@@ -277,6 +278,7 @@ namespace nlopt {
     }
     opt(const opt& f) : o(nlopt_copy(f.o)),
 			xtmp(f.xtmp), gradtmp(f.gradtmp), gradtmp0(0),
+			exceptions_enabled(f.exceptions_enabled),
 			last_result(f.last_result), last_optf(f.last_optf),
 			forced_stop_reason(f.forced_stop_reason) {
       if (f.o && !o) throw std::bad_alloc();
@@ -287,6 +289,7 @@ namespace nlopt {
       o = nlopt_copy(f.o);
       if (f.o && !o) throw std::bad_alloc();
       xtmp = f.xtmp; gradtmp = f.gradtmp;
+      exceptions_enabled = f.exceptions_enabled;
       last_result = f.last_result; last_optf = f.last_optf;
       forced_stop_reason = f.forced_stop_reason;
       return *this;
@@ -300,9 +303,11 @@ namespace nlopt {
       nlopt_result ret = nlopt_optimize(o, x.empty() ? NULL : &x[0], &opt_f);
       last_result = result(ret);
       last_optf = opt_f;
-      if (ret == NLOPT_FORCED_STOP)
-	mythrow(forced_stop_reason);
-      mythrow(ret);
+      if (exceptions_enabled) {
+	if (ret == NLOPT_FORCED_STOP)
+	  mythrow(forced_stop_reason);
+	mythrow(ret);
+      }
       return last_result;
     }
 
@@ -598,6 +603,10 @@ namespace nlopt {
       get_initial_step(x, v);
       return v;
     }
+
+    // exceptions in opt::optimize:
+    bool get_exceptions_enabled() const { return exceptions_enabled; }
+    void set_exceptions_enabled(bool enable) { exceptions_enabled = enable; }
   };
 
 #undef NLOPT_GETSET
