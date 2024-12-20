@@ -230,7 +230,7 @@ You can call the following methods to retrieve the optimized objective function 
 ```
 
 
-The return code (see below) is positive on success, indicating the reason for termination. On failure (negative return codes), `optimize` throws an exception (see [Exceptions](#exceptions), below).
+The return code (see below) is positive on success, indicating the reason for termination. On failure (negative return codes), by default, `optimize` throws an exception (see [Exceptions](#exceptions), below).
 
 ### Return values
 
@@ -239,7 +239,7 @@ The possible return values are the same as the [return values in the C API](NLop
 Exceptions
 ----------
 
-The [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the Guile API by thrown exceptions. The exception key takes the form of a Scheme symbol. The following exception keys are thrown by the various routines:
+If exceptions are enabled (the default), the [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the Guile API by thrown exceptions. The exception key takes the form of a Scheme symbol. The following exception keys are thrown by the various routines:
 
 ```
 runtime-error
@@ -264,6 +264,15 @@ Halted because roundoff errors limited progress, equivalent to `NLOPT_ROUNDOFF_L
 
 `forced-stop` (subclass of `Exception`)
 Halted because of a forced termination: the user called `opt.force_stop()` from the user’s objective function. Equivalent to `NLOPT_FORCED_STOP`.
+
+Whether this behavior is enabled or whether `nlopt-opt-optimize` just returns the error code as is is controlled by the `enable_exceptions` flag in `nlopt::opt`, which can be set and retrieved with the methods below.
+
+```
+(nlopt-opt-set_exceptions_enabled opt enable)
+(nlopt-opt-get_exceptions_enabled opt)
+```
+
+The default is `#t` (true), i.e., to throw an exception. When setting `(nlopt-opt-set_exceptions_enabled opt #f)` (false), it is the caller's responsibility to *manually* check `(nlopt-opt-last-optimize-result opt)`. While that makes the `#f` setting more error-prone, it has the advantage that the best point found (which can be quite good even in some error cases) can still be returned through the return value of `nlopt-opt-optimize`, so is not lost, whereas if exceptions are enabled through `(nlopt-opt-set_exceptions_enabled opt #t)`, the exception prevents the best point from being returned.
 
 Currently, NLopt does not catch any exceptions that you might throw from your objective or constraint functions. (In the future, we might catch these exceptions, halt the optimization gracefully, and then re-throw, as in Python or C++, but this is not yet implemented.) So, throwing an exception in your objective/constraint may result in a memory leak.
 

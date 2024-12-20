@@ -277,7 +277,7 @@ nlopt::result nlopt::opt::optimize(std::vector`<double>` &x, double &opt_f);
 
 On input, `x` is a vector of length `n` (the dimension of the problem from the `nlopt::opt` constructor) giving an initial guess for the optimization parameters. On successful return, `x` contains the optimized values of the optimization parameters, and `opt_f` contains the corresponding value of the objective function.
 
-The return value (see below) is positive on success, indicating the reason for termination. On failure (negative return codes), it throws an exception (see [Exceptions](#exceptions), below).
+The return value (see below) is positive on success, indicating the reason for termination. On failure (negative return codes), by default, it throws an exception (see [Exceptions](#exceptions), below).
 
 You can also call the following methods to retrieve the `opt_f` value from the last `optimize` call, and the return value (including negative/failure return values) from the last `optimize` call:
 
@@ -294,7 +294,7 @@ The possible return values are the same as the [return values in the C API](NLop
 Exceptions
 ----------
 
-The [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the C++ API by thrown exceptions. The following exceptions are thrown by the various routines:
+If exceptions are enabled (the default), the [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the C++ API by thrown exceptions. The following exceptions are thrown by the various routines:
 
 ```
 std::runtime_error
@@ -320,7 +320,16 @@ Halted because roundoff errors limited progress, equivalent to `NLOPT_ROUNDOFF_L
 `nlopt::forced_stop` (subclass of `std::runtime_error`)
 Halted because of a [forced termination](#forced-termination): the user called `nlopt::opt::force_stop()` from the user’s objective function or threw an `nlopt::forced_stop` exception. Equivalent to `NLOPT_FORCED_STOP`.
 
-If your objective/constraint functions throw *any* exception during the execution of `nlopt::opt::optimize`, it will be caught by NLopt and the optimization will be halted gracefully, and `nlopt::opt::optimize` will re-throw an exception. However, the exception that is re-thrown by `nlopt::opt::optimize` will be one of the five exceptions above; if the exception thrown by your code was not one of these five, it will be converted to a generic `std::runtime_error` exception. (The reason for this is that C++ has no clean way to save an arbitrary exception and rethrow it later, outside the original `catch` statement.) Therefore, if you want to do something special in response to a particular exception that is not one of these five, you should catch it yourself in your function, handle it however you want, and re-throw if desired.
+Whether this behavior is enabled or whether `nlopt::opt::optimize` just returns the error code as is is controlled by the `enable_exceptions` flag in `nlopt::opt`, which can be set and retrieved with the methods below.
+
+```
+void nlopt::opt::set_exceptions_enabled(bool enable);
+bool nlopt::opt::get_exceptions_enabled() const;
+```
+
+The default is `true`, i.e., to throw an exception. When setting `set_exceptions_enabled(false)`, it is the caller's responsibility to *manually* check the return code, as in C (or, equivalently, the `last_optimize_result`). This is especially useful in the bindings for other programming languages (e.g., Python), where `nlopt::opt::optimize` is modified to return the best point as a return value instead of overwriting the start point, and hence, if an exception is thrown, the best point can no longer be retrieved. But it can also be useful for pure C++ code.
+
+If your objective/constraint functions throw *any* exception during the execution of `nlopt::opt::optimize`, it will be caught by NLopt and the optimization will be halted gracefully, and, if exceptions are enabled, `nlopt::opt::optimize` will re-throw an exception. However, the exception that is re-thrown by `nlopt::opt::optimize` will be one of the five exceptions above; if the exception thrown by your code was not one of these five, it will be converted to a generic `std::runtime_error` exception. (The reason for this is that C++ has no clean way to save an arbitrary exception and rethrow it later, outside the original `catch` statement.) Therefore, if you want to do something special in response to a particular exception that is not one of these five, you should catch it yourself in your function, handle it however you want, and re-throw if desired. If exceptions are disabled, `nlopt::opt::optimize` will return `NLOPT_FORCED_STOP` instead of rethrowing a C++ exception, though bindings for languages such as Python may rethrow, e.g., Python exceptions.
 
 Local/subsidiary optimization algorithm
 ---------------------------------------
