@@ -5,7 +5,7 @@
 #define TOOLS_H
 
 #include <cfloat>
-#include <iostream>
+#include <ostream>
 
 #include <algorithm>
 #include <iterator>

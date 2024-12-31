@@ -6,7 +6,7 @@
 #ifndef LINALG_H
 #define LINALG_H
 
-#include <iostream>
+#include <ostream>
 using namespace std;
 #include <cmath>         // for sqrt()
 #include <cfloat>
