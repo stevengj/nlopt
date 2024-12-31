@@ -3,7 +3,7 @@
    No attempt is made to check if the function arguments are valid
 */
 
-#include <iostream>
+#include <ostream>
 #include <cmath>         // for sqrt()
 
 #include "linalg.h"
