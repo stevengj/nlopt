@@ -82,6 +82,7 @@ extern "C" {
         double ftol_rel;
         double ftol_abs;
         double xtol_rel;
+        double tolg;
         const double *xtol_abs;
         const double *x_weights;
         int *nevals_p, maxeval;

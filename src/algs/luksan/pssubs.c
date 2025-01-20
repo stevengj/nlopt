@@ -886,7 +886,7 @@ void luksan_pyadc0__(int *nf, int *n, double *x,
 void luksan_pyfut1__(int *n, double *f, double *fo, double *umax,
 		     double *gmax, int xstop, /* double *dmax__,  */
 		     const nlopt_stopping *stop,
-		     double *tolg, int *kd, int *nit, int *kit, int *mit,
+		     int *kd, int *nit, int *kit, int *mit,
 		     int *nfg, int *mfg, int *ntesx,
 	int *mtesx, int *ntesf, int *mtesf, int *ites,
 	int *ires1, int *ires2, int *irest, int *iters,
@@ -920,7 +920,7 @@ void luksan_pyfut1__(int *n, double *f, double *fo, double *umax,
 	return;
     }
     if (*kd > 0) {
-	if (*gmax <= *tolg && *umax <= *tolg) {
+	if (*gmax <= stop->tolg && *umax <= stop->tolg) { 
 	    *iterm = 4;
 	    return;
 	}

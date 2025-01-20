@@ -556,6 +556,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     stop.ftol_abs = opt->ftol_abs;
     stop.xtol_rel = opt->xtol_rel;
     stop.xtol_abs = opt->xtol_abs;
+    stop.tolg = (opt->tolg > 0.)
+        ? opt->tolg
+        : 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
     stop.x_weights = opt->x_weights;
     opt->numevals = 0;
     stop.nevals_p = &(opt->numevals);

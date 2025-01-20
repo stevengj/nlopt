@@ -357,6 +357,8 @@ I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia
 
 One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
 
+This algorithm makes use of the `tolg` (tolerance for the gradient norm) in `nlopt_opt` and will stop succesfully if gradient norm falls lower than it.
+
 ### Preconditioned truncated Newton
 
 This algorithm in NLopt, is based on a Fortran implementation of a preconditioned inexact truncated Newton algorithm written by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
@@ -369,6 +371,8 @@ The algorithms are based on the ones described by:
 
 -   R. S. Dembo and T. Steihaug, "Truncated Newton algorithms for large-scale optimization," *Math. Programming* **26**,
 p. 190-212 (1983) <http://doi.org/10.1007/BF02592055>.
+
+They make use of the `tolg` (tolerance for the gradient norm) in `nlopt_opt` and will stop succesfully if gradient falls lower than it.structure
 
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 
@@ -385,6 +389,8 @@ There are two variations of this algorithm: `NLOPT_LD_VAR2`, using a rank-2 meth
 The algorithms are based on the ones described by:
 
 -   J. Vlcek and L. Luksan, "Shifted limited-memory variable metric methods for large-scale unconstrained minimization," *J. Computational Appl. Math.* **186**, p. 365-390 (2006).
+
+They make use of the `tolg` (tolerance for the gradient norm) in `nlopt_opt` and will stop succesfully if gradient falls lower than it.structure
 
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 

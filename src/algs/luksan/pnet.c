@@ -130,7 +130,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
 		  double *s, double *xo, double *go, double *xs,
 		  double *gs, double *xm, double *gm, double *u1,
 		  double *u2, double *xmax, double *tolx, double *tolf,
-		  double *tolb, double *tolg, nlopt_stopping *stop,
+		  double *tolb, nlopt_stopping *stop,
 		  double *minf_est, double *
 		  gmax, double *f, int *mit, int *mfv, int *mfg,
 		  int *iest, int *mos1, int *mos2, int *mf,
@@ -244,9 +244,6 @@ static void pnet_(int *nf, int *nb, double *x, int *
     if (*tolf <= 0.) {
 	*tolf = 1e-14;
     }
-    if (*tolg <= 0.) {
-	 *tolg = 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
-    }
 #if 0
     /* removed by SGJ: this check prevented us from using minf_max <= 0,
        which doesn't make sense.  Instead, if you don't want to have a
@@ -305,7 +302,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
 L11020:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
     luksan_mxvcop__(nf, &gf[1], &gn[1]);
-    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg,
+    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop,
 	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, mfg, &
 	    ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
 	    iters, iterm);
@@ -577,7 +574,6 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
      double *xl, *xu, *gf, *gn, *s, *xo, *go, *xs, *gs, *xm, *gm, *u1, *u2;
      double gmax, minf_est;
      double xmax = 0; /* no maximum */
-     double tolg = 0; /* default gradient tolerance */
      int iest = 0; /* we have no estimate of min function value */
      int mit = 0, mfg = 0; /* default no limit on #iterations */
      int mfv = stop->maxeval;
@@ -633,7 +629,6 @@ nlopt_result luksan_pnet(int n, nlopt_func f, void *f_data,
 	   &stop->xtol_rel,
 	   &stop->ftol_rel,
 	   &stop->minf_max,
-	   &tolg,
 	   stop,
 
 	   &minf_est, &gmax,
