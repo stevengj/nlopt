@@ -1,4 +1,5 @@
 // -*- C++ -*-
+// kate: hl c++
 
 %define DOCSTRING
 "NLopt is a multi-language library for nonlinear optimization (local or
@@ -7,7 +8,11 @@ constraints).  Complete documentation, including a Python tutorial,
 can be found at the NLopt web page: http://ab-initio.mit.edu/nlopt"
 %enddef
 
+#ifdef SWIGJAVA
+%module(docstring=DOCSTRING) NLopt
+#else
 %module(docstring=DOCSTRING) nlopt
+#endif
 %{
 #include "nlopt.hpp"
 %}
@@ -18,15 +23,24 @@ can be found at the NLopt web page: http://ab-initio.mit.edu/nlopt"
 %include "std_except.i"
 %include "std_vector.i"
 namespace std {
+#ifdef SWIGJAVA
+  %template(DoubleVector) vector<double>;
+#else
   %template(nlopt_doublevector) vector<double>;
+#endif
 };
 
 %ignore nlopt::opt::myfunc_data;
 %ignore nlopt::opt::operator=;
 
 // dont use the in-place version of get_initial_step
+%ignore nlopt_get_initial_step;
 %ignore nlopt::opt::get_initial_step;
+#ifdef SWIGJAVA
+%rename(getInitialStep) nlopt::opt::get_initial_step_;
+#else
 %rename(get_initial_step) nlopt::opt::get_initial_step_;
+#endif
 
 // prepend "nlopt_" in Guile to substitute for namespace
 #if defined(SWIGGUILE)
@@ -51,6 +65,10 @@ namespace std {
 
 #ifdef SWIGPYTHON
 %include "nlopt-python.i"
+#endif
+
+#ifdef SWIGJAVA
+%include "nlopt-java.i"
 #endif
 
 %include "nlopt.hpp"
