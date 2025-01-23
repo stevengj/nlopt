@@ -107,7 +107,7 @@ static void plis_(int *nf, int *nb, double *x, int *
 		  ix, double *xl, double *xu, double *gf, double *s,
 		  double *xo, double *go, double *uo, double *vo,
 		  double *xmax, double *tolx, double *tolf, double *
-		  tolb, nlopt_stopping *stop,
+		  tolb, double *tolg, nlopt_stopping *stop,
 		  double *minf_est, double *gmax,
 		  double *f, int *mit, int *mfv, int *iest, int *mf,
 		  int *iterm, stat_common *stat_1,
@@ -209,6 +209,9 @@ static void plis_(int *nf, int *nb, double *x, int *
     if (*tolf <= 0.) {
 	*tolf = 1e-14;
     }
+    if (*tolg <= 0.) {
+	 *tolg = 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
+    }
 #if 0
     /* removed by SGJ: this check prevented us from using minf_max <= 0,
        which doesn't make sense.  Instead, if you don't want to have a
@@ -260,7 +263,7 @@ static void plis_(int *nf, int *nb, double *x, int *
     if (nlopt_stop_time(stop)) { *iterm = 100; goto L11190; }
 L11120:
     luksan_pytrcg__(nf, nf, &ix[1], &gf[1], &umax, gmax, &kbf, &iold);
-    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop,
+    luksan_pyfut1__(nf, f, &fo, &umax, gmax, xstop, stop, tolg,
 	    &kd, &stat_1->nit, &kit, mit, &stat_1->nfg, &mfg,
 	    &ntesx, &mtesx, &ntesf, &mtesf, &ites, &ires1, &ires2, &irest, &
 	    iters, iterm);
@@ -419,7 +422,8 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 		  double *x, /* in: initial guess, out: minimizer */
 		  double *minf,
 		  nlopt_stopping *stop,
-			 int mf) /* subspace dimension, 0 for default */
+		  int mf, /* subspace dimension, 0 for default */
+		  double tolg) /* gradient tolerance */
 {
      int i, *ix, nb = 1;
      double *work, *xl, *xu, *xo, *gf, *s, *go, *uo, *vo;
@@ -478,6 +482,7 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 	   &stop->xtol_rel,
 	   &stop->ftol_rel,
 	   &stop->minf_max,
+	   &tolg,
 	   stop,
 
 	   &minf_est, &gmax,

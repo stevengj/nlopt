@@ -65,7 +65,6 @@ extern "C" {
         double stopval;         /* stop when f reaches stopval or better */
         double ftol_rel, ftol_abs;      /* relative/absolute f tolerances */
         double xtol_rel, *xtol_abs;     /* rel/abs x tolerances */
-        double tolg;            /* tolerance for the gradient norm - only used by luksan algorithms */
         double *x_weights;      /* weights for relative x tolerance */
         int maxeval;            /* max # evaluations */
         int numevals;           /* number of evaluations */

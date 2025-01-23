@@ -96,7 +96,6 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
         opt->xtol_rel = 0;
         opt->x_weights = NULL;
         opt->xtol_abs = NULL;
-        opt->tolg = 0;
         opt->maxeval = 0;
         opt->numevals = 0;
         opt->maxtime = 0;

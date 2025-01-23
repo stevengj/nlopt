@@ -556,9 +556,6 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     stop.ftol_abs = opt->ftol_abs;
     stop.xtol_rel = opt->xtol_rel;
     stop.xtol_abs = opt->xtol_abs;
-    stop.tolg = (opt->tolg > 0.)
-        ? opt->tolg
-        : 1e-8; /* SGJ: was 1e-6, but this sometimes stops too soon */
     stop.x_weights = opt->x_weights;
     opt->numevals = 0;
     stop.nevals_p = &(opt->numevals);
@@ -718,7 +715,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 
     case NLOPT_LD_LBFGS:
 #ifdef NLOPT_LUKSAN
-        return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage);
+        return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, opt->get_param("tolg", 0.));
 #else
         printf("ERROR - attempting to use NLOPT_LD_LBFGS, but Luksan code disabled\n");
         return NLOPT_INVALID_ARGS;
@@ -727,7 +724,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_LD_VAR1:
     case NLOPT_LD_VAR2:
 #ifdef NLOPT_LUKSAN
-        return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2);
+        return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2, opt->get_param("tolg", 0.));
 #else
         printf("ERROR - attempting to use NLOPT_LD_VAR*, but Luksan code disabled\n");
         return NLOPT_INVALID_ARGS;
@@ -738,7 +735,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_LD_TNEWTON_PRECOND:
     case NLOPT_LD_TNEWTON_PRECOND_RESTART:
 #ifdef NLOPT_LUKSAN
-        return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2);
+        return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2, opt->get_param("tolg", 0.));
 #else
         printf("ERROR - attempting to use NLOPT_LD_TNEWTON*, but Luksan code disabled\n");
         return NLOPT_INVALID_ARGS;
