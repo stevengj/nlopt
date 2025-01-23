@@ -1,5 +1,13 @@
 # NLopt Release Notes
 
+## NLopt 2.10
+
+work in progress
+
+* New Java bindings ([#578])
+
+* Allow disabling exceptions ([#580])
+
 ## NLopt 2.9.1
 
 25 november 2024
@@ -535,3 +543,5 @@
 [#565]: https://github.com/stevengj/nlopt/issues/565
 [#568]: https://github.com/stevengj/nlopt/issues/568
 [#570]: https://github.com/stevengj/nlopt/issues/570
+[#578]: https://github.com/stevengj/nlopt/issues/578
+[#580]: https://github.com/stevengj/nlopt/issues/580
