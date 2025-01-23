@@ -304,7 +304,7 @@ double opt_val = opt.lastOptimumValue();
 Result result = opt.lastOptimizeResult();
 ```
 
-The return code (see below) is positive on success, indicating the reason for termination. On failure (negative return codes), `optimize()` throws an exception (see [Exceptions](#exceptions), below).
+The return code (see below) is positive on success, indicating the reason for termination. On failure (negative return codes), by default, `optimize()` throws an exception (see [Exceptions](#exceptions), below).
 
 ### Return values
 
@@ -313,7 +313,7 @@ The possible return values are the same as the [return values in the C API](NLop
 Exceptions
 ----------
 
-The [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the Java API by thrown exceptions. The following exceptions are thrown by the various routines:
+If exceptions are enabled (the default), the [Error codes (negative return values)](NLopt_Reference.md#error-codes-negative-return-values) in the C API are replaced in the Java API by thrown exceptions. The following exceptions are thrown by the various routines:
 
 ```
 RuntimeException
@@ -339,7 +339,16 @@ Halted because roundoff errors limited progress, equivalent to `NLOPT_ROUNDOFF_L
 `nlopt.ForcedStopException` (subclass of `RuntimeException`)
 Halted because of a [forced termination](#forced-termination): the user called `opt.forceStop()` from the user’s objective function or threw an `nlopt.ForcedStop` exception. Equivalent to `NLOPT_FORCED_STOP`.
 
-If your objective/constraint functions throw *any* (runtime) exception during the execution of `opt.optimize`, it will be caught by NLopt and the optimization will be halted gracefully, and `opt.optimize` will re-throw the *same* exception to its caller. (Note that the Java compiler will not allow you to throw a checked exception from your callbacks, only a runtime exception.)
+Whether this behavior is enabled or whether `nlopt.Opt.optimize` just returns the error code as is is controlled by the `enableExceptions` flag in `nlopt.Opt`, which can be set and retrieved with the methods below.
+
+```java
+opt.setExceptionsEnabled(enable)
+opt.getExceptionsEnabled()
+```
+
+The default is `true`, i.e., to throw an exception. When setting `opt.setExceptionsEnabled(false)`, it is the caller's responsibility to *manually* check `opt.lastOptimizeResult()`. While that makes the `false` setting more error-prone, it has the advantage that the best point found (which can be quite good even in some error cases) can still be returned through the return value of `optimize`, so is not lost, whereas if exceptions are enabled through `opt.setExceptionsEnabled(true)`, the exception prevents the best point from being returned.
+
+If your objective/constraint functions throw *any* (runtime) exception during the execution of `opt.optimize`, it will be caught by NLopt and the optimization will be halted gracefully, and `opt.optimize` will re-throw the *same* exception to its caller. (Note that the Java compiler will not allow you to throw a checked exception from your callbacks, only a runtime exception.) For Java, the exception *will always* be rethrown, even if exceptions are otherwise disabled (`opt.setExceptionsEnabled(false)`).
 
 Local/subsidiary optimization algorithm
 ---------------------------------------
