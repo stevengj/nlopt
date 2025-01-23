@@ -428,7 +428,7 @@ nlopt_result luksan_plip(int n, nlopt_func f, void *f_data,
 			 nlopt_stopping *stop,
 			 int mf, /* subspace dimension (0 for default) */
 			 int method, /* 1 or 2, see below */
-			 double tolg); /* gradient tolerance */
+			 double tolg) /* gradient tolerance */
 {
      int i, *ix, nb = 1;
      double *work, *xl, *xu, *gf, *s, *xo, *go, *so, *xm, *xr, *gr;
