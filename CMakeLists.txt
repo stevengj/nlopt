@@ -14,9 +14,9 @@
 #==============================================================================
 cmake_minimum_required (VERSION 3.15)
 
-set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
-
 project (nlopt)
+
+set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 
 #==============================================================================
 # version
