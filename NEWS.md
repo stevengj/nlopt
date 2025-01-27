@@ -6,7 +6,9 @@ work in progress
 
 * New Java bindings ([#578])
 
-* Allow disabling exceptions ([#580])
+* Allow disabling exceptions with `set_exceptions_enabled` ([#580])
+
+* Configurable `tolg` tolerance parameter for Luksan gradient stopping condition ([#585])
 
 ## NLopt 2.9.1
 
@@ -545,3 +547,4 @@ work in progress
 [#570]: https://github.com/stevengj/nlopt/issues/570
 [#578]: https://github.com/stevengj/nlopt/issues/578
 [#580]: https://github.com/stevengj/nlopt/issues/580
+[#585]: https://github.com/stevengj/nlopt/issues/585
