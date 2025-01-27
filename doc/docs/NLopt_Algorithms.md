@@ -357,6 +357,10 @@ I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia
 
 One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
 
+The `NLOPT_LD_LBFGS` algorithm supports the following internal parameter, which can be specified using the [`nlopt_set_param` API](NLopt_Reference.md#algorithm-specific-parameters):
+
+* `tolg` (defaults to `1e-8`) "gradient tolerance": the algorithm will stop successfully if either the *maximum absolute value of the negative lagrange multiplier* or the *norm of the transformed gradient* falls below *tolg*.
+
 ### Preconditioned truncated Newton
 
 This algorithm in NLopt, is based on a Fortran implementation of a preconditioned inexact truncated Newton algorithm written by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
@@ -374,6 +378,10 @@ I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia
 
 One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
 
+All the `NLOPT_LD_TNEWTON` algorithms support the following internal parameter, which can be specified using the [`nlopt_set_param` API](NLopt_Reference.md#algorithm-specific-parameters):
+
+* `tolg` (defaults to `1e-8`) "gradient tolerance": the algorithm will stop successfully if either the *maximum absolute value of the negative lagrange multiplier* or the *norm of the transformed gradient* falls below *tolg*.
+
 ### Shifted limited-memory variable-metric
 
 This algorithm in NLopt, is based on a Fortran implementation of a shifted limited-memory variable-metric algorithm by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
@@ -389,6 +397,10 @@ The algorithms are based on the ones described by:
 I converted Prof. Luksan's code to C with the help of [f2c](https://en.wikipedia.org/wiki/f2c), and made a few minor modifications (mainly to include the NLopt termination criteria).
 
 One of the parameters of this algorithm is the number *M* of gradients to "remember" from previous optimization steps: increasing *M* increases the memory requirements but may speed convergence. NLopt sets *M* to a heuristic value by default, but this can be [changed by the set_vector_storage function](NLopt_Reference.md#vector-storage-for-limited-memory-quasi-newton-algorithms).
+
+The `NLOPT_LD_VAR1` and `NLOPT_LD_VAR2` algorithms support the following internal parameter, which can be specified using the [`nlopt_set_param` API](NLopt_Reference.md#algorithm-specific-parameters):
+
+* `tolg` (defaults to `1e-8`) "gradient tolerance": the algorithm will stop successfully if either the *maximum absolute value of the negative lagrange multiplier* or the *norm of the transformed gradient* falls below *tolg*.
 
 Augmented Lagrangian algorithm
 ------------------------------

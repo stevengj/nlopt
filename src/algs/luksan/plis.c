@@ -422,13 +422,13 @@ nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 		  double *x, /* in: initial guess, out: minimizer */
 		  double *minf,
 		  nlopt_stopping *stop,
-			 int mf) /* subspace dimension, 0 for default */
+		  int mf, /* subspace dimension, 0 for default */
+		  double tolg) /* gradient tolerance */
 {
      int i, *ix, nb = 1;
      double *work, *xl, *xu, *xo, *gf, *s, *go, *uo, *vo;
      double gmax, minf_est;
      double xmax = 0; /* no maximum */
-     double tolg = 0; /* default gradient tolerance */
      int iest = 0; /* we have no estimate of min function value */
      int mit = 0; /* default no limit on #iterations */
      int mfv = stop->maxeval;
