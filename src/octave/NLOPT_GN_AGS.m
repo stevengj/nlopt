@@ -3,4 +3,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_GN_AGS
-  val = 42;
+  val = 43;

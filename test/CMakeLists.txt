@@ -14,14 +14,14 @@ macro(NLOPT_add_cpp_test test_name)
   endforeach()
 endmacro()
 
-NLOPT_add_cpp_test(t_tutorial 23 24 30 39)
+NLOPT_add_cpp_test(t_tutorial 24 25 31 40)
 NLOPT_add_cpp_test(cpp_functor 0)
 NLOPT_add_cpp_test(t_fbound 0)
 NLOPT_add_cpp_test(t_except 1 0)
 
-NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 18 34 41 42)
+NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 19 35 42 43)
 if (NOT NLOPT_CXX)
-  set_tests_properties (check_t_bounded_8 check_t_bounded_42 PROPERTIES DISABLED TRUE)
+  set_tests_properties (check_t_bounded_8 check_t_bounded_43 PROPERTIES DISABLED TRUE)
 endif ()
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
@@ -47,6 +47,10 @@ foreach (algo_index RANGE 28) # 42
         set (enable_ FALSE)
       endif ()
     endif ()
+    # nocedal
+    if (algo_index STREQUAL 10)
+     set (enable_ FALSE)
+    endif ()
     if (enable_)
       add_test (NAME testopt_algo${algo_index}_obj${obj_index} COMMAND testopt -r 0 -a ${algo_index} -o ${obj_index})
       if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
@@ -68,7 +72,7 @@ if (Python_NumPy_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig
                                   "PYTHONPATH=$<SHELL_PATH:${PROJECT_BINARY_DIR}/src/swig/python;${PROJECT_BINARY_DIR}/src/swig>"
       )
 
-  foreach (algo_index 23 24 30 39)
+  foreach (algo_index 24 25 31 40)
     add_test (NAME test_python${algo_index} COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_python.py ${algo_index})
     set_tests_properties (test_python${algo_index} PROPERTIES ENVIRONMENT "${PYINSTALLCHECK_ENVIRONMENT}")
   endforeach()
@@ -87,7 +91,7 @@ if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND AND NOT Java_VERSION VERSION_LESS 1.
   get_property (t_java_jar TARGET t_java PROPERTY JAR_FILE)
   get_property (nlopt_jar_jar TARGET nlopt_jar PROPERTY JAR_FILE)
   set (nlopt_java_dir $<TARGET_FILE_DIR:nlopt_java>)
-  foreach (algo_index 23 24 30 39)
+  foreach (algo_index 24 25 31 40)
     add_test (NAME test_java${algo_index}
               COMMAND ${Java_JAVA_EXECUTABLE}
                       -cp "$<SHELL_PATH:${t_java_jar};${nlopt_jar_jar}>"

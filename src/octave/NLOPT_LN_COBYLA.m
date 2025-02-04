@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_LN_COBYLA
-  val = 24;
+  val = 25;

@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_GN_MLSL
-  val = 19;
+  val = 20;

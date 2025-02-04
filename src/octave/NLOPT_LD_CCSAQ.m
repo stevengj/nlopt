@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_LD_CCSAQ
-  val = 40;
+  val = 41;

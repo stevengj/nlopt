@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_GN_ESCH
-  val = 41;
+  val = 42;
