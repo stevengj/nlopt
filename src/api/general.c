@@ -50,6 +50,7 @@ static const char nlopt_algorithm_names[NLOPT_NUM_ALGORITHMS][256] = {
     "StoGO (NOT COMPILED)",
     "StoGO randomized (NOT COMPILED)",
 #endif
+    "original L-BFGS code by Nocedal et al. (NOT COMPILED)",
     "Limited-memory BFGS (L-BFGS) (local, derivative-based)",
     "Principal-axis, praxis (local, no-derivative)",
     "Limited-memory variable-metric, rank 1 (local, derivative-based)",
@@ -114,6 +115,7 @@ const char *nlopt_algorithm_to_string(nlopt_algorithm algorithm)
     case NLOPT_GD_STOGO: return "GD_STOGO";
     case NLOPT_GD_STOGO_RAND: return "GD_STOGO_RAND";
     case NLOPT_LD_LBFGS: return "LD_LBFGS";
+    case NLOPT_LD_LBFGS_NOCEDAL: return "NLOPT_LD_LBFGS_NOCEDAL";
     case NLOPT_LN_PRAXIS: return "LN_PRAXIS";
     case NLOPT_LD_VAR1: return "LD_VAR1";
     case NLOPT_LD_VAR2: return "LD_VAR2";

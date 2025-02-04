@@ -2,4 +2,4 @@
 %
 % See nlopt_minimize for more information.
 function val = NLOPT_AUGLAG_EQ
-  val = 36;
+  val = 37;
