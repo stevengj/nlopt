@@ -4,15 +4,17 @@
 
 work in progress
 
-* New Java bindings ([#578])
+* New Java bindings ([#578]).
 
-* Allow disabling exceptions with `set_exceptions_enabled` ([#580])
+* Allow disabling exceptions with `set_exceptions_enabled` ([#580]).
 
-* Configurable `tolg` tolerance parameter for Luksan gradient stopping condition ([#585])
+* Configurable `tolg` tolerance parameter for Luksan gradient stopping condition ([#585]).
+
+* Restored `LD_LBFGS_NOCEDAL` enum value (dropped in 2.9) to ease backwards compatibility for wrappers in other languages (though this algorithm is currently unimplemented) ([#587]).
 
 ## NLopt 2.9.1
 
-25 november 2024
+25 November 2024
 
 * Fixed PRAXIS box constraints ([#528])
 
@@ -22,7 +24,7 @@ work in progress
 
 * New `NLOPT_LUKSAN` cmake option to build without Luksan LGPL code ([#568]).
 
-* Dropped unused LD_LBFGS_NOCEDAL enum value.
+* Dropped unused `LD_LBFGS_NOCEDAL` enum value.
 
 * Python 3.13 support ([#565]).
 
@@ -548,3 +550,4 @@ work in progress
 [#578]: https://github.com/stevengj/nlopt/issues/578
 [#580]: https://github.com/stevengj/nlopt/issues/580
 [#585]: https://github.com/stevengj/nlopt/issues/585
+[#587]: https://github.com/stevengj/nlopt/issues/587
