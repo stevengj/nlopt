@@ -2,7 +2,7 @@
 
 ## NLopt 2.10
 
-work in progress
+4 February 2025
 
 * New Java bindings ([#578]).
 
