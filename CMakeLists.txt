@@ -21,15 +21,15 @@ project (nlopt)
 #==============================================================================
 # version
 set (NLOPT_MAJOR_VERSION "2")
-set (NLOPT_MINOR_VERSION "9")
-set (NLOPT_BUGFIX_VERSION "1")
+set (NLOPT_MINOR_VERSION "10")
+set (NLOPT_BUGFIX_VERSION "0")
 set (NLOPT_VERSION_STRING ${NLOPT_MAJOR_VERSION}.${NLOPT_MINOR_VERSION}.${NLOPT_BUGFIX_VERSION})
 message (STATUS "NLopt version ${NLOPT_VERSION_STRING}")
 
 # This is the ABI version number, which differes from the API version above
 # (it indicates ABI compatibility), but they are typically incremented together.
-set(SO_MAJOR 0)
-set(SO_MINOR 13)
+set(SO_MAJOR 1)
+set(SO_MINOR 0)
 set(SO_PATCH 0)
 #==============================================================================
 
