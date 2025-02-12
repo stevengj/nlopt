@@ -53,9 +53,20 @@ Second, there is a slightly randomized variant of DIRECT-L, specified by `NLOPT_
 
 The DIRECT and DIRECT-L algorithms start by rescaling the bound constraints to a hypercube, which gives all dimensions equal weight in the search procedure. If your dimensions do *not* have equal weight, e.g. if you have a "long and skinny" search space and your function varies at about the same speed in all directions, it may be better to use unscaled variants of these algorthms, which are specified as `NLOPT_GN_DIRECT_NOSCAL`, `NLOPT_GN_DIRECT_L_NOSCAL`, and `NLOPT_GN_DIRECT_L_RAND_NOSCAL`, respectively. However, the unscaled variations make the most sense (if any) with the original DIRECT algorithm, since the design of DIRECT-L to some extent relies on the search region being a hypercube (which causes the subdivided hyperrectangles to have only a small set of side lengths).
 
+The `NLOPT_GN_DIRECT*` algorithms supports the following internal parameter, which can be specified using the [`nlopt_set_param` API](NLopt_Reference.md#algorithm-specific-parameters):
+
+* `magic_eps` (defaults to `0`) "Jones' epsilon parameter".
+
 Finally, NLopt also includes separate implementations based on the [original Fortran code](http://www4.ncsu.edu/~ctk/SOFTWARE/DIRECTv204.tar.gz) by Gablonsky et al. (1998-2001), which are specified as `NLOPT_GN_ORIG_DIRECT` and `NLOPT_GN_ORIG_DIRECT_L`. These implementations have a number of hard-coded limitations on things like the number of function evaluations; I removed several of these limitations, but some remain. On the other hand, there seem to be slight differences between these implementations and mine; most of the time, the performance is roughly similar, but occasionally Gablonsky's implementation will do significantly better than mine or vice versa.
 
 Most of the above algorithms only handle bound constraints, and in fact require finite bound constraints (they are not applicable to unconstrained problems). They do not handle arbitrary nonlinear constraints. However, the `ORIG` versions by Gablonsky et al. include some support for arbitrary nonlinear inequality constraints.
+
+The `NLOPT_GN_ORIG_DIRECT*` algorithms supports the following internal parameter, which can be specified using the [`nlopt_set_param` API](NLopt_Reference.md#algorithm-specific-parameters):
+
+* `magic_eps` (defaults to `0`) "Jones' epsilon parameter".
+* `magic_eps_abs` (defaults to `0`) "absolute version of Jones' epsilon parameter".
+* `sigma_reltol` (defaults to `-1`) "relative tolerance on hypercube measure".
+* `fglobal_reltol` (defaults to `0`) "relative tolerance on how close we should find fglobal".
 
 ### Controlled Random Search (CRS) with local mutation
 
