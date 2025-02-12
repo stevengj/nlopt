@@ -36,6 +36,7 @@ nav:
     - Python reference: NLopt_Python_Reference.md
     - Guile reference: NLopt_Guile_Reference.md
     - R reference:     NLopt_R_Reference.md
+    - Java reference:  NLopt_Java_Reference.md
     - Deprecated API reference: NLopt_Deprecated_API_Reference.md
  - NLopt algorithms:
     - NLopt algorithms: NLopt_Algorithms.md
