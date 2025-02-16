@@ -37,12 +37,21 @@ double myvconstraint(const std::vector<double> &x, std::vector<double> &grad, vo
 int main(int argc, char *argv[]) {
   nlopt::opt opt(argc < 2 ? nlopt::LD_MMA : (nlopt::algorithm)atoi(argv[1]), 2);
   const std::vector<double> lb = {-HUGE_VAL, 1e-6};
+  const double exactmin = 0.544331053951817355154952; // sqrt(8/27)
   opt.set_lower_bounds(lb);
   opt.set_min_objective(myvfunc, NULL);
   my_constraint_data data[2] = { {2,0}, {-1,1} };
   opt.add_inequality_constraint(myvconstraint, &data[0], 1e-8);
   opt.add_inequality_constraint(myvconstraint, &data[1], 1e-8);
-  opt.set_xtol_rel(1e-4);
+
+  // require convergence to within 1e-3 for user-specified algorithm
+  if (argc < 2)
+    opt.set_xtol_rel(1e-4);
+  else {
+    opt.set_lower_bounds(1e-6);
+    opt.set_upper_bounds(10.0);
+    opt.set_stopval(exactmin + 1e-3);
+  }
 
   // try setting an algorithm parameter: */
   opt.set_param("inner_maxeval", 123);
@@ -61,10 +70,10 @@ int main(int argc, char *argv[]) {
 
   try{
     opt.optimize(x, minf);
-    std::cout << "found minimum at f(" << x[0] << "," << x[1] << ") = "
-              << std::setprecision(10) << minf <<
-              " after " << count << " evaluations" << std::endl;
-    return std::fabs(minf - 0.5443310474) < 1e-3 ? EXIT_SUCCESS : EXIT_FAILURE;
+    std::cout << opt.get_algorithm_name() << " found minimum at f(" << x[0] << "," << x[1] << ") = "
+              << std::setprecision(10) << minf << " = exactmin + " << minf - exactmin
+              << " after " << count << " evaluations" << std::endl;
+    return std::fabs(minf - exactmin) < 1e-3 ? EXIT_SUCCESS : EXIT_FAILURE;
   }
   catch(std::exception &e) {
     std::cerr << "nlopt failed: " << e.what() << std::endl;
