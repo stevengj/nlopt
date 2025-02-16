@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <nlopt.hpp>
 
+int count = 0; // counter for objective-function evaluations
+
 double myvfunc(const std::vector<double> &x, std::vector<double> &grad, void *data)
 {
   (void)data;
@@ -27,6 +29,7 @@ double myvconstraint(const std::vector<double> &x, std::vector<double> &grad, vo
     grad[0] = 3 * a * (a*x[0] + b) * (a*x[0] + b);
     grad[1] = -1.0;
   }
+  ++count;
   return ((a*x[0] + b) * (a*x[0] + b) * (a*x[0] + b) - x[1]);
 }
 
@@ -59,7 +62,8 @@ int main(int argc, char *argv[]) {
   try{
     opt.optimize(x, minf);
     std::cout << "found minimum at f(" << x[0] << "," << x[1] << ") = "
-              << std::setprecision(10) << minf <<std::endl;
+              << std::setprecision(10) << minf <<
+              " after " << count << " evaluations" << std::endl;
     return std::fabs(minf - 0.5443310474) < 1e-3 ? EXIT_SUCCESS : EXIT_FAILURE;
   }
   catch(std::exception &e) {
