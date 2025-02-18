@@ -2459,8 +2459,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
      unsigned max_cdim;
      int want_grad = 1;
      
-     if (p > n)
-     {
+     if (p > n) {
        nlopt_stop_msg(stop, "slsqp: more equality constraints than variables");
        return NLOPT_INVALID_ARGS;
      }
