@@ -796,7 +796,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_LD_CCSAQ:
         {
             int inner_maxeval = (int)nlopt_get_param(opt, "inner_maxeval",0);
-			int outer_mineval_xftol = (int)nlopt_get_param(opt, "outer_mineval_xftol", 0);
+            int outer_mineval_xftol = (int)nlopt_get_param(opt, "outer_mineval_xftol", 0);
             int verbosity = (int)nlopt_get_param(opt, "verbosity",0);
             double rho_init = nlopt_get_param(opt, "rho_init",1.0);
             nlopt_opt dual_opt;
