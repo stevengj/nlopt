@@ -218,7 +218,7 @@ nlopt_result ccsa_quadratic_minimize(
      double *x, /* in: initial guess, out: minimizer */
      double *minf,
      nlopt_stopping *stop,
-     nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init,
+     nlopt_opt dual_opt, int inner_maxeval, int outer_mineval_xftol, unsigned verbose, double rho_init,
 	 const double *sigma_init)
 {
      nlopt_result ret = NLOPT_SUCCESS;
@@ -523,9 +523,9 @@ nlopt_result ccsa_quadratic_minimize(
 		    printf("                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
 	  }
 
-	  if (nlopt_stop_ftol(stop, fcur, fprev))
+	  if (k >= outer_mineval_xftol && nlopt_stop_ftol(stop, fcur, fprev))
 	       ret = NLOPT_FTOL_REACHED;
-	  if (nlopt_stop_x(stop, xcur, xprev))
+	  if (k >= outer_mineval_xftol && nlopt_stop_x(stop, xcur, xprev))
 	       ret = NLOPT_XTOL_REACHED;
 	  if (ret != NLOPT_SUCCESS) goto done;
 
