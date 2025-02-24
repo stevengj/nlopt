@@ -21,7 +21,7 @@ endif ()
 include_directories (${NLOPT_PRIVATE_INCLUDE_DIRS})
 set_source_files_properties (nlopt.i PROPERTIES CPLUSPLUS ON)
 
-if (Python_NumPy_FOUND)
+if (Python_NumPy_FOUND AND NLOPT_CXX)
 
   set (SWIG_MODULE_nlopt_python_EXTRA_DEPS nlopt-python.i numpy.i generate-cpp)
 
@@ -46,7 +46,7 @@ if (Python_NumPy_FOUND)
 endif ()
 
 
-if (GUILE_FOUND)
+if (GUILE_FOUND AND NLOPT_CXX)
 
   set (SWIG_MODULE_nlopt_guile_EXTRA_DEPS nlopt-guile.i generate-cpp)
   set (CMAKE_SWIG_FLAGS -scmstub)
@@ -74,7 +74,7 @@ if (GUILE_FOUND)
 endif ()
 
 
-if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND)
+if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND AND NLOPT_CXX)
 
   include (UseJava)
 

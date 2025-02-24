@@ -1,28 +1,26 @@
 add_custom_target (tests)
 
 macro(NLOPT_add_cpp_test test_name)
-  add_executable (${test_name} ${test_name}.cxx)
-  target_link_libraries (${test_name} ${nlopt_lib})
-  add_dependencies (tests ${test_name})
-  target_include_directories (${test_name} PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
-  foreach(arg IN ITEMS ${ARGN})
-    add_test (NAME check_${test_name}_${arg} COMMAND ${test_name} ${arg})
-    if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
-      set_tests_properties (check_${test_name}_${arg}
-        PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
-    endif ()
-  endforeach()
+  if (NLOPT_CXX)
+    add_executable (${test_name} ${test_name}.cxx)
+    target_link_libraries (${test_name} ${nlopt_lib})
+    add_dependencies (tests ${test_name})
+    target_include_directories (${test_name} PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
+    foreach(arg IN ITEMS ${ARGN})
+      add_test (NAME check_${test_name}_${arg} COMMAND ${test_name} ${arg})
+      if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+        set_tests_properties (check_${test_name}_${arg}
+          PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")  # to load dll
+      endif ()
+    endforeach()
+  endif ()
 endmacro()
 
 NLOPT_add_cpp_test(t_tutorial 24 25 31 40)
 NLOPT_add_cpp_test(cpp_functor 0)
 NLOPT_add_cpp_test(t_fbound 0)
 NLOPT_add_cpp_test(t_except 1 0)
-
 NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 19 35 42 43)
-if (NOT NLOPT_CXX)
-  set_tests_properties (check_t_bounded_8 check_t_bounded_43 PROPERTIES DISABLED TRUE)
-endif ()
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
 set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)
@@ -67,7 +65,7 @@ foreach (algo_index RANGE 28) # 42
   endforeach ()
 endforeach ()
 
-if (Python_NumPy_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-python.cpp)))
+if (TARGET nlopt_python)
   set (PYINSTALLCHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                                   "PYTHONPATH=$<SHELL_PATH:${PROJECT_BINARY_DIR}/src/swig/python;${PROJECT_BINARY_DIR}/src/swig>"
       )
@@ -85,7 +83,7 @@ endif ()
 # The binding itself should also compile with more ancient Java versions that
 # have already reached their end of life, but it is not worth uglifying the test
 # code for them, because people will then cargo-cult the legacy boilerplate.
-if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND AND NOT Java_VERSION VERSION_LESS 1.8)
+if (TARGET nlopt_java AND NOT Java_VERSION VERSION_LESS 1.8)
   include (UseJava)
   add_jar (t_java SOURCES t_java.java INCLUDE_JARS nlopt_jar ENTRY_POINT t_java)
   get_property (t_java_jar TARGET t_java PROPERTY JAR_FILE)
@@ -100,15 +98,15 @@ if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND AND NOT Java_VERSION VERSION_LESS 1.
   endforeach()
 endif ()
 
-if (OCTAVE_FOUND)
+if (TARGET nlopt_optimize)
   add_test (NAME test_octave COMMAND ${OCTAVE_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/t_octave.m ${PROJECT_SOURCE_DIR}/src/octave ${PROJECT_BINARY_DIR}/src/octave)
 endif ()
 
-if (MATLAB_FOUND)
+if (TARGET nlopt_optimize-mex)
   add_test (NAME test_matlab COMMAND ${Matlab_MAIN_PROGRAM} -nodesktop -nosplash  -r "addpath('${PROJECT_SOURCE_DIR}/src/octave'); addpath('${PROJECT_BINARY_DIR}/src/octave'); try; run('${CMAKE_CURRENT_SOURCE_DIR}/t_matlab.m'); catch; exit(1); end; quit")
 endif ()
 
-if (GUILE_FOUND AND (SWIG_FOUND OR (EXISTS ${PROJECT_SOURCE_DIR}/src/swig/nlopt-guile.cpp)))
+if (TARGET nlopt_guile)
   set (GUILECHECK_ENVIRONMENT "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/src/swig"
                               "GUILE_LOAD_PATH=$<SHELL_PATH:${PROJECT_BINARY_DIR}/src/swig/guile;${PROJECT_BINARY_DIR}/src/swig>"
                               "GUILE_AUTO_COMPILE=0")
