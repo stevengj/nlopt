@@ -77,8 +77,6 @@ endif ()
 include (CheckIncludeFiles)
 include (CheckFunctionExists)
 include (CheckTypeSize)
-include (CheckCCompilerFlag)
-include (CheckCXXSymbolExists)
 include (CheckCSourceCompiles)
 
 #==============================================================================
@@ -138,20 +136,6 @@ if (WITH_THREADLOCAL AND NOT DEFINED THREADLOCAL)
       set (THREADLOCAL ${_THREADLOCAL_KEY} CACHE STRING "Thread local keyword")
     endif ()
   endforeach()
-endif ()
-
-
-if (NLOPT_CXX OR NLOPT_PYTHON OR NLOPT_GUILE OR NLOPT_OCTAVE OR NLOPT_JAVA)
-  check_cxx_symbol_exists (__cplusplus ciso646 SYSTEM_HAS_CXX)
-  if (SYSTEM_HAS_CXX)
-    set (CMAKE_CXX_STANDARD 11) # set the standard to C++11 but do not require it
-
-    if (NLOPT_CXX)
-      set (CMAKE_CXX_STANDARD_REQUIRED ON) # if we build C++ API, we do need C++11
-    endif ()
-  else()
-    message (FATAL_ERROR "The compiler doesn't support CXX.")
-  endif ()
 endif ()
 
 #==============================================================================
@@ -260,6 +244,9 @@ if (M_LIBRARY)
 endif ()
 set_target_properties (${nlopt_lib} PROPERTIES SOVERSION ${SO_MAJOR})
 set_target_properties (${nlopt_lib} PROPERTIES VERSION "${SO_MAJOR}.${SO_MINOR}.${SO_PATCH}")
+if (NLOPT_CXX)
+  target_compile_features (${nlopt_lib} PUBLIC cxx_lambdas)
+endif ()
 
 #==============================================================================
 # INCLUDE DIRECTORIES
