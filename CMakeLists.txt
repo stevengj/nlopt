@@ -106,7 +106,7 @@ check_type_size ("unsigned long" SIZEOF_UNSIGNED_LONG)
 
 find_library(M_LIBRARY m)
 if (M_LIBRARY)
-  set (LIBS_PRIVATE "-l${M_LIBRARY}")
+  set (LIBS_PRIVATE "-lm")
 endif()
 
 if (NOT DEFINED HAVE_FPCLASSIFY)
