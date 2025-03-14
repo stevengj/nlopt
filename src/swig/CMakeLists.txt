@@ -25,7 +25,6 @@ if (Python_NumPy_FOUND AND NLOPT_CXX)
 
   set (SWIG_MODULE_nlopt_python_EXTRA_DEPS nlopt-python.i numpy.i generate-cpp)
 
-  # swig_add_module is deprecated
   swig_add_library (nlopt_python LANGUAGE python SOURCES nlopt.i
                     OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/python
                     OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -51,7 +50,6 @@ if (GUILE_FOUND AND NLOPT_CXX)
   set (SWIG_MODULE_nlopt_guile_EXTRA_DEPS nlopt-guile.i generate-cpp)
   set (CMAKE_SWIG_FLAGS -scmstub)
 
-  # swig_add_module is deprecated
   swig_add_library (nlopt_guile LANGUAGE guile SOURCES nlopt.i
                     OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/guile
                     OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -81,7 +79,6 @@ if (JNI_FOUND AND Java_FOUND AND SWIG_FOUND AND NLOPT_CXX)
   set (SWIG_MODULE_nlopt_java_EXTRA_DEPS nlopt-java.i generate-cpp)
   set (CMAKE_SWIG_FLAGS -package nlopt)
 
-  # swig_add_module is deprecated
   # OUTPUT_DIR is ${CMAKE_CURRENT_BINARY_DIR}/java/ + the -package above (with
   # any '.' replaced by '/'). It must also match the GLOB in glob_java.cmake.
   swig_add_library (nlopt_java LANGUAGE java SOURCES nlopt.i
