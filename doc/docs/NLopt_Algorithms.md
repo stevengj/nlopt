@@ -357,7 +357,7 @@ The code was modified for inclusion in NLopt by S. G. Johnson in 2010, with the 
 
 This algorithm in NLopt (specified by NLOPT_LD_LBFGS), is based on a Fortran implementation of the low-storage BFGS algorithm written by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
 
--   <http://www.uivt.cas.cz/~luksan/subroutines.html>
+-   <http://www.cs.cas.cz/~luksan/subroutines.html>
 
 The original L-BFGS algorithm, based on variable-metric updates via Strang recurrences, was described by the papers:
 
@@ -376,7 +376,7 @@ The `NLOPT_LD_LBFGS` algorithm supports the following internal parameter, which 
 
 This algorithm in NLopt, is based on a Fortran implementation of a preconditioned inexact truncated Newton algorithm written by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
 
--   <http://www.uivt.cas.cz/~luksan/subroutines.html>
+-   <http://www.cs.cas.cz/~luksan/subroutines.html>
 
 NLopt includes several variations of this algorithm by Prof. Luksan. First, a variant preconditioned by the low-storage BFGS algorithm with steepest-descent restarting, specified as `NLOPT_LD_TNEWTON_PRECOND_RESTART`. Second, simplified versions `NLOPT_LD_TNEWTON_PRECOND` (same without restarting), `NLOPT_LD_TNEWTON_RESTART` (same without preconditioning), and `NLOPT_LD_TNEWTON` (same without restarting or preconditioning).
 
@@ -397,7 +397,7 @@ All the `NLOPT_LD_TNEWTON` algorithms support the following internal parameter, 
 
 This algorithm in NLopt, is based on a Fortran implementation of a shifted limited-memory variable-metric algorithm by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
 
--   <http://www.uivt.cas.cz/~luksan/subroutines.html>
+-   <http://www.cs.cas.cz/~luksan/subroutines.html>
 
 There are two variations of this algorithm: `NLOPT_LD_VAR2`, using a rank-2 method, and `NLOPT_LD_VAR1`, using a rank-1 method.
 
