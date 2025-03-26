@@ -56,7 +56,7 @@ foreach (algo_index RANGE 28) # 42
       endif ()
       # Check if LUKSAN targets are available.
       if (NOT NLOPT_LUKSAN)
-        set (list_of_algorithms_requiring_luksan 10 11 12 13 14 15 16 17)
+        set (list_of_algorithms_requiring_luksan 10 11 12 13 14 15 16 17 18)
         if (algo_index IN_LIST list_of_algorithms_requiring_luksan)
           set_tests_properties (testopt_algo${algo_index}_obj${obj_index} PROPERTIES DISABLED TRUE)
         endif()
