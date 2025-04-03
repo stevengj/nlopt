@@ -291,6 +291,7 @@ L80:
 	}
 	global_1.fx = (*f)(n, &x[1], f_data);
 	++global_1.nf;
+	++ *(stop->nevals_p);
 
 /* .....MINIMIZE ALONG THE "NON-CONJUGATE" DIRECTIONS V(*,K),...,V(*,N) */
 
