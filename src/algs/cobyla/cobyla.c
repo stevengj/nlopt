@@ -3,7 +3,7 @@
 /*
  * Copyright (c) 1992, Michael J. D. Powell (M.J.D.Powell@damtp.cam.ac.uk)
  * Copyright (c) 2004, Jean-Sebastien Roy (js@jeannot.org)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -11,10 +11,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -27,7 +27,7 @@
 /*
  * This software is a C version of COBYLA2, a contrained optimization by linear
  * approximation package developed by Michael J. D. Powell in Fortran.
- * 
+ *
  * The original source code can be found at :
  * http://plato.la.asu.edu/topics/problems/nlores.html
  *
@@ -193,7 +193,7 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
 
      s.f = f; s.f_data = f_data;
      s.m_orig = m;
-     s.fc = fc; 
+     s.fc = fc;
      s.p = p;
      s.h = h;
      s.stop = stop;
@@ -252,7 +252,7 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
 
      nlopt_rescale(n, s.scale, x, x);
      ret = cobyla((int) n, (int) m, x, minf, rhobeg, rhoend,
-		  stop, s.lb, s.ub, COBYLA_MSG_NONE, 
+		  stop, s.lb, s.ub, COBYLA_MSG_NONE,
 		  func_wrap, &s);
      nlopt_unscale(n, s.scale, x, x);
 
@@ -332,58 +332,58 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
 
 /*
  * This subroutine minimizes an objective function F(X) subject to M
- * inequality constraints on X, where X is a vector of variables that has 
- * N components. The algorithm employs linear approximations to the 
- * objective and constraint functions, the approximations being formed by 
- * linear interpolation at N+1 points in the space of the variables. 
- * We regard these interpolation points as vertices of a simplex. The 
- * parameter RHO controls the size of the simplex and it is reduced 
- * automatically from RHOBEG to RHOEND. For each RHO the subroutine tries 
- * to achieve a good vector of variables for the current size, and then 
- * RHO is reduced until the value RHOEND is reached. Therefore RHOBEG and 
- * RHOEND should be set to reasonable initial changes to and the required 
- * accuracy in the variables respectively, but this accuracy should be 
- * viewed as a subject for experimentation because it is not guaranteed. 
- * The subroutine has an advantage over many of its competitors, however, 
- * which is that it treats each constraint individually when calculating 
- * a change to the variables, instead of lumping the constraints together 
- * into a single penalty function. The name of the subroutine is derived 
- * from the phrase Constrained Optimization BY Linear Approximations. 
+ * inequality constraints on X, where X is a vector of variables that has
+ * N components. The algorithm employs linear approximations to the
+ * objective and constraint functions, the approximations being formed by
+ * linear interpolation at N+1 points in the space of the variables.
+ * We regard these interpolation points as vertices of a simplex. The
+ * parameter RHO controls the size of the simplex and it is reduced
+ * automatically from RHOBEG to RHOEND. For each RHO the subroutine tries
+ * to achieve a good vector of variables for the current size, and then
+ * RHO is reduced until the value RHOEND is reached. Therefore RHOBEG and
+ * RHOEND should be set to reasonable initial changes to and the required
+ * accuracy in the variables respectively, but this accuracy should be
+ * viewed as a subject for experimentation because it is not guaranteed.
+ * The subroutine has an advantage over many of its competitors, however,
+ * which is that it treats each constraint individually when calculating
+ * a change to the variables, instead of lumping the constraints together
+ * into a single penalty function. The name of the subroutine is derived
+ * from the phrase Constrained Optimization BY Linear Approximations.
  *
- * The user must set the values of N, M, RHOBEG and RHOEND, and must 
- * provide an initial vector of variables in X. Further, the value of 
- * IPRINT should be set to 0, 1, 2 or 3, which controls the amount of 
- * printing during the calculation. Specifically, there is no output if 
- * IPRINT=0 and there is output only at the end of the calculation if 
- * IPRINT=1. Otherwise each new value of RHO and SIGMA is printed. 
- * Further, the vector of variables and some function information are 
- * given either when RHO is reduced or when each new value of F(X) is 
- * computed in the cases IPRINT=2 or IPRINT=3 respectively. Here SIGMA 
- * is a penalty parameter, it being assumed that a change to X is an 
- * improvement if it reduces the merit function 
- *      F(X)+SIGMA*MAX(0.0,-C1(X),-C2(X),...,-CM(X)), 
- * where C1,C2,...,CM denote the constraint functions that should become 
- * nonnegative eventually, at least to the precision of RHOEND. In the 
- * printed output the displayed term that is multiplied by SIGMA is 
- * called MAXCV, which stands for 'MAXimum Constraint Violation'. The 
- * argument MAXFUN is an int variable that must be set by the user to a 
- * limit on the number of calls of CALCFC, the purpose of this routine being 
- * given below. The value of MAXFUN will be altered to the number of calls 
- * of CALCFC that are made. The arguments W and IACT provide real and 
- * int arrays that are used as working space. Their lengths must be at 
- * least N*(3*N+2*M+11)+4*M+6 and M+1 respectively. 
+ * The user must set the values of N, M, RHOBEG and RHOEND, and must
+ * provide an initial vector of variables in X. Further, the value of
+ * IPRINT should be set to 0, 1, 2 or 3, which controls the amount of
+ * printing during the calculation. Specifically, there is no output if
+ * IPRINT=0 and there is output only at the end of the calculation if
+ * IPRINT=1. Otherwise each new value of RHO and SIGMA is printed.
+ * Further, the vector of variables and some function information are
+ * given either when RHO is reduced or when each new value of F(X) is
+ * computed in the cases IPRINT=2 or IPRINT=3 respectively. Here SIGMA
+ * is a penalty parameter, it being assumed that a change to X is an
+ * improvement if it reduces the merit function
+ *      F(X)+SIGMA*MAX(0.0,-C1(X),-C2(X),...,-CM(X)),
+ * where C1,C2,...,CM denote the constraint functions that should become
+ * nonnegative eventually, at least to the precision of RHOEND. In the
+ * printed output the displayed term that is multiplied by SIGMA is
+ * called MAXCV, which stands for 'MAXimum Constraint Violation'. The
+ * argument MAXFUN is an int variable that must be set by the user to a
+ * limit on the number of calls of CALCFC, the purpose of this routine being
+ * given below. The value of MAXFUN will be altered to the number of calls
+ * of CALCFC that are made. The arguments W and IACT provide real and
+ * int arrays that are used as working space. Their lengths must be at
+ * least N*(3*N+2*M+11)+4*M+6 and M+1 respectively.
  *
- * In order to define the objective and constraint functions, we require 
- * a subroutine that has the name and arguments 
- *      SUBROUTINE CALCFC (N,M,X,F,CON) 
- *      DIMENSION X(*),CON(*)  . 
- * The values of N and M are fixed and have been defined already, while 
- * X is now the current vector of variables. The subroutine should return 
- * the objective and constraint functions at X in F and CON(1),CON(2), 
- * ...,CON(M). Note that we are trying to adjust X so that F(X) is as 
- * small as possible subject to the constraint functions being nonnegative. 
+ * In order to define the objective and constraint functions, we require
+ * a subroutine that has the name and arguments
+ *      SUBROUTINE CALCFC (N,M,X,F,CON)
+ *      DIMENSION X(*),CON(*)  .
+ * The values of N and M are fixed and have been defined already, while
+ * X is now the current vector of variables. The subroutine should return
+ * the objective and constraint functions at X in F and CON(1),CON(2),
+ * ...,CON(M). Note that we are trying to adjust X so that F(X) is as
+ * small as possible subject to the constraint functions being nonnegative.
  *
- * Partition the working space array W to provide the storage that is needed 
+ * Partition the working space array W to provide the storage that is needed
  * for the main calculation.
  */
 
@@ -391,13 +391,17 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
 
   if (n == 0)
   {
+#ifndef CRAN_COMPATIBILITY
     if (iprint>=1) fprintf(stderr, "cobyla: N==0.\n");
+#endif
     return NLOPT_SUCCESS;
   }
 
   if (n < 0 || m < 0)
   {
+#ifndef CRAN_COMPATIBILITY
     if (iprint>=1) fprintf(stderr, "cobyla: N<0 or M<0.\n");
+#endif
     return NLOPT_INVALID_ARGS;
   }
 
@@ -405,17 +409,21 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
   w = (double*) malloc(U(n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
   if (w == NULL)
   {
+#ifndef CRAN_COMPATIBILITY
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
+#endif
     return NLOPT_OUT_OF_MEMORY;
   }
   iact = (int*)malloc(U(m+1)*sizeof(*iact));
   if (iact == NULL)
   {
+#ifndef CRAN_COMPATIBILITY
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
+#endif
     free(w);
     return NLOPT_OUT_OF_MEMORY;
   }
-  
+
   /* Parameter adjustments */
   --iact;
   --w;
@@ -444,7 +452,7 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
 
   free(w);
   free(iact);
-  
+
   return rc;
 } /* cobyla */
 
@@ -452,13 +460,13 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
 static nlopt_result cobylb(int *n, int *m, int *mpp,
    double *x, double *minf, double *rhobeg, double rhoend,
     nlopt_stopping *stop, const double *lb, const double *ub,
-    int *iprint, double *con, double *sim, double *simi, 
+    int *iprint, double *con, double *sim, double *simi,
     double *datmat, double *a, double *vsig, double *veta,
      double *sigbar, double *dx, double *w, int *iact, cobyla_function *calcfc,
      func_wrap_state *state)
 {
   /* System generated locals */
-  int sim_dim1, sim_offset, simi_dim1, simi_offset, datmat_dim1, 
+  int sim_dim1, sim_offset, simi_dim1, simi_offset, datmat_dim1,
       datmat_offset, a_dim1, a_offset, i__1, i__2, i__3;
   double d__1, d__2;
 
@@ -530,11 +538,13 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   delta = 1.1;
   rho = *rhobeg;
   parmu = 0.;
+#ifndef CRAN_COMPATIBILITY
   if (*iprint >= 2) {
     fprintf(stderr,
       "cobyla: the initial value of RHO is %12.6E and PARMU is set to zero.\n",
       rho);
   }
+#endif
   temp = 1. / rho;
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__) {
@@ -581,9 +591,11 @@ L40:
   ++ *(stop->nevals_p);
   if (calcfc(*n, *m, &x[1], &f, &con[1], state))
   {
+#ifndef CRAN_COMPATIBILITY
     if (*iprint >= 1) {
       fprintf(stderr, "cobyla: user requested end of minimization.\n");
     }
+#endif
     rc = NLOPT_FORCED_STOP;
     goto L600;
   }
@@ -606,6 +618,7 @@ L40:
        goto L620; /* not L600 because we want to use current x, f, resmax */
   }
 
+#ifndef CRAN_COMPATIBILITY
   if (*(stop->nevals_p) == *iprint - 1 || *iprint == 3) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
 	    *(stop->nevals_p), f, resmax);
@@ -624,6 +637,7 @@ L40:
     }
     fprintf(stderr, "\n");
   }
+#endif
   con[mp] = f;
   con[*mpp] = resmax;
   if (ibrnch == 1) {
@@ -688,18 +702,18 @@ L130:
 /* Identify the optimal vertex of the current simplex. */
 
 L140:
-  phimin = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np * 
+  phimin = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np *
       datmat_dim1];
   nbest = np;
   i__1 = *n;
   for (j = 1; j <= i__1; ++j) {
-    temp = datmat[mp + j * datmat_dim1] + parmu * datmat[*mpp + j * 
+    temp = datmat[mp + j * datmat_dim1] + parmu * datmat[*mpp + j *
         datmat_dim1];
     if (temp < phimin) {
       nbest = j;
       phimin = temp;
     } else if (temp == phimin && parmu == 0.) {
-      if (datmat[*mpp + j * datmat_dim1] < datmat[*mpp + nbest * 
+      if (datmat[*mpp + j * datmat_dim1] < datmat[*mpp + nbest *
           datmat_dim1]) {
         nbest = j;
       }
@@ -753,9 +767,11 @@ L140:
     }
   }
   if (error > .1) {
+#ifndef CRAN_COMPATIBILITY
     if (*iprint >= 1) {
       fprintf(stderr, "cobyla: rounding errors are becoming damaging.\n");
     }
+#endif
     rc = NLOPT_ROUNDOFF_LIMITED;
     goto L600;
   }
@@ -905,7 +921,7 @@ L140:
       }
       i__2 = *n;
       for (i__ = 1; i__ <= i__2; ++i__) {
-        simi[j + i__ * simi_dim1] -= temp * simi[jdrop + i__ * 
+        simi[j + i__ * simi_dim1] -= temp * simi[jdrop + i__ *
             simi_dim1];
       }
     }
@@ -978,20 +994,22 @@ L370:
   }
   if (parmu < barmu * 1.5) {
     parmu = barmu * 2.;
+#ifndef CRAN_COMPATIBILITY
     if (*iprint >= 2) {
       fprintf(stderr, "cobyla: increase in PARMU to %12.6E\n", parmu);
     }
-    phi = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np * 
+#endif
+    phi = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np *
         datmat_dim1];
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
-      temp = datmat[mp + j * datmat_dim1] + parmu * datmat[*mpp + j * 
+      temp = datmat[mp + j * datmat_dim1] + parmu * datmat[*mpp + j *
           datmat_dim1];
       if (temp < phi) {
         goto L140;
       }
       if (temp == phi && parmu == 0.f) {
-        if (datmat[*mpp + j * datmat_dim1] < datmat[*mpp + np * 
+        if (datmat[*mpp + j * datmat_dim1] < datmat[*mpp + np *
             datmat_dim1]) {
           goto L140;
         }
@@ -1010,7 +1028,7 @@ L370:
   ibrnch = 1;
   goto L40;
 L440:
-  vmold = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np * 
+  vmold = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np *
       datmat_dim1];
   vmnew = f + parmu * resmax;
   trured = vmold - vmnew;
@@ -1096,7 +1114,7 @@ L440:
       }
       i__2 = *n;
       for (i__ = 1; i__ <= i__2; ++i__) {
-        simi[j + i__ * simi_dim1] -= temp * simi[jdrop + i__ * 
+        simi[j + i__ * simi_dim1] -= temp * simi[jdrop + i__ *
             simi_dim1];
       }
     }
@@ -1113,7 +1131,7 @@ L440:
        mentions a similar modification to COBYLA, although they didn't
        publish their source code), increase rho if predicted reduction
        is sufficiently close to the actual reduction.  Otherwise,
-       COBLYA seems to easily get stuck making very small steps. 
+       COBLYA seems to easily get stuck making very small steps.
        Also require iflag != 0 (i.e., acceptable simplex), again
        following SAS suggestion (otherwise I get convergence failure
        in some cases.) */
@@ -1177,6 +1195,7 @@ L550:
         parmu = (cmax - cmin) / denom;
       }
     }
+#ifndef CRAN_COMPATIBILITY
     if (*iprint >= 2) {
       fprintf(stderr, "cobyla: reduction in RHO to %12.6E and PARMU =%13.6E\n",
         rho, parmu);
@@ -1200,6 +1219,7 @@ L550:
       }
       fprintf(stderr, "\n");
     }
+#endif
     goto L140;
   }
   else /* rho <= rhoend */
@@ -1207,9 +1227,11 @@ L550:
 
 /* Return the best calculated values of the variables. */
 
+#ifndef CRAN_COMPATIBILITY
   if (*iprint >= 1) {
     fprintf(stderr, "cobyla: normal return.\n");
   }
+#endif
   if (ifull == 1) {
     goto L620;
   }
@@ -1222,6 +1244,7 @@ L600:
   resmax = datmat[*mpp + np * datmat_dim1];
 L620:
   *minf = f;
+#ifndef CRAN_COMPATIBILITY
   if (*iprint >= 1) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
 	    *(stop->nevals_p), f, resmax);
@@ -1240,12 +1263,13 @@ L620:
     }
     fprintf(stderr, "\n");
   }
+#endif
   return rc;
 } /* cobylb */
 
 /* ------------------------------------------------------------------------- */
-static nlopt_result trstlp(int *n, int *m, double *a, 
-    double *b, double *rho, double *dx, int *ifull, 
+static nlopt_result trstlp(int *n, int *m, double *a,
+    double *b, double *rho, double *dx, int *ifull,
     int *iact, double *z__, double *zdota, double *vmultc,
      double *sdirn, double *dxnew, double *vmultd)
 {
@@ -1434,9 +1458,9 @@ L100:
       tot = temp;
       i__1 = *n;
       for (i__ = 1; i__ <= i__1; ++i__) {
-        temp = alpha * z__[i__ + k * z_dim1] + beta * z__[i__ + kp * 
+        temp = alpha * z__[i__ + k * z_dim1] + beta * z__[i__ + kp *
             z_dim1];
-        z__[i__ + kp * z_dim1] = alpha * z__[i__ + kp * z_dim1] - 
+        z__[i__ + kp * z_dim1] = alpha * z__[i__ + kp * z_dim1] -
             beta * z__[i__ + k * z_dim1];
         z__[i__ + k * z_dim1] = temp;
       }
@@ -1507,7 +1531,7 @@ L130:
 /* new value of ZDOTA(NACT) and branch if it is not acceptable. */
 
   i__1 = nact;
-  
+
 /* This pragma fixes a known problem compiling with VS2013 or VS2015 in Release */
 /* see https://connect.microsoft.com/VisualStudio/feedback/details/1028781/c1001-on-release-build */
 #if defined(_MSC_VER) && _MSC_VER >= 1800
@@ -1537,9 +1561,9 @@ L170:
     zdota[k] = temp;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-      temp = alpha * z__[i__ + kp * z_dim1] + beta * z__[i__ + k * 
+      temp = alpha * z__[i__ + kp * z_dim1] + beta * z__[i__ + k *
           z_dim1];
-      z__[i__ + kp * z_dim1] = alpha * z__[i__ + k * z_dim1] - beta * 
+      z__[i__ + kp * z_dim1] = alpha * z__[i__ + k * z_dim1] - beta *
           z__[i__ + kp * z_dim1];
       z__[i__ + k * z_dim1] = temp;
     }
@@ -1585,9 +1609,9 @@ L210:
     zdota[k] = temp;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-      temp = alpha * z__[i__ + nact * z_dim1] + beta * z__[i__ + k * 
+      temp = alpha * z__[i__ + nact * z_dim1] + beta * z__[i__ + k *
           z_dim1];
-      z__[i__ + nact * z_dim1] = alpha * z__[i__ + k * z_dim1] - beta * 
+      z__[i__ + nact * z_dim1] = alpha * z__[i__ + k * z_dim1] - beta *
           z__[i__ + nact * z_dim1];
       z__[i__ + k * z_dim1] = temp;
     }
@@ -1641,9 +1665,9 @@ L270:
     zdota[k] = temp;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-      temp = alpha * z__[i__ + kp * z_dim1] + beta * z__[i__ + k * 
+      temp = alpha * z__[i__ + kp * z_dim1] + beta * z__[i__ + k *
           z_dim1];
-      z__[i__ + kp * z_dim1] = alpha * z__[i__ + k * z_dim1] - beta * 
+      z__[i__ + kp * z_dim1] = alpha * z__[i__ + k * z_dim1] - beta *
           z__[i__ + kp * z_dim1];
       z__[i__ + k * z_dim1] = temp;
     }

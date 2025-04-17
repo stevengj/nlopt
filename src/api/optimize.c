@@ -717,7 +717,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_LUKSAN
         return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, nlopt_get_param(opt, "tolg", 0.));
 #else
+#ifndef CRAN_COMPATIBILITY
         printf("ERROR - attempting to use NLOPT_LD_LBFGS, but Luksan code disabled\n");
+#endif
         return NLOPT_INVALID_ARGS;
 #endif
 
@@ -726,7 +728,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_LUKSAN
         return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2, nlopt_get_param(opt, "tolg", 0.));
 #else
+#ifndef CRAN_COMPATIBILITY
         printf("ERROR - attempting to use NLOPT_LD_VAR*, but Luksan code disabled\n");
+#endif
         return NLOPT_INVALID_ARGS;
 #endif
 
@@ -737,7 +741,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_LUKSAN
         return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2, nlopt_get_param(opt, "tolg", 0.));
 #else
+#ifndef CRAN_COMPATIBILITY
         printf("ERROR - attempting to use NLOPT_LD_TNEWTON*, but Luksan code disabled\n");
+#endif
         return NLOPT_INVALID_ARGS;
 #endif
 

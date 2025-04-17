@@ -104,7 +104,9 @@ extern "C" {
     extern char *nlopt_vsprintf(char *p, const char *format, va_list ap);
     extern void nlopt_stop_msg(const nlopt_stopping * s, const char *format, ...)
 #ifdef __GNUC__
+#ifndef CRAN_COMPATIBILITY
         __attribute__ ((format(printf, 2, 3)))
+#endif
 #endif
         ;
 

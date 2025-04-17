@@ -107,7 +107,9 @@ extern "C" {
 
     extern const char *nlopt_set_errmsg(nlopt_opt opt, const char *format, ...)
 #ifdef __GNUC__
+#ifndef CRAN_COMPATIBILITY
         __attribute__ ((format(printf, 2, 3)))
+#endif
 #endif
         ;
     extern void nlopt_unset_errmsg(nlopt_opt opt);
