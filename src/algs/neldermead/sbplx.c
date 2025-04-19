@@ -7,17 +7,17 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 #include <math.h>
@@ -87,7 +87,7 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 					       + (nsmax+1)*(nsmax+1)+2*nsmax));
      if (!xstep) return NLOPT_OUT_OF_MEMORY;
      xprev = xstep + n; dx = xprev + n;
-     xs = dx + n; xsstep = xs + nsmax; 
+     xs = dx + n; xsstep = xs + nsmax;
      lbs = xsstep + nsmax; ubs = lbs + nsmax;
      scratch = ubs + nsmax;
      p = (int *) malloc(sizeof(int) * n);
@@ -155,9 +155,11 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	       ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
 				      xsstep, stop, psi, scratch, &fdiff);
 	       if (fdiff > fdiff_max) fdiff_max = fdiff;
+#ifndef CRAN_COMPATIBILITY
 	       if (sbplx_verbose)
-		    printf("%d NM iterations for (%d,%d) subspace\n",
-			   *(stop->nevals_p) - nevals, sd.is, ns);
+	         printf("%d NM iterations for (%d,%d) subspace\n",
+                 *(stop->nevals_p) - nevals, sd.is, ns);
+#endif
 	       for (k = i; k < i+ns; ++k) x[p[k]] = xs[k-i];
 	       if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
 	       if (ret != NLOPT_XTOL_REACHED) goto done;
@@ -176,9 +178,11 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
 				 xsstep, stop, psi, scratch, &fdiff);
 	  if (fdiff > fdiff_max) fdiff_max = fdiff;
+#ifndef CRAN_COMPATIBILITY
 	  if (sbplx_verbose)
-	       printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
-		      *(stop->nevals_p) - nevals, sd.is, ns);
+	    printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
+            *(stop->nevals_p) - nevals, sd.is, ns);
+#endif
 	  for (i = sd.is; i < n; ++i) x[p[i]] = xs[i-sd.is];
 	  if (ret == NLOPT_FAILURE) { ret=NLOPT_XTOL_REACHED; goto done; }
 	  if (ret != NLOPT_XTOL_REACHED) goto done;
@@ -222,9 +226,11 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 		    if (scale < omega) scale = omega;
 		    if (scale > 1/omega) scale = 1/omega;
 	       }
+#ifndef CRAN_COMPATIBILITY
 	       if (sbplx_verbose)
-		    printf("sbplx: stepsize scale factor = %g\n", scale);
-	       for (i = 0; i < n; ++i) 
+	         printf("sbplx: stepsize scale factor = %g\n", scale);
+#endif
+	       for (i = 0; i < n; ++i)
 		    xstep[i] = (dx[i] == 0) ? -(xstep[i] * scale)
                          : copysign(xstep[i] * scale, dx[i]);
 	  }

@@ -43,7 +43,7 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
 	  for (k = 0; k < d->h[i].m; ++k) {
 	       double h = restmp[k] + lambda[ii++] / rho;
 	       L += 0.5 * rho * h*h;
-	       if (grad) for (j = 0; j < n; ++j) 
+	       if (grad) for (j = 0; j < n; ++j)
 			      grad[j] += (rho * h) * gradtmp[k*n + j];
 	  }
      }
@@ -55,7 +55,7 @@ static double auglag(unsigned n, const double *x, double *grad, void *data)
 	       double fc = restmp[k] + mu[ii++] / rho;
 	       if (fc > 0) {
 		    L += 0.5 * rho * fc*fc;
-		    if (grad) for (j = 0; j < n; ++j) 
+		    if (grad) for (j = 0; j < n; ++j)
 				   grad[j] += (rho * fc) * gradtmp[k*n + j];
 	       }
 	  }
@@ -109,7 +109,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      ret = nlopt_set_min_objective(sub_opt, auglag, &d); if (ret<0) return ret;
      ret = nlopt_set_lower_bounds(sub_opt, lb); if (ret<0) return ret;
      ret = nlopt_set_upper_bounds(sub_opt, ub); if (ret<0) return ret;
-     ret = nlopt_set_stopval(sub_opt, 
+     ret = nlopt_set_stopval(sub_opt,
 			     d.m==0 && d.p==0 ? stop->minf_max : -HUGE_VAL);
      if (ret<0) return ret;
      ret = nlopt_remove_inequality_constraints(sub_opt); if (ret<0) return ret;
@@ -120,7 +120,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 						     fc[i].f, fc[i].f_data,
 						     fc[i].tol[0]);
 	  else
-	       ret = nlopt_add_inequality_mconstraint(sub_opt, fc[i].m, 
+	       ret = nlopt_add_inequality_mconstraint(sub_opt, fc[i].m,
 						      fc[i].mf, fc[i].f_data,
 						      fc[i].tol);
 	  if (ret < 0) return ret;
@@ -179,32 +179,38 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      else
 	  d.rho = 1; /* whatever, doesn't matter */
 
+#ifndef CRAN_COMPATIBILITY
      if (auglag_verbose) {
-	  printf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
-	  for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
-	  printf("\nauglag initial mu = ");
-	  for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
-	  printf("\n");
+       printf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
+       for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
+       printf("\nauglag initial mu = ");
+       for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
+       printf("\n");
      }
+#endif
 
      do {
 	  double prev_ICM = ICM;
-	  
+
 	  ret = nlopt_optimize_limited(sub_opt, xcur, &fcur,
 				       stop->maxeval - *(stop->nevals_p),
-				       stop->maxtime - (nlopt_seconds() 
+				       stop->maxtime - (nlopt_seconds()
 							- stop->start));
+#ifndef CRAN_COMPATIBILITY
 	  if (auglag_verbose)
-	       printf("auglag: subopt return code %d\n", ret);
+	    printf("auglag: subopt return code %d\n", ret);
+#endif
 	  if (ret < 0) break;
-	  
+
 	  ++ *(d.stop->nevals_p);
 	  fcur = f(n, xcur, NULL, f_data);
 	  if (nlopt_stop_forced(stop)) {
 	       ret = NLOPT_FORCED_STOP; goto done; }
+#ifndef CRAN_COMPATIBILITY
 	  if (auglag_verbose)
 	       printf("auglag: fcur = %g\n", fcur);
-	  
+#endif
+
 	  ICM = 0;
 	  penalty = 0;
 	  feasible = 1;
@@ -239,7 +245,8 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  }
 
 	  auglag_iters++;
-	  
+
+#ifndef CRAN_COMPATIBILITY
 	  if (auglag_verbose) {
 	       printf("auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
 		      auglag_iters, ICM, feasible ? "" : "not ", d.rho);
@@ -248,15 +255,16 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	       for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
 	       printf("\n");
 	  }
+#endif
 
 	  if ((feasible && (!minf_feasible || penalty < minf_penalty
-			    || fcur < *minf)) || 
+			    || fcur < *minf)) ||
 	      (!minf_feasible && penalty < minf_penalty)) {
 	       ret = NLOPT_SUCCESS;
 	       if (feasible) {
-		    if (fcur < stop->minf_max) 
+		    if (fcur < stop->minf_max)
 			 ret = NLOPT_MINF_MAX_REACHED;
-		    else if (nlopt_stop_ftol(stop, fcur, *minf)) 
+		    else if (nlopt_stop_ftol(stop, fcur, *minf))
 			 ret = NLOPT_FTOL_REACHED;
 		    else if (nlopt_stop_x(stop, xcur, x))
 			 ret = NLOPT_XTOL_REACHED;
