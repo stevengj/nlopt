@@ -155,9 +155,13 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	       ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
 				      xsstep, stop, psi, scratch, &fdiff);
 	       if (fdiff > fdiff_max) fdiff_max = fdiff;
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	       if (sbplx_verbose)
 	         printf("%d NM iterations for (%d,%d) subspace\n",
+                 *(stop->nevals_p) - nevals, sd.is, ns);
+#else
+	       if (sbplx_verbose)
+	         Rprintf("%d NM iterations for (%d,%d) subspace\n",
                  *(stop->nevals_p) - nevals, sd.is, ns);
 #endif
 	       for (k = i; k < i+ns; ++k) x[p[k]] = xs[k-i];
@@ -178,9 +182,13 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 	  ret = nldrmd_minimize_(ns, subspace_func, &sd, lbs,ubs,xs, minf,
 				 xsstep, stop, psi, scratch, &fdiff);
 	  if (fdiff > fdiff_max) fdiff_max = fdiff;
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	  if (sbplx_verbose)
 	    printf("sbplx: %d NM iterations for (%d,%d) subspace\n",
+            *(stop->nevals_p) - nevals, sd.is, ns);
+#else
+	  if (sbplx_verbose)
+	    Rprintf("sbplx: %d NM iterations for (%d,%d) subspace\n",
             *(stop->nevals_p) - nevals, sd.is, ns);
 #endif
 	  for (i = sd.is; i < n; ++i) x[p[i]] = xs[i-sd.is];
@@ -226,9 +234,12 @@ nlopt_result sbplx_minimize(int n, nlopt_func f, void *f_data,
 		    if (scale < omega) scale = omega;
 		    if (scale > 1/omega) scale = 1/omega;
 	       }
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	       if (sbplx_verbose)
 	         printf("sbplx: stepsize scale factor = %g\n", scale);
+#else
+	       if (sbplx_verbose)
+	         Rprintf("sbplx: stepsize scale factor = %g\n", scale);
 #endif
 	       for (i = 0; i < n; ++i)
 		    xstep[i] = (dx[i] == 0) ? -(xstep[i] * scale)

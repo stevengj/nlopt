@@ -438,12 +438,20 @@ nlopt_result ccsa_quadratic_minimize(
 		    gi(m, dd.gcval, n, xcur, NULL, &dd);
 	       }
 
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	       if (verbose) {
 	         printf("CCSA dual converged in %d iters to g=%g:\n",
                  dd.count, dd.gval);
 	         for (i = 0; i < MIN(verbose, m); ++i)
 	           printf("    CCSA y[%u]=%g, gc[%u]=%g\n",
+                   i, y[i], i, dd.gcval[i]);
+	       }
+#else
+	       if (verbose) {
+	         Rprintf("CCSA dual converged in %d iters to g=%g:\n",
+                 dd.count, dd.gval);
+	         for (i = 0; i < MIN(verbose, m); ++i)
+	           Rprintf("    CCSA y[%u]=%g, gc[%u]=%g\n",
                    i, y[i], i, dd.gcval[i]);
 	       }
 #endif
@@ -478,9 +486,12 @@ nlopt_result ccsa_quadratic_minimize(
 
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
 		    || (!feasible && infeasibility_cur < infeasibility)) {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	         if (verbose && !feasible_cur)
 	           printf("CCSA - using infeasible point?\n");
+#else
+	         if (verbose && !feasible_cur)
+	           Rprintf("CCSA - using infeasible point?\n");
 #endif
 		    dd.fval = *minf = fcur;
 		    infeasibility = infeasibility_cur;
@@ -521,11 +532,17 @@ nlopt_result ccsa_quadratic_minimize(
 				  1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i])
 					 / dd.wval));
 
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 		    if (verbose) {
 		      printf("CCSA inner iteration: rho -> %g\n", rho);
 		      for (i = 0; i < MIN(verbose, m); ++i)
 		        printf("                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
+		    }
+#else
+		    if (verbose) {
+		      Rprintf("CCSA inner iteration: rho -> %g\n", rho);
+		      for (i = 0; i < MIN(verbose, m); ++i)
+		        Rprintf("                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
 		    }
 #endif
 	  }
@@ -538,15 +555,21 @@ nlopt_result ccsa_quadratic_minimize(
 
 	  /* update rho and sigma for iteration k+1 */
 	  rho = MAX(0.1 * rho, CCSA_RHOMIN);
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	  if (verbose)
 	       printf("CCSA outer iteration: rho -> %g\n", rho);
+#else
+	  if (verbose)
+	       Rprintf("CCSA outer iteration: rho -> %g\n", rho);
 #endif
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], CCSA_RHOMIN);
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	  for (i = 0; i < MIN(verbose, m); ++i)
 	       printf("                 CCSA rhoc[%u] -> %g\n", i, rhoc[i]);
+#else
+	  for (i = 0; i < MIN(verbose, m); ++i)
+	       Rprintf("                 CCSA rhoc[%u] -> %g\n", i, rhoc[i]);
 #endif
 	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
@@ -560,9 +583,13 @@ nlopt_result ccsa_quadratic_minimize(
 			 sigma[j] = MAX(sigma[j], 1e-8*(ub[j]-lb[j]));
 		    }
 	       }
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	       for (j = 0; j < MIN(verbose, n); ++j)
 	         printf("                 CCSA sigma[%u] -> %g\n",
+                 j, sigma[j]);
+#else
+	       for (j = 0; j < MIN(verbose, n); ++j)
+	         Rprintf("                 CCSA sigma[%u] -> %g\n",
                  j, sigma[j]);
 #endif
 	  }

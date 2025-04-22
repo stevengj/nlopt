@@ -46,17 +46,14 @@ option (NLOPT_JAVA "build java bindings" ON)
 option (NLOPT_SWIG "use SWIG to build bindings" ON)
 option (NLOPT_LUKSAN "enable LGPL Luksan solvers" ON)
 option (NLOPT_TESTS "build unit tests" OFF)
-option (USE_R_COMPATIBILITY "compile with R compatibility functions only" OFF)
 
 if (NLOPT_FORTRAN)
   enable_language (Fortran)
 endif ()
 
-if (USE_R_COMPATIBILITY)
-  add_definitions(-DCRAN_COMPATIBILITY)
-endif ()
-
 include (GNUInstallDirs)
+
+set (NLOPT_R_BINDIR "" CACHE STRING "Directory containing the R executable")
 
 # Offer the user the choice of overriding the installation directories
 set (NLOPT_INSTALL_LIBDIR     ${CMAKE_INSTALL_LIBDIR}        CACHE STRING "Installation directory for libraries")
@@ -244,6 +241,13 @@ if (NLOPT_LUKSAN)
   target_include_directories(${nlopt_lib} PRIVATE src/algs/luksan)
   target_compile_definitions (${nlopt_lib} PRIVATE NLOPT_LUKSAN)
 endif ()
+
+if (NOT "${NLOPT_R_BINDIR}" STREQUAL "")
+  find_package(R REQUIRED)
+  target_include_directories(${nlopt_lib} PRIVATE ${R_INCLUDE_DIR})
+  target_compile_definitions(${nlopt_lib} PRIVATE NLOPT_R)
+endif ()
+
 if (M_LIBRARY)
 target_link_libraries (${nlopt_lib} ${M_LIBRARY})
 endif ()

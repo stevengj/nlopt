@@ -179,15 +179,21 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      else
 	  d.rho = 1; /* whatever, doesn't matter */
 
-#ifndef CRAN_COMPATIBILITY
      if (auglag_verbose) {
+#ifndef NLOPT_R
        printf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
        for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
        printf("\nauglag initial mu = ");
        for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
        printf("\n");
-     }
+#else
+       Rprintf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
+       for (i = 0; i < d.pp; ++i) Rprintf(" %g", d.lambda[i]);
+       Rprintf("\nauglag initial mu = ");
+       for (i = 0; i < d.mm; ++i) Rprintf(" %g", d.mu[i]);
+       Rprintf("\n");
 #endif
+     }
 
      do {
 	  double prev_ICM = ICM;
@@ -196,9 +202,11 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 				       stop->maxeval - *(stop->nevals_p),
 				       stop->maxtime - (nlopt_seconds()
 							- stop->start));
-#ifndef CRAN_COMPATIBILITY
 	  if (auglag_verbose)
+#ifndef NLOPT_R
 	    printf("auglag: subopt return code %d\n", ret);
+#else
+	    Rprintf("auglag: subopt return code %d\n", ret);
 #endif
 	  if (ret < 0) break;
 
@@ -206,9 +214,11 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  fcur = f(n, xcur, NULL, f_data);
 	  if (nlopt_stop_forced(stop)) {
 	       ret = NLOPT_FORCED_STOP; goto done; }
-#ifndef CRAN_COMPATIBILITY
 	  if (auglag_verbose)
+#ifndef NLOPT_R
 	       printf("auglag: fcur = %g\n", fcur);
+#else
+	       Rprintf("auglag: fcur = %g\n", fcur);
 #endif
 
 	  ICM = 0;
@@ -246,7 +256,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 
 	  auglag_iters++;
 
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 	  if (auglag_verbose) {
 	       printf("auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
 		      auglag_iters, ICM, feasible ? "" : "not ", d.rho);
@@ -254,6 +264,15 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	       printf("\nauglag %d: mu = ", auglag_iters);
 	       for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
 	       printf("\n");
+	  }
+#else
+	  if (auglag_verbose) {
+	       Rprintf("auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
+		       auglag_iters, ICM, feasible ? "" : "not ", d.rho);
+	       for (i = 0; i < d.pp; ++i) Rprintf(" %g", d.lambda[i]);
+	       Rprintf("\nauglag %d: mu = ", auglag_iters);
+	       for (i = 0; i < d.mm; ++i) Rprintf(" %g", d.mu[i]);
+	       Rprintf("\n");
 	  }
 #endif
 

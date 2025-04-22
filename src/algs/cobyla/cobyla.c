@@ -391,16 +391,20 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
 
   if (n == 0)
   {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (iprint>=1) fprintf(stderr, "cobyla: N==0.\n");
+#else
+    if (iprint>=1) REprintf("cobyla: N==0.\n");
 #endif
     return NLOPT_SUCCESS;
   }
 
   if (n < 0 || m < 0)
   {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (iprint>=1) fprintf(stderr, "cobyla: N<0 or M<0.\n");
+#else
+    if (iprint>=1) REprintf("cobyla: N<0 or M<0.\n");
 #endif
     return NLOPT_INVALID_ARGS;
   }
@@ -409,16 +413,20 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
   w = (double*) malloc(U(n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
   if (w == NULL)
   {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
+#else
+    if (iprint>=1) REprintf("cobyla: memory allocation error.\n");
 #endif
     return NLOPT_OUT_OF_MEMORY;
   }
   iact = (int*)malloc(U(m+1)*sizeof(*iact));
   if (iact == NULL)
   {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
+#else
+    if (iprint>=1) REprintf("cobyla: memory allocation error.\n");
 #endif
     free(w);
     return NLOPT_OUT_OF_MEMORY;
@@ -538,10 +546,15 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   delta = 1.1;
   rho = *rhobeg;
   parmu = 0.;
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
   if (*iprint >= 2) {
     fprintf(stderr,
       "cobyla: the initial value of RHO is %12.6E and PARMU is set to zero.\n",
+      rho);
+  }
+#else
+  if (*iprint >= 2) {
+    REprintf("cobyla: the initial value of RHO is %12.6E and PARMU is set to zero.\n",
       rho);
   }
 #endif
@@ -591,9 +604,13 @@ L40:
   ++ *(stop->nevals_p);
   if (calcfc(*n, *m, &x[1], &f, &con[1], state))
   {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (*iprint >= 1) {
       fprintf(stderr, "cobyla: user requested end of minimization.\n");
+    }
+#else
+    if (*iprint >= 1) {
+      REprintf("cobyla: user requested end of minimization.\n");
     }
 #endif
     rc = NLOPT_FORCED_STOP;
@@ -618,7 +635,7 @@ L40:
        goto L620; /* not L600 because we want to use current x, f, resmax */
   }
 
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
   if (*(stop->nevals_p) == *iprint - 1 || *iprint == 3) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
 	    *(stop->nevals_p), f, resmax);
@@ -636,6 +653,25 @@ L40:
       }
     }
     fprintf(stderr, "\n");
+  }
+#else
+  if (*(stop->nevals_p) == *iprint - 1 || *iprint == 3) {
+    REprintf("cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
+	    *(stop->nevals_p), f, resmax);
+    i__1 = iptem;
+    REprintf("cobyla: X =");
+    for (i__ = 1; i__ <= i__1; ++i__) {
+      if (i__>1) REprintf("  ");
+      REprintf("%13.6E", x[i__]);
+    }
+    if (iptem < *n) {
+      i__1 = *n;
+      for (i__ = iptemp; i__ <= i__1; ++i__) {
+        if (!((i__-1) % 4)) REprintf("\ncobyla:  ");
+        REprintf("%15.6E", x[i__]);
+      }
+    }
+    REprintf("\n");
   }
 #endif
   con[mp] = f;
@@ -767,9 +803,13 @@ L140:
     }
   }
   if (error > .1) {
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (*iprint >= 1) {
       fprintf(stderr, "cobyla: rounding errors are becoming damaging.\n");
+    }
+#else
+    if (*iprint >= 1) {
+      REprintf("cobyla: rounding errors are becoming damaging.\n");
     }
 #endif
     rc = NLOPT_ROUNDOFF_LIMITED;
@@ -994,9 +1034,13 @@ L370:
   }
   if (parmu < barmu * 1.5) {
     parmu = barmu * 2.;
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (*iprint >= 2) {
       fprintf(stderr, "cobyla: increase in PARMU to %12.6E\n", parmu);
+    }
+#else
+    if (*iprint >= 2) {
+      REprintf("cobyla: increase in PARMU to %12.6E\n", parmu);
     }
 #endif
     phi = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np *
@@ -1195,7 +1239,7 @@ L550:
         parmu = (cmax - cmin) / denom;
       }
     }
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
     if (*iprint >= 2) {
       fprintf(stderr, "cobyla: reduction in RHO to %12.6E and PARMU =%13.6E\n",
         rho, parmu);
@@ -1219,6 +1263,30 @@ L550:
       }
       fprintf(stderr, "\n");
     }
+#else
+    if (*iprint >= 2) {
+      REprintf("cobyla: reduction in RHO to %12.6E and PARMU =%13.6E\n",
+              rho, parmu);
+    }
+    if (*iprint == 2) {
+      REprintf("cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
+              *(stop->nevals_p), datmat[mp + np * datmat_dim1], datmat[*mpp + np * datmat_dim1]);
+
+      REprintf("cobyla: X =");
+      i__1 = iptem;
+      for (i__ = 1; i__ <= i__1; ++i__) {
+        if (i__>1) REprintf("  ");
+        REprintf("%13.6E", sim[i__ + np * sim_dim1]);
+      }
+      if (iptem < *n) {
+        i__1 = *n;
+        for (i__ = iptemp; i__ <= i__1; ++i__) {
+          if (!((i__-1) % 4)) REprintf("\ncobyla:  ");
+          REprintf("%15.6E", x[i__]);
+        }
+      }
+      REprintf("\n");
+    }
 #endif
     goto L140;
   }
@@ -1227,9 +1295,13 @@ L550:
 
 /* Return the best calculated values of the variables. */
 
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
   if (*iprint >= 1) {
     fprintf(stderr, "cobyla: normal return.\n");
+  }
+#else
+  if (*iprint >= 1) {
+    REprintf("cobyla: normal return.\n");
   }
 #endif
   if (ifull == 1) {
@@ -1244,7 +1316,7 @@ L600:
   resmax = datmat[*mpp + np * datmat_dim1];
 L620:
   *minf = f;
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
   if (*iprint >= 1) {
     fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
 	    *(stop->nevals_p), f, resmax);
@@ -1262,6 +1334,25 @@ L620:
       }
     }
     fprintf(stderr, "\n");
+  }
+#else
+  if (*iprint >= 1) {
+    REprintf("cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
+	    *(stop->nevals_p), f, resmax);
+    i__1 = iptem;
+    REprintf("cobyla: X =");
+    for (i__ = 1; i__ <= i__1; ++i__) {
+      if (i__>1) REprintf("  ");
+      REprintf("%13.6E", x[i__]);
+    }
+    if (iptem < *n) {
+      i__1 = *n;
+      for (i__ = iptemp; i__ <= i__1; ++i__) {
+        if (!((i__-1) % 4)) REprintf("\ncobyla:  ");
+        REprintf("%15.6E", x[i__]);
+      }
+    }
+    REprintf("\n");
   }
 #endif
   return rc;

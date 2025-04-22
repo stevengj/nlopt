@@ -17,10 +17,10 @@ typedef int integer;
 typedef double doublereal;
 typedef direct_objective_func fp;
 
-#ifndef CRAN_COMPATIBILITY
+#ifndef NLOPT_R
 #define ASRT(c) if (!(c)) { fprintf(stderr, "DIRECT assertion failure at " __FILE__ ":%d -- " #c "\n", __LINE__); exit(EXIT_FAILURE); }
 #else
-#define ASRT(c) if (!(c)) { }
+#define ASRT(c) if (!(c)) { Rf_error("DIRECT assertion failure at " __FILE__ ":%d -- " #c "\n", __LINE__); }
 #endif
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
