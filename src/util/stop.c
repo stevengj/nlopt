@@ -185,6 +185,9 @@ void nlopt_eval_constraint(double *result, double *grad, const nlopt_constraint 
 
 char *nlopt_vsprintf(char *p, const char *format, va_list ap)
 {
+    if (!format)
+        abort();
+    
     size_t len = strlen(format) + 128;
     int ret;
 
