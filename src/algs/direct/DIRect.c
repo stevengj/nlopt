@@ -1,10 +1,10 @@
 /* DIRect-transp.f -- translated by f2c (version 20050501).
-   
-   f2c output hand-cleaned by SGJ (August 2007). 
+
+   f2c output hand-cleaned by SGJ (August 2007).
 */
 
-#include <math.h>
 #include "direct-internal.h"
+#include <math.h>
 
 /* Common Block Declarations */
 
@@ -32,7 +32,7 @@
 /* |   The algorithm starts with mapping the hyperrectangle Q to the       | */
 /* |   n-dimensional unit hypercube. DIRECT then samples the function at   | */
 /* |   the center of this hypercube and at 2n more points, 2 in each       | */
-/* |   coordinate direction. Uisng these function values, DIRECT then      | */
+/* |   coordinate direction. Using these function values, DIRECT then      | */
 /* |   divides the domain into hyperrectangles, each having exactly one of | */
 /* |   the sampling points as its center. In each iteration, DIRECT chooses| */
 /* |   some of the existing hyperrectangles to be further divided.         | */
@@ -44,10 +44,11 @@
 /* |   Lipschitz continues. However, DIRECT has proven to be effective on  | */
 /* |   more complex problems than these.                                   | */
 /* +-----------------------------------------------------------------------+ */
-/* Subroutine */ void direct_direct_(fp fcn, doublereal *x, integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, double starttime, double maxtime, int *force_stop, doublereal *minf, doublereal *l, 
-	doublereal *u, integer *algmethod, integer *ierror, FILE *logfile, 
-	doublereal *fglobal, doublereal *fglper, doublereal *volper, 
-	doublereal *sigmaper, void *fcn_data)
+/* Subroutine */ void direct_direct_(fp fcn, doublereal *x,
+    integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, int *force_stop,
+    doublereal *minf, doublereal *l, doublereal *u, integer *algmethod, integer *ierror,
+    FILE *logfile, doublereal *fglobal, doublereal *fglper, doublereal *volper,
+    doublereal *sigmaper, void *fcn_data, integer *numfunc, integer *numiter)
 {
     /* System generated locals */
     integer i__1, i__2;
@@ -61,9 +62,9 @@
 
     /* Local variables */
     integer increase;
-    doublereal *c__ = 0	/* was [90000][64] */, *f = 0	/* 
-	    was [90000][2] */;
-    integer i__, j, *s = 0	/* was [3000][2] */, t;
+    doublereal *c__ = 0	/* was [90000][64] */, *f = 0	/*
+        was [90000][2] */;
+    integer i__, j, *s = 0	/* was [3000][2] */, t = 0;
     doublereal *w = 0;
     doublereal divfactor;
     integer ifeasiblef, iepschange, actmaxdeep;
@@ -80,15 +81,15 @@
     doublereal *levels = 0, *thirds = 0;
     doublereal epsfix;
     integer oldpos, minpos, maxpos, tstart, actdeep, ifreeold, oldmaxf;
-    integer numfunc, version;
+    integer version;
     integer jones;
 
     /* FIXME: change sizes dynamically? */
 #define MY_ALLOC(p, t, n) p = (t *) malloc(sizeof(t) * (n)); \
                           if (!(p)) { *ierror = -100; goto cleanup; }
 
-    /* Note that I've transposed c__, length, and f relative to the 
-       original Fortran code.  e.g. length was length(maxfunc,n) 
+    /* Note that I've transposed c__, length, and f relative to the
+       original Fortran code.  e.g. length was length(maxfunc,n)
        in Fortran [ or actually length(maxfunc, maxdims), but by
        using malloc I can just allocate n ], corresponding to
        length[n][maxfunc] in C, but I've changed the code to access
@@ -143,11 +144,11 @@
 /* | fglobal -- Function value of the global optimum. If this value is not | */
 /* |            known (that is, we solve a real problem, not a testproblem)| */
 /* |            set this value to -1.D100 and fglper (see below) to 0.D0.  | */
-/* |  fglper -- Terminate the optimization when the percent error          | */
-/* |                100(f_min - fglobal)/max(1,abs(fglobal)) < fglper.     | */
+/* |  fglper -- Terminate the optimization when the relative error          | */
+/* |                (f_min - fglobal)/max(1,abs(fglobal)) < fglper.     | */
 /* |  volper -- Terminate the optimization when the volume of the          | */
 /* |            hyperrectangle S with f(c(S)) = minf is less then volper   | */
-/* |            percent of the volume of the original hyperrectangle.      | */
+/* |            of the volume of the original hyperrectangle.      | */
 /* |sigmaper -- Terminate the optimization when the measure of the         | */
 /* |            hyperrectangle S with f(c(S)) = minf is less then sigmaper.| */
 /* |                                                                       | */
@@ -181,12 +182,12 @@
 /* |              2   Number of iterations is equal to maxT.               | */
 /* |              3   The best function value found is within fglper of    | */
 /* |                  the (known) global optimum, that is                  | */
-/* |                   100(minf - fglobal/max(1,|fglobal|))  < fglper.     | */
+/* |                   (minf - fglobal/max(1,|fglobal|))  < fglper.     | */
 /* |                  Note that this termination signal only occurs when   | */
 /* |                  the global optimal value is known, that is, a test   | */
 /* |                  function is optimized.                               | */
 /* |              4   The volume of the hyperrectangle with minf at its    | */
-/* |                  center is less than volper percent of the volume of  | */
+/* |                  center is less than volper of the volume of  | */
 /* |                  the original hyperrectangle.                         | */
 /* |              5   The measure of the hyperrectangle with minf at its   | */
 /* |                  center is less than sigmaper.                        | */
@@ -330,8 +331,8 @@
 /* +-----------------------------------------------------------------------+ */
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	oldu[i__ - 1] = u[i__];
-	oldl[i__ - 1] = l[i__];
+    oldu[i__ - 1] = u[i__];
+    oldl[i__ - 1] = l[i__];
 /* L150: */
     }
 /* +-----------------------------------------------------------------------+ */
@@ -349,15 +350,15 @@
 /* +-----------------------------------------------------------------------+ */
 /* | Write the header of the logfile.                                      | */
 /* +-----------------------------------------------------------------------+ */
-    direct_dirheader_(logfile, &version, &x[1], n, eps, maxf, maxt, &l[1], &u[1], 
-	    algmethod, &MAXFUNC, &MAXDEEP, fglobal, fglper, ierror, &epsfix, &
-		      iepschange, volper, sigmaper);
+    direct_dirheader_(logfile, &version, &x[1], n, eps, maxf, maxt, &l[1], &u[1],
+        algmethod, &MAXFUNC, &MAXDEEP, fglobal, fglper, ierror, &epsfix, &
+              iepschange, volper, sigmaper);
 /* +-----------------------------------------------------------------------+ */
 /* | If an error has occurred while writing the header (we do some checking| */
 /* | of variables there), return to the main program.                      | */
 /* +-----------------------------------------------------------------------+ */
     if (*ierror < 0) {
-	goto cleanup;
+    goto cleanup;
     }
 /* +-----------------------------------------------------------------------+ */
 /* | If the known global minimum is equal 0, we cannot divide by it.       | */
@@ -365,9 +366,9 @@
 /* | absolute value of the global minimum.                                 | */
 /* +-----------------------------------------------------------------------+ */
     if (*fglobal == 0.) {
-	divfactor = 1.;
+    divfactor = 1.;
     } else {
-	divfactor = fabs(*fglobal);
+    divfactor = fabs(*fglobal);
     }
 /* +-----------------------------------------------------------------------+ */
 /* | Save the budget given by the user. The variable maxf will be changed  | */
@@ -388,10 +389,10 @@
 /* +-----------------------------------------------------------------------+ */
     direct_dirpreprc_(&u[1], &l[1], n, &l[1], &u[1], &oops);
     if (oops > 0) {
-	if (logfile)
-	     fprintf(logfile,"WARNING: Initialization in DIRpreprc failed.\n");
-	*ierror = -3;
-	goto cleanup;
+    if (logfile)
+         fprintf(logfile,"WARNING: Initialization in DIRpreprc failed.\n");
+    *ierror = -3;
+    goto cleanup;
     }
     tstart = 2;
 /* +-----------------------------------------------------------------------+ */
@@ -401,28 +402,27 @@
 /* | Added variable to keep track of the maximum value found.              | */
 /* +-----------------------------------------------------------------------+ */
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
-	    logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1], 
-	    minf, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
-	    fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones,
-		    starttime, maxtime, force_stop);
+        logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1],
+        minf, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
+        fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones,
+        force_stop);
 /* +-----------------------------------------------------------------------+ */
 /* | Added error checking.                                                 | */
 /* +-----------------------------------------------------------------------+ */
     if (*ierror < 0) {
-	if (*ierror == -4) {
-	    if (logfile)
-		 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplepoints.\n");
-	    goto cleanup;
-	}
-	if (*ierror == -5) {
-	    if (logfile)
-		 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplef..\n");
-	    goto cleanup;
-	}
-	if (*ierror == -102) goto L100;
+    if (*ierror == -4) {
+        if (logfile)
+         fprintf(logfile, "WARNING: Error occurred in routine DIRsamplepoints.\n");
+        goto cleanup;
     }
-    else if (*ierror == DIRECT_MAXTIME_EXCEEDED) goto L100;
-    numfunc = maxi + 1 + maxi;
+    if (*ierror == -5) {
+        if (logfile)
+         fprintf(logfile, "WARNING: Error occurred in routine DIRsamplef..\n");
+        goto cleanup;
+    }
+    if (*ierror == -102) goto L100;
+    }
+    *numfunc = maxi + 1 + maxi;
     actmaxdeep = 1;
     oldpos = 0;
     tstart = 2;
@@ -432,13 +432,13 @@
 /* | the iteration, the number of function evaluations done and minf.      | */
 /* +-----------------------------------------------------------------------+ */
     if (ifeasiblef > 0) {
-	 if (logfile)
-	      fprintf(logfile, "No feasible point found in %d iterations "
-		      "and %d function evaluations.\n", tstart-1, numfunc);
+     if (logfile)
+          fprintf(logfile, "No feasible point found in %d iterations "
+              "and %d function evaluations.\n", tstart-1, *numfunc);
     } else {
-	 if (logfile)
-	      fprintf(logfile, "%d, %d, %g, %g\n", 
-		      tstart-1, numfunc, *minf, fmax);
+     if (logfile)
+          fprintf(logfile, "%d, %d, %g, %g\n",
+              tstart-1, *numfunc, *minf, fmax);
     }
 /* +-----------------------------------------------------------------------+ */
 /* +-----------------------------------------------------------------------+ */
@@ -446,159 +446,160 @@
 /* +-----------------------------------------------------------------------+ */
 /* +-----------------------------------------------------------------------+ */
     i__1 = *maxt;
-    for (t = tstart; t <= i__1; ++t) {
+    for (t = tstart; t <= i__1 -1; ++t) {
 /* +-----------------------------------------------------------------------+ */
 /* | Choose the sample points. The indices of the sample points are stored | */
 /* | in the list S.                                                        | */
 /* +-----------------------------------------------------------------------+ */
-	actdeep = actmaxdeep;
-	direct_dirchoose_(anchor, s, &MAXDEEP, f, minf, *eps, epsabs, levels, &maxpos, length, 
-		&MAXFUNC, &MAXDEEP, &MAXDIV, n, logfile, &cheat, &
-		kmax, &ifeasiblef, jones);
+    actdeep = actmaxdeep;
+    direct_dirchoose_(anchor, s, &MAXDEEP, f, minf, *eps, epsabs, levels, &maxpos, length,
+        &MAXFUNC, &MAXDEEP, &MAXDIV, n, logfile, &cheat, &
+        kmax, &ifeasiblef, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Add other hyperrectangles to S, which have the same level and the same| */
 /* | function value at the center as the ones found above (that are stored | */
 /* | in S). This is only done if we use the original DIRECT algorithm.     | */
 /* | JG 07/16/01 Added Errorflag.                                          | */
 /* +-----------------------------------------------------------------------+ */
-	if (*algmethod == 0) {
-	     direct_dirdoubleinsert_(anchor, s, &maxpos, point, f, &MAXDEEP, &MAXFUNC,
-		     &MAXDIV, ierror);
-	    if (*ierror == -6) {
-		if (logfile)
-		     fprintf(logfile,
+    if (*algmethod == 0) {
+         direct_dirdoubleinsert_(anchor, s, &maxpos, point, f, &MAXDEEP, &MAXFUNC,
+             &MAXDIV, ierror);
+        if (*ierror == -6) {
+        if (logfile)
+             fprintf(logfile,
 "WARNING: Capacity of array S in DIRDoubleInsert reached. Increase maxdiv.\n"
 "This means that there are a lot of hyperrectangles with the same function\n"
 "value at the center. We suggest to use our modification instead (Jones = 1)\n"
-			  );
-		goto cleanup;
-	    }
-	}
-	oldpos = minpos;
+              );
+        *numiter = t;
+        goto cleanup;
+        }
+    }
+    oldpos = minpos;
 /* +-----------------------------------------------------------------------+ */
 /* | Initialise the number of sample points in this outer loop.            | */
 /* +-----------------------------------------------------------------------+ */
-	newtosample = 0;
-	i__2 = maxpos;
-	for (j = 1; j <= i__2; ++j) {
-	    actdeep = s[j + MAXDIV-1];
+    newtosample = 0;
+    i__2 = maxpos;
+    for (j = 1; j <= i__2; ++j) {
+        actdeep = s[j + MAXDIV-1];
 /* +-----------------------------------------------------------------------+ */
 /* | If the actual index is a point to sample, do it.                      | */
 /* +-----------------------------------------------------------------------+ */
-	    if (s[j - 1] > 0) {
+        if (s[j - 1] > 0) {
 /* +-----------------------------------------------------------------------+ */
 /* | JG 09/24/00 Calculate the value delta used for sampling points.       | */
 /* +-----------------------------------------------------------------------+ */
-		actdeep_div__ = direct_dirgetmaxdeep_(&s[j - 1], length, &MAXFUNC, 
-			n);
-		delta = thirds[actdeep_div__ + 1];
-		actdeep = s[j + MAXDIV-1];
+        actdeep_div__ = direct_dirgetmaxdeep_(&s[j - 1], length, &MAXFUNC,
+            n);
+        delta = thirds[actdeep_div__ + 1];
+        actdeep = s[j + MAXDIV-1];
 /* +-----------------------------------------------------------------------+ */
 /* | If the current dept of division is only one under the maximal allowed | */
 /* | dept, stop the computation.                                           | */
 /* +-----------------------------------------------------------------------+ */
-		if (actdeep + 1 >= mdeep) {
-		    if (logfile)
-			 fprintf(logfile, "WARNING: Maximum number of levels reached. Increase maxdeep.\n");
-		    *ierror = -6;
-		    goto L100;
-		}
-		actmaxdeep = MAX(actdeep,actmaxdeep);
-		help = s[j - 1];
-		if (! (anchor[actdeep + 1] == help)) {
-		    pos1 = anchor[actdeep + 1];
-		    while(! (point[pos1 - 1] == help)) {
-			pos1 = point[pos1 - 1];
-		    }
-		    point[pos1 - 1] = point[help - 1];
-		} else {
-		    anchor[actdeep + 1] = point[help - 1];
-		}
-		if (actdeep < 0) {
-		    actdeep = (integer) f[(help << 1) - 2];
-		}
+        if (actdeep + 1 >= mdeep) {
+            if (logfile)
+             fprintf(logfile, "WARNING: Maximum number of levels reached. Increase maxdeep.\n");
+            *ierror = -6;
+            *numiter = t;
+            goto L100;
+        }
+        actmaxdeep = MAX(actdeep,actmaxdeep);
+        help = s[j - 1];
+        if (! (anchor[actdeep + 1] == help)) {
+            pos1 = anchor[actdeep + 1];
+            while(! (point[pos1 - 1] == help)) {
+            pos1 = point[pos1 - 1];
+            }
+            point[pos1 - 1] = point[help - 1];
+        } else {
+            anchor[actdeep + 1] = point[help - 1];
+        }
+        if (actdeep < 0) {
+            actdeep = (integer) f[(help << 1) - 2];
+        }
 /* +-----------------------------------------------------------------------+ */
 /* | Get the Directions in which to decrease the intervall-length.         | */
 /* +-----------------------------------------------------------------------+ */
-		direct_dirget_i__(length, &help, arrayi, &maxi, n, &MAXFUNC);
+        direct_dirget_i__(length, &help, arrayi, &maxi, n, &MAXFUNC);
 /* +-----------------------------------------------------------------------+ */
 /* | Sample the function. To do this, we first calculate the points where  | */
 /* | we need to sample the function. After checking for errors, we then do | */
 /* | the actual evaluation of the function, again followed by checking for | */
 /* | errors.                                                               | */
 /* +-----------------------------------------------------------------------+ */
-		direct_dirsamplepoints_(c__, arrayi, &delta, &help, &start, length, 
-			logfile, f, &ifree, &maxi, point, &x[
-			1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
-			MAXDEEP, &oops);
-		if (oops > 0) {
-		    if (logfile)
-			 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplepoints.\n");
-		    *ierror = -4;
-		    goto cleanup;
-		}
-		newtosample += maxi;
+        direct_dirsamplepoints_(c__, arrayi, &delta, &help, &start, length,
+            logfile, f, &ifree, &maxi, point, &x[
+            1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
+            MAXDEEP, &oops);
+        if (oops > 0) {
+            if (logfile)
+             fprintf(logfile, "WARNING: Error occurred in routine DIRsamplepoints.\n");
+            *ierror = -4;
+            *numiter = t;
+            goto cleanup;
+        }
+        newtosample += maxi;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Added variable to keep track of the maximum value found.  | */
 /* +-----------------------------------------------------------------------+ */
-		direct_dirsamplef_(c__, arrayi, &delta, &help, &start, length,
-			    logfile, f, &ifree, &maxi, point, fcn, &x[
-			1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
-			MAXDEEP, &oops, &fmax, &ifeasiblef, &iinfesiblef, 
-				   fcn_data, force_stop);
-		if (force_stop && *force_stop) {
-		     *ierror = -102;
-		     goto L100;
-		}
-		if (nlopt_stop_time_(starttime, maxtime)) {
-		     *ierror = DIRECT_MAXTIME_EXCEEDED;
-		     goto L100;
-		}
-		if (oops > 0) {
-		    if (logfile)
-			 fprintf(logfile, "WARNING: Error occurred in routine DIRsamplef.\n");
-		    *ierror = -5;
-		    goto cleanup;
-		}
+        direct_dirsamplef_(c__, arrayi, &delta, &help, &start, length,
+            logfile, f, &ifree, &maxi, point, fcn, &x[
+            1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
+            MAXDEEP, &oops, &fmax, &ifeasiblef, &iinfesiblef,
+            fcn_data, force_stop);
+        if (force_stop && *force_stop) {
+             *ierror = -102;
+             *numiter = t;
+             goto L100;
+        }
+        if (oops > 0) {
+            if (logfile)
+             fprintf(logfile, "WARNING: Error occurred in routine DIRsamplef.\n");
+            *ierror = -5;
+            *numiter = t;
+            goto cleanup;
+        }
 /* +-----------------------------------------------------------------------+ */
 /* | Divide the intervalls.                                                | */
 /* +-----------------------------------------------------------------------+ */
-		direct_dirdivide_(&start, &actdeep_div__, length, point, arrayi, &
-			help, list2, w, &maxi, f, &MAXFUNC, &MAXDEEP, n);
+        direct_dirdivide_(&start, &actdeep_div__, length, point, arrayi, &
+            help, list2, w, &maxi, f, &MAXFUNC, &MAXDEEP, n);
 /* +-----------------------------------------------------------------------+ */
 /* | Insert the new intervalls into the list (sorted).                     | */
 /* +-----------------------------------------------------------------------+ */
-		direct_dirinsertlist_(&start, anchor, point, f, &maxi, length, &
-			MAXFUNC, &MAXDEEP, n, &help, jones);
+        direct_dirinsertlist_(&start, anchor, point, f, &maxi, length, &
+            MAXFUNC, &MAXDEEP, n, &help, jones);
 /* +-----------------------------------------------------------------------+ */
 /* | Increase the number of function evaluations.                          | */
 /* +-----------------------------------------------------------------------+ */
-		numfunc = numfunc + maxi + maxi;
-	    }
+        *numfunc = *numfunc + maxi + maxi;
+        }
 /* +-----------------------------------------------------------------------+ */
 /* | End of main loop.                                                     | */
 /* +-----------------------------------------------------------------------+ */
 /* L20: */
-	}
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | If there is a new minimum, show the actual iteration, the number of   | */
 /* | function evaluations, the minimum value of f (so far) and the position| */
 /* | in the array.                                                         | */
 /* +-----------------------------------------------------------------------+ */
-	if (oldpos < minpos) {
-	    if (logfile)
-		 fprintf(logfile, "%d, %d, %g, %g\n",
-			 t, numfunc, *minf, fmax);
-	}
+    if (oldpos < minpos) {
+        if (logfile)
+         fprintf(logfile, "%d, %d, %g, %g\n",
+             t, *numfunc, *minf, fmax);
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | If no feasible point has been found, give out the iteration, the      | */
 /* | number of function evaluations and a warning.                         | */
 /* +-----------------------------------------------------------------------+ */
-	if (ifeasiblef > 0) {
-	    if (logfile)
-		 fprintf(logfile, "No feasible point found in %d iterations "
-			 "and %d function evaluations\n", t, numfunc);
-	}
+    if (ifeasiblef > 0) {
+        if (logfile)
+         fprintf(logfile, "No feasible point found in %d iterations "
+             "and %d function evaluations\n", t, *numfunc);
+    }
 /* +-----------------------------------------------------------------------+ */
 /* +-----------------------------------------------------------------------+ */
 /* |                       Termination Checks                              | */
@@ -608,71 +609,75 @@
 /* |             minf is assumed. We then calculate the volume of this     | */
 /* |             hyperrectangle and store it in delta. This delta can be   | */
 /* |             used to stop DIRECT once the volume is below a certain    | */
-/* |             percentage of the original volume. Since the original     | */
+/* |             ratio of the original volume. Since the original     | */
 /* |             is 1 (scaled), we can stop once delta is below a certain  | */
-/* |             percentage, given by volper.                              | */
+/* |             threshold, given by volper.                              | */
 /* +-----------------------------------------------------------------------+ */
-	*ierror = jones;
-	jones = 0;
-	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
-	jones = *ierror;
+    *ierror = jones;
+    jones = 0;
+    actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
+    jones = *ierror;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 07/16/01 Use precalculated values to calculate volume.             | */
 /* +-----------------------------------------------------------------------+ */
-	delta = thirds[actdeep_div__] * 100;
-	if (delta <= *volper) {
-	    *ierror = 4;
-	    if (logfile)
-		 fprintf(logfile, "DIRECT stopped: Volume of S_min is "
-			 "%g%% < %g%% of the original volume.\n",
-			 delta, *volper);
-	    goto L100;
-	}
+    delta = thirds[actdeep_div__];
+    if (delta <= *volper) {
+        *ierror = 4;
+        if (logfile)
+         fprintf(logfile, "DIRECT stopped: Volume of S_min is "
+             "%g < %g of the original volume.\n",
+             delta, *volper);
+        *numiter = t;
+        goto L100;
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/23/01 Calculate the measure for the hyperrectangle at which     | */
 /* |             minf is assumed. If this measure is smaller then sigmaper,| */
 /* |             we stop DIRECT.                                           | */
 /* +-----------------------------------------------------------------------+ */
-	actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
-	delta = levels[actdeep_div__];
-	if (delta <= *sigmaper) {
-	    *ierror = 5;
-	    if (logfile)
-		 fprintf(logfile, "DIRECT stopped: Measure of S_min "
-			 "= %g < %g.\n", delta, *sigmaper);
-	    goto L100;
-	}
+    actdeep_div__ = direct_dirgetlevel_(&minpos, length, &MAXFUNC, n, jones);
+    delta = levels[actdeep_div__];
+    if (delta <= *sigmaper) {
+        *ierror = 5;
+        if (logfile)
+         fprintf(logfile, "DIRECT stopped: Side length measure of S_min "
+             "= %g < %g.\n", delta, *sigmaper);
+        *numiter = t;
+        goto L100;
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | If the best found function value is within fglper of the (known)      | */
 /* | global minimum value, terminate. This only makes sense if this optimal| */
 /* | value is known, that is, in test problems.                            | */
 /* +-----------------------------------------------------------------------+ */
-	if ((*minf - *fglobal) * 100 / divfactor <= *fglper) {
-	    *ierror = 3;
-	    if (logfile)
-		 fprintf(logfile, "DIRECT stopped: minf within fglper of global minimum.\n");
-	    goto L100;
-	}
+    if ((*minf - *fglobal)/ divfactor <= *fglper) {
+        *ierror = 3;
+        if (logfile)
+         fprintf(logfile, "DIRECT stopped: found minimum within f_min_rtol of "
+         "global minimum.\n");
+        *numiter = t;
+        goto L100;
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | Find out if there are infeasible points which are near feasible ones. | */
 /* | If this is the case, replace the function value at the center of the  | */
 /* | hyper rectangle by the lowest function value of a nearby function.    | */
 /* | If no infeasible points exist (IInfesiblef = 0), skip this.           | */
 /* +-----------------------------------------------------------------------+ */
-	if (iinfesiblef > 0) {
-	     direct_dirreplaceinf_(&ifree, &ifreeold, f, c__, thirds, length, anchor, 
-		    point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, n, n, 
-		    logfile, &fmax, jones);
-	}
-	ifreeold = ifree;
+    if (iinfesiblef > 0) {
+         direct_dirreplaceinf_(&ifree, &ifreeold, f, c__, thirds, length, anchor,
+            point, &u[1], &l[1], &MAXFUNC, &MAXDEEP, n, n,
+            logfile, &fmax, jones);
+    }
+    ifreeold = ifree;
 /* +-----------------------------------------------------------------------+ */
 /* | If iepschange = 1, we use the epsilon change formula from Jones.      | */
 /* +-----------------------------------------------------------------------+ */
-	if (iepschange == 1) {
+    if (iepschange == 1) {
 /* Computing MAX */
-	    d__1 = fabs(*minf) * 1e-4;
-	    *eps = MAX(d__1,epsfix);
-	}
+        d__1 = fabs(*minf) * 1e-4;
+        *eps = MAX(d__1,epsfix);
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | If no feasible point has been found yet, set the maximum number of    | */
 /* | function evaluations to the number of evaluations already done plus   | */
@@ -681,36 +686,37 @@
 /* | feasible point has been found, remark that and reset flag. No further | */
 /* | increase is needed.                                                   | */
 /* +-----------------------------------------------------------------------+ */
-	if (increase == 1) {
-	    *maxf = numfunc + oldmaxf;
-	    if (ifeasiblef == 0) {
-		if (logfile)
-		     fprintf(logfile, "DIRECT found a feasible point.  The "
-			     "adjusted budget is now set to %d.\n", *maxf);
-		increase = 0;
-	    }
-	}
+    if (increase == 1) {
+        *maxf = *numfunc + oldmaxf;
+        if (ifeasiblef == 0) {
+        if (logfile)
+             fprintf(logfile, "DIRECT found a feasible point.  The "
+                 "adjusted budget is now set to %d.\n", *maxf);
+        increase = 0;
+        }
+    }
 /* +-----------------------------------------------------------------------+ */
 /* | Check if the number of function evaluations done is larger than the   | */
 /* | allocated budget. If this is the case, check if a feasible point was  | */
 /* | found. If this is a case, terminate. If no feasible point was found,  | */
 /* | increase the budget and set flag increase.                            | */
 /* +-----------------------------------------------------------------------+ */
-	if (numfunc > *maxf) {
-	    if (ifeasiblef == 0) {
-		*ierror = 1;
-		if (logfile)
-		     fprintf(logfile, "DIRECT stopped: numfunc >= maxf.\n");
-		goto L100;
-	    } else {
-		increase = 1;
-		if (logfile)
-                     fprintf(logfile, 
+    if (*numfunc > *maxf) {
+        if (ifeasiblef == 0) {
+        *ierror = 1;
+        if (logfile)
+             fprintf(logfile, "DIRECT stopped: numfunc >= maxf.\n");
+        *numiter = t;
+        goto L100;
+        } else {
+        increase = 1;
+        if (logfile)
+                     fprintf(logfile,
 "DIRECT could not find a feasible point after %d function evaluations.\n"
-"DIRECT continues until a feasible point is found.\n", numfunc);
-		*maxf = numfunc + oldmaxf;
-	    }
-	}
+"DIRECT continues until a feasible point is found.\n", *numfunc);
+        *maxf = *numfunc + oldmaxf;
+        }
+    }
 /* L10: */
     }
 /* +-----------------------------------------------------------------------+ */
@@ -723,7 +729,7 @@
 /* +-----------------------------------------------------------------------+ */
     *ierror = 2;
     if (logfile)
-	 fprintf(logfile, "DIRECT stopped: maxT iterations.\n");
+     fprintf(logfile, "DIRECT stopped: maxT iterations.\n");
 
 L100:
 /* +-----------------------------------------------------------------------+ */
@@ -731,38 +737,50 @@ L100:
 /* +-----------------------------------------------------------------------+ */
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	x[i__] = c__[i__ + minpos * i__1 - i__1-1] * l[i__] + l[i__] * u[i__];
-	u[i__] = oldu[i__ - 1];
-	l[i__] = oldl[i__ - 1];
+    x[i__] = c__[i__ + minpos * i__1 - i__1-1] * l[i__] + l[i__] * u[i__];
+    u[i__] = oldu[i__ - 1];
+    l[i__] = oldl[i__ - 1];
 /* L50: */
     }
 /* +-----------------------------------------------------------------------+ */
 /* | Store the number of function evaluations in maxf.                     | */
 /* +-----------------------------------------------------------------------+ */
-    *maxf = numfunc;
+    *maxf = *numfunc;
+    *numiter = t;
 /* +-----------------------------------------------------------------------+ */
 /* | Give out a summary of the run.                                        | */
 /* +-----------------------------------------------------------------------+ */
-    direct_dirsummary_(logfile, &x[1], &l[1], &u[1], n, minf, fglobal, &numfunc, 
-	    ierror);
+    direct_dirsummary_(logfile, &x[1], &l[1], &u[1], n, minf, fglobal, numfunc,
+        ierror);
 /* +-----------------------------------------------------------------------+ */
 /* | Format statements.                                                    | */
 /* +-----------------------------------------------------------------------+ */
 
  cleanup:
-#define MY_FREE(p) if (p) free(p)
-    MY_FREE(c__);
-    MY_FREE(f);
-    MY_FREE(s);
-    MY_FREE(w);
-    MY_FREE(oldl);
-    MY_FREE(oldu);
-    MY_FREE(list2);
-    MY_FREE(point);
-    MY_FREE(anchor);
-    MY_FREE(length);
-    MY_FREE(arrayi);
-    MY_FREE(levels);
-    MY_FREE(thirds);
+    if (c__)
+        free(c__);
+    if (f)
+        free(f);
+    if (s)
+        free(s);
+    if (w)
+        free(w);
+    if (oldl)
+        free(oldl);
+    if (oldu)
+        free(oldu);
+    if (list2)
+        free(list2);
+    if (point)
+        free(point);
+    if (anchor)
+        free(anchor);
+    if (length)
+        free(length);
+    if (arrayi)
+        free(arrayi);
+    if (levels)
+        free(levels);
+    if (thirds)
+        free(thirds);
 } /* direct_ */
-

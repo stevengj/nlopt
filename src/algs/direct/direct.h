@@ -35,6 +35,11 @@ typedef enum {
      DIRECT_FORCED_STOP = -102
 } direct_return_code;
 
+typedef struct {
+     int numfunc;
+     int numiter;
+} direct_return_info;
+
 #define DIRECT_UNKNOWN_FGLOBAL (-HUGE_VAL)
 #define DIRECT_UNKNOWN_FGLOBAL_RELTOL (0.0)
 
@@ -46,7 +51,6 @@ extern direct_return_code direct_optimize(
      double *x, double *minf, 
 
      int max_feval, int max_iter, 
-     double start, double maxtime,
      double magic_eps, double magic_eps_abs,
      double volume_reltol, double sigma_reltol,
      int *force_stop,
@@ -55,7 +59,8 @@ extern direct_return_code direct_optimize(
      double fglobal_reltol,
 
      FILE *logfile,
-     direct_algorithm algorithm);
+     direct_algorithm algorithm,
+     direct_return_info *info);
 
 #ifdef __cplusplus
 }  /* extern "C" */
