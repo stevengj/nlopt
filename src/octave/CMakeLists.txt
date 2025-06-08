@@ -35,6 +35,10 @@ if (OCTAVE_FOUND)
   octave_add_oct (nlopt_optimize SOURCES nlopt_optimize-oct.cc ${CMAKE_CURRENT_BINARY_DIR}/nlopt_optimize_usage.h LINK_LIBRARIES ${nlopt_lib})
   target_include_directories (nlopt_optimize PRIVATE ${OCTAVE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/src/api)
 
+  if (OCTAVE_VERSION_MAJOR GREATER 10)
+    target_compile_features(nlopt_optimize PRIVATE cxx_std_17)
+  endif()
+
   if (NOT DEFINED INSTALL_OCT_DIR)
     file (RELATIVE_PATH INSTALL_OCT_DIR ${OCTAVE_ROOT_DIR} ${OCTAVE_OCT_SITE_DIR})
   endif ()
