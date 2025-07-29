@@ -1,0 +1,7 @@
+module(
+    name = "nlopt",
+    version = "2.6.1.swiftnav",
+    compatibility_level = 1,
+)
+
+bazel_dep(name = "rules_foreign_cc", version = "0.9.0")
