@@ -1,6 +1,6 @@
 module(
     name = "nlopt",
-    version = "2.6.1.swiftnav",
+    version = "2.6.1.1.swiftnav",
     compatibility_level = 1,
 )
 
