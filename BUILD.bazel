@@ -26,7 +26,6 @@ cmake(
         "CMAKE_INSTALL_LIBDIR": "lib",
     },
     generate_args = [
-        "-GNinja",
         "-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0",
         "-DBUILD_SHARED_LIBS=OFF",
         "-DNLOPT_PYTHON=OFF",
