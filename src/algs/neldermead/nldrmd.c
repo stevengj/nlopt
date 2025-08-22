@@ -32,7 +32,7 @@
    Richardson and Kuester (1973), as mentioned below. */
 
 /* heuristic "strategy" constants: */
-static const double alpha = 1, beta = 0.5, gamm = 2, delta = 0.5;
+static const double ALPHA = 1, BETA = 0.5, GAMMA = 2, DELTA = 0.5;
 
 /* sort order in red-black tree: keys [f(x), x] are sorted by f(x) */
 static int simplex_compare(double *k1, double *k2)
@@ -228,14 +228,14 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  }
 
 	  /* reflection */
-	  if (!reflectpt(n, xcur, c, alpha, xh, lb, ub)) { 
+	  if (!reflectpt(n, xcur, c, ALPHA, xh, lb, ub)) { 
 	       ret=NLOPT_XTOL_REACHED; goto done; 
 	  }
 	  fr = f(n, xcur, NULL, f_data);
 	  CHECK_EVAL(xcur, fr);
 
 	  if (fr < fl) { /* new best point, expand simplex */
-	       if (!reflectpt(n, xh, c, gamm, xh, lb, ub)) {
+	       if (!reflectpt(n, xh, c, GAMMA, xh, lb, ub)) {
 		    ret=NLOPT_XTOL_REACHED; goto done; 
 	       }
 	       fh = f(n, xh, NULL, f_data);
@@ -251,7 +251,7 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 	  }
 	  else { /* new worst point, contract */
 	       double fc;
-	       if (!reflectpt(n,xcur,c, fh <= fr ? -beta : beta, xh, lb,ub)) {
+	       if (!reflectpt(n,xcur,c, fh <= fr ? -BETA : BETA, xh, lb,ub)) {
 		    ret=NLOPT_XTOL_REACHED; goto done; 
 	       }
 	       fc = f(n, xcur, NULL, f_data);
@@ -266,7 +266,7 @@ nlopt_result nldrmd_minimize_(int n, nlopt_func f, void *f_data,
 		    for (i = 0; i < n+1; ++i) {
 			 double *pt = pts + i * (n+1);
 			 if (pt+1 != xl) {
-			      if (!reflectpt(n,pt+1, xl,-delta,pt+1, lb,ub)) {
+			      if (!reflectpt(n,pt+1, xl,-DELTA,pt+1, lb,ub)) {
 				   ret = NLOPT_XTOL_REACHED;
 				   goto done;
 			      }
