@@ -219,6 +219,7 @@ nlopt_result ccsa_quadratic_minimize(
      double *minf,
      nlopt_stopping *stop,
      nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init,
+	 int inner_gradients, int always_improve,
 	 const double *sigma_init)
 {
      nlopt_result ret = NLOPT_SUCCESS;
@@ -446,7 +447,7 @@ nlopt_result ccsa_quadratic_minimize(
 				i, y[i], i, dd.gcval[i]);
 	       }
 
-	       fcur = f(n, xcur, dfdx_cur, f_data);
+	       fcur = f(n, xcur, inner_gradients ? dfdx_cur : NULL, f_data);
 	       ++ *(stop->nevals_p);
 		   ++inner_nevals;
 	       if (nlopt_stop_forced(stop)) {
@@ -454,7 +455,8 @@ nlopt_result ccsa_quadratic_minimize(
 	       feasible_cur = 1; infeasibility_cur = 0;
 	       inner_done = dd.gval >= fcur;
 	       for (i = ifc = 0; ifc < mfc; ++ifc) {
-		    nlopt_eval_constraint(fcval_cur + i, dfcdx_cur + i*n,
+		    nlopt_eval_constraint(fcval_cur + i,
+					  inner_gradients ? dfcdx_cur + i*n : NULL,
 					  fc + ifc, n, xcur);
 		    i += fc[ifc].m;
 		    if (nlopt_stop_forced(stop)) {
@@ -474,10 +476,45 @@ nlopt_result ccsa_quadratic_minimize(
 
 		   inner_done = inner_done || (inner_maxeval > 0 && inner_nevals == inner_maxeval);
 
-	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
-		    || (!feasible && infeasibility_cur < infeasibility)) {
+		   /* update the current point.  If always_improve (the default), use an aggressive
+		      strategy that always accepts an improvement even if !inner_done,
+			  otherwise only update the current point if inner_done (= outer iteration),
+			  more like the original Svanberg paper */
+	       if (always_improve ?
+			   (fcur < *minf && (inner_done || feasible_cur || !feasible))
+		       || (!feasible && infeasibility_cur < infeasibility) : inner_done) {
 		    if (verbose && !feasible_cur)
 			 printf("CCSA - using infeasible point?\n");
+
+			if (!inner_gradients) { /* evaluate again, this time with gradients */
+				fcur = f(n, xcur, dfdx_cur, f_data);
+				/* don't update *(stop->nevals_p) — hope user caches xcur
+			       so that they don't actually recompute f */
+				if (nlopt_stop_forced(stop)) {
+					ret = NLOPT_FORCED_STOP; goto done; }
+				feasible_cur = 1; infeasibility_cur = 0;
+				for (i = ifc = 0; ifc < mfc; ++ifc) {
+					nlopt_eval_constraint(fcval_cur + i,
+							dfcdx_cur + i*n,
+							fc + ifc, n, xcur);
+					i += fc[ifc].m;
+					if (nlopt_stop_forced(stop))
+						ret = NLOPT_FORCED_STOP; goto done;
+				}
+				/* recompute feasible_cur etc in case the caller
+				   has changed the objective function for an outer iteration,
+				   but don't change inner_done in that case */
+				for (i = ifc = 0; ifc < mfc; ++ifc) {
+					unsigned i0 = i, inext = i + fc[ifc].m;
+					for (; i < inext; ++i) {
+					feasible_cur = feasible_cur
+						&& fcval_cur[i] <= fc[ifc].tol[i-i0];
+					if (fcval_cur[i] > infeasibility_cur)
+						infeasibility_cur = fcval_cur[i];
+					}
+				}
+			}
+
 		    dd.fval = *minf = fcur;
 		    infeasibility = infeasibility_cur;
 		    memcpy(fcval, fcval_cur, sizeof(double)*m);
