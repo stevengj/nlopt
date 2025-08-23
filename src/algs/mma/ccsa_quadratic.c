@@ -488,7 +488,7 @@ nlopt_result ccsa_quadratic_minimize(
 
 			if (!inner_gradients) { /* evaluate again, this time with gradients */
 				fcur = f(n, xcur, dfdx_cur, f_data);
-				/* don't update *(stop->nevals_p) — hope user caches xcur
+				/* don't update *(stop->nevals_p) -- hope user caches xcur
 			       so that they don't actually recompute f */
 				if (nlopt_stop_forced(stop)) {
 					ret = NLOPT_FORCED_STOP; goto done; }
