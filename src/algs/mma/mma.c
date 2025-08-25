@@ -149,7 +149,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 			  double *minf,
 			  nlopt_stopping *stop,
 			  nlopt_opt dual_opt, int inner_maxeval, unsigned verbose, double rho_init,
-			  int inner_gradients, int always_improve,
+			  int inner_gradients, int always_improve, double sigma_min,
 			  const double *sigma_init)
 {
      nlopt_result ret = NLOPT_SUCCESS;
@@ -206,6 +206,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	       sigma[j] = 1.0; /* arbitrary default */
 	  else
 	       sigma[j] = 0.5 * (ub[j] - lb[j]);
+	  sigma[j] = MAX(sigma[j], sigma_min);
      }
      rho = rho_init;
      for (i = 0; i < m; ++i) {
@@ -437,6 +438,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 			 sigma[j] = MIN(sigma[j], 10*(ub[j]-lb[j]));
 			 sigma[j] = MAX(sigma[j], 0.01*(ub[j]-lb[j]));
 		    }
+			sigma[j] = MAX(sigma[j], sigma_min);
 	       }
 	       for (j = 0; j < MIN(verbose, n); ++j)
 		    printf("                 MMA sigma[%u] -> %g\n",

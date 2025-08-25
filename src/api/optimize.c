@@ -800,6 +800,7 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             double rho_init = nlopt_get_param(opt, "rho_init",1.0);
             int inner_gradients = (int)nlopt_get_param(opt, "inner_gradients",1);
             int always_improve = (int)nlopt_get_param(opt, "always_improve",1);
+            double sigma_min = nlopt_get_param(opt, "sigma_min",0.0);
             nlopt_opt dual_opt;
             nlopt_result ret;
 
@@ -809,6 +810,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
                 RETURN_ERR(NLOPT_INVALID_ARGS, opt, "inner_gradients must be 0 or 1");
             if (always_improve != 0 && always_improve != 1)
                 RETURN_ERR(NLOPT_INVALID_ARGS, opt, "always_improve must be 0 or 1");
+            if (sigma_min < 0.0)
+                RETURN_ERR(NLOPT_INVALID_ARGS, opt, "sigma_min must be non-negative");
             verbosity = verbosity < 0 ? 0 : verbosity;
 
 #define LO(param, def) (opt->local_opt ? opt->local_opt->param : (def))
@@ -823,9 +826,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
             nlopt_set_maxeval(dual_opt, (int)nlopt_get_param(opt, "dual_maxeval", LO(maxeval, 100000)));
 #undef LO
             if (algorithm == NLOPT_LD_MMA)
-                ret = mma_minimize(n, f, f_data, opt->m, opt->fc, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init, inner_gradients, always_improve, opt->dx);
+                ret = mma_minimize(n, f, f_data, opt->m, opt->fc, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init, inner_gradients, always_improve, sigma_min, opt->dx);
             else
-                ret = ccsa_quadratic_minimize(n, f, f_data, opt->m, opt->fc, opt->pre, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init, inner_gradients, always_improve, opt->dx);
+                ret = ccsa_quadratic_minimize(n, f, f_data, opt->m, opt->fc, opt->pre, lb, ub, x, minf, &stop, dual_opt, inner_maxeval, (unsigned)verbosity, rho_init, inner_gradients, always_improve, sigma_min, opt->dx);
             nlopt_destroy(dual_opt);
             return ret;
         }
