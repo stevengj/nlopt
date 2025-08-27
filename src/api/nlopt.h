@@ -291,6 +291,10 @@ NLOPT_EXTERN(nlopt_result) nlopt_set_initial_step(nlopt_opt opt, const double *d
 NLOPT_EXTERN(nlopt_result) nlopt_set_initial_step1(nlopt_opt opt, double dx);
 NLOPT_EXTERN(nlopt_result) nlopt_get_initial_step(const nlopt_opt opt, const double *x, double *dx);
 
+NLOPT_EXTERN(nlopt_result) nlopt_set_inner_maxeval(nlopt_opt opt, int maxeval);
+NLOPT_EXTERN(int) nlopt_get_inner_maxeval(const nlopt_opt opt);
+
+
 /* the following are functions mainly designed to be used internally
    by the Fortran and SWIG wrappers, allow us to tel nlopt_destroy and
    nlopt_copy to do something to the f_data pointers (e.g. free or

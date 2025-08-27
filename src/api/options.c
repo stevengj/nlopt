@@ -97,6 +97,7 @@ nlopt_opt NLOPT_STDCALL nlopt_create(nlopt_algorithm algorithm, unsigned n)
         opt->x_weights = NULL;
         opt->xtol_abs = NULL;
         opt->maxeval = 0;
+        opt->inner_maxeval = 10;   /* ADDED BY ANTONIO */
         opt->numevals = 0;
         opt->maxtime = 0;
         opt->force_stop = 0;
@@ -1003,3 +1004,18 @@ const char *nlopt_get_errmsg(nlopt_opt opt)
 }
 
 /*************************************************************************/
+
+nlopt_result nlopt_set_inner_maxeval(nlopt_opt opt, int maxeval)
+{
+    if (!opt || maxeval < 0)
+        return NLOPT_INVALID_ARGS;
+    opt->inner_maxeval = maxeval;
+    return NLOPT_SUCCESS;
+}
+
+int nlopt_get_inner_maxeval(const nlopt_opt opt)
+{
+    if (!opt)
+        return -1;  /* or some invalid default value */
+    return opt->inner_maxeval;
+}

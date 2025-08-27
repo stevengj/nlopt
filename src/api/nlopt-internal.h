@@ -70,6 +70,8 @@ extern "C" {
         int numevals;           /* number of evaluations */
         double maxtime;         /* max time (seconds) */
 
+        int inner_maxeval;     /* ADDED BY ANTONIO max # evals for local searches */
+
         int force_stop;         /* if nonzero, force a halt the next time we
                                    try to evaluate the objective during optimization */
         /* when local optimization is used, we need a force_stop in the
