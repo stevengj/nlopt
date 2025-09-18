@@ -1,41 +1,196 @@
-# Copyright (C) 2025 Swift Navigation Inc.
-# Contact: Swift Navigation <dev@swift-nav.com>
-#
-# This source is subject to the license found in the file 'LICENSE' which must
-# be be distributed together with this source. All other rights reserved.
-#
-# THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
-# EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+# inspired by https://github.com/inria-larsen/drake/blob/master/tools/nlopt.BUILD
 
-load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
+load("@rules_swiftnav//tools:configure_file.bzl", "configure_file")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
-package(
-    default_visibility = ["//visibility:public"],
-)
+package(default_visibility = ["//visibility:public"])
 
-filegroup(
-    name = "srcs",
-    srcs = glob(["**"]),
-)
-
-cmake(
-    name = "nlopt",
-    cache_entries = {
-        "CMAKE_C_FLAGS": "-fPIC",
-        "CMAKE_INSTALL_LIBDIR": "lib",
+# Chooses the nlopt preprocessor substitutions that we want to use from Bazel.
+configure_file(
+    name = "config",
+    template = "nlopt_config.h.in",
+    out = "nlopt_config.h",
+    vars = {
+        # These end up being unused; empty-string is a fail-fast value.
+        "SIZEOF_UNSIGNED_INT": "",
+        "SIZEOF_UNSIGNED_LONG": "",
+        # C11 standard spelling.
+        "THREADLOCAL": "_Thread_local",
+        # Say "yes" to everything; we only use modern platforms from Bazel.
+        "HAVE_COPYSIGN": "1",
+        "HAVE_DLFCN_H": "1",
+        "HAVE_FPCLASSIFY": "1",
+        "HAVE_GETOPT_H": "1",
+        "HAVE_GETPID": "1",
+        "HAVE_GETTIMEOFDAY": "1",
+        "HAVE_INTTYPES_H": "1",
+        "HAVE_ISINF": "1",
+        "HAVE_ISNAN": "1",
+        "HAVE_MEMORY_H": "1",
+        "HAVE_QSORT_R": "1",
+        "HAVE_STDINT_H": "1",
+        "HAVE_STDLIB_H": "1",
+        "HAVE_STRINGS_H": "1",
+        "HAVE_STRING_H": "1",
+        "HAVE_SYS_STAT_H": "1",
+        "HAVE_SYS_TYPES_H": "1",
+        "HAVE_SYS_TIME_H": "1",
+        "HAVE_TIME": "1",
+        "HAVE_UINT32_T": "1",
+        "HAVE_UNISTD_H": "1",
+        "TIME_WITH_SYS_TIME": "1",
+        # Yes, we are going to build the C++ bindings.
+        "WITH_CXX": "1",
+        "NLOPT_CXX": "1",
+        "NLOPT_CXX11": "1",
+        # Version numbers from MODULE.bazel
+        "NLOPT_MAJOR_VERSION": "2",
+        "NLOPT_MINOR_VERSION": "6",
+        "NLOPT_BUGFIX_VERSION": "1",
     },
-    generate_args = [
-        "-GNinja",
-        "-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0",
-        "-DBUILD_SHARED_LIBS=OFF",
-        "-DNLOPT_PYTHON=OFF",
-        "-DNLOPT_OCTAVE=OFF",
-        "-DNLOPT_MATLAB=OFF",
-        "-DNLOPT_GUILE=OFF",
-        "-DNLOPT_SWIG=OFF",
+    visibility = ["//visibility:private"],
+)
+
+# Creates api/nlopt.hpp based on api/nlopt.h.
+genrule(
+    name = "nlopt_hpp_genrule",
+    srcs = [
+        "src/api/nlopt-in.hpp",
+        "src/api/nlopt.h",
     ],
-    lib_source = ":srcs",
-    out_static_libs = ["libnlopt.a"],
-    visibility = ["//visibility:public"],
+    outs = ["src/api/nlopt.hpp"],
+    cmd = "$(location :nlopt-gen-hpp.sh) $(SRCS) $(OUTS)" +
+          " 2>&1 1>log || (cat log && false)",
+    tools = [":nlopt-gen-hpp.sh"],
+    visibility = ["//visibility:private"],
+)
+
+cc_library(
+    name = "nlopt",
+    srcs = [
+        ":config",
+    ] + [
+        "src/algs/direct/DIRect.c",
+        "src/algs/direct/direct_wrap.c",
+        "src/algs/direct/DIRserial.c",
+        "src/algs/direct/DIRsubrout.c",
+        "src/algs/direct/direct-internal.h",
+        "src/algs/direct/direct.h",
+        "src/algs/cdirect/cdirect.c",
+        "src/algs/cdirect/hybrid.c",
+        "src/algs/cdirect/cdirect.h",
+        "src/algs/praxis/praxis.c",
+        "src/algs/praxis/praxis.h",
+        "src/algs/luksan/plis.c",
+        "src/algs/luksan/plip.c",
+        "src/algs/luksan/pnet.c",
+        "src/algs/luksan/mssubs.c",
+        "src/algs/luksan/pssubs.c",
+        "src/algs/luksan/luksan.h",
+        "src/algs/crs/crs.c",
+        "src/algs/crs/crs.h",
+        "src/algs/mlsl/mlsl.c",
+        "src/algs/mlsl/mlsl.h",
+        "src/algs/mma/mma.c",
+        "src/algs/mma/mma.h",
+        "src/algs/mma/ccsa_quadratic.c",
+        "src/algs/cobyla/cobyla.c",
+        "src/algs/cobyla/cobyla.h",
+        "src/algs/newuoa/newuoa.c",
+        "src/algs/newuoa/newuoa.h",
+        "src/algs/neldermead/nldrmd.c",
+        "src/algs/neldermead/neldermead.h",
+        "src/algs/neldermead/sbplx.c",
+        "src/algs/auglag/auglag.c",
+        "src/algs/auglag/auglag.h",
+        "src/algs/bobyqa/bobyqa.c",
+        "src/algs/bobyqa/bobyqa.h",
+        "src/algs/isres/isres.c",
+        "src/algs/isres/isres.h",
+        "src/algs/slsqp/slsqp.c",
+        "src/algs/slsqp/slsqp.h",
+        "src/algs/esch/esch.c",
+        "src/algs/esch/esch.h",
+        "src/api/general.c",
+        "src/api/options.c",
+        "src/api/optimize.c",
+        "src/api/deprecated.c",
+        "src/api/nlopt-internal.h",
+        "src/api/nlopt.h",
+        "src/api/f77api.c",
+        "src/api/f77funcs.h",
+        "src/api/f77funcs_.h",
+        "src/util/mt19937ar.c",
+        "src/util/sobolseq.c",
+        "src/util/soboldata.h",
+        "src/util/timer.c",
+        "src/util/stop.c",
+        "src/util/nlopt-util.h",
+        "src/util/redblack.c",
+        "src/util/redblack.h",
+        "src/util/qsort_r.c",
+        "src/util/rescale.c",
+        # This list exactly matches CMakeLists.txt additions for WITH_CXX.
+        "src/algs/stogo/global.cc",
+        "src/algs/stogo/linalg.cc",
+        "src/algs/stogo/local.cc",
+        "src/algs/stogo/stogo.cc",
+        "src/algs/stogo/tools.cc",
+        "src/algs/stogo/global.h",
+        "src/algs/stogo/linalg.h",
+        "src/algs/stogo/local.h",
+        "src/algs/stogo/stogo_config.h",
+        "src/algs/stogo/stogo.h",
+        "src/algs/stogo/tools.h",
+        # AGS algorithm files
+        "src/algs/ags/ags.cc",
+        "src/algs/ags/ags.h",
+        "src/algs/ags/evolvent.cc",
+        "src/algs/ags/evolvent.hpp",
+        "src/algs/ags/local_optimizer.cc",
+        "src/algs/ags/local_optimizer.hpp",
+        "src/algs/ags/solver.cc",
+        "src/algs/ags/solver.hpp",
+        "src/algs/ags/data_types.hpp",
+        # Additional algorithm files
+        # Note: cquad requires LAPACK, excluding for now
+        # "src/algs/cquad/cquad.c",
+        # "src/algs/cquad/cquad.h",
+        "src/algs/subplex/subplex.c",
+        "src/algs/subplex/subplex.h",
+    ],
+    hdrs = [
+        "src/api/nlopt.h",
+        ":nlopt_hpp_genrule",
+    ],
+    copts = [
+        "-Wno-all",
+        "-Wno-deprecated-declarations",
+    ],
+    includes = [
+        ".",
+        "src",
+        # This list exactly matches CMakeLists.txt include_directories.
+        "src/algs/stogo",
+        "src/util",
+        "src/algs/direct",
+        "src/algs/cdirect",
+        "src/algs/praxis",
+        "src/algs/luksan",
+        "src/algs/crs",
+        "src/algs/mlsl",
+        "src/algs/mma",
+        "src/algs/cobyla",
+        "src/algs/newuoa",
+        "src/algs/neldermead",
+        "src/algs/auglag",
+        "src/algs/bobyqa",
+        "src/algs/isres",
+        "src/algs/slsqp",
+        "src/algs/esch",
+        "src/algs/ags",
+        # "src/algs/cquad",  # requires LAPACK
+        "src/algs/subplex",
+        "src/api",
+    ],
 )
