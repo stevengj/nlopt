@@ -1,3 +1,5 @@
+# inspired by https://github.com/inria-larsen/drake/blob/master/tools/nlopt.BUILD
+
 load("@rules_swiftnav//tools:configure_file.bzl", "configure_file")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
