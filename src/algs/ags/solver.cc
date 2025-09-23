@@ -341,7 +341,7 @@ void NLPSolver::UpdateH(double newValue, int index)
   }
 }
 
-void NLPSolver::UpdateAllH(std::set<Interval*>::iterator iterator)
+void NLPSolver::UpdateAllH(std::set<Interval*, ags::CompareIntervals>::iterator iterator)
 {
   Interval* pInterval = *iterator;
   if (pInterval->pl.idx < 0)
