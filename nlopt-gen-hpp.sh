@@ -6,7 +6,7 @@
 # lines taken from nlopt.h that look like "NLOPT_FOO_BAR".  The NLOPT_ prefix
 # is removed (because in C++ they are in a namespace).
 
-set -ex
+set -e
 
 me="$0"
 nlopt_in_hpp="$1"  # Template in -- copied to the output, with constants added.

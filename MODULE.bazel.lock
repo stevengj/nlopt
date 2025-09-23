@@ -10,6 +10,8 @@
     "https://bcr.bazel.build/modules/abseil-cpp/20230802.1/MODULE.bazel": "fa92e2eb41a04df73cdabeec37107316f7e5272650f81d6cc096418fe647b915",
     "https://bcr.bazel.build/modules/abseil-cpp/20240116.1/MODULE.bazel": "37bcdb4440fbb61df6a1c296ae01b327f19e9bb521f9b8e26ec854b6f97309ed",
     "https://bcr.bazel.build/modules/abseil-cpp/20240116.1/source.json": "9be551b8d4e3ef76875c0d744b5d6a504a27e3ae67bc6b28f46415fd2d2957da",
+    "https://bcr.bazel.build/modules/aspect_bazel_lib/1.30.2/MODULE.bazel": "c7e729d3fc7747d0f22206bde47de3696ff91609ea53a571ae16a1061f97440d",
+    "https://bcr.bazel.build/modules/aspect_bazel_lib/1.30.2/source.json": "5983acad2eedaa758400f218bc71bd5544e8b479f65a03b23ea339e590596747",
     "https://bcr.bazel.build/modules/bazel_features/1.1.1/MODULE.bazel": "27b8c79ef57efe08efccbd9dd6ef70d61b4798320b8d3c134fd571f78963dbcd",
     "https://bcr.bazel.build/modules/bazel_features/1.11.0/MODULE.bazel": "f9382337dd5a474c3b7d334c2f83e50b6eaedc284253334cf823044a26de03e8",
     "https://bcr.bazel.build/modules/bazel_features/1.15.0/MODULE.bazel": "d38ff6e517149dc509406aca0db3ad1efdd890a85e049585b7234d04238e2a4d",
@@ -75,8 +77,6 @@
     "https://bcr.bazel.build/modules/rules_cc/0.0.9/MODULE.bazel": "836e76439f354b89afe6a911a7adf59a6b2518fafb174483ad78a2a2fde7b1c5",
     "https://bcr.bazel.build/modules/rules_cc/0.1.1/MODULE.bazel": "2f0222a6f229f0bf44cd711dc13c858dad98c62d52bd51d8fc3a764a83125513",
     "https://bcr.bazel.build/modules/rules_cc/0.1.1/source.json": "d61627377bd7dd1da4652063e368d9366fc9a73920bfa396798ad92172cf645c",
-    "https://bcr.bazel.build/modules/rules_foreign_cc/0.12.0/MODULE.bazel": "d850fab025ce79a845077035861034393f1cc1efc1d9d58d766272a26ba67def",
-    "https://bcr.bazel.build/modules/rules_foreign_cc/0.12.0/source.json": "c97ddc022179fe30d1a9b94425d1e56d0a633f72332c55463e584a52ce1b38ac",
     "https://bcr.bazel.build/modules/rules_foreign_cc/0.9.0/MODULE.bazel": "c9e8c682bf75b0e7c704166d79b599f93b72cfca5ad7477df596947891feeef6",
     "https://bcr.bazel.build/modules/rules_fuzzing/0.5.2/MODULE.bazel": "40c97d1144356f52905566c55811f13b299453a14ac7769dfba2ac38192337a8",
     "https://bcr.bazel.build/modules/rules_fuzzing/0.5.2/source.json": "c8b1e2c717646f1702290959a3302a178fb639d987ab61d548105019f11e527e",
@@ -90,8 +90,8 @@
     "https://bcr.bazel.build/modules/rules_java/7.2.0/MODULE.bazel": "06c0334c9be61e6cef2c8c84a7800cef502063269a5af25ceb100b192453d4ab",
     "https://bcr.bazel.build/modules/rules_java/7.3.2/MODULE.bazel": "50dece891cfdf1741ea230d001aa9c14398062f2b7c066470accace78e412bc2",
     "https://bcr.bazel.build/modules/rules_java/7.6.1/MODULE.bazel": "2f14b7e8a1aa2f67ae92bc69d1ec0fa8d9f827c4e17ff5e5f02e91caa3b2d0fe",
-    "https://bcr.bazel.build/modules/rules_java/8.14.0/MODULE.bazel": "717717ed40cc69994596a45aec6ea78135ea434b8402fb91b009b9151dd65615",
-    "https://bcr.bazel.build/modules/rules_java/8.14.0/source.json": "8a88c4ca9e8759da53cddc88123880565c520503321e2566b4e33d0287a3d4bc",
+    "https://bcr.bazel.build/modules/rules_java/8.12.0/MODULE.bazel": "8e6590b961f2defdfc2811c089c75716cb2f06c8a4edeb9a8d85eaa64ee2a761",
+    "https://bcr.bazel.build/modules/rules_java/8.12.0/source.json": "cbd5d55d9d38d4008a7d00bee5b5a5a4b6031fcd4a56515c9accbcd42c7be2ba",
     "https://bcr.bazel.build/modules/rules_jvm_external/4.4.2/MODULE.bazel": "a56b85e418c83eb1839819f0b515c431010160383306d13ec21959ac412d2fe7",
     "https://bcr.bazel.build/modules/rules_jvm_external/5.1/MODULE.bazel": "33f6f999e03183f7d088c9be518a63467dfd0be94a11d0055fe2d210f89aa909",
     "https://bcr.bazel.build/modules/rules_jvm_external/5.2/MODULE.bazel": "d9351ba35217ad0de03816ef3ed63f89d411349353077348a45348b096615036",
@@ -106,6 +106,8 @@
     "https://bcr.bazel.build/modules/rules_license/0.0.7/MODULE.bazel": "088fbeb0b6a419005b89cf93fe62d9517c0a2b8bb56af3244af65ecfe37e7d5d",
     "https://bcr.bazel.build/modules/rules_license/1.0.0/MODULE.bazel": "a7fda60eefdf3d8c827262ba499957e4df06f659330bbe6cdbdb975b768bb65c",
     "https://bcr.bazel.build/modules/rules_license/1.0.0/source.json": "a52c89e54cc311196e478f8382df91c15f7a2bfdf4c6cd0e2675cc2ff0b56efb",
+    "https://bcr.bazel.build/modules/rules_oci/1.0.0/MODULE.bazel": "8ed3490394e9cda2c7c0f7efe8232f8ad6bfcc40ce09cd2020e2e780a519ba55",
+    "https://bcr.bazel.build/modules/rules_oci/1.0.0/source.json": "20ca7fdf35d343df26be3242e648e817ebc2fa0b86047899026c970388f6ef36",
     "https://bcr.bazel.build/modules/rules_pkg/0.7.0/MODULE.bazel": "df99f03fc7934a4737122518bb87e667e62d780b610910f0447665a7e2be62dc",
     "https://bcr.bazel.build/modules/rules_pkg/1.0.1/MODULE.bazel": "5b1df97dbc29623bccdf2b0dcd0f5cb08e2f2c9050aab1092fd39a41e82686ff",
     "https://bcr.bazel.build/modules/rules_pkg/1.0.1/source.json": "bd82e5d7b9ce2d31e380dd9f50c111d678c3bdaca190cb76b0e1c71b05e1ba8a",
@@ -124,6 +126,7 @@
     "https://bcr.bazel.build/modules/rules_python/0.40.0/source.json": "939d4bd2e3110f27bfb360292986bb79fd8dcefb874358ccd6cdaa7bda029320",
     "https://bcr.bazel.build/modules/rules_shell/0.2.0/MODULE.bazel": "fda8a652ab3c7d8fee214de05e7a9916d8b28082234e8d2c0094505c5268ed3c",
     "https://bcr.bazel.build/modules/rules_shell/0.2.0/source.json": "7f27af3c28037d9701487c4744b5448d26537cc66cdef0d8df7ae85411f8de95",
+    "https://bcr.bazel.build/modules/stardoc/0.5.0/MODULE.bazel": "f9f1f46ba8d9c3362648eea571c6f9100680efc44913618811b58cc9c02cd678",
     "https://bcr.bazel.build/modules/stardoc/0.5.1/MODULE.bazel": "1a05d92974d0c122f5ccf09291442580317cdd859f07a8655f1db9a60374f9f8",
     "https://bcr.bazel.build/modules/stardoc/0.5.3/MODULE.bazel": "c7f6948dae6999bf0db32c1858ae345f112cacf98f174c7a8bb707e41b974f1c",
     "https://bcr.bazel.build/modules/stardoc/0.5.6/MODULE.bazel": "c43dabc564990eeab55e25ed61c07a1aadafe9ece96a4efabb3f8bf9063b71ef",
@@ -134,10 +137,362 @@
     "https://bcr.bazel.build/modules/zlib/1.2.11/MODULE.bazel": "07b389abc85fdbca459b69e2ec656ae5622873af3f845e1c9d80fe179f3effa0",
     "https://bcr.bazel.build/modules/zlib/1.3.1.bcr.5/MODULE.bazel": "eec517b5bbe5492629466e11dae908d043364302283de25581e3eb944326c4ca",
     "https://bcr.bazel.build/modules/zlib/1.3.1.bcr.5/source.json": "22bc55c47af97246cfc093d0acf683a7869377de362b5d1c552c2c2e16b7a806",
-    "https://bcr.bazel.build/modules/zlib/1.3.1/MODULE.bazel": "751c9940dcfe869f5f7274e1295422a34623555916eb98c174c1e945594bf198"
+    "https://bcr.bazel.build/modules/zlib/1.3.1/MODULE.bazel": "751c9940dcfe869f5f7274e1295422a34623555916eb98c174c1e945594bf198",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/bazel_registry.json": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20210324.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20211102.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20230125.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20230802.0.bcr.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20230802.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20230802.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/abseil-cpp/20240116.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/aspect_bazel_lib/1.30.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.11.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.15.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.17.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.18.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.19.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.30.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.4.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_features/1.9.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.0.3/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.2.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.2.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.3.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.4.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.4.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.5.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.6.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.7.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/bazel_skylib/1.7.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/buildozer/7.1.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/google_benchmark/1.8.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/googletest/1.11.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/googletest/1.14.0.bcr.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/googletest/1.14.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/jsoncpp/1.9.5/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/libpfm/4.11.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.10/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.11/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.4/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.5/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.6/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.7/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/platforms/0.0.8/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/protobuf/21.7/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/protobuf/27.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/protobuf/27.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/protobuf/29.0-rc2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/protobuf/29.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/protobuf/3.19.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/pybind11_bazel/2.11.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/re2/2023-09-01/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_android/0.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.10/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.13/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.14/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.15/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.16/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.6/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.8/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.0.9/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_cc/0.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_foreign_cc/0.9.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_fuzzing/0.5.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/4.0.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/5.3.5/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/6.0.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/6.4.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/6.5.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/7.10.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/7.12.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/7.2.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/7.3.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/7.6.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_java/8.12.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_jvm_external/4.4.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_jvm_external/5.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_jvm_external/5.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_jvm_external/5.3/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_jvm_external/6.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_jvm_external/6.3/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_kotlin/1.9.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_kotlin/1.9.6/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_license/0.0.3/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_license/0.0.7/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_license/1.0.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_oci/1.0.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_pkg/0.7.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_pkg/1.0.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_proto/4.0.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_proto/5.3.0-21.7/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_proto/6.0.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_proto/7.0.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.10.2/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.23.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.25.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.28.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.31.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.4.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_python/0.40.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_shell/0.2.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_swiftnav/0.6.0/MODULE.bazel": "aabbeb6e09c9e6bffacb20a63c064c0fe1d4ac528fb2d664c222e2939121c823",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/rules_swiftnav/0.6.0/source.json": "8b32a21130b6983701b237eef9177df5e6c0aa778767900cb74d3731a2775759",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/stardoc/0.5.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/stardoc/0.5.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/stardoc/0.5.3/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/stardoc/0.5.6/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/stardoc/0.7.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/stardoc/0.7.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/upb/0.0.0-20220923-a547704/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/zlib/1.2.11/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/zlib/1.3.1.bcr.5/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/swift-nav/swiftnav-bazel-registry/refs/heads/main/modules/zlib/1.3.1/MODULE.bazel": "not found"
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "@@aspect_bazel_lib+//lib:extensions.bzl%ext": {
+      "general": {
+        "bzlTransitiveDigest": "G4ZTrd1DEYzKbDVePh2PEP5Vhw4kEOdO9gPZQGlrG1Q=",
+        "usagesDigest": "d9yh6lti24tsluZu0x/yOY51cxTP8NczAEHnkJq/PVk=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "copy_directory_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_directory_toolchain.bzl%copy_directory_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64"
+            }
+          },
+          "copy_directory_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_directory_toolchain.bzl%copy_directory_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64"
+            }
+          },
+          "copy_directory_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_directory_toolchain.bzl%copy_directory_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64"
+            }
+          },
+          "copy_directory_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_directory_toolchain.bzl%copy_directory_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64"
+            }
+          },
+          "copy_directory_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_directory_toolchain.bzl%copy_directory_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64"
+            }
+          },
+          "copy_directory_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_directory_toolchain.bzl%copy_directory_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "copy_directory"
+            }
+          },
+          "copy_to_directory_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64"
+            }
+          },
+          "copy_to_directory_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64"
+            }
+          },
+          "copy_to_directory_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64"
+            }
+          },
+          "copy_to_directory_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64"
+            }
+          },
+          "copy_to_directory_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64"
+            }
+          },
+          "copy_to_directory_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "copy_to_directory"
+            }
+          },
+          "jq_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "1.6"
+            }
+          },
+          "jq_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "version": "1.6"
+            }
+          },
+          "jq_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "1.6"
+            }
+          },
+          "jq_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64",
+              "version": "1.6"
+            }
+          },
+          "jq": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_host_alias_repo",
+            "attributes": {}
+          },
+          "jq_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "jq"
+            }
+          },
+          "yq_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_s390x": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_s390x",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_ppc64le": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_ppc64le",
+              "version": "4.25.2"
+            }
+          },
+          "yq_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64",
+              "version": "4.25.2"
+            }
+          },
+          "yq": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_host_alias_repo",
+            "attributes": {}
+          },
+          "yq_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "yq"
+            }
+          },
+          "coreutils_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "coreutils"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "aspect_bazel_lib+",
+            "aspect_bazel_lib",
+            "aspect_bazel_lib+"
+          ],
+          [
+            "aspect_bazel_lib+",
+            "bazel_skylib",
+            "bazel_skylib+"
+          ],
+          [
+            "aspect_bazel_lib+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
     "@@rules_kotlin+//src/main/starlark/core/repositories:bzlmod_setup.bzl%rules_kotlin_extensions": {
       "general": {
         "bzlTransitiveDigest": "hUTp2w+RUVdL7ma5esCXZJAFnX7vLbVfLd7FwnQI6bU=",
@@ -198,6 +553,289 @@
             "rules_kotlin+",
             "bazel_tools",
             "bazel_tools"
+          ]
+        ]
+      }
+    },
+    "@@rules_oci+//oci:extensions.bzl%oci": {
+      "general": {
+        "bzlTransitiveDigest": "0XbnGQFhnsnQALj8EglWTeZzqRcUfXhnVZ3DeGB/Ppo=",
+        "usagesDigest": "VmuOmvNekZvtUgu/CsTnb8MR6iDjDsUrYjgSzR1Rfd8=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "oci_auth_config": {
+            "repoRuleId": "@@rules_oci+//oci/private:auth_config_locator.bzl%oci_auth_config_locator",
+            "attributes": {}
+          },
+          "yq_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_s390x": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_s390x",
+              "version": "4.25.2"
+            }
+          },
+          "yq_linux_ppc64le": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "linux_ppc64le",
+              "version": "4.25.2"
+            }
+          },
+          "yq_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64",
+              "version": "4.25.2"
+            }
+          },
+          "yq": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_host_alias_repo",
+            "attributes": {}
+          },
+          "yq_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:yq_toolchain.bzl%yq_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "yq"
+            }
+          },
+          "jq_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "1.6"
+            }
+          },
+          "jq_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "version": "1.6"
+            }
+          },
+          "jq_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "1.6"
+            }
+          },
+          "jq_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64",
+              "version": "1.6"
+            }
+          },
+          "jq": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_host_alias_repo",
+            "attributes": {}
+          },
+          "jq_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:jq_toolchain.bzl%jq_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "jq"
+            }
+          },
+          "coreutils_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64",
+              "version": "0.0.16"
+            }
+          },
+          "coreutils_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:coreutils_toolchain.bzl%coreutils_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "coreutils"
+            }
+          },
+          "copy_to_directory_darwin_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "darwin_amd64"
+            }
+          },
+          "copy_to_directory_darwin_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "darwin_arm64"
+            }
+          },
+          "copy_to_directory_linux_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "linux_amd64"
+            }
+          },
+          "copy_to_directory_linux_arm64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "linux_arm64"
+            }
+          },
+          "copy_to_directory_windows_amd64": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_platform_repo",
+            "attributes": {
+              "platform": "windows_amd64"
+            }
+          },
+          "copy_to_directory_toolchains": {
+            "repoRuleId": "@@aspect_bazel_lib+//lib/private:copy_to_directory_toolchain.bzl%copy_to_directory_toolchains_repo",
+            "attributes": {
+              "user_repository_name": "copy_to_directory"
+            }
+          },
+          "oci_crane_darwin_amd64": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "darwin_amd64",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_darwin_arm64": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "darwin_arm64",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_linux_arm64": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "linux_arm64",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_linux_armv6": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "linux_armv6",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_linux_i386": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "linux_i386",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_linux_s390x": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "linux_s390x",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_linux_amd64": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "linux_amd64",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_windows_armv6": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "windows_armv6",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_windows_amd64": {
+            "repoRuleId": "@@rules_oci+//oci:repositories.bzl%crane_repositories",
+            "attributes": {
+              "platform": "windows_amd64",
+              "crane_version": "v0.14.0"
+            }
+          },
+          "oci_crane_toolchains": {
+            "repoRuleId": "@@rules_oci+//oci/private:toolchains_repo.bzl%toolchains_repo",
+            "attributes": {
+              "toolchain_type": "@rules_oci//oci:crane_toolchain_type",
+              "toolchain": "@oci_crane_{platform}//:crane_toolchain"
+            }
+          },
+          "oci_crane_registry_toolchains": {
+            "repoRuleId": "@@rules_oci+//oci/private:toolchains_repo.bzl%toolchains_repo",
+            "attributes": {
+              "toolchain_type": "@rules_oci//oci:registry_toolchain_type",
+              "toolchain": "@oci_crane_{platform}//:registry_toolchain"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "aspect_bazel_lib+",
+            "bazel_tools",
+            "bazel_tools"
+          ],
+          [
+            "rules_oci+",
+            "aspect_bazel_lib",
+            "aspect_bazel_lib+"
+          ],
+          [
+            "rules_oci+",
+            "bazel_skylib",
+            "bazel_skylib+"
           ]
         ]
       }
