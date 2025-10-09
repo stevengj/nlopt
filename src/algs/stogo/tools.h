@@ -36,7 +36,11 @@ public:
   friend ostream & operator << (ostream &, RCTrial) ;
 };
 
+#if __cplusplus < 201103L
 class TrialGT : public unary_function<Trial, bool>
+#else
+class TrialGT
+#endif
 // Predicate for Trial (needed for remove_if)
 {
 public:
