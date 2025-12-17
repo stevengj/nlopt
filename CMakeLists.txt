@@ -64,16 +64,6 @@ set (NLOPT_INSTALL_CMAKEDIR   ${CMAKE_INSTALL_LIBDIR}/cmake/nlopt CACHE STRING "
 set (CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${NLOPT_INSTALL_LIBDIR} CACHE PATH "rpath")
 set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "use link path")
 
-if(POLICY CMP0042)
-  # Set MACOSX_RPATH to ON
-  cmake_policy(SET CMP0042 NEW)
-endif()
-
-if (POLICY CMP0086)
-  # UseSWIG honors SWIG_MODULE_NAME via -module flag
-  cmake_policy(SET CMP0086 NEW)
-endif ()
-
 include (CheckIncludeFiles)
 include (CheckFunctionExists)
 include (CheckTypeSize)

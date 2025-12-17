@@ -1,7 +1,3 @@
-
-if (POLICY CMP0078)
-  cmake_policy(SET CMP0078 NEW)
-endif ()
 # clean up old generated source files before running SWIG, useful for Java
 set(UseSWIG_MODULE_VERSION 2)
 include (UseSWIG)
