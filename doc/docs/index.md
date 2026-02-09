@@ -23,14 +23,15 @@ See the [NLopt Introduction](NLopt_Introduction.md) for a further overview of th
 Download and installation
 -------------------------
 
-Version 2.10.0 of NLopt is the latest version available from GitHub:
+Version 2.10.1 of NLopt is the latest version available from GitHub:
 
--   [v2.10.0.tar.gz](https://github.com/stevengj/nlopt/archive/refs/tags/v2.10.0.tar.gz)
+-   [v2.10.1.tar.gz](https://github.com/stevengj/nlopt/archive/refs/tags/v2.10.1.tar.gz)
 
-See the [NLopt release notes](https://github.com/stevengj/nlopt/blob/master/NEWS.md) for the release history. NLopt is designed to be installed on any Unix-like system (GNU/Linux is fine) with a C compiler, using the standard
+See the [NLopt release notes](https://github.com/stevengj/nlopt/blob/master/NEWS.md) for the release history.
+NLopt is designed to be installed on any Unix-like system (GNU/Linux is fine) with a C compiler, using the standard
 
 ```
-cmake . && make && sudo make install
+cmake . && make && sudo make install
 ```
 
 

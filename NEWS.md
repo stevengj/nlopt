@@ -1,5 +1,17 @@
 # NLopt Release Notes
 
+## NLopt 2.10.1
+
+9 February 2026
+
+* Fixed octave 10.x build ([#616]).
+
+* Fixed slsqp constraints count ([#598]).
+
+* Fixed build with libstdc++ debug iterators ([#627]).
+
+* Fixed PRAXIS evaluations count ([#606]).
+
 ## NLopt 2.10
 
 4 February 2025
