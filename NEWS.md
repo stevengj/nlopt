@@ -563,3 +563,7 @@
 [#580]: https://github.com/stevengj/nlopt/issues/580
 [#585]: https://github.com/stevengj/nlopt/issues/585
 [#587]: https://github.com/stevengj/nlopt/issues/587
+[#598]: https://github.com/stevengj/nlopt/issues/598
+[#606]: https://github.com/stevengj/nlopt/issues/606
+[#616]: https://github.com/stevengj/nlopt/issues/616
+[#627]: https://github.com/stevengj/nlopt/issues/627
