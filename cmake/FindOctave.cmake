@@ -175,7 +175,7 @@ macro (octave_add_oct FUNCTIONNAME)
     endif ()
   endforeach ()
   add_library (${FUNCTIONNAME} SHARED ${_SOURCES})
-  target_link_libraries (${FUNCTIONNAME} ${OCTAVE_LIBRARIES} ${_LINK_LIBRARIES})
+  target_link_libraries (${FUNCTIONNAME} PRIVATE ${OCTAVE_LIBRARIES} ${_LINK_LIBRARIES})
   set_target_properties (${FUNCTIONNAME} PROPERTIES
     PREFIX ""
     SUFFIX  ".${_OCT_EXTENSION}"
