@@ -20,12 +20,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <math.h>
-#include <float.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include "nlopt-util.h"
+#include <float.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 /* utility routines to implement the various stopping criteria */
 
@@ -185,12 +185,16 @@ void nlopt_eval_constraint(double *result, double *grad, const nlopt_constraint 
 
 char *nlopt_vsprintf(char *p, const char *format, va_list ap)
 {
-    size_t len = strlen(format) + 128;
+    size_t len;
     int ret;
+
+    if (!format)
+        format = "";
+    len = strlen(format) + 128;
 
     p = (char *) realloc(p, len);
     if (!p)
-        abort();
+        nlopt_fatal("Memory allocation failed in nlopt_vsprintf");
 
     /* TODO: check HAVE_VSNPRINTF, and fallback to vsprintf otherwise */
     while ((ret = vsnprintf(p, len, format, ap)) < 0 || (size_t) ret >= len) {
@@ -199,7 +203,7 @@ char *nlopt_vsprintf(char *p, const char *format, va_list ap)
         len = ret >= 0 ? (size_t) (ret + 1) : (len * 3) >> 1;
         p = (char *) realloc(p, len);
         if (!p)
-            abort();
+            nlopt_fatal("Memory allocation failed in nlopt_vsprintf");
     }
     return p;
 }
@@ -212,6 +216,20 @@ void nlopt_stop_msg(const nlopt_stopping * s, const char *format, ...)
         *(s->stop_msg) = nlopt_vsprintf(*(s->stop_msg), format, ap);
         va_end(ap);
     }
+}
+
+void nlopt_stop_log(const nlopt_stopping * s, const char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    if (s && s->vprintf_func) {
+        s->vprintf_func(s->vprintf_data, format, ap);
+    } else {
+#ifndef NLOPT_SILENT
+        vprintf(format, ap);
+#endif
+    }
+    va_end(ap);
 }
 
 /*************************************************************************/

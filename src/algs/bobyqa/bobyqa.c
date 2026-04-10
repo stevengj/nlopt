@@ -6,6 +6,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include "nlopt-util.h"
+#include "nlopt.h"
 
 #include "bobyqa.h"
 
@@ -41,15 +43,28 @@ static void update_(int *n, int *npt, double *bmat,
 
 /*     Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    {
+        double *volatile _v = zmat;
+        zmat = _v - zmat_offset;
+    }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --vlag;
-    --w;
+    {
+        double *volatile _v = bmat;
+        bmat = _v - bmat_offset;
+    }
+    {
+        double *volatile _v = vlag;
+        vlag = _v - 1;
+    }
+    {
+        double *volatile _v = w;
+        w = _v - 1;
+    }
 
     /* Function Body */
     one = 1.;
@@ -208,30 +223,82 @@ static nlopt_result rescue_(int *n, int *npt, const double *xl, const double *xu
 
 /*     Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    {
+        double *volatile _v = zmat;
+        zmat = _v - zmat_offset;
+    }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --xl;
-    --xu;
-    --xbase;
-    --fval;
-    --xopt;
-    --gopt;
-    --hq;
-    --pq;
+    {
+        double *volatile _v = xpt;
+        xpt = _v - xpt_offset;
+    }
+    {
+        const double *volatile _v = xl;
+        xl = _v - 1;
+    }
+    {
+        const double *volatile _v = xu;
+        xu = _v - 1;
+    }
+    {
+        double *volatile _v = xbase;
+        xbase = _v - 1;
+    }
+    {
+        double *volatile _v = fval;
+        fval = _v - 1;
+    }
+    {
+        double *volatile _v = xopt;
+        xopt = _v - 1;
+    }
+    {
+        double *volatile _v = gopt;
+        gopt = _v - 1;
+    }
+    {
+        double *volatile _v = hq;
+        hq = _v - 1;
+    }
+    {
+        double *volatile _v = pq;
+        pq = _v - 1;
+    }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --sl;
-    --su;
-    --vlag;
-    ptsaux -= 3;
-    --ptsid;
-    --w;
+    {
+        double *volatile _v = bmat;
+        bmat = _v - bmat_offset;
+    }
+    {
+        double *volatile _v = sl;
+        sl = _v - 1;
+    }
+    {
+        double *volatile _v = su;
+        su = _v - 1;
+    }
+    {
+        double *volatile _v = vlag;
+        vlag = _v - 1;
+    }
+    {
+        double *volatile _v = ptsaux;
+        ptsaux = _v - 3;
+    }
+    {
+        double *volatile _v = ptsid;
+        ptsid = _v - 1;
+    }
+    {
+        double *volatile _v = w;
+        w = _v - 1;
+    }
 
     /* Function Body */
     half = .5;
@@ -797,24 +864,58 @@ static void altmov_(int *n, int *npt, double *xpt,
 /*     Set the first NPT components of W to the leading elements of the */
 /*     KNEW-th column of the H matrix. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    {
+        double *volatile _v = zmat;
+        zmat = _v - zmat_offset;
+    }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --xopt;
+    {
+        double *volatile _v = xpt;
+        xpt = _v - xpt_offset;
+    }
+    {
+        double *volatile _v = xopt;
+        xopt = _v - 1;
+    }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --sl;
-    --su;
-    --xnew;
-    --xalt;
-    --glag;
-    --hcol;
-    --w;
+    {
+        double *volatile _v = bmat;
+        bmat = _v - bmat_offset;
+    }
+    {
+        double *volatile _v = sl;
+        sl = _v - 1;
+    }
+    {
+        double *volatile _v = su;
+        su = _v - 1;
+    }
+    {
+        double *volatile _v = xnew;
+        xnew = _v - 1;
+    }
+    {
+        double *volatile _v = xalt;
+        xalt = _v - 1;
+    }
+    {
+        double *volatile _v = glag;
+        glag = _v - 1;
+    }
+    {
+        double *volatile _v = hcol;
+        hcol = _v - 1;
+    }
+    {
+        double *volatile _v = w;
+        w = _v - 1;
+    }
 
     /* Function Body */
     half = .5;
@@ -1225,23 +1326,66 @@ static void trsbox_(int *n, int *npt, double *xpt,
 
 /*     Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --xopt;
-    --gopt;
-    --hq;
-    --pq;
-    --sl;
-    --su;
-    --xnew;
-    --d__;
-    --gnew;
-    --xbdi;
-    --s;
-    --hs;
-    --hred;
+    {
+        double *volatile _v = xpt;
+        xpt = _v - xpt_offset;
+    }
+    {
+        double *volatile _v = xopt;
+        xopt = _v - 1;
+    }
+    {
+        double *volatile _v = gopt;
+        gopt = _v - 1;
+    }
+    {
+        double *volatile _v = hq;
+        hq = _v - 1;
+    }
+    {
+        double *volatile _v = pq;
+        pq = _v - 1;
+    }
+    {
+        double *volatile _v = sl;
+        sl = _v - 1;
+    }
+    {
+        double *volatile _v = su;
+        su = _v - 1;
+    }
+    {
+        double *volatile _v = xnew;
+        xnew = _v - 1;
+    }
+    {
+        double *volatile _v = d__;
+        d__ = _v - 1;
+    }
+    {
+        double *volatile _v = gnew;
+        gnew = _v - 1;
+    }
+    {
+        double *volatile _v = xbdi;
+        xbdi = _v - 1;
+    }
+    {
+        double *volatile _v = s;
+        s = _v - 1;
+    }
+    {
+        double *volatile _v = hs;
+        hs = _v - 1;
+    }
+    {
+        double *volatile _v = hred;
+        hred = _v - 1;
+    }
 
     /* Function Body */
     half = .5;
@@ -1751,26 +1895,66 @@ static nlopt_result prelim_(int *n, int *npt, double *x,
 
 /*     Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    {
+        double *volatile _v = zmat;
+        zmat = _v - zmat_offset;
+    }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --x;
-    --xl;
-    --xu;
-    --xbase;
-    --fval;
-    --gopt;
-    --hq;
-    --pq;
+    {
+        double *volatile _v = xpt;
+        xpt = _v - xpt_offset;
+    }
+    {
+        double *volatile _v = x;
+        x = _v - 1;
+    }
+    {
+        const double *volatile _v = xl;
+        xl = _v - 1;
+    }
+    {
+        const double *volatile _v = xu;
+        xu = _v - 1;
+    }
+    {
+        double *volatile _v = xbase;
+        xbase = _v - 1;
+    }
+    {
+        double *volatile _v = fval;
+        fval = _v - 1;
+    }
+    {
+        double *volatile _v = gopt;
+        gopt = _v - 1;
+    }
+    {
+        double *volatile _v = hq;
+        hq = _v - 1;
+    }
+    {
+        double *volatile _v = pq;
+        pq = _v - 1;
+    }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --sl;
-    --su;
+    {
+        double *volatile _v = bmat;
+        bmat = _v - bmat_offset;
+    }
+    {
+        double *volatile _v = sl;
+        sl = _v - 1;
+    }
+    {
+        double *volatile _v = su;
+        su = _v - 1;
+    }
 
     /* Function Body */
     half = .5;
@@ -2027,32 +2211,90 @@ static nlopt_result bobyqb_(int *n, int *npt, double *x,
 
 /*     Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    {
+        double *volatile _v = zmat;
+        zmat = _v - zmat_offset;
+    }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --x;
-    --xl;
-    --xu;
-    --xbase;
-    --fval;
-    --xopt;
-    --gopt;
-    --hq;
-    --pq;
+    {
+        double *volatile _v = xpt;
+        xpt = _v - xpt_offset;
+    }
+    {
+        double *volatile _v = x;
+        x = _v - 1;
+    }
+    {
+        const double *volatile _v = xl;
+        xl = _v - 1;
+    }
+    {
+        const double *volatile _v = xu;
+        xu = _v - 1;
+    }
+    {
+        double *volatile _v = xbase;
+        xbase = _v - 1;
+    }
+    {
+        double *volatile _v = fval;
+        fval = _v - 1;
+    }
+    {
+        double *volatile _v = xopt;
+        xopt = _v - 1;
+    }
+    {
+        double *volatile _v = gopt;
+        gopt = _v - 1;
+    }
+    {
+        double *volatile _v = hq;
+        hq = _v - 1;
+    }
+    {
+        double *volatile _v = pq;
+        pq = _v - 1;
+    }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --sl;
-    --su;
-    --xnew;
-    --xalt;
-    --d__;
-    --vlag;
-    --w;
+    {
+        double *volatile _v = bmat;
+        bmat = _v - bmat_offset;
+    }
+    {
+        double *volatile _v = sl;
+        sl = _v - 1;
+    }
+    {
+        double *volatile _v = su;
+        su = _v - 1;
+    }
+    {
+        double *volatile _v = xnew;
+        xnew = _v - 1;
+    }
+    {
+        double *volatile _v = xalt;
+        xalt = _v - 1;
+    }
+    {
+        double *volatile _v = d__;
+        d__ = _v - 1;
+    }
+    {
+        double *volatile _v = vlag;
+        vlag = _v - 1;
+    }
+    {
+        double *volatile _v = w;
+        w = _v - 1;
+    }
 
     /* Function Body */
     half = .5;
@@ -3167,9 +3409,16 @@ nlopt_result bobyqa(int n, int npt, double *x,
 
 /*     Return if the value of NPT is unacceptable. */
 
-    /* Parameter adjustments */
-    --xu;
-    --xl;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+       tracking */
+    {
+        const double *volatile _v = xu;
+        xu = _v - 1;
+    }
+    {
+        const double *volatile _v = xl;
+        xl = _v - 1;
+    }
 
     /* Function Body */
     np = n + 1;

@@ -20,12 +20,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <float.h>
+#include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
-#include <float.h>
-#include <stdarg.h>
 
 #include "nlopt-internal.h"
 
@@ -1000,6 +1000,24 @@ void nlopt_unset_errmsg(nlopt_opt opt)
 const char *nlopt_get_errmsg(nlopt_opt opt)
 {
     return opt->errmsg;
+}
+
+/*************************************************************************/
+
+nlopt_result nlopt_set_vprintf_callback(nlopt_opt opt, nlopt_vprintf_func func,
+                                        void *data) {
+    if (!opt)
+        return NLOPT_INVALID_ARGS;
+    opt->vprintf_func = func;
+    opt->vprintf_data = data;
+    return NLOPT_SUCCESS;
+}
+
+nlopt_vprintf_func nlopt_get_vprintf_callback(const nlopt_opt opt,
+                                              void **data) {
+    if (data)
+        *data = opt ? opt->vprintf_data : NULL;
+    return opt ? opt->vprintf_func : NULL;
 }
 
 /*************************************************************************/

@@ -21,6 +21,7 @@
  */
 
 #include "nlopt-internal.h"
+#include <stdlib.h>
 #include <string.h>
 
 /*************************************************************************/
@@ -243,6 +244,41 @@ void nlopt_srand_time_default(void)
 {
     if (!nlopt_srand_called)
         nlopt_srand_time();
+}
+
+/*************************************************************************/
+
+/* Library-level fatal error callback (global, not per-opt).
+   Used in contexts where no nlopt_opt handle is available (e.g. inside
+   the DIRECT algorithm's internal assertion macro, or when a memory
+   allocation fails in nlopt_vsprintf). */
+static nlopt_efunc nlopt_global_efunc = NULL;
+static void *nlopt_global_edata = NULL;
+
+void nlopt_set_error_callback(nlopt_efunc func, void *data) {
+    nlopt_global_efunc = func;
+    nlopt_global_edata = data;
+}
+
+nlopt_efunc nlopt_get_error_callback(void **data) {
+    if (data)
+        *data = nlopt_global_edata;
+    return nlopt_global_efunc;
+}
+
+/* Called when an unrecoverable error occurs.  Dispatches to the installed
+   error callback; if none is set, falls back to abort(). */
+#ifdef __GNUC__
+__attribute__((noreturn))
+#endif
+void nlopt_fatal(const char *message) {
+    if (nlopt_global_efunc)
+        nlopt_global_efunc(nlopt_global_edata, message);
+    /* Reach here only if the callback returned (which it must not do).
+       Use __builtin_trap() instead of abort() to satisfy the noreturn
+       contract without introducing a reference to the _abort symbol,
+       which triggers an R CMD check WARNING. */
+    __builtin_trap();
 }
 
 /*************************************************************************/

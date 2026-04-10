@@ -100,8 +100,8 @@ static doublereal dasum_(integer *n, doublereal *dx, integer *incx)
 /*     modified to correct problem with negative increment, 8/21/90. */
 
 
-    /* Parameter adjustments */
-    --dx;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = dx; dx = _v - 1; }
 
     /* Function Body */
     ret_val = 0.;
@@ -181,9 +181,9 @@ static int daxpy_(integer *n, doublereal *da, doublereal *dx,
 /*     jack dongarra, linpack, 3/11/78. */
 
 
-    /* Parameter adjustments */
-    --dy;
-    --dx;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = dy; dy = _v - 1; }
+    { double * volatile _v = dx; dx = _v - 1; }
 
     /* Function Body */
     if (*n <= 0) {
@@ -267,9 +267,9 @@ static int dcopy_(integer *n, const doublereal *dx, integer *incx,
 /*     jack dongarra, linpack, 3/11/78. */
 
 
-    /* Parameter adjustments */
-    --dy;
-    --dx;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = dy; dy = _v - 1; }
+    { double * volatile _v = dx; dx = _v - 1; }
 
     /* Function Body */
     if (*n <= 0) {
@@ -354,8 +354,8 @@ static int dscal_(integer *n, doublereal *da, doublereal *dx,
 /*     modified to correct problem with negative increment, 8/21/90. */
 
 
-    /* Parameter adjustments */
-    --dx;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = dx; dx = _v - 1; }
 
     /* Function Body */
     if (*n <= 0) {
@@ -451,9 +451,9 @@ static doublereal dist_(integer *n, doublereal *x, doublereal *y)
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     absxmy = (d__1 = x[1] - y[1], fabs(d__1));
@@ -543,11 +543,11 @@ static int calcc_(integer *ns, doublereal *s, integer *ih, integer *
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --c__;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = c__; c__ = _v - 1; }
     s_dim1 = *ns;
     s_offset = 1 + s_dim1 * 1;
-    s -= s_offset;
+    { double * volatile _v = s; s = _v - s_offset; }
 
     /* Function Body */
     if (*updatc) {
@@ -625,8 +625,8 @@ static int order_(integer *npts, doublereal *fs, integer *il,
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --fs;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = fs; fs = _v - 1; }
 
     /* Function Body */
     il0 = *il;
@@ -724,10 +724,10 @@ static int partx_(integer *n, integer *ip, doublereal *absdx,
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --absdx;
-    --ip;
-    --nsvals;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = absdx; absdx = _v - 1; }
+    { int * volatile _v = ip; ip = _v - 1; }
+    { int * volatile _v = nsvals; nsvals = _v - 1; }
 
     /* Function Body */
     *nsubs = 0;
@@ -824,9 +824,9 @@ static int sortd_(integer *n, doublereal *xkey, integer *ix)
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --ix;
-    --xkey;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = xkey; xkey = _v - 1; }
 
     /* Function Body */
     ifirst = 1;
@@ -936,10 +936,10 @@ static int newpt_(integer *ns, doublereal *coef, doublereal *xbase,
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --xold;
-    --xbase;
-    --xnew;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = xold; xold = _v - 1; }
+    { double * volatile _v = xbase; xbase = _v - 1; }
+    { double * volatile _v = xnew; xnew = _v - 1; }
 
     /* Function Body */
     eqbase = TRUE_;
@@ -1018,13 +1018,13 @@ static int start_(integer *n, doublereal *x, doublereal *step,
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --ips;
-    --step;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ips; ips = _v - 1; }
+    { double * volatile _v = step; step = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
     s_dim1 = *ns;
     s_offset = 1 + s_dim1 * 1;
-    s -= s_offset;
+    { double * volatile _v = s; s = _v - s_offset; }
 
     /* Function Body */
     i__1 = *ns;
@@ -1207,10 +1207,10 @@ static int evalf_(D_fp f,void*fdata, integer *ns, integer *ips, doublereal *xs,
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --ips;
-    --xs;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ips; ips = _v - 1; }
+    { double * volatile _v = xs; xs = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *ns;
@@ -1359,14 +1359,14 @@ static int simplx_(D_fp f, void *fdata, integer *n, doublereal *step, integer *
 
 /* ----------------------------------------------------------- */
 
-    /* Parameter adjustments */
-    --x;
-    --step;
-    --fs;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = step; step = _v - 1; }
+    { double * volatile _v = fs; fs = _v - 1; }
     s_dim1 = *ns;
     s_offset = 1 + s_dim1 * 1;
-    s -= s_offset;
-    --ips;
+    { double * volatile _v = s; s = _v - s_offset; }
+    { int * volatile _v = ips; ips = _v - 1; }
 
     /* Function Body */
     if (*cmode) {
@@ -1763,9 +1763,9 @@ static int setstp_(integer *nsubs, integer *n, doublereal *deltax,
 
 /*     set new step */
 
-    /* Parameter adjustments */
-    --step;
-    --deltax;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = step; step = _v - 1; }
+    { double * volatile _v = deltax; deltax = _v - 1; }
 
     /* Function Body */
     if (*nsubs > 1) {
@@ -1918,11 +1918,11 @@ static int subplx_(D_fp f, void *fdata, integer *n,
 
 /* data */
 
-    /* Parameter adjustments */
-    --x;
-    --scale;
-    --work;
-    --iwork;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = scale; scale = _v - 1; }
+    { double * volatile _v = work; work = _v - 1; }
+    { int * volatile _v = iwork; iwork = _v - 1; }
     x_old = work;
     work += *n;
 

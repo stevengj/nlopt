@@ -180,11 +180,11 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  d.rho = 1; /* whatever, doesn't matter */
 
      if (auglag_verbose) {
-	  printf("auglag: initial rho=%g\nauglag initial lambda=", d.rho);
-	  for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
-	  printf("\nauglag initial mu = ");
-	  for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
-	  printf("\n");
+	  nlopt_stop_log(stop, "auglag: initial rho=%g\nauglag initial lambda=", d.rho);
+	  for (i = 0; i < d.pp; ++i) nlopt_stop_log(stop, " %g", d.lambda[i]);
+	  nlopt_stop_log(stop, "\nauglag initial mu = ");
+	  for (i = 0; i < d.mm; ++i) nlopt_stop_log(stop, " %g", d.mu[i]);
+	  nlopt_stop_log(stop, "\n");
      }
 
      do {
@@ -195,7 +195,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 				       stop->maxtime - (nlopt_seconds() 
 							- stop->start));
 	  if (auglag_verbose)
-	       printf("auglag: subopt return code %d\n", ret);
+	       nlopt_stop_log(stop, "auglag: subopt return code %d\n", ret);
 	  if (ret < 0) break;
 	  
 	  ++ *(d.stop->nevals_p);
@@ -203,7 +203,7 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  if (nlopt_stop_forced(stop)) {
 	       ret = NLOPT_FORCED_STOP; goto done; }
 	  if (auglag_verbose)
-	       printf("auglag: fcur = %g\n", fcur);
+	       nlopt_stop_log(stop, "auglag: fcur = %g\n", fcur);
 	  
 	  ICM = 0;
 	  penalty = 0;
@@ -241,12 +241,12 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
 	  auglag_iters++;
 	  
 	  if (auglag_verbose) {
-	       printf("auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
+	       nlopt_stop_log(stop, "auglag %d: ICM=%g (%sfeasible), rho=%g\nauglag lambda=",
 		      auglag_iters, ICM, feasible ? "" : "not ", d.rho);
-	       for (i = 0; i < d.pp; ++i) printf(" %g", d.lambda[i]);
-	       printf("\nauglag %d: mu = ", auglag_iters);
-	       for (i = 0; i < d.mm; ++i) printf(" %g", d.mu[i]);
-	       printf("\n");
+	       for (i = 0; i < d.pp; ++i) nlopt_stop_log(stop, " %g", d.lambda[i]);
+	       nlopt_stop_log(stop, "\nauglag %d: mu = ", auglag_iters);
+	       for (i = 0; i < d.mm; ++i) nlopt_stop_log(stop, " %g", d.mu[i]);
+	       nlopt_stop_log(stop, "\n");
 	  }
 
 	  if ((feasible && (!minf_feasible || penalty < minf_penalty

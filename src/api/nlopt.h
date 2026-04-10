@@ -204,6 +204,28 @@ NLOPT_EXTERN(nlopt_opt) nlopt_create(nlopt_algorithm algorithm, unsigned n);
 NLOPT_EXTERN(void) nlopt_destroy(nlopt_opt opt);
 NLOPT_EXTERN(nlopt_opt) nlopt_copy(const nlopt_opt opt);
 
+/* Logging callback: called with (data, format, ap) instead of vprintf.
+   Set to NULL to restore the built-in default (vprintf, or no-op when
+   NLOPT_SILENT is defined at compile time).
+   Language bindings that route output (e.g. to Rprintf) should set this
+   callback on each nlopt_opt rather than relying on compile-time defines. */
+#include <stdarg.h>
+typedef int (*nlopt_vprintf_func)(void *data, const char *format, va_list ap);
+NLOPT_EXTERN(nlopt_result) nlopt_set_vprintf_callback(nlopt_opt opt, nlopt_vprintf_func func, void *data);
+NLOPT_EXTERN(nlopt_vprintf_func) nlopt_get_vprintf_callback(const nlopt_opt opt, void **data);
+
+/* Fatal error callback: called instead of abort() for unrecoverable errors
+   (e.g. memory allocation failures, failed internal assertions).
+   The callback MUST NOT return; if it does the behaviour is undefined.
+   Set to NULL to restore the built-in default (abort()).
+   This is a library-level (global) setting, not per-opt, because fatal
+   errors can occur in contexts where no nlopt_opt handle is available.
+   Language bindings that trap fatal errors (e.g. Rf_error) should install
+   this callback at initialisation time instead of relying on NLOPT_R. */
+typedef void (*nlopt_efunc)(void *data, const char *message);
+NLOPT_EXTERN(void) nlopt_set_error_callback(nlopt_efunc func, void *data);
+NLOPT_EXTERN(nlopt_efunc) nlopt_get_error_callback(void **data);
+
 NLOPT_EXTERN(nlopt_result) nlopt_optimize(nlopt_opt opt, double *x, double *opt_f);
 
 NLOPT_EXTERN(nlopt_result) nlopt_set_min_objective(nlopt_opt opt, nlopt_func f, void *f_data);

@@ -20,21 +20,21 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <math.h>
 #include <float.h>
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "nlopt-internal.h"
 
 /*********************************************************************/
 
-#include "praxis.h"
 #include "direct.h"
+#include "praxis.h"
 
 #ifdef NLOPT_CXX
-#include "stogo.h"
 #include "ags.h"
+#include "stogo.h"
 #endif
 
 #include "cdirect.h"
@@ -45,15 +45,15 @@
 
 #include "crs.h"
 
-#include "mlsl.h"
-#include "mma.h"
-#include "cobyla.h"
-#include "newuoa.h"
-#include "neldermead.h"
 #include "auglag.h"
 #include "bobyqa.h"
-#include "isres.h"
+#include "cobyla.h"
 #include "esch.h"
+#include "isres.h"
+#include "mlsl.h"
+#include "mma.h"
+#include "neldermead.h"
+#include "newuoa.h"
 #include "slsqp.h"
 
 /*********************************************************************/
@@ -564,6 +564,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     stop.start = nlopt_seconds();
     stop.force_stop = &(opt->force_stop);
     stop.stop_msg = &(opt->errmsg);
+    stop.vprintf_func = opt->vprintf_func;
+    stop.vprintf_data = opt->vprintf_data;
 
     switch (algorithm) {
     case NLOPT_GN_DIRECT:
@@ -717,7 +719,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_LUKSAN
         return luksan_plis(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, nlopt_get_param(opt, "tolg", 0.));
 #else
-        printf("ERROR - attempting to use NLOPT_LD_LBFGS, but Luksan code disabled\n");
+    nlopt_stop_log(
+        &stop, "ERROR - attempting to use NLOPT_LD_LBFGS, but Luksan code "
+               "disabled\n");
         return NLOPT_INVALID_ARGS;
 #endif
 
@@ -726,7 +730,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_LUKSAN
         return luksan_plip(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, algorithm == NLOPT_LD_VAR1 ? 1 : 2, nlopt_get_param(opt, "tolg", 0.));
 #else
-        printf("ERROR - attempting to use NLOPT_LD_VAR*, but Luksan code disabled\n");
+    nlopt_stop_log(
+        &stop, "ERROR - attempting to use NLOPT_LD_VAR*, but Luksan code "
+               "disabled\n");
         return NLOPT_INVALID_ARGS;
 #endif
 
@@ -737,7 +743,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
 #ifdef NLOPT_LUKSAN
         return luksan_pnet(ni, f, f_data, lb, ub, x, minf, &stop, opt->vector_storage, 1 + (algorithm - NLOPT_LD_TNEWTON) % 2, 1 + (algorithm - NLOPT_LD_TNEWTON) / 2, nlopt_get_param(opt, "tolg", 0.));
 #else
-        printf("ERROR - attempting to use NLOPT_LD_TNEWTON*, but Luksan code disabled\n");
+    nlopt_stop_log(&stop, "ERROR - attempting to use NLOPT_LD_TNEWTON*, but "
+                          "Luksan code disabled\n");
         return NLOPT_INVALID_ARGS;
 #endif
 

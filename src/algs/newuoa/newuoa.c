@@ -141,19 +141,19 @@ static nlopt_result trsapp_(int *n, int *npt, double *xopt,
 
 /* Initialization, which includes setting HD to H times XOPT. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --xopt;
-    --gq;
-    --hq;
-    --pq;
-    --step;
-    --d__;
-    --g;
-    --hd;
-    --hs;
+    { double * volatile _v = xpt; xpt = _v - xpt_offset; }
+    { double * volatile _v = xopt; xopt = _v - 1; }
+    { double * volatile _v = gq; gq = _v - 1; }
+    { double * volatile _v = hq; hq = _v - 1; }
+    { double * volatile _v = pq; pq = _v - 1; }
+    { double * volatile _v = step; step = _v - 1; }
+    { double * volatile _v = d__; d__ = _v - 1; }
+    { double * volatile _v = g; g = _v - 1; }
+    { double * volatile _v = hd; hd = _v - 1; }
+    { double * volatile _v = hs; hs = _v - 1; }
 
     if (lb && ub) {
 	 nlopt_opt opt;
@@ -548,27 +548,27 @@ static nlopt_result bigden_(int *n, int *npt, double *xopt,
 
 /* Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    { double * volatile _v = zmat; zmat = _v - zmat_offset; }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --xopt;
+    { double * volatile _v = xpt; xpt = _v - xpt_offset; }
+    { double * volatile _v = xopt; xopt = _v - 1; }
     prod_dim1 = *ndim;
     prod_offset = 1 + prod_dim1;
-    prod -= prod_offset;
+    { double * volatile _v = prod; prod = _v - prod_offset; }
     wvec_dim1 = *ndim;
     wvec_offset = 1 + wvec_dim1;
-    wvec -= wvec_offset;
+    { double * volatile _v = wvec; wvec = _v - wvec_offset; }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --d__;
-    --w;
-    --vlag;
-    --s;
+    { double * volatile _v = bmat; bmat = _v - bmat_offset; }
+    { double * volatile _v = d__; d__ = _v - 1; }
+    { double * volatile _v = w; w = _v - 1; }
+    { double * volatile _v = vlag; vlag = _v - 1; }
+    { double * volatile _v = s; s = _v - 1; }
 
     /* Function Body */
     half = .5;
@@ -1100,23 +1100,23 @@ static nlopt_result biglag_(int *n, int *npt, double *xopt,
 
 /* Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    { double * volatile _v = zmat; zmat = _v - zmat_offset; }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --xopt;
+    { double * volatile _v = xpt; xpt = _v - xpt_offset; }
+    { double * volatile _v = xopt; xopt = _v - 1; }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --d__;
-    --hcol;
-    --gc;
-    --gd;
-    --s;
-    --w;
+    { double * volatile _v = bmat; bmat = _v - bmat_offset; }
+    { double * volatile _v = d__; d__ = _v - 1; }
+    { double * volatile _v = hcol; hcol = _v - 1; }
+    { double * volatile _v = gc; gc = _v - 1; }
+    { double * volatile _v = gd; gd = _v - 1; }
+    { double * volatile _v = s; s = _v - 1; }
+    { double * volatile _v = w; w = _v - 1; }
 
     /* Function Body */
     half = .5;
@@ -1418,15 +1418,15 @@ static void update_(int *n, int *npt, double *bmat,
 
 /* Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    { double * volatile _v = zmat; zmat = _v - zmat_offset; }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --vlag;
-    --w;
+    { double * volatile _v = bmat; bmat = _v - bmat_offset; }
+    { double * volatile _v = vlag; vlag = _v - 1; }
+    { double * volatile _v = w; w = _v - 1; }
 
     /* Function Body */
     one = 1.;
@@ -1658,27 +1658,27 @@ static nlopt_result newuob_(int *n, int *npt, double *x,
 
 /* Set some constants. */
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     zmat_dim1 = *npt;
     zmat_offset = 1 + zmat_dim1;
-    zmat -= zmat_offset;
+    { double * volatile _v = zmat; zmat = _v - zmat_offset; }
     xpt_dim1 = *npt;
     xpt_offset = 1 + xpt_dim1;
-    xpt -= xpt_offset;
-    --x;
-    --xbase;
-    --xopt;
-    --xnew;
-    --fval;
-    --gq;
-    --hq;
-    --pq;
+    { double * volatile _v = xpt; xpt = _v - xpt_offset; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = xbase; xbase = _v - 1; }
+    { double * volatile _v = xopt; xopt = _v - 1; }
+    { double * volatile _v = xnew; xnew = _v - 1; }
+    { double * volatile _v = fval; fval = _v - 1; }
+    { double * volatile _v = gq; gq = _v - 1; }
+    { double * volatile _v = hq; hq = _v - 1; }
+    { double * volatile _v = pq; pq = _v - 1; }
     bmat_dim1 = *ndim;
     bmat_offset = 1 + bmat_dim1;
-    bmat -= bmat_offset;
-    --d__;
-    --vlag;
-    --w;
+    { double * volatile _v = bmat; bmat = _v - bmat_offset; }
+    { double * volatile _v = d__; d__ = _v - 1; }
+    { double * volatile _v = vlag; vlag = _v - 1; }
+    { double * volatile _v = w; w = _v - 1; }
 
     /* Function Body */
     half = .5;
@@ -2531,8 +2531,8 @@ nlopt_result newuoa(int n, int npt, double *x,
 /* Partition the working space array, so that different parts of it can be */
 /* treated separately by the subroutine that performs the main calculation. */
 
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     np = n + 1;

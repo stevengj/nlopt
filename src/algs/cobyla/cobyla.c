@@ -391,13 +391,13 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
 
   if (n == 0)
   {
-    if (iprint>=1) fprintf(stderr, "cobyla: N==0.\n");
+    if (iprint>=1) nlopt_stop_log(stop, "cobyla: N==0.\n");
     return NLOPT_SUCCESS;
   }
 
   if (n < 0 || m < 0)
   {
-    if (iprint>=1) fprintf(stderr, "cobyla: N<0 or M<0.\n");
+    if (iprint>=1) nlopt_stop_log(stop, "cobyla: N<0 or M<0.\n");
     return NLOPT_INVALID_ARGS;
   }
 
@@ -405,22 +405,39 @@ nlopt_result cobyla(int n, int m, double *x, double *minf, double rhobeg, double
   w = (double*) malloc(U(n*(3*n+2*m+11)+4*m+6)*sizeof(*w));
   if (w == NULL)
   {
-    if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
+    if (iprint>=1) nlopt_stop_log(stop, "cobyla: memory allocation error.\n");
     return NLOPT_OUT_OF_MEMORY;
   }
   iact = (int*)malloc(U(m+1)*sizeof(*iact));
   if (iact == NULL)
   {
-    if (iprint>=1) fprintf(stderr, "cobyla: memory allocation error.\n");
+    if (iprint>=1) nlopt_stop_log(stop, "cobyla: memory allocation error.\n");
     free(w);
     return NLOPT_OUT_OF_MEMORY;
   }
   
-  /* Parameter adjustments */
-  --iact;
-  --w;
-  --x;
-  --lb; --ub;
+  /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+   * tracking */
+  {
+    int *volatile _v = iact;
+    iact = _v - 1;
+  }
+  {
+    double *volatile _v = w;
+    w = _v - 1;
+  }
+  {
+    double *volatile _v = x;
+    x = _v - 1;
+  }
+  {
+    const double *volatile _v = lb;
+    lb = _v - 1;
+  }
+  {
+    const double *volatile _v = ub;
+    ub = _v - 1;
+  }
 
   /* Function Body */
   mpp = m + 2;
@@ -496,28 +513,72 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
 /* Further, SIMI holds the inverse of the matrix that is contained in the */
 /* first N columns of SIM. */
 
-  /* Parameter adjustments */
+  /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+   * tracking */
   a_dim1 = *n;
   a_offset = 1 + a_dim1 * 1;
-  a -= a_offset;
+  {
+    double *volatile _v = a;
+    a = _v - a_offset;
+  }
   simi_dim1 = *n;
   simi_offset = 1 + simi_dim1 * 1;
-  simi -= simi_offset;
+  {
+    double *volatile _v = simi;
+    simi = _v - simi_offset;
+  }
   sim_dim1 = *n;
   sim_offset = 1 + sim_dim1 * 1;
-  sim -= sim_offset;
+  {
+    double *volatile _v = sim;
+    sim = _v - sim_offset;
+  }
   datmat_dim1 = *mpp;
   datmat_offset = 1 + datmat_dim1 * 1;
-  datmat -= datmat_offset;
-  --x;
-  --con;
-  --vsig;
-  --veta;
-  --sigbar;
-  --dx;
-  --w;
-  --iact;
-  --lb; --ub;
+  {
+    double *volatile _v = datmat;
+    datmat = _v - datmat_offset;
+  }
+  {
+    double *volatile _v = x;
+    x = _v - 1;
+  }
+  {
+    double *volatile _v = con;
+    con = _v - 1;
+  }
+  {
+    double *volatile _v = vsig;
+    vsig = _v - 1;
+  }
+  {
+    double *volatile _v = veta;
+    veta = _v - 1;
+  }
+  {
+    double *volatile _v = sigbar;
+    sigbar = _v - 1;
+  }
+  {
+    double *volatile _v = dx;
+    dx = _v - 1;
+  }
+  {
+    double *volatile _v = w;
+    w = _v - 1;
+  }
+  {
+    int *volatile _v = iact;
+    iact = _v - 1;
+  }
+  {
+    const double *volatile _v = lb;
+    lb = _v - 1;
+  }
+  {
+    const double *volatile _v = ub;
+    ub = _v - 1;
+  }
 
   /* Function Body */
   iptem = MIN2(*n,4);
@@ -531,7 +592,7 @@ static nlopt_result cobylb(int *n, int *m, int *mpp,
   rho = *rhobeg;
   parmu = 0.;
   if (*iprint >= 2) {
-    fprintf(stderr,
+    nlopt_stop_log(stop,
       "cobyla: the initial value of RHO is %12.6E and PARMU is set to zero.\n",
       rho);
   }
@@ -582,7 +643,7 @@ L40:
   if (calcfc(*n, *m, &x[1], &f, &con[1], state))
   {
     if (*iprint >= 1) {
-      fprintf(stderr, "cobyla: user requested end of minimization.\n");
+      nlopt_stop_log(stop, "cobyla: user requested end of minimization.\n");
     }
     rc = NLOPT_FORCED_STOP;
     goto L600;
@@ -607,22 +668,22 @@ L40:
   }
 
   if (*(stop->nevals_p) == *iprint - 1 || *iprint == 3) {
-    fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
+    nlopt_stop_log(stop, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
 	    *(stop->nevals_p), f, resmax);
     i__1 = iptem;
-    fprintf(stderr, "cobyla: X =");
+    nlopt_stop_log(stop, "cobyla: X =");
     for (i__ = 1; i__ <= i__1; ++i__) {
-      if (i__>1) fprintf(stderr, "  ");
-      fprintf(stderr, "%13.6E", x[i__]);
+      if (i__>1) nlopt_stop_log(stop, "  ");
+      nlopt_stop_log(stop, "%13.6E", x[i__]);
     }
     if (iptem < *n) {
       i__1 = *n;
       for (i__ = iptemp; i__ <= i__1; ++i__) {
-        if (!((i__-1) % 4)) fprintf(stderr, "\ncobyla:  ");
-        fprintf(stderr, "%15.6E", x[i__]);
+        if (!((i__-1) % 4)) nlopt_stop_log(stop, "\ncobyla:  ");
+        nlopt_stop_log(stop, "%15.6E", x[i__]);
       }
     }
-    fprintf(stderr, "\n");
+    nlopt_stop_log(stop, "\n");
   }
   con[mp] = f;
   con[*mpp] = resmax;
@@ -754,7 +815,7 @@ L140:
   }
   if (error > .1) {
     if (*iprint >= 1) {
-      fprintf(stderr, "cobyla: rounding errors are becoming damaging.\n");
+      nlopt_stop_log(stop, "cobyla: rounding errors are becoming damaging.\n");
     }
     rc = NLOPT_ROUNDOFF_LIMITED;
     goto L600;
@@ -979,7 +1040,7 @@ L370:
   if (parmu < barmu * 1.5) {
     parmu = barmu * 2.;
     if (*iprint >= 2) {
-      fprintf(stderr, "cobyla: increase in PARMU to %12.6E\n", parmu);
+      nlopt_stop_log(stop, "cobyla: increase in PARMU to %12.6E\n", parmu);
     }
     phi = datmat[mp + np * datmat_dim1] + parmu * datmat[*mpp + np * 
         datmat_dim1];
@@ -1178,27 +1239,27 @@ L550:
       }
     }
     if (*iprint >= 2) {
-      fprintf(stderr, "cobyla: reduction in RHO to %12.6E and PARMU =%13.6E\n",
+      nlopt_stop_log(stop, "cobyla: reduction in RHO to %12.6E and PARMU =%13.6E\n",
         rho, parmu);
     }
     if (*iprint == 2) {
-      fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
+      nlopt_stop_log(stop, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
         *(stop->nevals_p), datmat[mp + np * datmat_dim1], datmat[*mpp + np * datmat_dim1]);
 
-      fprintf(stderr, "cobyla: X =");
+      nlopt_stop_log(stop, "cobyla: X =");
       i__1 = iptem;
       for (i__ = 1; i__ <= i__1; ++i__) {
-        if (i__>1) fprintf(stderr, "  ");
-        fprintf(stderr, "%13.6E", sim[i__ + np * sim_dim1]);
+        if (i__>1) nlopt_stop_log(stop, "  ");
+        nlopt_stop_log(stop, "%13.6E", sim[i__ + np * sim_dim1]);
       }
       if (iptem < *n) {
         i__1 = *n;
         for (i__ = iptemp; i__ <= i__1; ++i__) {
-          if (!((i__-1) % 4)) fprintf(stderr, "\ncobyla:  ");
-          fprintf(stderr, "%15.6E", x[i__]);
+          if (!((i__-1) % 4)) nlopt_stop_log(stop, "\ncobyla:  ");
+          nlopt_stop_log(stop, "%15.6E", x[i__]);
         }
       }
-      fprintf(stderr, "\n");
+      nlopt_stop_log(stop, "\n");
     }
     goto L140;
   }
@@ -1208,7 +1269,7 @@ L550:
 /* Return the best calculated values of the variables. */
 
   if (*iprint >= 1) {
-    fprintf(stderr, "cobyla: normal return.\n");
+    nlopt_stop_log(stop, "cobyla: normal return.\n");
   }
   if (ifull == 1) {
     goto L620;
@@ -1223,22 +1284,22 @@ L600:
 L620:
   *minf = f;
   if (*iprint >= 1) {
-    fprintf(stderr, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
+    nlopt_stop_log(stop, "cobyla: NFVALS = %4d, F =%13.6E, MAXCV =%13.6E\n",
 	    *(stop->nevals_p), f, resmax);
     i__1 = iptem;
-    fprintf(stderr, "cobyla: X =");
+    nlopt_stop_log(stop, "cobyla: X =");
     for (i__ = 1; i__ <= i__1; ++i__) {
-      if (i__>1) fprintf(stderr, "  ");
-      fprintf(stderr, "%13.6E", x[i__]);
+      if (i__>1) nlopt_stop_log(stop, "  ");
+      nlopt_stop_log(stop, "%13.6E", x[i__]);
     }
     if (iptem < *n) {
       i__1 = *n;
       for (i__ = iptemp; i__ <= i__1; ++i__) {
-        if (!((i__-1) % 4)) fprintf(stderr, "\ncobyla:  ");
-        fprintf(stderr, "%15.6E", x[i__]);
+        if (!((i__-1) % 4)) nlopt_stop_log(stop, "\ncobyla:  ");
+        nlopt_stop_log(stop, "%15.6E", x[i__]);
       }
     }
-    fprintf(stderr, "\n");
+    nlopt_stop_log(stop, "\n");
   }
   return rc;
 } /* cobylb */
@@ -1308,21 +1369,52 @@ static nlopt_result trstlp(int *n, int *m, double *a,
 /* vector SDIRN gives a search direction that reduces all the active */
 /* constraint violations by one simultaneously. */
 
-  /* Parameter adjustments */
+  /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance
+   * tracking */
   z_dim1 = *n;
   z_offset = 1 + z_dim1 * 1;
-  z__ -= z_offset;
+  {
+    double *volatile _v = z__;
+    z__ = _v - z_offset;
+  }
   a_dim1 = *n;
   a_offset = 1 + a_dim1 * 1;
-  a -= a_offset;
-  --b;
-  --dx;
-  --iact;
-  --zdota;
-  --vmultc;
-  --sdirn;
-  --dxnew;
-  --vmultd;
+  {
+    double *volatile _v = a;
+    a = _v - a_offset;
+  }
+  {
+    double *volatile _v = b;
+    b = _v - 1;
+  }
+  {
+    double *volatile _v = dx;
+    dx = _v - 1;
+  }
+  {
+    int *volatile _v = iact;
+    iact = _v - 1;
+  }
+  {
+    double *volatile _v = zdota;
+    zdota = _v - 1;
+  }
+  {
+    double *volatile _v = vmultc;
+    vmultc = _v - 1;
+  }
+  {
+    double *volatile _v = sdirn;
+    sdirn = _v - 1;
+  }
+  {
+    double *volatile _v = dxnew;
+    dxnew = _v - 1;
+  }
+  {
+    double *volatile _v = vmultd;
+    vmultd = _v - 1;
+  }
 
   /* Function Body */
   *ifull = 1;

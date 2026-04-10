@@ -68,7 +68,7 @@
     doublereal divfactor;
     integer ifeasiblef, iepschange, actmaxdeep;
     integer actdeep_div__, iinfesiblef;
-    integer pos1, newtosample;
+    integer pos1;
     integer ifree, help;
     doublereal *oldl = 0, fmax;
     integer maxi;
@@ -478,7 +478,6 @@
 /* +-----------------------------------------------------------------------+ */
 /* | Initialise the number of sample points in this outer loop.            | */
 /* +-----------------------------------------------------------------------+ */
-	newtosample = 0;
 	i__2 = maxpos;
 	for (j = 1; j <= i__2; ++j) {
 	    actdeep = s[j + MAXDIV-1];
@@ -537,7 +536,6 @@
 		    *ierror = -4;
 		    goto cleanup;
 		}
-		newtosample += maxi;
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Added variable to keep track of the maximum value found.  | */
 /* +-----------------------------------------------------------------------+ */

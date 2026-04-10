@@ -23,8 +23,8 @@
 #ifndef NLOPT_INTERNAL_H
 #define NLOPT_INTERNAL_H
 
-#include "nlopt.h"
 #include "nlopt-util.h"
+#include "nlopt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,6 +85,10 @@ extern "C" {
         void *work;             /* algorithm-specific workspace during optimization */
 
         char *errmsg;           /* description of most recent error */
+
+        nlopt_vprintf_func
+            vprintf_func; /* logging callback; NULL = built-in default */
+        void *vprintf_data;
     };
 
 /*********************************************************************/

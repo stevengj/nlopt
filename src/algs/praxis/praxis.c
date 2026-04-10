@@ -134,8 +134,8 @@ nlopt_result praxis_(double t0, double machep, double h0,
 /* .....INITIALIZATION..... */
 /*     MACHINE DEPENDENT NUMBERS: */
 
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     small = machep * machep;
@@ -638,11 +638,11 @@ static void minfit_(int m, int n, double machep,
 /*   OVERWRITTEN WITH THE ORTHOGONAL MATRIX V SUCH THAT U.DIAG(Q) = AB.V, */
 /*   WHERE U IS ANOTHER ORTHOGONAL MATRIX. */
 /* ...HOUSEHOLDER'S REDUCTION TO BIDIAGONAL FORM... */
-    /* Parameter adjustments */
-    --q;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = q; q = _v - 1; }
     ab_dim1 = m;
     ab_offset = 1 + ab_dim1;
-    ab -= ab_offset;
+    { double * volatile _v = ab; ab = _v - ab_offset; }
 
     /* Function Body */
     if (n == 1) {
@@ -1025,8 +1025,8 @@ static nlopt_result min_(int n, int j, int nits, double *
 /*   ON ENTRY UNLESS FINAL FX IS GREATER THAN F1. */
 /*   NITS CONTROLS THE NUMBER OF TIMES AN ATTEMPT WILL BE MADE TO HALVE */
 /*   THE INTERVAL. */
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
 /* Computing 2nd power */
@@ -1209,8 +1209,8 @@ static double flin_(int n, int j, double *l, praxis_func f, void *f_data, double
 
 /* ...FLIN IS THE FUNCTION OF ONE REAL VARIABLE L THAT IS MINIMIZED */
 /*   BY THE SUBROUTINE MIN... */
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (j == 0) {
@@ -1263,11 +1263,11 @@ static void sort_(int m, int n, double *d__, double *v)
 /* ...SORTS THE ELEMENTS OF D(N) INTO DESCENDING ORDER AND MOVES THE */
 /*   CORRESPONDING COLUMNS OF V(N,N). */
 /*   M IS THE ROW DIMENSION OF V AS DECLARED IN THE CALLING PROGRAM. */
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     v_dim1 = m;
     v_offset = 1 + v_dim1;
-    v -= v_offset;
-    --d__;
+    { double * volatile _v = v; v = _v - v_offset; }
+    { double * volatile _v = d__; d__ = _v - 1; }
 
     /* Function Body */
     if (n == 1) {
@@ -1319,8 +1319,8 @@ static void quad_(int n, praxis_func f, void *f_data, double *x, double *t_old,
     double value;
 
 /* ...QUAD LOOKS FOR THE MINIMUM OF F ALONG A CURVE DEFINED BY Q0,Q1,X... */
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     s = global_1->fx;

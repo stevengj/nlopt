@@ -42,10 +42,10 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
     (void) maxfunc;
 
 /* JG 09/15/00 Added variable JONES (see above) */
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
 
     /* Function Body */
     if (jones == 0) {
@@ -117,15 +117,15 @@ integer direct_dirgetlevel_(integer *pos, integer *length, integer *maxfunc, int
     doublereal help2;
     integer novalue;
 
-    /* Parameter adjustments */
-    f -= 3;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = f; f = _v - 3; }
     ++anchor;
     s_dim1 = *maxdiv;
     s_offset = 1 + s_dim1;
-    s -= s_offset;
+    { int * volatile _v = s; s = _v - s_offset; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
 
     /* Function Body */
     helplower = HUGE_VAL;
@@ -286,13 +286,13 @@ L40:
 /* +-----------------------------------------------------------------------+ */
 /* | JG 07/16/01 Added flag to prevent run time-errors on some systems.    | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     ++anchor;
-    f -= 3;
-    --point;
+    { double * volatile _v = f; f = _v - 3; }
+    { int * volatile _v = point; point = _v - 1; }
     s_dim1 = *maxdiv;
     s_offset = 1 + s_dim1;
-    s -= s_offset;
+    { int * volatile _v = s; s = _v - s_offset; }
 
     /* Function Body */
     oldmaxpos = *maxpos;
@@ -356,10 +356,10 @@ integer direct_dirgetmaxdeep_(integer *pos, integer *length, integer *maxfunc,
 
     (void) maxfunc;
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
 
     /* Function Body */
     help = length[*pos * length_dim1 + 1];
@@ -427,12 +427,12 @@ L1010:
 /* +-----------------------------------------------------------------------+ */
 /* JG 09/25/00 Replaced with DIRgetlevel */
 /*      l = DIRgetmaxDeep(replace,length,maxfunc,n) */
-    /* Parameter adjustments */
-    --point;
-    f -= 3;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = point; point = _v - 1; }
+    { double * volatile _v = f; f = _v - 3; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
     ++anchor;
 
     /* Function Body */
@@ -541,18 +541,18 @@ L40:
 /* +-----------------------------------------------------------------------+ */
 /* | JG 01/22/01 Added variable to keep track of the maximum value found.  | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --point;
-    f -= 3;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = point; point = _v - 1; }
+    { double * volatile _v = f; f = _v - 3; }
     ++anchor;
     length_dim1 = *maxdim;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
     c_dim1 = *maxdim;
     c_offset = 1 + c_dim1;
-    c__ -= c_offset;
-    --c2;
-    --c1;
+    { double * volatile _v = c__; c__ = _v - c_offset; }
+    { double * volatile _v = c2; c2 = _v - 1; }
+    { double * volatile _v = c1; c1 = _v - 1; }
 
     /* Function Body */
     i__1 = *free - 1;
@@ -670,9 +670,9 @@ L40:
 /*        start = point(start) */
 /* 10    CONTINUE */
 /* 20    END */
-    /* Parameter adjustments */
-    f -= 3;
-    --point;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = f; f = _v - 3; }
+    { int * volatile _v = point; point = _v - 1; }
 
     /* Function Body */
     i__1 = *maxfunc;
@@ -716,13 +716,13 @@ L40:
     (void) maxdeep;
 
 /* JG 09/24/00 Changed this to Getlevel */
-    /* Parameter adjustments */
-    f -= 3;
-    --point;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = f; f = _v - 3; }
+    { int * volatile _v = point; point = _v - 1; }
     ++anchor;
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
 
     /* Function Body */
     i__1 = *maxi;
@@ -804,11 +804,11 @@ L40:
     /* Local variables */
     integer i__, pos;
 
-    /* Parameter adjustments */
-    --w;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = w; w = _v - 1; }
     list2_dim1 = *n;
     list2_offset = 1 + list2_dim1;
-    list2 -= list2_offset;
+    { int * volatile _v = list2; list2 = _v - list2_offset; }
 
     /* Function Body */
     pos = *start;
@@ -852,10 +852,10 @@ L50:
     /* System generated locals */
     integer list2_dim1, list2_offset;
 
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     list2_dim1 = *n;
     list2_offset = 1 + list2_dim1;
-    list2 -= list2_offset;
+    { int * volatile _v = list2; list2 = _v - list2_offset; }
 
     /* Function Body */
     *k = *start;
@@ -882,19 +882,19 @@ L50:
 
     (void) minf; (void) minpos; (void) maxfunc; (void) maxdeep; (void) oops;
 
-    /* Parameter adjustments */
-    --u;
-    --l;
-    --x;
-    --arrayi;
-    --point;
-    f -= 3;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { int * volatile _v = arrayi; arrayi = _v - 1; }
+    { int * volatile _v = point; point = _v - 1; }
+    { double * volatile _v = f; f = _v - 3; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
     c_dim1 = *n;
     c_offset = 1 + c_dim1;
-    c__ -= c_offset;
+    { double * volatile _v = c__; c__ = _v - c_offset; }
 
     /* Function Body */
     *oops = 0;
@@ -956,17 +956,17 @@ L50:
 
     (void) maxfunc; (void) maxdeep;
 
-    /* Parameter adjustments */
-    f -= 3;
-    --point;
-    --w;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = f; f = _v - 3; }
+    { int * volatile _v = point; point = _v - 1; }
+    { double * volatile _v = w; w = _v - 1; }
     list2_dim1 = *n;
     list2_offset = 1 + list2_dim1;
-    list2 -= list2_offset;
-    --arrayi;
+    { int * volatile _v = list2; list2 = _v - list2_offset; }
+    { int * volatile _v = arrayi; arrayi = _v - 1; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
 
     /* Function Body */
     start = 0;
@@ -1061,10 +1061,10 @@ L50:
 /* +-----------------------------------------------------------------------+ */
 /* | Unscale the variable x.                                               | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --c2;
-    --c1;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = c2; c2 = _v - 1; }
+    { double * volatile _v = c1; c1 = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -1101,11 +1101,11 @@ L50:
 
     (void) maxfunc;
 
-    /* Parameter adjustments */
-    --arrayi;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = arrayi; arrayi = _v - 1; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
 
     /* Function Body */
     j = 1;
@@ -1182,24 +1182,24 @@ L50:
 /* +-----------------------------------------------------------------------+ */
 /* | Variables to pass user defined data to the function to be optimized.  | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --point;
-    f -= 3;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = point; point = _v - 1; }
+    { double * volatile _v = f; f = _v - 3; }
     ++anchor;
-    --u;
-    --l;
-    --x;
-    --w;
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = w; w = _v - 1; }
     list2_dim1 = *maxor;
     list2_offset = 1 + list2_dim1;
-    list2 -= list2_offset;
-    --arrayi;
+    { int * volatile _v = list2; list2 = _v - list2_offset; }
+    { int * volatile _v = arrayi; arrayi = _v - 1; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
     c_dim1 = *maxor;
     c_offset = 1 + c_dim1;
-    c__ -= c_offset;
+    { double * volatile _v = c__; c__ = _v - c_offset; }
 
     /* Function Body */
     *minf = HUGE_VAL;
@@ -1337,9 +1337,9 @@ L50:
 /*   anchor -- anchors of lists with deep i */
 /*   point -- lists */
 /*   free  -- first free position */
-    /* Parameter adjustments */
-    f -= 3;
-    --point;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = f; f = _v - 3; }
+    { int * volatile _v = point; point = _v - 1; }
     ++anchor;
 
     /* Function Body */
@@ -1410,11 +1410,11 @@ L50:
     integer i__;
     doublereal help;
 
-    /* Parameter adjustments */
-    --xs2;
-    --xs1;
-    --l;
-    --u;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = xs2; xs2 = _v - 1; }
+    { double * volatile _v = xs1; xs1 = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = u; u = _v - 1; }
 
     /* Function Body */
     *oops = 0;
@@ -1459,10 +1459,10 @@ L50:
 /* +-----------------------------------------------------------------------+ */
 /* | Variables to pass user defined data to the function to be optimized.  | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --u;
-    --l;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (logfile)
@@ -1571,10 +1571,10 @@ L50:
     /* Local variables */
     integer i__;
 
-    /* Parameter adjustments */
-    --u;
-    --l;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     (void) ierror;
 

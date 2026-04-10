@@ -74,7 +74,7 @@ typedef struct {
      int minimized; /* if we have already minimized starting from x */
      double closest_pt_d; /* distance^2 to closest pt with smaller f */
      double closest_lm_d; /* distance^2 to closest lm with smaller f*/
-     double x[1]; /* array of length n (K&R struct hack) */
+     double x[]; /* flexible array member of length n (C99) */
 } pt;
 
 /* all of the data used by the various mlsl routines...it's
@@ -238,7 +238,7 @@ static double gam(int n)
 
 static pt *alloc_pt(int n)
 {
-     pt *p = (pt *) malloc(sizeof(pt) + (n-1) * sizeof(double));
+     pt *p = (pt *) malloc(sizeof(pt) + n * sizeof(double));
      if (p) {
 	  p->minimized = 0;
 	  p->closest_pt_d = HUGE_VAL;

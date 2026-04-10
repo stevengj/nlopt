@@ -62,7 +62,10 @@ NLOPT_STDCALL nlopt_set_stochastic_population(int pop)
 
 /*************************************************************************/
 
-nlopt_result NLOPT_STDCALL nlopt_minimize_econstrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data_, ptrdiff_t fc_datum_size, int p, nlopt_func_old h, void *h_data_, ptrdiff_t h_datum_size, const double *lb, const double *ub, /* bounds */
+/* Internal implementation shared by all three deprecated entry points.
+   Being non-deprecated itself, calling it from the deprecated wrappers does
+   not trigger -Wdeprecated-declarations and no pragma is required. */
+nlopt_result nlopt_minimize_econstrained_impl(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data_, ptrdiff_t fc_datum_size, int p, nlopt_func_old h, void *h_data_, ptrdiff_t h_datum_size, const double *lb, const double *ub, /* bounds */
                                                        double *x,       /* in: initial guess, out: minimizer */
                                                        double *minf,    /* out: minimum */
                                                        double minf_max, double ftol_rel, double ftol_abs,
@@ -162,18 +165,23 @@ nlopt_result NLOPT_STDCALL nlopt_minimize_econstrained(nlopt_algorithm algorithm
     return ret;
 }
 
-/* don't emit inner deprecated warnings */
-#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+nlopt_result NLOPT_STDCALL nlopt_minimize_econstrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data_, ptrdiff_t fc_datum_size, int p, nlopt_func_old h, void *h_data_, ptrdiff_t h_datum_size, const double *lb, const double *ub, /* bounds */
+                                                       double *x,       /* in: initial guess, out: minimizer */
+                                                       double *minf,    /* out: minimum */
+                                                       double minf_max, double ftol_rel, double ftol_abs,
+                                                       double xtol_rel, const double *xtol_abs, double htol_rel, double htol_abs, int maxeval, double maxtime)
+{
+    return nlopt_minimize_econstrained_impl(algorithm, n, f, f_data,
+                                            m, fc, fc_data_, fc_datum_size, p, h, h_data_, h_datum_size, lb, ub, x, minf, minf_max, ftol_rel, ftol_abs, xtol_rel, xtol_abs, htol_rel, htol_abs, maxeval, maxtime);
+}
 
 nlopt_result NLOPT_STDCALL nlopt_minimize_constrained(nlopt_algorithm algorithm, int n, nlopt_func_old f, void *f_data, int m, nlopt_func_old fc, void *fc_data, ptrdiff_t fc_datum_size, const double *lb, const double *ub,   /* bounds */
                                                       double *x,        /* in: initial guess, out: minimizer */
                                                       double *minf,     /* out: minimum */
                                                       double minf_max, double ftol_rel, double ftol_abs, double xtol_rel, const double *xtol_abs, int maxeval, double maxtime)
 {
-    return nlopt_minimize_econstrained(algorithm, n, f, f_data,
-                                       m, fc, fc_data, fc_datum_size, 0, NULL, NULL, 0, lb, ub, x, minf, minf_max, ftol_rel, ftol_abs, xtol_rel, xtol_abs, ftol_rel, ftol_abs, maxeval, maxtime);
+    return nlopt_minimize_econstrained_impl(algorithm, n, f, f_data,
+                                            m, fc, fc_data, fc_datum_size, 0, NULL, NULL, 0, lb, ub, x, minf, minf_max, ftol_rel, ftol_abs, xtol_rel, xtol_abs, ftol_rel, ftol_abs, maxeval, maxtime);
 }
 
 
@@ -182,5 +190,5 @@ nlopt_result NLOPT_STDCALL nlopt_minimize(nlopt_algorithm algorithm, int n, nlop
                                           double *minf, /* out: minimum */
                                           double minf_max, double ftol_rel, double ftol_abs, double xtol_rel, const double *xtol_abs, int maxeval, double maxtime)
 {
-    return nlopt_minimize_constrained(algorithm, n, f, f_data, 0, NULL, NULL, 0, lb, ub, x, minf, minf_max, ftol_rel, ftol_abs, xtol_rel, xtol_abs, maxeval, maxtime);
+    return nlopt_minimize_econstrained_impl(algorithm, n, f, f_data, 0, NULL, NULL, 0, 0, NULL, NULL, 0, lb, ub, x, minf, minf_max, ftol_rel, ftol_abs, xtol_rel, xtol_abs, ftol_rel, ftol_abs, maxeval, maxtime);
 }

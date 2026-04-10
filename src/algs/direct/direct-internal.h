@@ -17,7 +17,18 @@ typedef int integer;
 typedef double doublereal;
 typedef direct_objective_func fp;
 
-#define ASRT(c) if (!(c)) { fprintf(stderr, "DIRECT assertion failure at " __FILE__ ":%d -- " #c "\n", __LINE__); exit(EXIT_FAILURE); }
+/* nlopt_fatal() is declared in nlopt-util.h (via the nlopt.h include chain)
+   and dispatches to the library-level error callback or abort(). */
+#define ASRT(c)                                                                \
+  do {                                                                         \
+    if (!(c)) {                                                                \
+      char _asrt_buf[256];                                                     \
+      snprintf(_asrt_buf, sizeof(_asrt_buf),                                   \
+               "DIRECT assertion failure at " __FILE__ ":%d -- " #c,          \
+               __LINE__);                                                      \
+      nlopt_fatal(_asrt_buf);                                                  \
+    }                                                                          \
+  } while (0)
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))

@@ -19,9 +19,18 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
  */
-#if defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__==3 && __GNUC_MINOR__ > 0))
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+/* Forward declarations of non-deprecated internals from deprecated.c that
+   let the F77 wrappers bypass the deprecated public API and avoid
+   -Wdeprecated-declarations warnings without requiring a suppressing pragma. */
+extern nlopt_result nlopt_minimize_econstrained_impl(
+    nlopt_algorithm, int, nlopt_func_old, void *, int, nlopt_func_old, void *,
+    ptrdiff_t, int, nlopt_func_old, void *, ptrdiff_t, const double *,
+    const double *, double *, double *, double, double, double, double,
+    const double *, double, double, int, double);
+extern nlopt_algorithm nlopt_local_search_alg_deriv;
+extern nlopt_algorithm nlopt_local_search_alg_nonderiv;
+extern int nlopt_local_search_maxeval;
+extern int nlopt_stochastic_population;
 
 /* Fortran API wrappers, using the F77 macro defined in f77api.c.
    This header file is #included one or more times from f77api.c
@@ -60,10 +69,13 @@ void F77(nloptc, NLOPTC) (int *info,
         dc[i].f_data = fc_data + i * (fc_second_datum - fc_data);
     }
 
-    *info = nlopt_minimize_constrained((nlopt_algorithm) * algorithm,
-                                       *n, f77_func_wrap_old, &d,
-                                       *m, f77_func_wrap_old,
-                                       dc, sizeof(f77_func_data), lb, ub, x, minf, *minf_max, *ftol_rel, *ftol_abs, *xtol_rel, *have_xtol_abs ? xtol_abs : 0, *maxeval, *maxtime);
+    *info = nlopt_minimize_econstrained_impl(
+        (nlopt_algorithm) * algorithm, *n, f77_func_wrap_old, &d,
+        *m, f77_func_wrap_old, dc, sizeof(f77_func_data),
+        0, NULL, NULL, 0,
+        lb, ub, x, minf,
+        *minf_max, *ftol_rel, *ftol_abs, *xtol_rel,
+        *have_xtol_abs ? xtol_abs : 0, *ftol_rel, *ftol_abs, *maxeval, *maxtime);
 
     if (dc)
         free(dc);
@@ -94,24 +106,23 @@ void F77(nloptv, NLOPTV) (int *major, int *minor, int *bugfix) {
 }
 
 void F77(nlogls, NLOGLS) (int *ideriv, int *inonderiv, int *maxeval) {
-    nlopt_algorithm deriv, nonderiv;
-    nlopt_get_local_search_algorithm(&deriv, &nonderiv, maxeval);
-    *ideriv = deriv;
-    *inonderiv = nonderiv;
+    *ideriv = (int) nlopt_local_search_alg_deriv;
+    *inonderiv = (int) nlopt_local_search_alg_nonderiv;
+    *maxeval = nlopt_local_search_maxeval;
 }
 
 void F77(nlosls, NLOSLS) (int *ideriv, int *inonderiv, int *maxeval) {
-    nlopt_algorithm deriv = (nlopt_algorithm) * ideriv;
-    nlopt_algorithm nonderiv = (nlopt_algorithm) * inonderiv;
-    nlopt_set_local_search_algorithm(deriv, nonderiv, *maxeval);
+    nlopt_local_search_alg_deriv = (nlopt_algorithm) * ideriv;
+    nlopt_local_search_alg_nonderiv = (nlopt_algorithm) * inonderiv;
+    nlopt_local_search_maxeval = *maxeval;
 }
 
 void F77(nlogsp, NLOGSP) (int *pop) {
-    *pop = nlopt_get_stochastic_population();
+    *pop = nlopt_stochastic_population;
 }
 
 void F77(nlossp, NLOSSP) (const int *pop) {
-    nlopt_set_stochastic_population(*pop);
+    nlopt_stochastic_population = (*pop <= 0) ? 0 : *pop;
 }
 
 #define F77_(name,NAME) F77(name,NAME)

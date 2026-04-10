@@ -206,11 +206,11 @@ static void h12_(const int *mode, int *lpivot, int *l1,
 /*     ICV    STORAGE INCREMENT BETWEEN VECTORS IN C(). */
 /*     NCV    NUMBER OF VECTORS IN C() TO BE TRANSFORMED. */
 /*            IF NCV <= 0 NO OPERATIONS WILL BE DONE ON C(). */
-    /* Parameter adjustments */
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
     u_dim1 = *iue;
     u_offset = 1 + u_dim1;
-    u -= u_offset;
-    --c__;
+    { double *volatile _v = u; u = _v - u_offset; }
+    { double *volatile _v = c__; c__ = _v - 1; }
 
     /* Function Body */
     if (0 >= *lpivot || *lpivot >= *l1 || *l1 > *m) {
@@ -354,15 +354,15 @@ static void nnls_(double *a, int *mda, int *m, int *
 /*            2    THE DIMENSIONS OF THE PROBLEM ARE WRONG, */
 /*                 EITHER M <= 0 OR N <= 0. */
 /*            3    ITERATION COUNT EXCEEDED, MORE THAN 3*N ITERATIONS. */
-    /* Parameter adjustments */
-    --z__;
-    --b;
-    --indx;
-    --w;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = z__; z__ = _v - 1; }
+    { double *volatile _v = b; b = _v - 1; }
+    { int *volatile _v = indx; indx = _v - 1; }
+    { double *volatile _v = w; w = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
     a_dim1 = *mda;
     a_offset = 1 + a_dim1;
-    a -= a_offset;
+    { double *volatile _v = a; a = _v - a_offset; }
 
     /* Function Body */
 /*     revised          Dieter Kraft, March 1983 */
@@ -604,14 +604,14 @@ static void ldp_(double *g, int *mg, int *m, int *n,
 /*               2: ERROR RETURN BECAUSE OF WRONG DIMENSIONS (N.LE.0) */
 /*               3: ITERATION COUNT EXCEEDED BY NNLS */
 /*               4: INEQUALITY CONSTRAINTS INCOMPATIBLE */
-    /* Parameter adjustments */
-    --indx;
-    --h__;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int *volatile _v = indx; indx = _v - 1; }
+    { double *volatile _v = h__; h__ = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
     g_dim1 = *mg;
     g_offset = 1 + g_dim1;
-    g -= g_offset;
-    --w;
+    { double *volatile _v = g; g = _v - g_offset; }
+    { double *volatile _v = w; w = _v - 1; }
 
     /* Function Body */
     *mode = 2;
@@ -732,18 +732,18 @@ static void lsi_(double *e, double *f, double *g,
 /*               5: MATRIX E IS NOT OF FULL RANK */
 /*     03.01.1980, DIETER KRAFT: CODED */
 /*     20.03.1987, DIETER KRAFT: REVISED TO FORTRAN 77 */
-    /* Parameter adjustments */
-    --f;
-    --jw;
-    --h__;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = f; f = _v - 1; }
+    { int *volatile _v = jw; jw = _v - 1; }
+    { double *volatile _v = h__; h__ = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
     g_dim1 = *lg;
     g_offset = 1 + g_dim1;
-    g -= g_offset;
+    { double *volatile _v = g; g = _v - g_offset; }
     e_dim1 = *le;
     e_offset = 1 + e_dim1;
-    e -= e_offset;
-    --w;
+    { double *volatile _v = e; e = _v - e_offset; }
+    { double *volatile _v = w; w = _v - 1; }
 
     /* Function Body */
 /*  QR-FACTORS OF E AND APPLICATION TO F */
@@ -852,17 +852,17 @@ static void hfti_(double *a, int *mda, int *m, int *
 /*     H(), G()         ARRAYS OF WORKING SPACE OF LENGTH >= N. */
 /*     IP()             INT ARRAY OF WORKING SPACE OF LENGTH >= N */
 /*                      RECORDING PERMUTATION INDICES OF COLUMN VECTORS */
-    /* Parameter adjustments */
-    --ip;
-    --g;
-    --h__;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int *volatile _v = ip; ip = _v - 1; }
+    { double *volatile _v = g; g = _v - 1; }
+    { double *volatile _v = h__; h__ = _v - 1; }
     a_dim1 = *mda;
     a_offset = 1 + a_dim1;
-    a -= a_offset;
-    --rnorm;
+    { double *volatile _v = a; a = _v - a_offset; }
+    { double *volatile _v = rnorm; rnorm = _v - 1; }
     b_dim1 = *mdb;
     b_offset = 1 + b_dim1;
-    b -= b_offset;
+    { double *volatile _v = b; b = _v - b_offset; }
 
     /* Function Body */
     k = 0;
@@ -1085,22 +1085,22 @@ static void lsei_(double *c__, double *d__, double *e,
 /*               7: RANK DEFECT IN HFTI */
 /*     18.5.1981, DIETER KRAFT, DFVLR OBERPFAFFENHOFEN */
 /*     20.3.1987, DIETER KRAFT, DFVLR OBERPFAFFENHOFEN */
-    /* Parameter adjustments */
-    --d__;
-    --f;
-    --h__;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = d__; d__ = _v - 1; }
+    { double *volatile _v = f; f = _v - 1; }
+    { double *volatile _v = h__; h__ = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
     g_dim1 = *lg;
     g_offset = 1 + g_dim1;
-    g -= g_offset;
+    { double *volatile _v = g; g = _v - g_offset; }
     e_dim1 = *le;
     e_offset = 1 + e_dim1;
-    e -= e_offset;
+    { double *volatile _v = e; e = _v - e_offset; }
     c_dim1 = *lc;
     c_offset = 1 + c_dim1;
-    c__ -= c_offset;
-    --w;
-    --jw;
+    { double *volatile _v = c__; c__ = _v - c_offset; }
+    { double *volatile _v = w; w = _v - 1; }
+    { int *volatile _v = jw; jw = _v - 1; }
 
     /* Function Body */
     *mode = 2;
@@ -1285,19 +1285,19 @@ static void lsq_(int *m, int *meq, int *n, int *nl,
 /*               7: RANK DEFECT IN HFTI */
 /*     coded            Dieter Kraft, april 1987 */
 /*     revised                        march 1989 */
-    /* Parameter adjustments */
-    --y;
-    --x;
-    --xu;
-    --xl;
-    --g;
-    --l;
-    --b;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = y; y = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
+    { const double *volatile _v = xu; xu = _v - 1; }
+    { const double *volatile _v = xl; xl = _v - 1; }
+    { double *volatile _v = g; g = _v - 1; }
+    { double *volatile _v = l; l = _v - 1; }
+    { double *volatile _v = b; b = _v - 1; }
     a_dim1 = *la;
     a_offset = 1 + a_dim1;
-    a -= a_offset;
-    --w;
-    --jw;
+    { double *volatile _v = a; a = _v - a_offset; }
+    { double *volatile _v = w; w = _v - 1; }
+    { int *volatile _v = jw; jw = _v - 1; }
 
     /* Function Body */
     n1 = *n + 1;
@@ -1477,10 +1477,10 @@ static void ldl_(int *n, double *a, double *z__,
 /*               D-8031  OBERPFAFFENHOFEN */
 /*   STATUS: 15. JANUARY 1980 */
 /*   SUBROUTINES REQUIRED: NONE */
-    /* Parameter adjustments */
-    --w;
-    --z__;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = w; w = _v - 1; }
+    { double *volatile _v = z__; z__ = _v - 1; }
+    { double *volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     if (*sigma == 0.0) {
@@ -1842,24 +1842,24 @@ static void slsqpb_(int *m, int *meq, int *la, int *
 /*                     +(N1-MEQ+1)*(MINEQ+2) + 2*MINEQ */
 /*                     +(N1+MINEQ)*(N1-MEQ) + 2*MEQ + N1       for LSEI */
 /*                      with MINEQ = M - MEQ + 2*N1  &  N1 = N+1 */
-    /* Parameter adjustments */
-    --mu;
-    --c__;
-    --v;
-    --u;
-    --s;
-    --x0;
-    --l;
-    --r__;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = mu; mu = _v - 1; }
+    { double *volatile _v = c__; c__ = _v - 1; }
+    { double *volatile _v = v; v = _v - 1; }
+    { double *volatile _v = u; u = _v - 1; }
+    { double *volatile _v = s; s = _v - 1; }
+    { double *volatile _v = x0; x0 = _v - 1; }
+    { double *volatile _v = l; l = _v - 1; }
+    { double *volatile _v = r__; r__ = _v - 1; }
     a_dim1 = *la;
     a_offset = 1 + a_dim1;
-    a -= a_offset;
-    --g;
-    --xu;
-    --xl;
-    --x;
-    --w;
-    --iw;
+    { double *volatile _v = a; a = _v - a_offset; }
+    { double *volatile _v = g; g = _v - 1; }
+    { const double *volatile _v = xu; xu = _v - 1; }
+    { const double *volatile _v = xl; xl = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
+    { double *volatile _v = w; w = _v - 1; }
+    { int *volatile _v = iw; iw = _v - 1; }
 
     /* Function Body */
     if (*mode == -1) {
@@ -2381,17 +2381,17 @@ static void slsqp(int *m, int *meq, int *la, int *n,
 /*                    + N1*N/2 + 2*M + 3*N +3*N1 + 1           for SLSQPB */
 /*                      with MINEQ = M - MEQ + 2*N1  &  N1 = N+1 */
 /*   CHECK LENGTH OF WORKING ARRAYS */
-    /* Parameter adjustments */
-    --c__;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double *volatile _v = c__; c__ = _v - 1; }
     a_dim1 = *la;
     a_offset = 1 + a_dim1;
-    a -= a_offset;
-    --g;
-    --xu;
-    --xl;
-    --x;
-    --w;
-    --jw;
+    { double *volatile _v = a; a = _v - a_offset; }
+    { double *volatile _v = g; g = _v - 1; }
+    { const double *volatile _v = xu; xu = _v - 1; }
+    { const double *volatile _v = xl; xl = _v - 1; }
+    { double *volatile _v = x; x = _v - 1; }
+    { double *volatile _v = w; w = _v - 1; }
+    { int *volatile _v = jw; jw = _v - 1; }
 
     /* Function Body */
     n1 = *n + 1;

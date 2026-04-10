@@ -49,19 +49,19 @@
 /* | Set the pointer to the first function to be evaluated,                | */
 /* | store this position also in helppoint.                                | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --u;
-    --l;
-    --x;
-    --arrayi;
-    --point;
-    f -= 3;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { int * volatile _v = arrayi; arrayi = _v - 1; }
+    { int * volatile _v = point; point = _v - 1; }
+    { double * volatile _v = f; f = _v - 3; }
     length_dim1 = *n;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
     c_dim1 = *n;
     c_offset = 1 + c_dim1;
-    c__ -= c_offset;
+    { double * volatile _v = c__; c__ = _v - c_offset; }
 
     /* Function Body */
     pos = *new__;

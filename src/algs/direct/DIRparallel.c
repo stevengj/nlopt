@@ -78,10 +78,10 @@ static integer c_n1 = -1;
 /* | JG 02/28/01 Begin of parallel additions                               | */
 /* | DETERMINE MASTER PROCESSOR. GET TIDS OF ALL PROCESSORS.               | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --u;
-    --l;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     getmytidif_(&mytid);
@@ -186,21 +186,21 @@ static integer c_n1 = -1;
 /* +-----------------------------------------------------------------------+ */
 /* | Find out the id's of all processors.                                  | */
 /* +-----------------------------------------------------------------------+ */
-    /* Parameter adjustments */
-    --u;
-    --l;
-    --x;
-    --arrayi;
-    --point;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = l; l = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { int * volatile _v = arrayi; arrayi = _v - 1; }
+    { int * volatile _v = point; point = _v - 1; }
     f_dim1 = *maxfunc;
     f_offset = 1 + f_dim1;
-    f -= f_offset;
+    { double * volatile _v = f; f = _v - f_offset; }
     length_dim1 = *maxfunc;
     length_offset = 1 + length_dim1;
-    length -= length_offset;
+    { int * volatile _v = length; length = _v - length_offset; }
     c_dim1 = *maxfunc;
     c_offset = 1 + c_dim1;
-    c__ -= c_offset;
+    { double * volatile _v = c__; c__ = _v - c_offset; }
 
     /* Function Body */
     getnprocsif_(&nprocs);

@@ -439,10 +439,10 @@ nlopt_result ccsa_quadratic_minimize(
 	       }
 
 	       if (verbose) {
-		    printf("CCSA dual converged in %d iters to g=%g:\n",
+		    nlopt_stop_log(stop, "CCSA dual converged in %d iters to g=%g:\n",
 			   dd.count, dd.gval);
 		    for (i = 0; i < MIN(verbose, m); ++i)
-			 printf("    CCSA y[%u]=%g, gc[%u]=%g\n",
+			 nlopt_stop_log(stop, "    CCSA y[%u]=%g, gc[%u]=%g\n",
 				i, y[i], i, dd.gcval[i]);
 	       }
 
@@ -477,7 +477,7 @@ nlopt_result ccsa_quadratic_minimize(
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
 		    || (!feasible && infeasibility_cur < infeasibility)) {
 		    if (verbose && !feasible_cur)
-			 printf("CCSA - using infeasible point?\n");
+			 nlopt_stop_log(stop, "CCSA - using infeasible point?\n");
 		    dd.fval = *minf = fcur;
 		    infeasibility = infeasibility_cur;
 		    memcpy(fcval, fcval_cur, sizeof(double)*m);
@@ -518,9 +518,9 @@ nlopt_result ccsa_quadratic_minimize(
 					 / dd.wval));
 
 	       if (verbose)
-		    printf("CCSA inner iteration: rho -> %g\n", rho);
+		    nlopt_stop_log(stop, "CCSA inner iteration: rho -> %g\n", rho);
 	       for (i = 0; i < MIN(verbose, m); ++i)
-		    printf("                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
+		    nlopt_stop_log(stop, "                CCSA rhoc[%u] -> %g\n", i,rhoc[i]);
 	  }
 
 	  if (nlopt_stop_ftol(stop, fcur, fprev))
@@ -532,11 +532,11 @@ nlopt_result ccsa_quadratic_minimize(
 	  /* update rho and sigma for iteration k+1 */
 	  rho = MAX(0.1 * rho, CCSA_RHOMIN);
 	  if (verbose)
-	       printf("CCSA outer iteration: rho -> %g\n", rho);
+	       nlopt_stop_log(stop, "CCSA outer iteration: rho -> %g\n", rho);
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], CCSA_RHOMIN);
 	  for (i = 0; i < MIN(verbose, m); ++i)
-	       printf("                 CCSA rhoc[%u] -> %g\n", i, rhoc[i]);
+	       nlopt_stop_log(stop, "                 CCSA rhoc[%u] -> %g\n", i, rhoc[i]);
 	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
 		    double dx2 = (xcur[j]-xprev[j]) * (xprev[j]-xprevprev[j]);
@@ -550,7 +550,7 @@ nlopt_result ccsa_quadratic_minimize(
 		    }
 	       }
 	       for (j = 0; j < MIN(verbose, n); ++j)
-		    printf("                 CCSA sigma[%u] -> %g\n",
+		    nlopt_stop_log(stop, "                 CCSA sigma[%u] -> %g\n",
 			   j, sigma[j]);
 	  }
      }

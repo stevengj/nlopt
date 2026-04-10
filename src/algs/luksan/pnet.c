@@ -177,22 +177,22 @@ static void pnet_(int *nf, int *nb, double *x, int *
 
 /*     INITIATION */
 
-    /* Parameter adjustments */
-    --u2;
-    --u1;
-    --gm;
-    --xm;
-    --gs;
-    --xs;
-    --go;
-    --xo;
-    --s;
-    --gn;
-    --gf;
-    --xu;
-    --xl;
-    --ix;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u2; u2 = _v - 1; }
+    { double * volatile _v = u1; u1 = _v - 1; }
+    { double * volatile _v = gm; gm = _v - 1; }
+    { double * volatile _v = xm; xm = _v - 1; }
+    { double * volatile _v = gs; gs = _v - 1; }
+    { double * volatile _v = xs; xs = _v - 1; }
+    { double * volatile _v = go; go = _v - 1; }
+    { double * volatile _v = xo; xo = _v - 1; }
+    { double * volatile _v = s; s = _v - 1; }
+    { double * volatile _v = gn; gn = _v - 1; }
+    { double * volatile _v = gf; gf = _v - 1; }
+    { double * volatile _v = xu; xu = _v - 1; }
+    { double * volatile _v = xl; xl = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     kbf = 0;

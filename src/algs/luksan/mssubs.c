@@ -25,8 +25,8 @@ double luksan_mxvmax__(int *n, double *x)
     int i__;
     double mxvmax;
 
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     mxvmax = 0.;
@@ -58,8 +58,8 @@ void luksan_mxvine__(int *n, int *ix)
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --ix;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -99,12 +99,12 @@ void luksan_mxdcmv__(int *n, int *m, double *a,
     int i__, j, k;
     double tempa, tempb;
 
-    /* Parameter adjustments */
-    --v;
-    --y;
-    --u;
-    --x;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = v; v = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     k = 0;
@@ -145,9 +145,9 @@ void luksan_mxvsav__(int *n, double *x, double *y)
     int i__;
     double temp;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -182,10 +182,10 @@ void luksan_mxvlin__(int *n, double *a, double *x,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --z__;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = z__; z__ = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -221,10 +221,10 @@ void luksan_mxdcmu__(int *n, int *m, double *a,
     int i__, j, k;
     double temp;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     k = 0;
@@ -263,10 +263,10 @@ void luksan_mxvdir__(int *n, double *a, double *x,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --z__;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = z__; z__ = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -305,11 +305,11 @@ void luksan_mxdcmd__(int *n, int *m, double *a,
     /* Local variables */
     int j, k;
 
-    /* Parameter adjustments */
-    --z__;
-    --y;
-    --x;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = z__; z__ = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     luksan_mxvscl__(n, alf, &y[1], &z__[1]);
@@ -361,13 +361,13 @@ void luksan_mxdrcb__(int *n, int *m, double *a,
     /* Local variables */
     int i__, k;
 
-    /* Parameter adjustments */
-    --ix;
-    --x;
-    --v;
-    --u;
-    --b;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = v; v = _v - 1; }
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = b; b = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     k = 1;
@@ -420,13 +420,13 @@ void luksan_mxdrcf__(int *n, int *m, double *a,
     int i__, k;
     double temp;
 
-    /* Parameter adjustments */
-    --ix;
-    --x;
-    --v;
-    --u;
-    --b;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = v; v = _v - 1; }
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = b; b = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     k = (*m - 1) * *n + 1;
@@ -464,10 +464,10 @@ void luksan_mxdrmm__(int *n, int *m, double *a,
     int i__, j, k;
     double temp;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     k = 0;
@@ -505,10 +505,10 @@ void luksan_mxdrsu__(int *n, int *m, double *a,
 {
     int i__, k, l;
 
-    /* Parameter adjustments */
-    --u;
-    --b;
-    --a;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = u; u = _v - 1; }
+    { double * volatile _v = b; b = _v - 1; }
+    { double * volatile _v = a; a = _v - 1; }
 
     /* Function Body */
     k = (*m - 1) * *n + 1;
@@ -546,10 +546,10 @@ void luksan_mxucop__(int *n, double *x, double *y,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --ix;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (*job == 0) {
@@ -607,11 +607,11 @@ void luksan_mxudir__(int *n, double *a, double *x,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --ix;
-    --z__;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = z__; z__ = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (*job == 0) {
@@ -660,9 +660,9 @@ double luksan_mxvdot__(int *n, double *x, double *y)
     int i__;
     double temp;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     temp = 0.;
@@ -699,10 +699,10 @@ double luksan_mxudot__(int *n, double *x, double *y, int *ix,
     int i__;
     double temp;
 
-    /* Parameter adjustments */
-    --ix;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     temp = 0.;
@@ -755,10 +755,10 @@ void luksan_mxuneg__(int *n, double *x, double *y,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --ix;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (*job == 0) {
@@ -813,9 +813,9 @@ void luksan_mxuzer__(int *n, double *x, int *ix,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --ix;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (*job == 0) {
@@ -849,9 +849,9 @@ void luksan_mxvcop__(int *n, double *x, double *y)
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -881,10 +881,10 @@ void luksan_mxvdif__(int *n, double *x, double *y,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --z__;
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = z__; z__ = _v - 1; }
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -913,9 +913,9 @@ void luksan_mxvneg__(int *n, double *x, double *y)
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -946,9 +946,9 @@ void luksan_mxvscl__(int *n, double *a, double *x,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --y;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = y; y = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;
@@ -977,8 +977,8 @@ void luksan_mxvset__(int *n, double *a, double *x)
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     i__1 = *n;

@@ -159,19 +159,19 @@ static void plip_(int *nf, int *nb, double *x, int *
 
 /*     INITIATION */
 
-    /* Parameter adjustments */
-    --gr;
-    --xr;
-    --xm;
-    --so;
-    --go;
-    --xo;
-    --s;
-    --gf;
-    --xu;
-    --xl;
-    --ix;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = gr; gr = _v - 1; }
+    { double * volatile _v = xr; xr = _v - 1; }
+    { double * volatile _v = xm; xm = _v - 1; }
+    { double * volatile _v = so; so = _v - 1; }
+    { double * volatile _v = go; go = _v - 1; }
+    { double * volatile _v = xo; xo = _v - 1; }
+    { double * volatile _v = s; s = _v - 1; }
+    { double * volatile _v = gf; gf = _v - 1; }
+    { double * volatile _v = xu; xu = _v - 1; }
+    { double * volatile _v = xl; xl = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     kbf = 0;

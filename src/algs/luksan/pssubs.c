@@ -34,11 +34,11 @@ void luksan_pcbs04__(int *nf, double *x, int *ix,
     int i__, ixi;
     double temp;
 
-    /* Parameter adjustments */
-    --xu;
-    --xl;
-    --ix;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = xu; xu = _v - 1; }
+    { double * volatile _v = xl; xl = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (*kbf > 0) {
@@ -529,11 +529,11 @@ void luksan_pulsp3__(int *n, int *m, int *mf,
 
     (void) r__; (void) po;
 
-    /* Parameter adjustments */
-    --go;
-    --xo;
-    --gr;
-    --xm;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = go; go = _v - 1; }
+    { double * volatile _v = xo; xo = _v - 1; }
+    { double * volatile _v = gr; gr = _v - 1; }
+    { double * volatile _v = xm; xm = _v - 1; }
 
     /* Function Body */
     if (*m >= *mf) {
@@ -659,14 +659,14 @@ void luksan_pulvp3__(int *n, int *m, double *xm,
 
     (void) po;
 
-    /* Parameter adjustments */
-    --go;
-    --xo;
-    --so;
-    --s;
-    --gr;
-    --xr;
-    --xm;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = go; go = _v - 1; }
+    { double * volatile _v = xo; xo = _v - 1; }
+    { double * volatile _v = so; so = _v - 1; }
+    { double * volatile _v = s; s = _v - 1; }
+    { double * volatile _v = gr; gr = _v - 1; }
+    { double * volatile _v = xr; xr = _v - 1; }
+    { double * volatile _v = xm; xm = _v - 1; }
 
     /* Function Body */
     zet = *sig;
@@ -797,11 +797,11 @@ void luksan_pyadc0__(int *nf, int *n, double *x,
     /* Local variables */
     int i__, ii, ixi;
 
-    /* Parameter adjustments */
-    --ix;
-    --x;
-    --xl;
-    --xu;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
+    { double * volatile _v = xl; xl = _v - 1; }
+    { double * volatile _v = xu; xu = _v - 1; }
 
     /* Function Body */
     *n = *nf;
@@ -996,9 +996,9 @@ void luksan_pyrmc0__(int *nf, int *n, int *ix,
     /* Local variables */
     int i__, ixi;
 
-    /* Parameter adjustments */
-    --g;
-    --ix;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = g; g = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
 
     /* Function Body */
     if (*n == 0 || *rmax > 0.) {
@@ -1075,12 +1075,12 @@ void luksan_pytrcd__(int *nf, double *x, int *ix,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --go;
-    --g;
-    --xo;
-    --ix;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = go; go = _v - 1; }
+    { double * volatile _v = g; g = _v - 1; }
+    { double * volatile _v = xo; xo = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     if (*iters > 0) {
@@ -1148,9 +1148,9 @@ void luksan_pytrcg__(int *nf, int *n, int *ix,
     int i__;
     double temp;
 
-    /* Parameter adjustments */
-    --g;
-    --ix;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = g; g = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
 
     /* Function Body */
     if (*kbf > 0) {
@@ -1226,15 +1226,15 @@ void luksan_pytrcs__(int *nf, double *x, int *ix,
     /* Local variables */
     int i__;
 
-    /* Parameter adjustments */
-    --s;
-    --go;
-    --g;
-    --xu;
-    --xl;
-    --xo;
-    --ix;
-    --x;
+    /* Parameter adjustments - volatile breaks GCC/ASAN pointer-provenance tracking */
+    { double * volatile _v = s; s = _v - 1; }
+    { double * volatile _v = go; go = _v - 1; }
+    { double * volatile _v = g; g = _v - 1; }
+    { double * volatile _v = xu; xu = _v - 1; }
+    { double * volatile _v = xl; xl = _v - 1; }
+    { double * volatile _v = xo; xo = _v - 1; }
+    { int * volatile _v = ix; ix = _v - 1; }
+    { double * volatile _v = x; x = _v - 1; }
 
     /* Function Body */
     *fp = *fo;

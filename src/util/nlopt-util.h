@@ -23,10 +23,10 @@
 #ifndef NLOPT_UTIL_H
 #define NLOPT_UTIL_H
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <math.h>
 #include "nlopt_config.h"
+#include <math.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
 #include "nlopt.h"
 
@@ -88,6 +88,9 @@ extern "C" {
         double maxtime, start;
         int *force_stop;
         char **stop_msg;        /* pointer to msg string to update */
+        nlopt_vprintf_func
+            vprintf_func; /* logging callback; NULL = built-in default */
+        void *vprintf_data;
     } nlopt_stopping;
     extern int nlopt_stop_f(const nlopt_stopping * stop, double f, double oldf);
     extern int nlopt_stop_ftol(const nlopt_stopping * stop, double f, double oldf);
@@ -105,6 +108,23 @@ extern "C" {
     extern void nlopt_stop_msg(const nlopt_stopping * s, const char *format, ...)
 #ifdef __GNUC__
         __attribute__ ((format(printf, 2, 3)))
+#endif
+        ;
+
+/* log a message through the stopping struct's vprintf callback, or the
+   built-in default (vprintf, or no-op with -DNLOPT_SILENT) */
+    extern void nlopt_stop_log(const nlopt_stopping * s, const char *format, ...)
+#ifdef __GNUC__
+        __attribute__ ((format(printf, 2, 3)))
+#endif
+        ;
+
+/* Report a fatal (unrecoverable) error.  Dispatches to the library-level
+   error callback set via nlopt_set_error_callback(); if none is installed,
+   calls abort().  This function does NOT return. */
+    extern void nlopt_fatal(const char *message)
+#ifdef __GNUC__
+        __attribute__((noreturn))
 #endif
         ;
 

@@ -285,10 +285,10 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 
 	       dual_func(m, y, NULL, &dd); /* evaluate final xcur etc. */
 	       if (verbose) {
-		    printf("MMA dual converged in %d iterations to g=%g:\n",
+		    nlopt_stop_log(stop, "MMA dual converged in %d iterations to g=%g:\n",
 			   dd.count, dd.gval);
 		    for (i = 0; i < MIN(verbose, m); ++i)
-			 printf("    MMA y[%u]=%g, gc[%u]=%g\n",
+			 nlopt_stop_log(stop, "    MMA y[%u]=%g, gc[%u]=%g\n",
 				i, y[i], i, dd.gcval[i]);
 	       }
 
@@ -328,7 +328,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	       if ((fcur < *minf && (inner_done || feasible_cur || !feasible))
 		    || (!feasible && infeasibility_cur < infeasibility)) {
 		    if (verbose && !feasible_cur)
-			 printf("MMA - using infeasible point?\n");
+			 nlopt_stop_log(stop, "MMA - using infeasible point?\n");
 		    dd.fval = *minf = fcur;
 		    infeasibility = infeasibility_cur;
 		    memcpy(fcval, fcval_cur, sizeof(double)*m);
@@ -370,9 +370,9 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 					 / dd.wval));
 
 	       if (verbose)
-		    printf("MMA inner iteration: rho -> %g\n", rho);
+		    nlopt_stop_log(stop, "MMA inner iteration: rho -> %g\n", rho);
 	       for (i = 0; i < MIN(verbose, m); ++i)
-		    printf("                 MMA rhoc[%u] -> %g\n", i,rhoc[i]);
+		    nlopt_stop_log(stop, "                 MMA rhoc[%u] -> %g\n", i,rhoc[i]);
 	  }
 
 	  if (nlopt_stop_ftol(stop, fcur, fprev))
@@ -384,11 +384,11 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 	  /* update rho and sigma for iteration k+1 */
 	  rho = MAX(0.1 * rho, MMA_RHOMIN);
 	  if (verbose)
-	       printf("MMA outer iteration: rho -> %g\n", rho);
+	       nlopt_stop_log(stop, "MMA outer iteration: rho -> %g\n", rho);
 	  for (i = 0; i < m; ++i)
 	       rhoc[i] = MAX(0.1 * rhoc[i], MMA_RHOMIN);
 	  for (i = 0; i < MIN(verbose, m); ++i)
-	       printf("                 MMA rhoc[%u] -> %g\n", i, rhoc[i]);
+	       nlopt_stop_log(stop, "                 MMA rhoc[%u] -> %g\n", i, rhoc[i]);
 	  if (k > 1) {
 	       for (j = 0; j < n; ++j) {
 		    double dx2 = (xcur[j]-xprev[j]) * (xprev[j]-xprevprev[j]);
@@ -400,7 +400,7 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 		    }
 	       }
 	       for (j = 0; j < MIN(verbose, n); ++j)
-		    printf("                 MMA sigma[%u] -> %g\n",
+		    nlopt_stop_log(stop, "                 MMA sigma[%u] -> %g\n",
 			   j, sigma[j]);
 	  }
      }

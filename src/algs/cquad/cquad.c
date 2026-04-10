@@ -125,9 +125,8 @@ static void update_model(quad_model *model, double *W, double *r,
 
      /* solve s = W \ r, via the LAPACK symmetric-indefinite solver */
      DSYSV("U", &N, &one, W, &N, iwork, r, &N, work, &lwork, &info);
-     if (info != 0) { 
-	  fprintf(stderr, "nlopt cquad: failure %d in dsysv", info);
-	  abort();
+     if (info != 0) {
+          nlopt_fatal("nlopt cquad: failure in dsysv");
      }
      
      /* update model */
