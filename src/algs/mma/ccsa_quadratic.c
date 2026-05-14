@@ -499,8 +499,8 @@ nlopt_result ccsa_quadratic_minimize(
 							dfcdx_cur + i*n,
 							fc + ifc, n, xcur);
 					i += fc[ifc].m;
-					if (nlopt_stop_forced(stop))
-						ret = NLOPT_FORCED_STOP; goto done;
+					if (nlopt_stop_forced(stop)) {
+						ret = NLOPT_FORCED_STOP; goto done; }
 				}
 				/* recompute feasible_cur etc in case the caller
 				   has changed the objective function for an outer iteration,
