@@ -194,16 +194,14 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       rdiv[2] = p->age++;
 	       node = nlopt_rb_tree_resort(&p->rtree, node);
 	       for (k = 0; k <= 1; ++k) {
+		    if (!isfinite(fv[2*isort[i]+k]))
+			 return NLOPT_FAILURE;
 		    double *rnew;
 		    ALLOC_RECT(rnew, L);
 		    memcpy(rnew, rdiv, sizeof(double) * L);
 		    rnew[3 + isort[i]] += w[isort[i]] * (2*k-1);
 		    rnew[1] = fv[2*isort[i]+k];
 		    rnew[2] = p->age++;
-				if (!isfinite(rnew[1])) {
-					free(rnew);
-					return NLOPT_FAILURE;
-				}
 		    if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
 			 free(rnew);
 			 return NLOPT_OUT_OF_MEMORY;
@@ -237,10 +235,10 @@ static nlopt_result divide_rect(double *rdiv, params *p)
 	       rnew[3 + i] += w[i] * (2*k-1);
 	       FUNCTION_EVAL(rnew[1], rnew + 3, p, rnew);
 	       rnew[2] = p->age++;
-				 if (!isfinite(rnew[1])) {
-					free(rnew);
-					return NLOPT_FAILURE;
-				}
+	       if (!isfinite(rnew[1])) {
+		    free(rnew);
+		    return NLOPT_FAILURE;
+	       }
 	       if (!nlopt_rb_tree_insert(&p->rtree, rnew)) {
 		    free(rnew);
 		    return NLOPT_OUT_OF_MEMORY;
