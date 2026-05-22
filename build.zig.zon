@@ -1,0 +1,10 @@
+.{
+    .name = .lib_znlopt,
+    .fingerprint = 0x59556a119c2329d6,
+    .version = "0.0.1",
+    .minimum_zig_version = "0.15.1",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+    },
+}
