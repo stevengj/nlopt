@@ -1,5 +1,13 @@
 # NLopt Release Notes
 
+## NLopt 2.11
+
+5 June 2026
+
+* New CCSA and MMA parameters `inner_gradients` and `always_improve` ([#623]).
+
+* Various minor bugfixes ([35df45](https://github.com/stevengj/nlopt/commit/35df45ca2247f17d7550c60f449f834cdf0ec1ed), [#637], [#640]).
+
 ## NLopt 2.10.1
 
 9 February 2026
@@ -566,4 +574,7 @@
 [#598]: https://github.com/stevengj/nlopt/issues/598
 [#606]: https://github.com/stevengj/nlopt/issues/606
 [#616]: https://github.com/stevengj/nlopt/issues/616
+[#623]: https://github.com/stevengj/nlopt/issues/623
 [#627]: https://github.com/stevengj/nlopt/issues/627
+[#637]: https://github.com/stevengj/nlopt/issues/637
+[#640]: https://github.com/stevengj/nlopt/issues/640
