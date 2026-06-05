@@ -103,6 +103,7 @@ cmake -DNLOPT_MATLAB=ON -DMatlab_ROOT_DIR=/opt/matlab/RYYYYx/ ..
 ```
 
 Some versions of Matlab also require that you compile NLopt as a shared library in order to produce a Matlab plugin; see below.
+You can manually disable the Matlab-plugin build with `-DNLOPT_MATLAB=OFF`.
 
 The Matlab plugins (along with help files and other `.m` files) are installed into `INSTALL_MEX_DIR`. You can override the default by passing a `INSTALL_MEX_DIR` to `cmake`, via (in addition to other `cmake` arguments):
 
@@ -128,6 +129,8 @@ By default, the compiled Octave plugins (`.oct` files) are installed into the oc
 cmake -DINSTALL_OCT_DIR=octdir -DINSTALL_M_DIR=mdir ..
 ```
 
+You can manually disable the Octave-plugin build with `-DNLOPT_OCTAVE=OFF`.
+
 Python plugins
 --------------
 
@@ -138,6 +141,8 @@ To specify a particular version or location of Python, use the `Python_EXECUTABL
 ```sh
 cmake -DPython_EXECUTABLE=/usr/bin/python ..
 ```
+
+You can manually disable the Python-plugin build with `-DNLOPT_PYTHON=OFF`.
 
 GNU Guile plugins
 -----------------
@@ -157,6 +162,8 @@ cmake -DGUILE_EXECUTABLE=/usr/bin/guile GUILE_CONFIG_EXECUTABLE=/usr/bin/guile-
 By default, the Guile plugin is installed in the guile extension directory defined relatively to the installation prefix.
 
 Note, however, that if you do this then Guile may not know where to load the `nlopt` module from. You can [update the Guile load path](http://www.gnu.org/software/guile/manual/html_node/Build-Config.html) by changing the `%load-path` variable in Guile or using the `GUILE_LOAD_PATH` environment variable.
+
+You can manually disable the Guile-plugin build with `-DNLOPT_GUILE=OFF`.
 
 NLopt with C++ algorithms
 -------------------------
