@@ -112,6 +112,16 @@ nlopt_result auglag_minimize(int n, nlopt_func f, void *f_data,
      ret = nlopt_set_stopval(sub_opt, 
 			     d.m==0 && d.p==0 ? stop->minf_max : -HUGE_VAL);
      if (ret<0) return ret;
+     /* When constraints are handled via the augmented Lagrangian
+	penalty, stopval cannot be forwarded to the subproblem because
+	the penalty modifies the objective.  Ensure the subproblem
+	has some convergence criterion to prevent infinite loops. */
+     if (d.m != 0 || d.p != 0) {
+	  double sub_xtol_rel = nlopt_get_xtol_rel(sub_opt);
+	  double sub_ftol_rel = nlopt_get_ftol_rel(sub_opt);
+	  if (sub_xtol_rel <= 0 && sub_ftol_rel <= 0)
+	       nlopt_set_xtol_rel(sub_opt, stop->xtol_rel > 0 ? stop->xtol_rel : 1e-8);
+     }
      ret = nlopt_remove_inequality_constraints(sub_opt); if (ret<0) return ret;
      ret = nlopt_remove_equality_constraints(sub_opt); if (ret<0) return ret;
      for (i = 0; i < m; ++i) {
