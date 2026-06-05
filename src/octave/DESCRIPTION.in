@@ -1,0 +1,14 @@
+Name: NLopt
+Version: @NLOPT_VERSION_STRING@
+Date: 2026-06-05
+Title: NLopt
+Author: Steven G. Johnson <stevenj@alum.mit.edu>
+Maintainer: Steven G. Johnson <stevenj@alum.mit.edu>
+Title: Open-Source library for nonlinear optimization
+Description: NLopt is a library for nonlinear local and global
+ optimization, for functions with and without gradient information.
+ It is designed as as simple, unified interface and packaging of
+ several free/open-source nonlinear optimization libraries.
+Url: https://nlopt.readthedocs.io/en/latest/
+Depends: octave (>= 3.8.0)
+License: MIT
