@@ -400,14 +400,20 @@ nlopt_result mma_minimize(unsigned n, nlopt_func f, void *f_data,
 
 	       if (inner_done) break;
 
+	       /* dd.wval is 0 if every step is 0 or its square underflows.
+		  The quotients below are then +inf and MIN picks the 10x
+		  increase, so take it without dividing by zero. */
 	       if (fcur > dd.gval)
-		    rho = MIN(10*rho, 1.1 * (rho + (fcur-dd.gval) / dd.wval));
+		    rho = dd.wval > 0
+			 ? MIN(10*rho, 1.1 * (rho + (fcur-dd.gval) / dd.wval))
+			 : 10*rho;
 	       for (i = 0; i < m; ++i)
 		    if (!nlopt_isnan(fcval_cur[i]) && fcval_cur[i] > dd.gcval[i])
-			 rhoc[i] =
-			      MIN(10*rhoc[i],
-				  1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i])
-					 / dd.wval));
+			 rhoc[i] = dd.wval > 0
+			      ? MIN(10*rhoc[i],
+				    1.1 * (rhoc[i] + (fcval_cur[i]-dd.gcval[i])
+					   / dd.wval))
+			      : 10*rhoc[i];
 
 	       if (verbose)
 		    printf("MMA inner iteration: rho -> %g\n", rho);
