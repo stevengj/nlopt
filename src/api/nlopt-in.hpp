@@ -37,11 +37,6 @@
 #include <utility> // std::move
 #include <functional> // std::function
 
-// convenience overloading for below (not in nlopt:: since has nlopt_ prefix)
-inline nlopt_result nlopt_get_initial_step(const nlopt_opt opt, double *dx) {
-      return nlopt_get_initial_step(opt, (const double *) NULL, dx);
-}
-
 namespace nlopt {
 
   //////////////////////////////////////////////////////////////////////
@@ -582,7 +577,17 @@ namespace nlopt {
 
     NLOPT_GETSET(unsigned, population)
     NLOPT_GETSET(unsigned, vector_storage)
-    NLOPT_GETSET_VEC(initial_step)
+
+    // no NLOPT_GETSET_VEC(initial_step): the default initial step depends on x,
+    // so it can only be read with get_initial_step(x, dx) or get_initial_step_(x)
+    void set_initial_step(double val) {
+      mythrow(nlopt_set_initial_step1(o, val));
+    }
+    void set_initial_step(const std::vector<double> &v) {
+      if (o && nlopt_get_dimension(o) != v.size())
+        throw std::invalid_argument("dimension mismatch");
+      mythrow(nlopt_set_initial_step(o, v.empty() ? NULL : &v[0]));
+    }
 
     void set_default_initial_step(const std::vector<double> &x) {
       nlopt_result ret
