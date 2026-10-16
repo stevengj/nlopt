@@ -21,6 +21,7 @@ NLOPT_add_cpp_test(cpp_functor 0)
 NLOPT_add_cpp_test(t_fbound 0)
 NLOPT_add_cpp_test(t_except 1 0)
 NLOPT_add_cpp_test(t_bounded 0 1 2 3 4 5 6 7 8 19 35 42 43)
+NLOPT_add_cpp_test(t_ags 0 1 2 3 4)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
 set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)

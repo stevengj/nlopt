@@ -170,6 +170,8 @@ Trial NLPSolver::Solve(std::function<bool(void)> externalStopFunc)
     mIterationsCounter++;
   } while(mIterationsCounter < mParameters.itersLimit && !mNeedStop);
 
+  // Include the final trials even when a stopping criterion ends the loop.
+  EstimateOptimum();
   ClearDataStructures();
 
   if (mParameters.refineSolution && mOptimumEstimation.idx == mProblem->GetConstraintsNumber())  {
