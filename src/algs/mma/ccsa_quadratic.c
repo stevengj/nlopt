@@ -546,6 +546,14 @@ nlopt_result ccsa_quadratic_minimize(
 
 	       if (inner_done) break;
 
+	       /* The approximation was not conservative, so rho or rhoc must
+		  increase.  dd.wval is 0 if every step is 0 or its square
+		  underflows; then no increase changes the step, and the
+		  updates below would divide by zero: halt. */
+	       if (dd.wval == 0) {
+		    ret = NLOPT_ROUNDOFF_LIMITED;
+		    goto done;
+	       }
 	       if (fcur > dd.gval)
 		    rho = MIN(10*rho, 1.1 * (rho + (fcur-dd.gval) / dd.wval));
 	       for (i = 0; i < m; ++i)
