@@ -647,7 +647,9 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
         if (!finite_domain(n, lb, ub))
             RETURN_ERR(NLOPT_INVALID_ARGS, opt, "finite domain required for global algorithm");
         if (!stogo_minimize(ni, f, f_data, x, minf, lb, ub, &stop, algorithm == NLOPT_GD_STOGO ? 0 : POP(2 * (int)n)))
-            return NLOPT_FAILURE;
+            return nlopt_stop_forced(&stop) ? NLOPT_FORCED_STOP : NLOPT_FAILURE;
+        if (nlopt_stop_forced(&stop))
+            return NLOPT_FORCED_STOP;
         break;
 #else
         return NLOPT_INVALID_ARGS;
