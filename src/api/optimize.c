@@ -579,8 +579,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
     case NLOPT_GN_DIRECT_L_RAND_NOSCAL:
         if (!finite_domain(n, lb, ub))
             RETURN_ERR(NLOPT_INVALID_ARGS, opt, "finite domain required for global algorithm");
-        return cdirect_unscaled(ni, f, f_data, lb, ub, x, minf, &stop, nlopt_get_param(opt, "magic_eps", 0.0), (algorithm != NLOPT_GN_DIRECT) + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 2 : (algorithm != NLOPT_GN_DIRECT))
-                                + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND ? 1 : (algorithm != NLOPT_GN_DIRECT)));
+        return cdirect_unscaled(ni, f, f_data, lb, ub, x, minf, &stop, nlopt_get_param(opt, "magic_eps", 0.0), (algorithm != NLOPT_GN_DIRECT_NOSCAL) + 3 * (algorithm == NLOPT_GN_DIRECT_L_RAND_NOSCAL ? 2 : (algorithm != NLOPT_GN_DIRECT_NOSCAL))
+                                + 9 * (algorithm == NLOPT_GN_DIRECT_L_RAND_NOSCAL ? 1 : (algorithm != NLOPT_GN_DIRECT_NOSCAL)));
 
     case NLOPT_GN_ORIG_DIRECT:
     case NLOPT_GN_ORIG_DIRECT_L:
