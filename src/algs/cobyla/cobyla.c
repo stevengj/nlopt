@@ -1722,8 +1722,10 @@ L340:
     step = MIN2(step,resmax);
   }
 
-  /* SGJ, 2010: check for error here */
-  if (nlopt_isinf(step)) return NLOPT_ROUNDOFF_LIMITED;
+  /* SGJ, 2010: check for error here.  A nan step (e.g. 0/0 when rho*rho
+     underflows) must also stop: step == stpful is then false, and the
+     code below would switch to stage two again forever. */
+  if (!nlopt_isfinite(step)) return NLOPT_ROUNDOFF_LIMITED;
 
 /* Set DXNEW to the new variables if STEP is the steplength, and reduce */
 /* RESMAX to the corresponding maximum residual if stage one is being done. */
