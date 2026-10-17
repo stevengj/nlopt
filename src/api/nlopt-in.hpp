@@ -101,6 +101,7 @@ namespace nlopt {
       functor_type functor;
       vfunc vf;
       nlopt_munge munge_destroy, munge_copy; // non-NULL for SWIG wrappers
+      bool maximize; // objective set by set_max_objective
     } myfunc_data;
 
     static myfunc_data* alloc_myfunc_data_with_nulls() {
@@ -162,7 +163,9 @@ namespace nlopt {
       catch (...)
 	{ d->o->forced_stop_reason = NLOPT_FAILURE; }
       d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
-      return HUGE_VAL;
+      // the worst value, so that this point is not taken as the optimum;
+      // nlopt_optimize negates the objective when maximizing
+      return d->maximize ? -HUGE_VAL : HUGE_VAL;
     }
 
     // nlopt_mfunc wrapper that catches exceptions
@@ -213,7 +216,9 @@ namespace nlopt {
       catch (...)
 	{ d->o->forced_stop_reason = NLOPT_FAILURE; }
       d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
-      return HUGE_VAL;
+      // the worst value, so that this point is not taken as the optimum;
+      // nlopt_optimize negates the objective when maximizing
+      return d->maximize ? -HUGE_VAL : HUGE_VAL;
     }
 
     // nlopt_func wrapper, using std::function object
@@ -236,7 +241,9 @@ namespace nlopt {
       catch (...)
 	{ d->o->forced_stop_reason = NLOPT_FAILURE; }
       d->o->force_stop(); // stop gracefully, opt::optimize will re-throw
-      return HUGE_VAL;
+      // the worst value, so that this point is not taken as the optimum;
+      // nlopt_optimize negates the objective when maximizing
+      return d->maximize ? -HUGE_VAL : HUGE_VAL;
     }
 
     void alloc_tmp() {
@@ -362,6 +369,7 @@ namespace nlopt {
       d->f      = f;
       d->f_data = f_data;
 
+      d->maximize = true;
       mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
     }
     void set_max_objective(vfunc vf, void *f_data) {
@@ -369,6 +377,7 @@ namespace nlopt {
       d->vf     = vf;
       d->f_data = f_data;
 
+      d->maximize = true;
       mythrow(nlopt_set_max_objective(o, myvfunc, d)); // d freed via o
       alloc_tmp();
     }
@@ -376,6 +385,7 @@ namespace nlopt {
       myfunc_data *d = alloc_and_init_myfunc_data();
       d->functor = std::move(functor);
 
+      d->maximize = true;
       mythrow(nlopt_set_max_objective(o, functor_wrapper, d)); // d freed via o
     }
 
@@ -399,6 +409,7 @@ namespace nlopt {
       d->munge_destroy = md;
       d->munge_copy    = mc;
 
+      d->maximize = true;
       mythrow(nlopt_set_max_objective(o, myfunc, d)); // d freed via o
     }
 
