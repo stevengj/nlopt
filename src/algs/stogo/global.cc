@@ -272,7 +272,7 @@ double Global::GetTime()
 
 bool Global::InTime()
 {
-  return !nlopt_stop_evalstime(stop);
+  return !nlopt_stop_evalstime(stop) && !nlopt_stop_forced(stop);
 }
 
 double Global::GetMinValue() {

@@ -27,6 +27,7 @@ NLOPT_add_cpp_test(t_ccsa_zero_step LD_MMA LD_CCSAQ)
 NLOPT_add_cpp_test(t_forced_stop 0)
 NLOPT_add_cpp_test(t_initial_step 0)
 NLOPT_add_cpp_test(t_direct_noscal 0)
+NLOPT_add_cpp_test(t_force_stop_evals 6 7 8 9 19 24 25 34 35 42)
 
 # have to add timer.c and mt19937ar.c as symbols are declared extern
 set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)
