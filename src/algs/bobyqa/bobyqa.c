@@ -3062,22 +3062,10 @@ typedef struct {
      nlopt_func f; void *f_data;
 } rescale_fun_data;
 
-static void unscale_and_bound(unsigned int n, const double *x, double *xs,
-                             const rescale_fun_data *d)
-{
-     unsigned int i;
-     nlopt_unscale(n, d->s, x, xs);
-     /* Roundoff in unscaling must not violate the original bounds. */
-     for (i = 0; i < n; ++i) {
-          if (xs[i] < d->lb[i]) xs[i] = d->lb[i];
-          else if (xs[i] > d->ub[i]) xs[i] = d->ub[i];
-     }
-}
-
 static double rescale_fun(int n, const double *x, void *d_)
 {
      rescale_fun_data *d = (rescale_fun_data*) d_;
-     unscale_and_bound(U(n), x, d->xs, d);
+     nlopt_unscale(U(n), d->s, x, d->xs, d->lb, d->ub);
      return d->f(U(n), d->xs, NULL, d->f_data);
 }
 
@@ -3290,7 +3278,7 @@ done:
     free(xs);
     if (x_scaled) {
         ++x;
-        unscale_and_bound(U(n), x, x, &calfun_data);
+        nlopt_unscale(U(n), s, x, x, calfun_data.lb, calfun_data.ub);
     }
     free(s);
     return ret;
