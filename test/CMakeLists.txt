@@ -38,8 +38,35 @@ target_link_libraries (testopt PRIVATE ${nlopt_lib})
 target_include_directories (testopt PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
 add_dependencies (tests testopt)
 
+add_executable (t_bobyqa_bounds t_bobyqa_bounds.c)
+target_link_libraries (t_bobyqa_bounds PRIVATE ${nlopt_lib})
+target_include_directories (t_bobyqa_bounds PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
+add_dependencies (tests t_bobyqa_bounds)
+foreach (bound_case RANGE 3)
+  add_test (NAME check_bobyqa_bounds_${bound_case} COMMAND t_bobyqa_bounds ${bound_case})
+  if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+    set_tests_properties (check_bobyqa_bounds_${bound_case}
+      PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")
+  endif ()
+endforeach ()
+
+add_executable (t_cobyla_bounds t_cobyla_bounds.c)
+target_link_libraries (t_cobyla_bounds PRIVATE ${nlopt_lib})
+target_include_directories (t_cobyla_bounds PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
+add_dependencies (tests t_cobyla_bounds)
+foreach (bound_case RANGE 7)
+  foreach (constraint_kind RANGE 2)
+    add_test (NAME check_cobyla_bounds_${bound_case}_${constraint_kind}
+      COMMAND t_cobyla_bounds ${bound_case} ${constraint_kind})
+    if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+      set_tests_properties (check_cobyla_bounds_${bound_case}_${constraint_kind}
+        PROPERTIES ENVIRONMENT "PATH=${PROJECT_BINARY_DIR}\\${CMAKE_BUILD_TYPE};$ENV{PATH}")
+    endif ()
+  endforeach ()
+endforeach ()
+
 if (NLOPT_CXX)
-  set_target_properties(testopt PROPERTIES LINKER_LANGUAGE CXX)
+  set_target_properties(testopt t_bobyqa_bounds t_cobyla_bounds PROPERTIES LINKER_LANGUAGE CXX)
 endif ()
 
 foreach (algo_index RANGE 28) # 42
