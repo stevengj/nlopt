@@ -1,7 +1,7 @@
 // MMA and CCSA on f(x) = x'x with a relative tolerance on f (issue #635).
-// Since min f = 0, ftol_rel only stops the run once f underflows to 0. Before
-// that the steps become so small that their squares underflow, and the
-// update of rho must not divide by zero.
+// Since min f = 0, ftol_rel does not stop the run before the steps become so
+// small that their squares underflow. The rho update must then not divide by
+// zero; the run halts with NLOPT_ROUNDOFF_LIMITED at the minimum instead.
 
 #include <cfenv>
 #include <cstdlib>
@@ -29,11 +29,18 @@ int main(int argc, char *argv[]) {
   double minf;
 
   std::feclearexcept(FE_ALL_EXCEPT);
-  nlopt::result result = opt.optimize(x, minf);
+  nlopt::result result;
+  try {
+    result = opt.optimize(x, minf);
+  } catch (nlopt::roundoff_limited &) {
+    result = nlopt::ROUNDOFF_LIMITED;
+    minf = opt.last_optimum_value();
+  }
   bool divbyzero = std::fetestexcept(FE_DIVBYZERO) != 0;
 
   std::cout << opt.get_algorithm_name() << ": result " << result
             << ", f(" << x[0] << "," << x[1] << ") = " << minf
             << ", division by zero: " << (divbyzero ? "yes" : "no") << std::endl;
-  return (result > 0 && minf < 1e-10 && !divbyzero) ? EXIT_SUCCESS : EXIT_FAILURE;
+  bool ok = (result > 0 || result == nlopt::ROUNDOFF_LIMITED) && minf < 1e-10 && !divbyzero;
+  return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
