@@ -28,6 +28,17 @@ NLOPT_add_cpp_test(t_forced_stop 0)
 NLOPT_add_cpp_test(t_initial_step 0)
 NLOPT_add_cpp_test(t_direct_noscal 0)
 
+if (NLOPT_LUKSAN)
+  add_executable(t_luksan_restart t_luksan_restart.c)
+  target_link_libraries(t_luksan_restart PRIVATE ${nlopt_lib})
+  add_dependencies(tests t_luksan_restart)
+  add_test(NAME t_luksan_restart COMMAND t_luksan_restart)
+  if (CMAKE_HOST_SYSTEM_NAME MATCHES Windows)
+    set_tests_properties(t_luksan_restart PROPERTIES
+      ENVIRONMENT "PATH=$<TARGET_FILE_DIR:${nlopt_lib}>;$ENV{PATH}")
+  endif ()
+endif ()
+
 # have to add timer.c and mt19937ar.c as symbols are declared extern
 set (testopt_sources testfuncs.c testfuncs.h testopt.c ${PROJECT_SOURCE_DIR}/src/util/timer.c ${PROJECT_SOURCE_DIR}/src/util/mt19937ar.c)
 if (NOT HAVE_GETOPT OR NOT HAVE_GETOPT_H)

@@ -126,7 +126,8 @@ static void plis_(int *nf, int *nb, double *x, int *
     int kd, ld;
     double fo, fp, po, pp, ro, rp;
     int kbf, mfg;
-    int mes, kit;
+    int mes;
+    long long kit;
     double alf1, alf2, eta9, par1, par2;
     double eps8, eps9;
     int mred, iold, nred;
@@ -233,7 +234,7 @@ static void plis_(int *nf, int *nb, double *x, int *
     mfg = *mfv;
     kd = 1;
     ld = -1;
-    kit = -(ires1 * *nf + ires2);
+    kit = -((long long) ires1 * *nf + ires2);
     fo = *minf_est;
 
 /*     INITIAL OPERATIONS WITH SIMPLE BOUNDS */
@@ -284,8 +285,7 @@ L11130:
 	goto L12620;
     }
 /* Computing MIN */
-    i__1 = stat_1->nit - kit;
-    k = MIN2(i__1,*mf);
+    k = (int) MIN2(stat_1->nit - kit, *mf);
     if (k <= 0) {
 	irest = MAX2(irest,1);
 	goto L12620;
