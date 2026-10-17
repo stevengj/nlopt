@@ -34,7 +34,7 @@ extern void direct_dirinit_(
      doublereal *f, fp fcn, doublereal *c__,
      integer *length, integer *actdeep, integer *point, integer *anchor,
      integer *free, FILE *logfile, integer *arrayi,
-     integer *maxi, integer *list2, doublereal *w, doublereal *x,
+     integer *maxi, integer *list2, doublereal *w, doublereal *x, doublereal *xs,
      doublereal *l, doublereal *u, doublereal *minf, integer *minpos,
      doublereal *thirds, doublereal *levels, integer *maxfunc, const integer *
      maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
@@ -90,7 +90,7 @@ extern integer direct_dirgetlevel_(
      integer *pos, integer *length,
      integer *maxfunc, integer *n, integer jones);
 extern void direct_dirinfcn_(
-     fp fcn, doublereal *x, doublereal *c1,
+     fp fcn, doublereal *x, doublereal *xs, doublereal *c1,
      doublereal *c2, integer *n, doublereal *f, integer *flag__,
      void *fcn_data);
 
@@ -99,7 +99,7 @@ extern void direct_dirsamplef_(
      doublereal *c__, integer *arrayi, doublereal
      *delta, integer *sample, integer *new__, integer *length,
      FILE *logfile, doublereal *f, integer *free, integer *maxi,
-     integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
+     integer *point, fp fcn, doublereal *x, doublereal *xs, doublereal *l, doublereal *
      minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc,
      const integer *maxdeep, integer *oops, doublereal *fmax, integer *
      ifeasiblef, integer *iinfesiblef, void *fcn_data, int *force_stop);
@@ -111,7 +111,8 @@ extern void direct_direct_(
      int *force_stop, doublereal *minf, doublereal *l,
      doublereal *u, integer *algmethod, integer *ierror, FILE *logfile,
      doublereal *fglobal, doublereal *fglper, doublereal *volper,
-     doublereal *sigmaper, void *fcn_data, integer *numfunc, integer *numiter);
+     doublereal *sigmaper, void *fcn_data, integer *numfunc, integer *numiter,
+     direct_callback_func callback);
 
 #ifdef __cplusplus
 }  /* extern "C" */

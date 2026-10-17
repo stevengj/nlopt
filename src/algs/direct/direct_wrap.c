@@ -53,7 +53,8 @@ direct_return_code direct_optimize(
     double fglobal_reltol,
     FILE *logfile,
     direct_algorithm algorithm,
-    direct_return_info *info)
+    direct_return_info *info,
+    direct_callback_func callback)
 {
      integer algmethod = algorithm == DIRECT_GABLONSKY;
      integer ierror;
@@ -90,7 +91,7 @@ direct_return_code direct_optimize(
             logfile,
             &fglobal, &fglobal_reltol,
             &volume_reltol, &sigma_reltol,
-            f_data, &numfunc, &numiter);
+            f_data, &numfunc, &numiter, callback);
 
     info->numfunc = numfunc;
     info->numiter = numiter;

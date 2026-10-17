@@ -17,7 +17,7 @@
 /* Subroutine */ void direct_dirsamplef_(doublereal *c__, integer *arrayi, doublereal
     *delta, integer *sample, integer *new__, integer *length,
     FILE *logfile, doublereal *f, integer *free, integer *maxi,
-    integer *point, fp fcn, doublereal *x, doublereal *l, doublereal *
+    integer *point, fp fcn, doublereal *x, doublereal *xs, doublereal *l, doublereal *
     minf, integer *minpos, doublereal *u, integer *n, integer *maxfunc,
     const integer *maxdeep, integer *oops, doublereal *fmax, integer *
     ifeasiblef, integer *iinfesiblef, void *fcn_data, int *force_stop)
@@ -86,7 +86,7 @@
     if (force_stop && *force_stop)  /* skip eval after forced stop */
          f[(pos << 1) + 1] = *fmax;
     else
-        direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[(pos << 1) + 1],
+        direct_dirinfcn_(fcn, &x[1], xs, &l[1], &u[1], n, &f[(pos << 1) + 1],
                                           &kret, fcn_data);
     if (force_stop && *force_stop)
          kret = -1; /* mark as invalid point */

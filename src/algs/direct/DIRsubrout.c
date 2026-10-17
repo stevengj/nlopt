@@ -1045,15 +1045,11 @@ L50:
 /* | The subroutine whose name is passed through the argument fcn.         | */
 /* |                                                                       | */
 /* +-----------------------------------------------------------------------+ */
-/* Subroutine */ void direct_dirinfcn_(fp fcn, doublereal *x, doublereal *c1,
-	doublereal *c2, integer *n, doublereal *f, integer *flag__,
-				       void *fcn_data)
+/* Subroutine */ void direct_dirinfcn_(fp fcn, doublereal *x, doublereal *xs,
+    doublereal *c1, doublereal *c2, integer *n, doublereal *f, integer *flag__,
+    void *fcn_data)
 {
-    /* System generated locals */
-    integer i__1;
-
-    /* Local variables */
-    integer i__;
+    int i;
 
 /* +-----------------------------------------------------------------------+ */
 /* | Variables to pass user defined data to the function to be optimized.  | */
@@ -1067,24 +1063,14 @@ L50:
     --x;
 
     /* Function Body */
-    i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	x[i__] = (x[i__] + c2[i__]) * c1[i__];
-/* L20: */
-    }
 /* +-----------------------------------------------------------------------+ */
 /* | Call the function-evaluation subroutine fcn.                          | */
 /* +-----------------------------------------------------------------------+ */
     *flag__ = 0;
-    *f = fcn(*n, &x[1], flag__, fcn_data);
-/* +-----------------------------------------------------------------------+ */
-/* | Rescale the variable x.                                               | */
-/* +-----------------------------------------------------------------------+ */
-    i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	x[i__] = x[i__] / c1[i__] - c2[i__];
-/* L30: */
+    for (i = 0; i < *n; i++) {
+        xs[i] = (x[i + 1] + c2[i + 1]) * c1[i + 1];
     }
+    *f = fcn(*n, xs, flag__, fcn_data);
 } /* dirinfcn_ */
 
 /* +-----------------------------------------------------------------------+ */
@@ -1152,7 +1138,7 @@ L50:
 /* Subroutine */ void direct_dirinit_(doublereal *f, fp fcn, doublereal *c__,
     integer *length, integer *actdeep, integer *point, integer *anchor,
     integer *free, FILE *logfile, integer *arrayi,
-    integer *maxi, integer *list2, doublereal *w, doublereal *x,
+    integer *maxi, integer *list2, doublereal *w, doublereal *x, doublereal *xs,
     doublereal *l, doublereal *u, doublereal *minf, integer *minpos,
     doublereal *thirds, doublereal *levels, integer *maxfunc, const integer *
     maxdeep, integer *n, integer *maxor, doublereal *fmax, integer *
@@ -1248,7 +1234,7 @@ L50:
     length[i__ + length_dim1] = 0;
 /* L20: */
     }
-    direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[3], &help, fcndata);
+    direct_dirinfcn_(fcn, &x[1], xs, &l[1], &u[1], n, &f[3], &help, fcndata);
     if (force_stop && *force_stop) {
      *ierror = -102;
      return;
@@ -1291,7 +1277,7 @@ L50:
 /* +-----------------------------------------------------------------------+ */
     direct_dirsamplef_(&c__[c_offset], &arrayi[1], &delta, &c__1, &new__, &length[
         length_offset], logfile, &f[3], free, maxi, &point[
-        1], fcn, &x[1], &l[1], minf, minpos, &u[1], n, maxfunc,
+        1], fcn, &x[1], xs, &l[1], minf, minpos, &u[1], n, maxfunc,
         maxdeep, &oops, fmax, ifeasiblef, iinfeasible, fcndata,
         force_stop);
     if (force_stop && *force_stop) {

@@ -13,6 +13,10 @@ typedef double (*direct_objective_func)(int n, const double *x,
 					int *undefined_flag, 
 					void *data);
 
+/* called after each iteration with the most recently evaluated point;
+   return nonzero to stop the optimization (DIRECT_FORCED_STOP) */
+typedef int (*direct_callback_func)(int n, const double *x, void *data);
+
 typedef enum {
      DIRECT_ORIGINAL, DIRECT_GABLONSKY
 } direct_algorithm;
@@ -60,7 +64,8 @@ extern direct_return_code direct_optimize(
 
      FILE *logfile,
      direct_algorithm algorithm,
-     direct_return_info *info);
+     direct_return_info *info,
+     direct_callback_func callback);
 
 #ifdef __cplusplus
 }  /* extern "C" */

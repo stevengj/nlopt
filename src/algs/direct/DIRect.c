@@ -48,7 +48,8 @@
     integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, int *force_stop,
     doublereal *minf, doublereal *l, doublereal *u, integer *algmethod, integer *ierror,
     FILE *logfile, doublereal *fglobal, doublereal *fglper, doublereal *volper,
-    doublereal *sigmaper, void *fcn_data, integer *numfunc, integer *numiter)
+    doublereal *sigmaper, void *fcn_data, integer *numfunc, integer *numiter,
+    direct_callback_func callback)
 {
     /* System generated locals */
     integer i__1, i__2;
@@ -65,7 +66,7 @@
     doublereal *c__ = 0	/* was [90000][64] */, *f = 0	/*
         was [90000][2] */;
     integer i__, j, *s = 0	/* was [3000][2] */, t = 0;
-    doublereal *w = 0;
+    doublereal *w = 0, *xs = 0;
     doublereal divfactor;
     integer ifeasiblef, iepschange, actmaxdeep;
     integer actdeep_div__, iinfesiblef;
@@ -80,7 +81,7 @@
     integer *anchor = 0, *length = 0	/* was [90000][64] */, *arrayi = 0;
     doublereal *levels = 0, *thirds = 0;
     doublereal epsfix;
-    integer oldpos, minpos, maxpos, tstart, actdeep, ifreeold, oldmaxf;
+    integer oldpos, minpos = 1, maxpos, tstart, actdeep, ifreeold, oldmaxf;
     integer version;
     integer jones;
 
@@ -115,6 +116,7 @@
     MY_ALLOC(oldu, doublereal, (*n));
     MY_ALLOC(list2, integer, (*n) * 2);
     MY_ALLOC(arrayi, integer, (*n));
+    MY_ALLOC(xs, doublereal, (*n));
 
 /* +-----------------------------------------------------------------------+ */
 /* |    SUBROUTINE Direct                                                  | */
@@ -402,7 +404,7 @@
 /* | Added variable to keep track of the maximum value found.              | */
 /* +-----------------------------------------------------------------------+ */
     direct_dirinit_(f, fcn, c__, length, &actdeep, point, anchor, &ifree,
-        logfile, arrayi, &maxi, list2, w, &x[1], &l[1], &u[1],
+        logfile, arrayi, &maxi, list2, w, &x[1], xs, &l[1], &u[1],
         minf, &minpos, thirds, levels, &MAXFUNC, &MAXDEEP, n, n, &
         fmax, &ifeasiblef, &iinfesiblef, ierror, fcn_data, jones,
         force_stop);
@@ -546,7 +548,7 @@
 /* +-----------------------------------------------------------------------+ */
         direct_dirsamplef_(c__, arrayi, &delta, &help, &start, length,
             logfile, f, &ifree, &maxi, point, fcn, &x[
-            1], &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
+            1], xs, &l[1], minf, &minpos, &u[1], n, &MAXFUNC, &
             MAXDEEP, &oops, &fmax, &ifeasiblef, &iinfesiblef,
             fcn_data, force_stop);
         if (force_stop && *force_stop) {
@@ -717,6 +719,11 @@
         *maxf = *numfunc + oldmaxf;
         }
     }
+    if (callback && callback(*n, xs, fcn_data)) {
+        *ierror = -102;
+        *numiter = t;
+        goto L100;
+    }
 /* L10: */
     }
 /* +-----------------------------------------------------------------------+ */
@@ -783,4 +790,6 @@ L100:
         free(levels);
     if (thirds)
         free(thirds);
+    if (xs)
+        free(xs);
 } /* direct_ */
