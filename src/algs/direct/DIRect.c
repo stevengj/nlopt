@@ -5,6 +5,8 @@
 
 #include "direct-internal.h"
 #include <math.h>
+#include <limits.h>
+#include <stdint.h>
 
 /* Common Block Declarations */
 
@@ -44,6 +46,14 @@
 /* |   Lipschitz continues. However, DIRECT has proven to be effective on  | */
 /* |   more complex problems than these.                                   | */
 /* +-----------------------------------------------------------------------+ */
+/* malloc(size * m * k), or NULL if that would overflow size_t */
+static void *direct_malloc(size_t size, size_t m, size_t k)
+{
+    if (k && m > SIZE_MAX / size / k)
+        return NULL;
+    return malloc(size * m * k);
+}
+
 /* Subroutine */ void direct_direct_(fp fcn, doublereal *x,
     integer *n, doublereal *eps, doublereal epsabs, integer *maxf, integer *maxt, int *force_stop,
     doublereal *minf, doublereal *l, doublereal *u, integer *algmethod, integer *ierror,
@@ -55,10 +65,6 @@
     integer i__1, i__2;
     doublereal d__1;
 
-    /* changed by SGJ to be dynamically allocated ... would be
-       even better to use realloc, below, to grow these as needed */
-    integer MAXFUNC = *maxf <= 0 ? 101000 : (*maxf + 1000 + *maxf / 2);
-    integer MAXDEEP = *maxt <= 0 ? MAXFUNC/5: *maxt + 1000;
     const integer MAXDIV = 5000;
 
     /* Local variables */
@@ -85,10 +91,6 @@
     integer version;
     integer jones;
 
-    /* FIXME: change sizes dynamically? */
-#define MY_ALLOC(p, t, n) p = (t *) malloc(sizeof(t) * (n)); \
-                          if (!(p)) { *ierror = -100; goto cleanup; }
-
     /* Note that I've transposed c__, length, and f relative to the
        original Fortran code.  e.g. length was length(maxfunc,n)
        in Fortran [ or actually length(maxfunc, maxdims), but by
@@ -98,25 +100,78 @@
        is the discontiguous one.  This makes it easier to resize
        dynamically (by adding contiguous rows) using realloc, without
        having to move data around manually. */
-    MY_ALLOC(c__, doublereal, MAXFUNC * (*n));
-    MY_ALLOC(length, integer, MAXFUNC * (*n));
-    MY_ALLOC(f, doublereal, MAXFUNC * 2);
-    MY_ALLOC(point, integer, MAXFUNC);
+    /* make sure that MAXFUNC and MAXDEEP fit in an integer; the array
+       sizes are then checked for overflow by direct_malloc */
+    if (*maxf > (INT_MAX - 1000) / 3 * 2) {
+        *ierror = DIRECT_MAXFEVAL_TOOBIG; goto cleanup;
+    }
+    if (*maxt > INT_MAX - 1000) {
+        *ierror = DIRECT_INVALID_ARGS; goto cleanup;
+    }
+    integer MAXFUNC = *maxf <= 0 ? 101000 : (*maxf + 1000 + *maxf / 2);
+    c__ = (doublereal *) direct_malloc(sizeof(doublereal), MAXFUNC, *n);
+    if (!(c__)) {
+        *ierror = -100;
+        goto cleanup;
+    }
+    length = (integer*) direct_malloc(sizeof(integer), MAXFUNC, *n);
+    if (!(length)) {
+        *ierror = -100; goto cleanup;
+    }
+    f = (doublereal*) direct_malloc(sizeof(doublereal), MAXFUNC, 2);
+    if (!(f)) {
+        *ierror = -100; goto cleanup;
+    }
+    point = (integer*) direct_malloc(sizeof(integer), MAXFUNC, 1);
+    if (!(point)) {
+        *ierror = -100; goto cleanup;
+    }
     if (*maxf <= 0) *maxf = MAXFUNC - 1000;
 
-    MY_ALLOC(s, integer, MAXDIV * 2);
+    s = (integer*) malloc(sizeof(integer) * (MAXDIV * 2));
+    if (!(s)) {
+        *ierror = -100; goto cleanup;
+    }
 
-    MY_ALLOC(anchor, integer, MAXDEEP + 2);
-    MY_ALLOC(levels, doublereal, MAXDEEP + 1);
-    MY_ALLOC(thirds, doublereal, MAXDEEP + 1);    
+    integer MAXDEEP = *maxt <= 0 ? MAXFUNC/5: *maxt + 1000;
+    anchor = (integer*) direct_malloc(sizeof(integer), (size_t) MAXDEEP + 2, 1);
+    if (!(anchor)) {
+        *ierror = -100; goto cleanup;
+    }
+    levels = (doublereal*) direct_malloc(sizeof(doublereal), (size_t) MAXDEEP + 1, 1);
+    if (!(levels)) {
+        *ierror = -100; goto cleanup;
+    }
+    thirds = (doublereal*) direct_malloc(sizeof(doublereal), (size_t) MAXDEEP + 1, 1);
+    if (!(thirds)) {
+        *ierror = -100; goto cleanup;
+    }
     if (*maxt <= 0) *maxt = MAXDEEP;
 
-    MY_ALLOC(w, doublereal, (*n));
-    MY_ALLOC(oldl, doublereal, (*n));
-    MY_ALLOC(oldu, doublereal, (*n));
-    MY_ALLOC(list2, integer, (*n) * 2);
-    MY_ALLOC(arrayi, integer, (*n));
-    MY_ALLOC(xs, doublereal, (*n));
+    w = (doublereal*) malloc(sizeof(doublereal) * (*n));
+    if (!(w)) {
+        *ierror = -100; goto cleanup;
+    }
+    oldl = (doublereal*) malloc(sizeof(doublereal) * (*n));
+    if (!(oldl)) {
+        *ierror = -100; goto cleanup;
+    }
+    oldu = (doublereal*) malloc(sizeof(doublereal) * (*n));
+    if (!(oldu)) {
+        *ierror = -100; goto cleanup;
+    }
+    list2 = (integer*) direct_malloc(sizeof(integer), *n, 2);
+    if (!(list2)) {
+        *ierror = -100; goto cleanup;
+    }
+    arrayi = (integer*) malloc(sizeof(integer) * (*n));
+    if (!(arrayi)) {
+        *ierror = -100; goto cleanup;
+    }
+    xs = (doublereal*) malloc(sizeof(doublereal) * (*n));
+    if (!(xs)) {
+        *ierror = -100; goto cleanup;
+    }
 
 /* +-----------------------------------------------------------------------+ */
 /* |    SUBROUTINE Direct                                                  | */

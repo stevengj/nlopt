@@ -78,8 +78,8 @@ direct_return_code direct_optimize(
       u[i] = upper_bounds[i];
      }
 
-     int numfunc;
-     int numiter;
+     int numfunc = 0;
+     int numiter = 0;
      
     direct_direct_(f, x, &dimension, &magic_eps, magic_eps_abs,
             &max_feval, &max_iter, 
