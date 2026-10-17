@@ -898,7 +898,10 @@ nlopt_result NLOPT_STDCALL nlopt_get_initial_step(const nlopt_opt opt, const dou
         return NLOPT_SUCCESS;
     if (!opt->dx) {
         nlopt_opt o = (nlopt_opt) opt;  /* discard const temporarily */
-        nlopt_result ret = nlopt_set_default_initial_step(o, x);
+        nlopt_result ret;
+        if (!x)
+            return ERR(NLOPT_INVALID_ARGS, o, "no initial step was set, and the default initial step depends on x");
+        ret = nlopt_set_default_initial_step(o, x);
         if (ret != NLOPT_SUCCESS)
             return ret;
         memcpy(dx, o->dx, sizeof(double) * (opt->n));
