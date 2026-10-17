@@ -65,8 +65,7 @@ GETSET_EXCEPT(force_stop, int)
 
 GETSET_EXCEPT(population, unsigned)
 GETSET_EXCEPT(vector_storage, unsigned)
-SET_EXCEPT(initial_step, double)
-SETVEC_EXCEPT(initial_step)
+GETSETVEC_EXCEPT(initial_step)
 
 %catches(std::bad_alloc,std::invalid_argument) nlopt::opt::set_default_initial_step(const std::vector<double> &x);
 %catches(std::invalid_argument) nlopt::opt::get_initial_step(const std::vector<double> &x, std::vector<double> &dx);

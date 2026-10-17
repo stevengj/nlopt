@@ -4,19 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
-#include <type_traits>
-#include <utility>
+#include <string>
 #include <vector>
 #include <nlopt.hpp>
-
-// The default initial step depends on x, so there is no getter without x.
-template <typename T, typename = void>
-struct has_get_initial_step_without_x : std::false_type {};
-template <typename T>
-struct has_get_initial_step_without_x<T, decltype((void)std::declval<const T &>().get_initial_step())>
-  : std::true_type {};
-static_assert(!has_get_initial_step_without_x<nlopt::opt>::value,
-              "get_initial_step() needs x to compute the default step");
 
 static int failures = 0;
 
@@ -39,17 +29,31 @@ int main() {
   opt.set_upper_bounds(std::vector<double>{1.0, 4.0});
   const std::vector<double> x{0.5, 1.0};
 
-  // default step, computed from x and the bounds
+  // no step set: the default step is computed from x and the bounds
   std::vector<double> dx(2);
   opt.get_initial_step(x, dx);
   check(dx[0] > 0 && dx[1] > 0, "default step is positive");
   check(equal(opt.get_initial_step_(x), dx), "get_initial_step_(x) matches get_initial_step(x, dx)");
 
+  // no step set and no x: the getter cannot compute the default step
+  std::string message;
+  try {
+    opt.get_initial_step();
+  } catch (std::invalid_argument &e) {
+    message = e.what();
+  }
+  check(message.find("depends on x") != std::string::npos,
+        "get_initial_step() without a set step explains that the default depends on x");
+
+  // a step that was set can be read without x
   opt.set_initial_step(0.25);
-  check(equal(opt.get_initial_step_(x), std::vector<double>{0.25, 0.25}), "set_initial_step(double)");
+  check(equal(opt.get_initial_step(), std::vector<double>{0.25, 0.25}), "get_initial_step() after set_initial_step(double)");
+  check(equal(opt.get_initial_step_(x), std::vector<double>{0.25, 0.25}), "get_initial_step_(x) after set_initial_step(double)");
 
   opt.set_initial_step(std::vector<double>{0.1, 0.2});
-  check(equal(opt.get_initial_step_(x), std::vector<double>{0.1, 0.2}), "set_initial_step(vector)");
+  std::vector<double> v(2);
+  opt.get_initial_step(v);
+  check(equal(v, std::vector<double>{0.1, 0.2}), "get_initial_step(v) after set_initial_step(vector)");
 
   bool thrown = false;
   try {
