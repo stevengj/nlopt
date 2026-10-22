@@ -9,6 +9,11 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+static inline long long luksan_restart_interval(int n, int ires1, int ires2)
+{
+     return (long long) ires1 * n + ires2;
+}
+
 nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* in: initial guess, out: minimizer */
@@ -94,7 +99,7 @@ void luksan_ps1l01__(double *r__, double *rp,
 		     double *po, double *pp, double *minf, double *fmax, 
 		     double *rmin, double *rmax, double *tols, double *
 		     tolp, double *par1, double *par2, int *kd, int *ld, 
-		     int *nit, int *kit, int *nred, int *mred, int *
+		     int *nit, long long *kit, int *nred, int *mred, int *
 		     maxst, int *iest, int *inits, int *iters, int *kters, 
 		     int *mes, int *isys, ps1l01_state *state);
 void luksan_pulsp3__(int *n, int *m, int *mf, 
@@ -111,7 +116,7 @@ void luksan_pyadc0__(int *nf, int *n, double *x,
 void luksan_pyfut1__(int *n, double *f, double *
 		     fo, double *umax, double *gmax,
 		     int xstop, const nlopt_stopping *stop,
-		     double *tolg, int *kd, int *nit, int *kit, int *mit,
+		     double *tolg, int *kd, int *nit, long long *kit, int *mit,
 		     int *nfg, int *mfg, int *ntesx, 
 		     int *mtesx, int *ntesf, int *mtesf, int *ites, 
 		     int *ires1, int *ires2, int *irest, int *iters, 
