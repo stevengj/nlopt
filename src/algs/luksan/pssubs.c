@@ -961,7 +961,7 @@ L1:
 	return;
     }
     *iterm = 0;
-    if (*n > 0 && *nit - *kit >= (long long) *ires1 * *n + *ires2) {
+    if (*n > 0 && *nit - *kit >= luksan_restart_interval(*n, *ires1, *ires2)) {
 	*irest = MAX2(*irest,1);
     }
     ++(*nit);

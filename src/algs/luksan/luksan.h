@@ -9,6 +9,11 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+static inline long long luksan_restart_interval(int n, int ires1, int ires2)
+{
+     return (long long) ires1 * n + ires2;
+}
+
 nlopt_result luksan_plis(int n, nlopt_func f, void *f_data,
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* in: initial guess, out: minimizer */

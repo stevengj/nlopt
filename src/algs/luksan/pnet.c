@@ -277,7 +277,7 @@ static void pnet_(int *nf, int *nb, double *x, int *
     }
     kd = 1;
     ld = -1;
-    kit = -((long long) ires1 * *nf + ires2);
+    kit = -luksan_restart_interval(*nf, ires1, ires2);
     fo = *minf_est;
 
 /*     INITIAL OPERATIONS WITH SIMPLE BOUNDS */
