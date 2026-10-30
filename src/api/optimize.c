@@ -949,7 +949,8 @@ static nlopt_result nlopt_optimize_(nlopt_opt opt, double *x, double *minf)
         return chevolutionarystrategy(n, f, f_data, lb, ub, x, minf, &stop, (unsigned) POP(0), (unsigned) (POP(0) * 1.5));
 
     case NLOPT_LD_SLSQP:
-        return nlopt_slsqp(n, f, f_data, opt->m, opt->fc, opt->p, opt->h, lb, ub, x, minf, &stop);
+        return nlopt_slsqp(n, f, f_data, opt->m, opt->fc, opt->p, opt->h, lb, ub, x, minf, &stop, nlopt_get_param(opt, "linesearch_eager_grad", 1) != 0,
+                           nlopt_get_param(opt, "kraft_acc", 0.0));
 
     default:
         return NLOPT_INVALID_ARGS;

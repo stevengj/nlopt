@@ -178,6 +178,20 @@ however, it will disable algorithms implemented in C++ (StoGO and AGS algorithms
 
 The resulting library has the *same* interface as the ordinary NLopt library, and can *still* be called from ordinary C, C++, and Fortran programs. However, one no longer has to link with the C++ standard libraries, which can sometimes be convenient for non-C++ programs, and allows libnlopt to be compatible with multiple C++ compilers simultaneously.
 
+BLAS/LAPACK
+-----------
+
+Some algorithms use BLAS/LAPACK for their dense linear algebra if a library is found at configure time, and otherwise fall back to built-in implementations of the few routines they need. This is controlled by the `NLOPT_BLAS` option:
+
+```sh
+cmake -DNLOPT_BLAS=AUTO ..       # default: use BLAS/LAPACK if found
+cmake -DNLOPT_BLAS=ON ..         # require BLAS/LAPACK
+cmake -DNLOPT_BLAS=OFF ..        # always use the built-in routines
+cmake -DNLOPT_BLAS=openblas ..   # use this library (a name, a path, or a list such as "blas;lapack")
+```
+
+The keywords are case-insensitive, and the usual CMake boolean spellings (`YES`/`NO`, `TRUE`/`FALSE`, `1`/`0`) work too. With `AUTO` and `ON`, the library is located with CMake's `FindLAPACK` (so `BLA_VENDOR` can be used to choose one). The Fortran symbol suffix (`_64_`, `_64`, `_` or none) is detected from the library; libraries with a `64` suffix are assumed to use 64-bit integers. If a library provides both interfaces, the one matching the platform's pointer size is used (32-bit integers on 32-bit platforms, 64-bit otherwise); the built-in routines likewise use pointer-sized integers. Detection only compiles and links test programs (it does not run them), so it also works when cross-compiling. An ILP64 library whose symbols have no `64` suffix is therefore not supported; it would be called with 32-bit integers.
+
 LGPL solvers
 ------------
 

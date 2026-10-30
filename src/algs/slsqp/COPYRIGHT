@@ -11,6 +11,10 @@ All rights reserved.
 Copyright (c) 2010 Massachusetts Institute of Technology
 All rights reserved.
 
+Copyright (c) 2001-2002 Enthought, Inc. 2003, SciPy Developers.
+All rights reserved.
+(C rewrite of SLSQP and NNLS, scipy/scipy#22524, BSD 3-clause license)
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
