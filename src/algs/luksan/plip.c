@@ -135,7 +135,8 @@ static void plip_(int *nf, int *nb, double *x, int *
     double po, pp, ro, rp;
     int kbf, mec, mfg;
     double par;
-    int mes, kit;
+    int mes;
+    long long kit;
     double alf1, alf2, eta9, par1, par2;
     int met3;
     double eps8, eps9;
@@ -251,7 +252,7 @@ static void plip_(int *nf, int *nb, double *x, int *
     mfg = *mfv;
     kd = 1;
     ld = -1;
-    kit = -(ires1 * *nf + ires2);
+    kit = -luksan_restart_interval(*nf, ires1, ires2);
     fo = *minf_est;
 
 /*     INITIAL OPERATIONS WITH SIMPLE BOUNDS */
