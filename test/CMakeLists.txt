@@ -29,7 +29,7 @@ NLOPT_add_cpp_test(t_initial_step 0)
 NLOPT_add_cpp_test(t_direct_noscal 0)
 
 if (NLOPT_LUKSAN)
-  add_executable(t_luksan_restart t_luksan_restart.c)
+  add_executable(t_luksan_restart t_luksan_restart.c ${PROJECT_SOURCE_DIR}/src/algs/luksan/restart_interval.c)
   target_link_libraries(t_luksan_restart PRIVATE ${nlopt_lib})
   target_include_directories(t_luksan_restart PRIVATE ${NLOPT_PRIVATE_INCLUDE_DIRS})
   add_dependencies(tests t_luksan_restart)
