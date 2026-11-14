@@ -3058,13 +3058,14 @@ L720:
 
 typedef struct {
      double *s, *xs;
+     const double *lb, *ub;
      nlopt_func f; void *f_data;
 } rescale_fun_data;
 
 static double rescale_fun(int n, const double *x, void *d_)
 {
      rescale_fun_data *d = (rescale_fun_data*) d_;
-     nlopt_unscale(U(n), d->s, x, d->xs);
+     nlopt_unscale(U(n), d->s, x, d->xs, d->lb, d->ub);
      return d->f(U(n), d->xs, NULL, d->f_data);
 }
 
@@ -3089,6 +3090,10 @@ nlopt_result bobyqa(int n, int npt, double *x,
     nlopt_result ret;
     double *s = NULL, *sxl = NULL, *sxu = NULL, *xs = NULL;
     rescale_fun_data calfun_data;
+    int x_scaled = 0;
+
+    calfun_data.lb = xl;
+    calfun_data.ub = xu;
     
     /* SGJ 2010: rescale parameters to make the initial step sizes dx
                  equal in all directions */
@@ -3100,8 +3105,9 @@ nlopt_result bobyqa(int n, int npt, double *x,
             ret = NLOPT_INVALID_ARGS; goto done;
         }
 
-    /* this statement must go before goto done, so that --x occurs */
+    calfun_data.s = s;
     nlopt_rescale(U(n), s, x, x); --x;
+    x_scaled = 1;
 
     xs = (double *) malloc(sizeof(double) * (U(n)));
     if (!xs) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
@@ -3116,7 +3122,6 @@ nlopt_result bobyqa(int n, int npt, double *x,
 
     rhobeg = fabs(dx[0] / s[0]); /* equals all other dx[i] after rescaling */
 
-    calfun_data.s = s;
     calfun_data.xs = xs;
     calfun_data.f = f;
     calfun_data.f_data = f_data;
@@ -3271,7 +3276,10 @@ done:
     free(sxl);
     free(sxu);
     free(xs);
-    ++x; nlopt_unscale(U(n), s, x, x);
+    if (x_scaled) {
+        ++x;
+        nlopt_unscale(U(n), s, x, x, calfun_data.lb, calfun_data.ub);
+    }
     free(s);
     return ret;
 } /* bobyqa_ */
