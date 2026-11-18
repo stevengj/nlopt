@@ -14,7 +14,7 @@ nlopt_result nlopt_slsqp(unsigned n, nlopt_func f, void *f_data,
 			 unsigned p, nlopt_constraint *h,
 			 const double *lb, const double *ub,
 			 double *x, double *minf,
-			 nlopt_stopping *stop);
+			 nlopt_stopping *stop, int eager_grad, double acc);
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

@@ -45,3 +45,57 @@ these kinds of algorithms), we plan to do so using a recursive call to
 NLopt.  (This will allow a user-specified line-search algorithm to be
 used, and will allow the gradient to be exploited in the exact line
 search, in contrast to the routine provided with SLSQP.)
+
+The f2c-translated algorithm (main iteration, LSQ, LSEI, LSI, LDP,
+NNLS and the LDL' update) was later replaced by a port of SciPy's C
+rewrite of the same routines (Ilhan Polat, scipy/scipy#22524), which
+keeps the algorithm and iterates but calls BLAS/LAPACK for the dense
+linear algebra, giving roughly an order of magnitude less time per
+iteration for problems with hundreds of variables.  SciPy's code is
+used with the NLopt modifications above carried over (bound clamping,
+backing off from non-finite trial points, no iteration limit) and two
+further changes: unbounded variables are passed to the subproblem as
+NaN bounds, as SciPy does, and the least-squares solve without
+inequality constraints marks all columns as fixed for DGELSY
+explicitly instead of relying on leftover workspace contents.  When that
+least-squares matrix is already upper triangular (no equality
+constraints), DGELSY's O(n^3) QR factorization, whose reflectors are all
+the identity, is skipped: the rank estimate (DLAIC1) and triangular solve
+of DGELSY are done directly, with bit-identical results, and DGELSY is
+still used whenever it would rescale or the matrix is rank deficient.
+NNLS computes its dual vector with one DGEMV and applies each new
+Householder transformation with DLARF on whole column blocks, instead of
+one DDOT and one single-column DLARF per column; the columns already in
+the solution set are zero in the rows involved.  With many constraints
+this removes most of the BLAS call overhead (about 14% of the run time on
+a problem with ~1500 constraints); the summation order changes, so
+results differ from SciPy's in the last bits.
+
+The BLAS/LAPACK library is chosen at configure time with the CMake
+option NLOPT_BLAS: AUTO (default; use one if found), ON (require one),
+OFF, or the name(s) or path(s) of the library to use.  The symbol
+convention is detected from the library ("_64_", "_64", "_" or no
+suffix) by test-linking, without running anything; a "64" suffix implies
+64-bit integers, and no suffix 32-bit ones.  For libraries providing
+both, the interface with pointer-sized integers is preferred (32-bit on
+32-bit platforms).  Without a BLAS/LAPACK, src/util/nlopt-blas-builtin.h
+provides plain C ports (with pointer-sized integers) of the reference
+BLAS/LAPACK 3.12 routines that are needed, restricted to the arguments
+used here (DGELSY without column pivoting and without the minimum-norm
+solution for rank-deficient problems, which SLSQP treats as a failure
+anyway).
+
+Two algorithm parameters (nlopt_set_param) control the remaining
+differences from the original algorithm:
+
+  linesearch_eager_grad (default 1): evaluate the gradient together with
+    the function at the first trial point of each line search, as
+    described above.  With 0, trial points are evaluated without
+    gradient and the gradient is evaluated once the step is accepted,
+    as in the original code.
+
+  kraft_acc (default 0): the ACC parameter of the original code, i.e.
+    SciPy's "ftol".  If positive, the original convergence tests
+    (predicted decrease, change in f or step length, and constraint
+    violation below kraft_acc) are used in addition to NLopt's own
+    stopping criteria; 0 disables them.
