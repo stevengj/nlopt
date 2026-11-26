@@ -146,16 +146,16 @@ set (NLOPT_HEADERS
   src/api/nlopt.h ${PROJECT_BINARY_DIR}/nlopt.hpp
 )
 
-add_custom_command (OUTPUT nlopt.hpp
+add_custom_command (OUTPUT ${PROJECT_BINARY_DIR}/nlopt.hpp
   COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-cpp.cmake
-  MAIN_DEPENDENCY src/api/nlopt-in.hpp)
-add_custom_target (generate-cpp ALL DEPENDS nlopt.hpp)
+  MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/src/api/nlopt-in.hpp)
+add_custom_target (generate-cpp ALL DEPENDS ${PROJECT_BINARY_DIR}/nlopt.hpp)
 
 if (NLOPT_FORTRAN)
-  add_custom_command (OUTPUT nlopt.f
+  add_custom_command (OUTPUT ${PROJECT_BINARY_DIR}/nlopt.f
     COMMAND ${CMAKE_COMMAND} -DAPI_SOURCE_DIR=${PROJECT_SOURCE_DIR}/src/api -P ${PROJECT_SOURCE_DIR}/cmake/generate-fortran.cmake
-    MAIN_DEPENDENCY src/api/nlopt.h)
-  add_custom_target (generate-fortran ALL DEPENDS nlopt.f)
+    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/src/api/nlopt.h)
+  add_custom_target (generate-fortran ALL DEPENDS ${PROJECT_BINARY_DIR}/nlopt.f)
   list (APPEND NLOPT_HEADERS ${PROJECT_BINARY_DIR}/nlopt.f)
 endif()
 
@@ -220,7 +220,15 @@ set_property(SOURCE src/algs/ags/solver.cc src/algs/ags/local_optimizer.cc src/a
              PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif ()
 
-install (FILES ${NLOPT_HEADERS} DESTINATION ${NLOPT_INSTALL_INCLUDEDIR})
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "4.5")
+  set (NLOPT_HEADERS_BUILD_DEPENDS generate-cpp)
+  if (NLOPT_FORTRAN)
+    list (APPEND NLOPT_HEADERS_BUILD_DEPENDS generate-fortran)
+  endif ()
+  install (FILES ${NLOPT_HEADERS} DESTINATION ${NLOPT_INSTALL_INCLUDEDIR} BUILD_DEPENDS ${NLOPT_HEADERS_BUILD_DEPENDS})
+else ()
+  install (FILES ${NLOPT_HEADERS} DESTINATION ${NLOPT_INSTALL_INCLUDEDIR})
+endif ()
 
 set (nlopt_lib nlopt)
 add_library (${nlopt_lib} ${NLOPT_SOURCES})
