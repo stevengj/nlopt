@@ -4,39 +4,23 @@
 // Converting NLopt/C++ exceptions to Python exceptions
 
 %{
-#ifndef Py_LIMITED_API
+static PyObject *MyExc_ForcedStop = NULL;
+static PyObject *MyExc_RoundoffLimited = NULL;
 
-#define ExceptionSubclass(EXCNAME, EXCDOC)				\
-  static PyTypeObject MyExc_ ## EXCNAME = {				\
-    PyVarObject_HEAD_INIT(NULL, 0)						\
-      "nlopt." # EXCNAME,						\
-      sizeof(PyBaseExceptionObject),					\
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			\
-      Py_TPFLAGS_DEFAULT,						\
-      PyDoc_STR(EXCDOC)							\
-  };									\
-  static void init_ ## EXCNAME(PyObject *m) {				\
-    MyExc_ ## EXCNAME .tp_base = (PyTypeObject *) PyExc_Exception;	\
-    PyType_Ready(&MyExc_ ## EXCNAME);					\
-    Py_INCREF(&MyExc_ ## EXCNAME);					\
-    PyModule_AddObject(m, # EXCNAME, (PyObject *) &MyExc_ ## EXCNAME);	\
-  }
-
-
-ExceptionSubclass(ForcedStop,
-		  "Python version of nlopt::forced_stop exception.")
-
-ExceptionSubclass(RoundoffLimited,
-		  "Python version of nlopt::roundoff_limited exception.")
-
-#endif
+static void init_exceptions(PyObject *m) {
+  MyExc_ForcedStop = PyErr_NewException("nlopt.ForcedStop",
+    PyExc_Exception, NULL);
+  if (MyExc_ForcedStop)
+    PyModule_AddObject(m, "ForcedStop", MyExc_ForcedStop);
+  MyExc_RoundoffLimited = PyErr_NewException("nlopt.RoundoffLimited",
+    PyExc_Exception, NULL);
+  if (MyExc_RoundoffLimited)
+    PyModule_AddObject(m, "RoundoffLimited", MyExc_RoundoffLimited);
+}
 %}
 
 %init %{
-#ifndef Py_LIMITED_API
-  init_ForcedStop(m);
-  init_RoundoffLimited(m);
-#endif
+  init_exceptions(m);
 %}
 %pythoncode %{
 try:
@@ -55,21 +39,15 @@ __version__ = str(_nlopt.version_major())+'.'+str(_nlopt.version_minor())+'.'+st
 
 %typemap(throws) nlopt::forced_stop %{
   if (!PyErr_Occurred())
-#ifndef Py_LIMITED_API
-    PyErr_SetString((PyObject*)&MyExc_ForcedStop, "NLopt forced stop");
-#else
-    PyErr_SetString(PyExc_RuntimeError, "NLopt forced stop");
-#endif
+    PyErr_SetString(MyExc_ForcedStop ? MyExc_ForcedStop : PyExc_RuntimeError,
+      "NLopt forced stop");
   SWIG_fail;
 %}
 
 %typemap(throws) nlopt::roundoff_limited %{
   if (!PyErr_Occurred())
-#ifndef Py_LIMITED_API
-    PyErr_SetString((PyObject*)&MyExc_RoundoffLimited, "NLopt roundoff-limited");
-#else
-    PyErr_SetString(PyExc_RuntimeError, "NLopt roundoff-limited");
-#endif
+    PyErr_SetString(MyExc_RoundoffLimited ? MyExc_RoundoffLimited : PyExc_RuntimeError,
+      "NLopt roundoff-limited");
   SWIG_fail;
 %}
 
