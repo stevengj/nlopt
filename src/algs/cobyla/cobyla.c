@@ -218,7 +218,7 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
 
      /* SGJ, 2008: compute rhoend from NLopt stop info */
      rhobeg = fabs(dx[0] / s.scale[0]);
-     rhoend = stop->xtol_rel * (rhobeg);
+     rhoend = stop->xtol_rel > 0 ? stop->xtol_rel * rhobeg : 0;
      if (stop->xtol_abs)
       for (j = 0; j < n; ++j)
 	   if (rhoend < stop->xtol_abs[j] / fabs(s.scale[j]))
