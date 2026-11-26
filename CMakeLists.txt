@@ -190,7 +190,7 @@ set_property(SOURCE src/algs/bobyqa/bobyqa.c src/algs/cdirect/hybrid.c src/algs/
 
 # workaround for false positive in newuoa
 if (CMAKE_C_COMPILER_ID MATCHES "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
-  set_source_files_properties(src/algs/newuoa/newuoa.c PROPERTIES COMPILE_FLAGS -U_FORTIFY_SOURCE)
+  set_source_files_properties(src/algs/newuoa/newuoa.c PROPERTIES COMPILE_FLAGS "-U_FORTIFY_SOURCE -Wp,-U_FORTIFY_SOURCE")
 endif ()
 
 if (NLOPT_CXX)
