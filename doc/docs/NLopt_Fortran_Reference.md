@@ -210,6 +210,16 @@ As explained in the [C API Reference](NLopt_Reference.md#stopping-criteria) and 
 
 For each stopping criteria, there are (at least) two subroutines: a `set` subroutine to specify the stopping criterion, and a `get` subroutine to retrieve the current value for that criterion. The meanings of each criterion are exactly the same as in the C API. The first argument `ires` of each `set` subroutine is an `integer` [return value](#return-values) (positive on success).
 
+When setting a floating-point tolerance, pass a `double precision` variable or a double-precision literal. When retrieving it, pass a `double precision` variable. For example, with an initialized `opt`:
+
+```fortran
+double precision tol
+call nlo_set_xtol_rel(ires, opt, 1.0D-4)
+call nlo_get_xtol_rel(tol, opt)
+```
+
+`1.0D-4` is double precision, whereas `1.0E-4` has the default real kind, which is usually single precision. Because this API uses implicit interfaces, passing a single-precision tolerance may not produce a compiler diagnostic and can give an incorrect tolerance, preventing the intended stopping criterion from taking effect.
+
 ```
 call nlo_set_stopval(ires, opt, stopval)
 call nlo_get_stopval(stopval, opt)
