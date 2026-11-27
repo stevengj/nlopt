@@ -133,7 +133,8 @@ extern "C" {
     double *nlopt_compute_rescaling(unsigned n, const double *dx);
     double *nlopt_new_rescaled(unsigned n, const double *s, const double *x);
     void nlopt_rescale(unsigned n, const double *s, const double *x, double *xs);
-    void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs);
+    void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs,
+                       const double *lb, const double *ub);
     void nlopt_reorder_bounds(unsigned n, double *lb, double *ub);
 
 #ifdef __cplusplus

@@ -74,6 +74,7 @@ typedef struct {
      nlopt_constraint *h;
      double *xtmp;
      double *lb, *ub;
+     const double *original_lb, *original_ub;
      double *con_tol, *scale;
      nlopt_stopping *stop;
 } func_wrap_state;
@@ -98,7 +99,7 @@ static int func_wrap(int ni, int mi, double *x, double *f, double *con,
 	  else if (x[j] > ub[j]) xtmp[j] = ub[j];
 	  else xtmp[j] = x[j];
      }
-     nlopt_unscale(n, s->scale, xtmp, xtmp);
+     nlopt_unscale(n, s->scale, xtmp, xtmp, s->original_lb, s->original_ub);
 
      *f = s->f(n, xtmp, NULL, s->f_data);
      if (nlopt_stop_forced(s->stop)) return 1;
@@ -198,6 +199,8 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      s.h = h;
      s.stop = stop;
      s.lb = s.ub = s.xtmp = s.con_tol = s.scale = NULL;
+     s.original_lb = lb;
+     s.original_ub = ub;
 
      s.scale = nlopt_compute_rescaling(n, dx);
      if (!s.scale) { ret = NLOPT_OUT_OF_MEMORY; goto done; }
@@ -254,13 +257,7 @@ nlopt_result cobyla_minimize(unsigned n, nlopt_func f, void *f_data,
      ret = cobyla((int) n, (int) m, x, minf, rhobeg, rhoend,
 		  stop, s.lb, s.ub, COBYLA_MSG_NONE, 
 		  func_wrap, &s);
-     nlopt_unscale(n, s.scale, x, x);
-
-     /* make sure e.g. rounding errors didn't push us slightly out of bounds */
-     for (j = 0; j < n; ++j) {
-	  if (x[j] < lb[j]) x[j] = lb[j];
-	  if (x[j] > ub[j]) x[j] = ub[j];
-     }
+     nlopt_unscale(n, s.scale, x, x, lb, ub);
 
 done:
      free(s.con_tol);

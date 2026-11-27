@@ -58,7 +58,8 @@ void nlopt_rescale(unsigned n, const double *s, const double *x, double *xs)
     }
 }
 
-void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs)
+void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs,
+                   const double *lb, const double *ub)
 {
     unsigned i;
     if (!s) {
@@ -67,6 +68,11 @@ void nlopt_unscale(unsigned n, const double *s, const double *x, double *xs)
     } else {
         for (i = 0; i < n; ++i)
             xs[i] = x[i] * s[i];
+    }
+    /* Roundoff in unscaling must not violate the original bounds. */
+    for (i = 0; i < n; ++i) {
+        if (xs[i] < lb[i]) xs[i] = lb[i];
+        else if (xs[i] > ub[i]) xs[i] = ub[i];
     }
 }
 
