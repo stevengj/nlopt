@@ -933,7 +933,7 @@ L370:
   for (i__ = 1; i__ <= i__1; ++i__) {
        double xi = sim[i__ + np * sim_dim1];
        if (xi + dx[i__] > ub[i__]) dx[i__] = ub[i__] - xi;
-       if (xi + dx[i__] < lb[i__]) dx[i__] = xi - lb[i__];
+       if (xi + dx[i__] < lb[i__]) dx[i__] = lb[i__] - xi;
   }
 #endif
   if (ifull == 0) {
