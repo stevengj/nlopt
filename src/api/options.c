@@ -138,6 +138,7 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
         *nopt = *opt;
         nopt->lb = nopt->ub = nopt->xtol_abs = nopt->x_weights = NULL;
         nopt->fc = nopt->h = NULL;
+        nopt->m = nopt->p = 0;
         nopt->m_alloc = nopt->p_alloc = 0;
         nopt->local_opt = NULL;
         nopt->dx = NULL;
@@ -154,19 +155,19 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
 
         if (opt->n > 0) {
             nopt->lb = (double *) malloc(sizeof(double) * (opt->n));
-            if (!opt->lb)
+            if (!nopt->lb)
                 goto oom;
             nopt->ub = (double *) malloc(sizeof(double) * (opt->n));
-            if (!opt->ub)
+            if (!nopt->ub)
                 goto oom;
             if (opt->xtol_abs) {
                 nopt->xtol_abs = (double *) malloc(sizeof(double) * (opt->n));
-                if (!opt->xtol_abs)
+                if (!nopt->xtol_abs)
                     goto oom;
             }
             if (opt->x_weights) {
                 nopt->x_weights = (double *) malloc(sizeof(double) * (opt->n));
-                if (!opt->x_weights)
+                if (!nopt->x_weights)
                     goto oom;
                 memcpy(nopt->x_weights, opt->x_weights, sizeof(double) * (opt->n));
             }
@@ -179,11 +180,12 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
         }
 
         if (opt->m) {
-            nopt->m_alloc = opt->m;
             nopt->fc = (nlopt_constraint *) malloc(sizeof(nlopt_constraint)
                                                    * (opt->m));
             if (!nopt->fc)
                 goto oom;
+            nopt->m = opt->m;
+            nopt->m_alloc = opt->m;
             memcpy(nopt->fc, opt->fc, sizeof(nlopt_constraint) * (opt->m));
             for (i = 0; i < opt->m; ++i)
                 nopt->fc[i].tol = NULL;
@@ -202,11 +204,12 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
         }
 
         if (opt->p) {
-            nopt->p_alloc = opt->p;
             nopt->h = (nlopt_constraint *) malloc(sizeof(nlopt_constraint)
                                                   * (opt->p));
             if (!nopt->h)
                 goto oom;
+            nopt->p = opt->p;
+            nopt->p_alloc = opt->p;
             memcpy(nopt->h, opt->h, sizeof(nlopt_constraint) * (opt->p));
             for (i = 0; i < opt->p; ++i)
                 nopt->h[i].tol = NULL;
