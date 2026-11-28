@@ -508,38 +508,44 @@ static nlopt_result add_constraint(nlopt_opt opt,
                                    unsigned *m, unsigned *m_alloc, nlopt_constraint ** c, unsigned fm, nlopt_func fc, nlopt_mfunc mfc, nlopt_precond pre, void *fc_data, const double *tol)
 {
     double *tolcopy;
+    size_t tolbytes = sizeof(*tolcopy) * fm;
     unsigned i;
 
     if ((fc && mfc) || (fc && fm != 1) || (!fc && !mfc))
         return NLOPT_INVALID_ARGS;
+    if (tolbytes / sizeof(*tolcopy) != fm)
+        return NLOPT_OUT_OF_MEMORY;
     if (tol)
         for (i = 0; i < fm; ++i)
             if (tol[i] < 0)
                 return ERR(NLOPT_INVALID_ARGS, opt, "negative constraint tolerance");
 
-    tolcopy = (double *) malloc(sizeof(double) * fm);
+    tolcopy = (double *) malloc(tolbytes);
     if (fm && !tolcopy)
         return NLOPT_OUT_OF_MEMORY;
     if (tol)
-        memcpy(tolcopy, tol, sizeof(double) * fm);
+        memcpy(tolcopy, tol, tolbytes);
     else
         for (i = 0; i < fm; ++i)
             tolcopy[i] = 0;
 
-    *m += 1;
-    if (*m > *m_alloc) {
+    if (*m == *m_alloc) {
         /* allocate by repeated doubling so that
            we end up with O(log m) mallocs rather than O(m). */
-        *m_alloc = 2 * (*m);
-        *c = (nlopt_constraint *) realloc(*c, sizeof(nlopt_constraint)
-                                          * (*m_alloc));
-        if (!*c) {
-            *m_alloc = *m = 0;
+        unsigned capacity = 2 * (*m + 1);
+        size_t bytes = sizeof(nlopt_constraint) * capacity;
+        nlopt_constraint *grown = NULL;
+        if (capacity > *m && bytes / sizeof(nlopt_constraint) == capacity)
+            grown = (nlopt_constraint *) realloc(*c, bytes);
+        if (!grown) {
             free(tolcopy);
             return NLOPT_OUT_OF_MEMORY;
         }
+        *c = grown;
+        *m_alloc = capacity;
     }
 
+    *m += 1;
     (*c)[*m - 1].m = fm;
     (*c)[*m - 1].f = fc;
     (*c)[*m - 1].pre = pre;
