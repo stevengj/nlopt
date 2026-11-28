@@ -250,14 +250,15 @@ nlopt_result isres_minimize(int n, nlopt_func f, void *f_data,
 							   - sigmas[ri*n+j]);
 	       }
 	  }
-	  memcpy(x0, xs, n * sizeof(double));
+	  /* x0 = best survivor, before the differential variation changes it */
+	  memcpy(x0, xs + irank[0]*n, n * sizeof(double));
 	  for (k = 0; k < survivors; ++k) { /* differential variation */
 	       double taup_rand = taup * nlopt_nrand(0,1);
 	       int rk = irank[k];
 	       for (j = 0; j < n; ++j) {
 		    double xi = xs[rk*n+j];
 		    if (k+1 < survivors)
-			 xs[rk*n+j] += GAMMA * (x0[j] - xs[(k+1)*n+j]);
+			 xs[rk*n+j] += GAMMA * (x0[j] - xs[irank[k+1]*n+j]);
 		    if (k+1 == survivors
 			|| xs[rk*n+j] < lb[j] || xs[rk*n+j] > ub[j]) {
 			 /* standard mutation for last survivor and
