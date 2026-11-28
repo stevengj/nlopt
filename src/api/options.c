@@ -508,20 +508,23 @@ static nlopt_result add_constraint(nlopt_opt opt,
                                    unsigned *m, unsigned *m_alloc, nlopt_constraint ** c, unsigned fm, nlopt_func fc, nlopt_mfunc mfc, nlopt_precond pre, void *fc_data, const double *tol)
 {
     double *tolcopy;
+    size_t tolbytes = sizeof(*tolcopy) * fm;
     unsigned i;
 
     if ((fc && mfc) || (fc && fm != 1) || (!fc && !mfc))
         return NLOPT_INVALID_ARGS;
+    if (tolbytes / sizeof(*tolcopy) != fm)
+        return NLOPT_OUT_OF_MEMORY;
     if (tol)
         for (i = 0; i < fm; ++i)
             if (tol[i] < 0)
                 return ERR(NLOPT_INVALID_ARGS, opt, "negative constraint tolerance");
 
-    tolcopy = (double *) malloc(sizeof(double) * fm);
+    tolcopy = (double *) malloc(tolbytes);
     if (fm && !tolcopy)
         return NLOPT_OUT_OF_MEMORY;
     if (tol)
-        memcpy(tolcopy, tol, sizeof(double) * fm);
+        memcpy(tolcopy, tol, tolbytes);
     else
         for (i = 0; i < fm; ++i)
             tolcopy[i] = 0;

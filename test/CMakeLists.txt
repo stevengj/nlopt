@@ -28,6 +28,17 @@ NLOPT_add_cpp_test(t_forced_stop 0)
 NLOPT_add_cpp_test(t_initial_step 0)
 NLOPT_add_cpp_test(t_direct_noscal 0)
 
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+  add_executable(t_constraint_tolerance_size t_constraint_tolerance_size.c)
+  target_link_libraries(t_constraint_tolerance_size PRIVATE ${nlopt_lib})
+  add_dependencies(tests t_constraint_tolerance_size)
+  add_test(NAME t_constraint_tolerance_size COMMAND t_constraint_tolerance_size)
+  if (WIN32)
+    set_tests_properties(t_constraint_tolerance_size PROPERTIES
+      ENVIRONMENT "PATH=$<TARGET_FILE_DIR:${nlopt_lib}>;$ENV{PATH}")
+  endif ()
+endif ()
+
 if (NLOPT_LUKSAN)
   add_executable(t_luksan_restart t_luksan_restart.c ${PROJECT_SOURCE_DIR}/src/algs/luksan/restart_interval.c)
   target_link_libraries(t_luksan_restart PRIVATE ${nlopt_lib})
