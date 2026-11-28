@@ -225,9 +225,9 @@ nlopt_opt NLOPT_STDCALL nlopt_copy(const nlopt_opt opt)
         }
 
         if (opt->nparams) {
-            nopt->nparams = opt->nparams;
             nopt->params = (nlopt_opt_param *) calloc(opt->nparams, sizeof(nlopt_opt_param));
             if (!nopt->params) goto oom;
+            nopt->nparams = opt->nparams;
             for (i = 0; i < opt->nparams; ++i) {
                 size_t len = strlen(opt->params[i].name) + 1;
                 nopt->params[i].name = (char *) malloc(len);
