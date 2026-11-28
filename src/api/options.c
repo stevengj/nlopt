@@ -526,20 +526,23 @@ static nlopt_result add_constraint(nlopt_opt opt,
         for (i = 0; i < fm; ++i)
             tolcopy[i] = 0;
 
-    *m += 1;
-    if (*m > *m_alloc) {
+    if (*m == *m_alloc) {
         /* allocate by repeated doubling so that
            we end up with O(log m) mallocs rather than O(m). */
-        *m_alloc = 2 * (*m);
-        *c = (nlopt_constraint *) realloc(*c, sizeof(nlopt_constraint)
-                                          * (*m_alloc));
-        if (!*c) {
-            *m_alloc = *m = 0;
+        unsigned capacity = 2 * (*m + 1);
+        size_t bytes = sizeof(nlopt_constraint) * capacity;
+        nlopt_constraint *grown = NULL;
+        if (capacity > *m && bytes / sizeof(nlopt_constraint) == capacity)
+            grown = (nlopt_constraint *) realloc(*c, bytes);
+        if (!grown) {
             free(tolcopy);
             return NLOPT_OUT_OF_MEMORY;
         }
+        *c = grown;
+        *m_alloc = capacity;
     }
 
+    *m += 1;
     (*c)[*m - 1].m = fm;
     (*c)[*m - 1].f = fc;
     (*c)[*m - 1].pre = pre;
