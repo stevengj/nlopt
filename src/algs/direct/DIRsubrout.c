@@ -1249,10 +1249,6 @@ L50:
 /* L20: */
     }
     direct_dirinfcn_(fcn, &x[1], &l[1], &u[1], n, &f[3], &help, fcndata);
-    if (force_stop && *force_stop) {
-	 *ierror = -102;
-	 return;
-    }
     f[4] = (doublereal) help;
     *iinfeasible = help;
     *fmax = f[3];
@@ -1268,6 +1264,11 @@ L50:
 /* JG 09/25/00 Remove IF */
     *minf = f[3];
     *minpos = 1;
+/* a forced stop is checked only now, since direct_direct_ reads minpos */
+    if (force_stop && *force_stop) {
+	 *ierror = -102;
+	 return;
+    }
     *actdeep = 2;
     point[1] = 0;
     *free = 2;

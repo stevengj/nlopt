@@ -132,7 +132,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
     g(0)=g_av(axis);
   }
   ++ *(stop->nevals_p);
-  if (nlopt_stop_evalstime(stop))
+  if (nlopt_stop_evalstime(stop) || nlopt_stop_forced(stop))
     return LS_MaxEvalTime;
   FC++;GC++;
 
@@ -289,7 +289,7 @@ int local(Trial &T, TBox &box, TBox &domain, double eps_cl, double *mgr,
       f_new=glob.ObjectiveGradient(x_av,g_av,OBJECTIVE_AND_GRADIENT);
     }
     ++ *(stop->nevals_p);
-    if (nlopt_stop_evalstime(stop))
+    if (nlopt_stop_evalstime(stop) || nlopt_stop_forced(stop))
       return LS_MaxEvalTime;
     FC++; GC++;
     gemv('N',0.5,B,h_dl,0.0,z);

@@ -27,6 +27,7 @@ NLOPT_add_cpp_test(t_ccsa_zero_step LD_MMA LD_CCSAQ)
 NLOPT_add_cpp_test(t_forced_stop 0)
 NLOPT_add_cpp_test(t_initial_step 0)
 NLOPT_add_cpp_test(t_direct_noscal 0)
+NLOPT_add_cpp_test(t_force_stop_evals 6 7 8 9 19 24 25 34 35 42)
 
 if (NLOPT_LUKSAN)
   add_executable(t_luksan_restart t_luksan_restart.c ${PROJECT_SOURCE_DIR}/src/algs/luksan/restart_interval.c)
